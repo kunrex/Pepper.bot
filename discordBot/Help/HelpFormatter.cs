@@ -140,6 +140,8 @@ namespace KunalsDiscordBot.Help
 
                 aliases = string.Empty;
                 isModuleOrCommand = false;
+
+                color = DiscordColor.Blurple;
             }
 
             module = "None";
