@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'discordBot' " />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="Google.Apis" Version="1.51.0" />
+    <PackageReference Include="Google.Apis.Core" Version="1.51.0" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.51.0" />
+    <PackageReference Include="Google.Api.Gax" Version="3.3.0" />
+    <PackageReference Include="GoogleApi" Version="3.10.9" />
+    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.51.0.2343" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
+    <PackageReference Include="Discord.Net" Version="2.4.0" />
+    <PackageReference Include="DSharpPlus" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
+    <PackageReference Include="runtime.osx.10.10-x64.CoreCompat.System.Drawing" Version="5.8.64" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Modules\" />
+    <Folder Include="Attributes\" />
+    <Folder Include="Modules\Music\" />
+    <Folder Include="Modules\Fun\" />
+    <Folder Include="Modules\General\" />
+    <Folder Include="Modules\Games\" />
+    <Folder Include="Modules\Math\" />
+    <Folder Include="Modules\School\" />
+    <Folder Include="Modules\Games\Players\" />
+    <Folder Include="Help\" />
+    <Folder Include="Modules\Fun\Services\" />
+    <Folder Include="Modules\Math\LinearEquation\" />
+    <Folder Include="Modules\Games\AccessoryClasses\" />
+    <Folder Include="Services\" />
+    <Folder Include="Modules\Music\Services\" />
+    <Folder Include="Modules\Fun\memes\" />
+    <Folder Include="Modules\Moderation\" />
+    <Folder Include="Modules\Moderation\SoftModeration\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Modules\Fun\FunData.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="DSharpPlus.Lavalink" />
+    <None Remove="Discord.Net" />
+    <None Remove="DSharpPlus" />
+    <None Remove="DSharpPlus.CommandsNext" />
+    <None Remove="DSharpPlus.Interactivity" />
+    <None Remove="Modules\Music\AccessoryClasses\" />
+    <None Remove="Modules\Fun\memes\" />
+    <None Remove="System.Drawing.Common" />
+    <None Remove="runtime.osx.10.10-x64.CoreCompat.System.Drawing" />
+    <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
+    <None Remove="Modules\Moderation\" />
+    <None Remove="Modules\Moderation\SoftModeration\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="DiscordBotDB.Dal.Migrations\DiscordBotDB.Dal.Migrations.csproj">
+      <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

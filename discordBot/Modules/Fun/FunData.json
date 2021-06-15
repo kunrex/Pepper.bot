@@ -1,0 +1,7 @@
+﻿{
+  "BatBox1": [ "boom", "dank", "boots", "dogs", "cats" ],
+  "BatBox2": [ "bam", "smash", "bags", "cats", "rats" ],
+
+  "Sentences": [ "I am dumb", "Nature is awesome", "MEMES", "I am bored enough to run this command", "HELP: NEED FRIENDS", "Big Bang Theory", "An Object in motion will remain in motion and an object at rest will remain at rest until an external force is applied" ],
+    "MemesPath": [ "Modules", "Fun", "memes" ]
+}
