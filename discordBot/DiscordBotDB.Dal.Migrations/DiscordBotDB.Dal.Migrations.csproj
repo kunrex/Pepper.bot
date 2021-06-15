@@ -5,15 +5,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DiscordBotDatabase\DiscordBotDatabase.csproj" />
+    <ProjectReference Include="..\DiscordBotDB.Dal\DiscordBotDB.Dal.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Microsoft.EntityFrameworkCore.Relational" />
+    <None Remove="Microsoft.EntityFrameworkCore.SqlServer" />
     <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="5.0.7" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\.editorconfig" />
   </ItemGroup>
 </Project>

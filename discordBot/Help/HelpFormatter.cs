@@ -105,21 +105,26 @@ namespace KunalsDiscordBot.Help
 
                 commandName = Format(parent.Name);
 
-                description = aliases = "None";
+                description = aliases = string.Empty;
 
                 description = $"Description: {parent.Description}\n";
                 description += $"\n Commands:";
 
                 var decor = (Decor)parent.CustomAttributes.FirstOrDefault(x => x is Decor);
-                bool isHighlited = decor == null ? decor.isHighlited : true;
+                bool isHighlited = decor == null ? true : decor.isHighlited;
                 commandName += $" {(decor == null ? "" : decor.emoji)}";
 
+                string highlight = isHighlited ? "`" : "";
+
                 for (int i = 0; i < parent.Aliases.Count; i++)
-                    aliases += $"{(isHighlited ? "'" : "")}{parent.Aliases[i]}{(isHighlited ? "'" : "")}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
+                    aliases += $"{highlight}{parent.Aliases[i]}{highlight}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
+
+                if (aliases == string.Empty)
+                    aliases = "None";
 
                 description += "\n";
                 for (int i = 0; i < commands.Length; i++)
-                    description += $"{(isHighlited ? "`" : "")}{Format(commands[i].Name)}{(isHighlited ? "`" : "")}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
+                    description += $"{highlight}{Format(commands[i].Name)}{highlight}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
             }
             else
             {
