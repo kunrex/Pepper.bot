@@ -289,7 +289,7 @@ namespace KunalsDiscordBot.Services.Music
             };
 
             embed.AddField("`Requested By:` ", memberWhoRequested);
-            embed.AddField("`Next:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
+            embed.AddField("`Next Search:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
             embed.AddField("`Looping`", isLooping.ToString(), true);
             embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
 

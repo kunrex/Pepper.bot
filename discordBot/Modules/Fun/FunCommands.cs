@@ -17,7 +17,6 @@ namespace KunalsDiscordBot.Modules.Fun
 {
     [Group("Fun")]
     [Decor("Lilac", ":game_die:")]
-    [ModuleLifespan(ModuleLifespan.Transient)]
     public class FunCommands : BaseCommandModule
     {
         private static readonly FunData data = System.Text.Json.JsonSerializer.Deserialize<FunData>(File.ReadAllText(Path.Combine("Modules", "Fun", "FunData.json")));

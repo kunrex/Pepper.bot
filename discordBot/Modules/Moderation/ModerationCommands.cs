@@ -9,6 +9,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
+using System;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -24,13 +25,15 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Aliases("ar")]
         public async Task AddRole(CommandContext ctx, DiscordRole role, DiscordMember member)
         {
-            if (member.Roles.First(x => x.Id == role.Id) != null)
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
             {
-                await ctx.RespondAsync("Member already has the specified role");
+                await ctx.Channel.SendMessageAsync("Member already has the specified role");
                 return;
             }
 
-            await member.GrantRoleAsync(role).ConfigureAwait(false);
+            var roleToGrant = ctx.Guild.Roles.First(x => x.Key == role.Id);
+
+            await member.GrantRoleAsync(roleToGrant.Value).ConfigureAwait(false);
 
             var embed = new DiscordEmbedBuilder
             {
