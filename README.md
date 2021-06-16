@@ -11,14 +11,19 @@ It's not a public bot and isn't meant to handle large number of servers although
 
 ## General Info
 __Modules :__
-1. Moderation
-2. SoftModeration
-3. Games
-4. Fun
-5. Music
-6. Images
-7. Math
-8. School (probably will be removed considering its only to make online school easier for me)
+
+Module | Description
+--- | --- |
+Moderation | Set Of Commands to moderate a server, inclduing role and member management |
+Soft Moderation | Set Of Commands for soft moderation like changing nick names and muting and deafening members in voice channels|
+Games | Set Of Commands to play games with other server members, Games inlcuded => TicTacToe, RockPaperScissors, Connect4 and Battleship|
+Fun | Set Of Commands for general fun|
+Music | Set Of Commands to play music on the server, has functionality for a queue and mutlpie commands to control it|
+Images | Set Of Commands to make your own memes and other image mdeia with pre built meme formats|
+Math | Set Of Commands for math problems like solving linear equations|
+School | Makes online school easier, will probably be removed (maybe)|
+
+
 
 ## Technologies
 
