@@ -2,7 +2,7 @@
 Pepper is a discord bot I made a while back to learn. Its written in C# and has the functinality from moderating discord servers to playing music and games online.
 It's not a public bot and isn't meant to handle large number of servers although most of the services are dynamic enough to do so.
 
-![](Images/My Logo3 copy.jpg)
+<img src="Images/Logo.jpg" width=200>
 
 ## Table Of Contents
 * General Info
