@@ -23,14 +23,26 @@ Images | Set Of Commands to make your own memes and other image mdeia with pre b
 Math | Set Of Commands for math problems like solving linear equations|
 School | Makes online school easier, will probably be removed (maybe)|
 
-
+Does not have seperate prefix' for each server, but will look into that
 
 ## Technologies
 
 * C# => 
 * DSharpPlus => 4.0.1
-* EntityFrameWorkCore => 5.0.7
+* Microsoft.EntityFrameWorkCore => 5.0.7
 * LavaLink (https://github.com/freyacodes/lavalink)
+
+## How to Set It Up?
+
+1. Clone the repo on your local system and open it up on your prefered IDE or Code Editor.
+2. Open a new Browser window and search **Discord Developer Portal** or click the link below
+https://discord.com/developers/docs/intro
+3. Navigate to the Applicates window and select **New Application**. This application is your bot
+4. Fill in the details for the bot like the name and description.
+5. Navigate to Bot tab and click **Click To Reveal Token**.This copies your token and is needed to run your bot. **DO NOT** show anyone your token.
+6. Come back to the project and find the Config.json file, there for the value called *token*, paste the token you copied from the dev portal. You can also change the prefix' to your liking.
+7. For Music, find the LavaLink.jar file in *KunalsDiscordBot/Modules/Music*, open a cmd prompt or terminal instance at this path and run
+*java -jar Lavalink.jar*. The bot comes with a set up *application.yaml* file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DShaprPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
 For More info you can contact me on Discord
 
