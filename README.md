@@ -44,6 +44,11 @@ https://discord.com/developers/docs/intro
 7. For Music, find the LavaLink.jar file in *KunalsDiscordBot/Modules/Music*, open a cmd prompt or terminal instance at this path and run
 *java -jar Lavalink.jar*. The bot comes with a set up *application.yaml* file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DShaprPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
+** Plans for the future
+
+I'm not quite done with the bot and will finish it before making this repo public. My main goal is to add a currency system linked to a database and its in developement :D.
+I can add more games, images and modules. After all this is just to learn
+
 For More info you can contact me on Discord
 
 ![](Images/DiscordIcon.png)
