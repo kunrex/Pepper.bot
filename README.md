@@ -1,2 +1,2 @@
-# Pepper.bot
-Just a discord bot I made
+## Pepper.bot
+Pepper is a discord bot I made a while back to learn.
