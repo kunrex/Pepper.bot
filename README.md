@@ -42,7 +42,7 @@ https://discord.com/developers/docs/intro
 5. Navigate to Bot tab and click **Click To Reveal Token**.This copies your token and is needed to run your bot. **DO NOT** show anyone your token.
 6. Come back to the project and find the Config.json file (it is under the KunalsDiscordBot folder), there for the value called *token*, paste the token you copied from the dev portal. You can also change the prefix' to your liking.
 7. For Music, find the LavaLink.jar file in *KunalsDiscordBot/Modules/Music*, open a cmd prompt or terminal instance at this path and run
-*java -jar Lavalink.jar*. The bot comes with a set up *application.yaml* file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DShaprPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
+*java -jar Lavalink.jar*. The bot comes with a set up *application.yaml* file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DSharpPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
 ## Plans for the future
 
