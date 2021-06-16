@@ -73,7 +73,7 @@
     <None Remove="Modules\Moderation\SoftModeration\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="DiscordBotDB.Dal.Migrations\DiscordBotDB.Dal.Migrations.csproj">
+    <ProjectReference Include="..\DiscordBotDataBase.Dal.Migrations\DiscordBotDataBase.Dal.Migrations.csproj">
       <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
     </ProjectReference>
   </ItemGroup>

@@ -37,8 +37,12 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Added role {role.Mention} to {member.Username}",
+                Title = $"Removed role",
+                Color = DiscordColor.DarkButNotBlack
             };
+
+            embed.AddField("Role: ", role.Mention);
+            embed.AddField("From: ", member.Mention);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -57,8 +61,12 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Removed role {role.Mention} from {member.Username}",
+                Title = $"Removed role",
+                Color = DiscordColor.DarkButNotBlack
             };
+
+            embed.AddField("Role: ", role.Mention);
+            embed.AddField("To: ", member.Mention);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -71,6 +79,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Banned member {member.Username}",
+                Color = DiscordColor.DarkButNotBlack
             };
 
             embed.AddField("Days: ", numOfDays.ToString());
@@ -86,7 +95,8 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Banned member {member.Username}",
+                Title = $"Kicked member {member.Username}",
+                Color = DiscordColor.DarkButNotBlack
             };
 
             embed.AddField("Reason: ", reason);
@@ -104,9 +114,10 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Removed all roles from {member.Username}",
+                Title = $"Removed all roles",
             };
 
+            embed.AddField("From: ", member.Mention);
             embed.AddField("Reason: ", reason);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);

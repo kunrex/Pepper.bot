@@ -9,6 +9,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
+using System;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
@@ -16,16 +17,24 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
     [Aliases("softmod", "sm")]
     [Decor("NotQuiteBlack", ":gear:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
-    [RequirePermissions(Permissions.ManageNicknames)]
+    [RequireBotPermissions(Permissions.ManageNicknames)]
+    [RequireUserPermissions(Permissions.Administrator)]
     public class SoftModerationCommands : BaseCommandModule
     {
         [Command("ChangeNickName")]
         [Aliases("cnn")]
         public async Task ChangeNickName(CommandContext ctx, DiscordMember member, string newNick)
         {
-            await member.ModifyAsync((DSharpPlus.Net.Models.MemberEditModel obj) => obj.Nickname = newNick);
+            try
+            {
+                await member.ModifyAsync((DSharpPlus.Net.Models.MemberEditModel obj) => obj.Nickname = newNick);
 
-            await ctx.Channel.SendMessageAsync($"Changed nickname for {member.Username} to {member.Nickname}");
+                await ctx.Channel.SendMessageAsync($"Changed nickname for {member.Username} to {member.Nickname}");
+            }
+            catch(Exception e)
+            {
+                await ctx.Channel.SendMessageAsync(e.Message);
+            }      
         }
 
         [Command("VCMute")]
@@ -34,7 +43,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         {
             await member.SetMuteAsync(toMute).ConfigureAwait(false);
 
-            await ctx.Channel.SendMessageAsync($"Muted {member.Nickname} in the voice channels");
+            await ctx.RespondAsync($"{(toMute ? "Unmuted" : "Muted")} {member.Username} in the voice channels");
         }
 
         [Command("VCDeafen")]
@@ -43,7 +52,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         {
             await member.SetDeafAsync(toDeafen).ConfigureAwait(false);
 
-            await ctx.Channel.SendMessageAsync($"Defeaned {member.Nickname} in the voice channels");
+            await ctx.RespondAsync($"{(toDeafen ? "Undeafened" : "Deafened")} {member.Username} in the voice channels");
         }
     }
 }

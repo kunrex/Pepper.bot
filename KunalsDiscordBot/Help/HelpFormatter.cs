@@ -21,10 +21,9 @@ namespace KunalsDiscordBot.Help
 
         private string aliases { get; set; }
         private string module { get; set; }
-
         private string overloads { get; set; }
 
-        private bool isModuleOrCommand = true;
+        private bool isCommand = true, isModule = true;
 
         private DiscordColor color { get; set; }
 
@@ -42,13 +41,13 @@ namespace KunalsDiscordBot.Help
                 Color = color
             };
 
-            if (isModuleOrCommand)
+            if (isCommand || isModule)
             {
                 Embed.AddField("Aliases : ", aliases == string.Empty ? "None" : aliases, false);
                 Embed.AddField("Module : ", module == null || module == string.Empty ? "None" : module, false);
             }
 
-            if (overloads != null && overloads != string.Empty)
+            if (isCommand)
                 Embed.AddField("Overloads:\n", overloads);
 
             return new CommandHelpMessage(embed: Embed);
@@ -59,24 +58,93 @@ namespace KunalsDiscordBot.Help
             commandName = Format(command.Name);
             description = $"Description: {command.Description}";
 
-            aliases = string.Empty;
-
-            for (int i = 0; i < command.Aliases.Count; i++)
-            {
-                aliases += $"{command.Aliases[i]}{(i == command.Aliases.Count - 1 ? "." : ", ")}";
-            }
+            aliases = GetAliases(command.Aliases);
 
             module = command.Parent == null ? string.Empty : command.Parent.Name;
 
             var decor = command.Parent == null ? (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor) : (Decor)command.Parent.CustomAttributes.FirstOrDefault(x => x is Decor);
-            commandName += $" {decor.emoji}";
+            commandName += $" {(decor == null ? "" : decor.emoji)}";
+
+            if (decor == null)
+                isCommand = false;
 
             color = decor == null ? DiscordColor.Blurple : decor.color;
 
+            overloads = string.Empty;
             for (int i = 0; i < command.Overloads.Count; i++)
                 overloads += $"{i + 1}.\n{GetOverload(command.Overloads[i])}";
 
             return this;
+        }
+
+        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
+        {
+            Command[] commands = subcommands.ToArray();
+            isCommand = false;
+
+            if (commands[0].Parent != null)//checks if a module or sub module was specified
+            {
+                var parent = commands[0].Parent;
+
+                commandName = Format(parent.Name);
+
+                description = aliases = string.Empty;
+
+                description = $"Description: {parent.Description}\n\n Commands:";
+
+                var decor = (Decor)parent.CustomAttributes.FirstOrDefault(x => x is Decor);
+                bool isHighlited = decor == null ? true : decor.isHighlited;
+                commandName += $" {(decor == null ? "" : decor.emoji)}";
+
+                aliases += GetAliases(parent.Aliases, decor.isHighlited);
+
+                if (aliases == string.Empty)
+                    aliases = "None";
+
+                description += "\n";
+                description += GetAllCommands(commands, decor.isHighlited);
+            }
+            else
+            {
+                isModule = false;
+
+                commandName = "Help";
+                description = "Description: All the modules offered by Pepper -\n\n Modules:\n";
+                color = DiscordColor.Blurple;
+
+                description += GetAllCommands(commands);
+
+                aliases = string.Empty;
+                isCommand = false;
+            }
+
+            module = "None";
+
+            return this;
+        }
+
+        private string GetAllCommands(Command[] commands)
+        {
+            string commandsToString = string.Empty;
+
+            foreach (var command in commands)
+            {
+                var decor = (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor);
+                commandsToString += $"**{Format(command.Name)}** {(decor == null ? "" : decor.emoji)}\n";
+            }
+
+            return commandsToString;
+        }
+
+        private string GetAllCommands(Command[] commands, bool isHighlight)
+        {
+            string commandsToString = string.Empty;
+            string highlight = isHighlight ? "`" : "";
+
+            for (int i = 0; i < commands.Length; i++)
+                commandsToString += $"{highlight}{Format(commands[i].Name)}{highlight}{(i == commands.Length - 1 ? "." : ", ")}";
+
+            return commandsToString;
         }
 
         private string GetOverload(CommandOverload overload)
@@ -89,64 +157,21 @@ namespace KunalsDiscordBot.Help
                 if (overloadArguments[i].Type == typeof(CommandContext))//skip the command context
                     continue;
 
-                toString += $"**  **=>{"  "}Argument {i + 1}\n Name: `{overloadArguments[i].Name}`\n Type: `{overloadArguments[i].Type}`\n Description: `{(overloadArguments[i].Description == string.Empty || overloadArguments[i].Description == null ? "None" : overloadArguments[i].Description)}`\n";
+                toString += $"=>{"  "}Argument {i + 1}\n Name: `{overloadArguments[i].Name}`\n Type: `{overloadArguments[i].Type}`\n Description: `{(overloadArguments[i].Description == string.Empty || overloadArguments[i].Description == null ? "None" : overloadArguments[i].Description)}`\n";
             }
 
             return toString;
         }
 
-        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
+        private string GetAliases(IReadOnlyList<string> aliases, bool isHighlight = true)
         {
-            Command[] commands = subcommands.ToArray();
+            string aliasesToString = string.Empty;
+            string highlight = isHighlight ? "`" : "";
 
-            if (commands[0].Parent != null)//checks if a module or sub module was specified
-            {
-                var parent = commands[0].Parent;
+            for (int i = 0; i < aliases.Count; i++)
+                aliasesToString += $"{highlight}{aliases[i]}{highlight}{(i == aliases.Count - 1 ? "." : ", ")}";
 
-                commandName = Format(parent.Name);
-
-                description = aliases = string.Empty;
-
-                description = $"Description: {parent.Description}\n";
-                description += $"\n Commands:";
-
-                var decor = (Decor)parent.CustomAttributes.FirstOrDefault(x => x is Decor);
-                bool isHighlited = decor == null ? true : decor.isHighlited;
-                commandName += $" {(decor == null ? "" : decor.emoji)}";
-
-                string highlight = isHighlited ? "`" : "";
-
-                for (int i = 0; i < parent.Aliases.Count; i++)
-                    aliases += $"{highlight}{parent.Aliases[i]}{highlight}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
-
-                if (aliases == string.Empty)
-                    aliases = "None";
-
-                description += "\n";
-                for (int i = 0; i < commands.Length; i++)
-                    description += $"{highlight}{Format(commands[i].Name)}{highlight}{(i == parent.Aliases.Count - 1 ? "." : ", ")}";
-            }
-            else
-            {
-                commandName = "Help";
-                description = "Description: All the modules offered by Pepper -\n";
-                description += $"\n Modules:\n";
-
-                foreach (var command in subcommands)
-                {
-                    var decor = (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor);
-                    description += $"`{Format(command.Name)}` {(decor == null ? "" : decor.emoji)}\n";
-                }
-
-                aliases = string.Empty;
-                isModuleOrCommand = false;
-
-                color = DiscordColor.Blurple;
-            }
-
-            module = "None";
-
-            return this;
+            return aliasesToString;
         }
 
         private string Format(string name) => name.Replace(name[0], char.ToUpper(name[0]));

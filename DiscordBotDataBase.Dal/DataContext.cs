@@ -1,13 +1,13 @@
 ﻿using System;
-using DiscordBotDB.Dal.Models.Items;
+using DiscordBotDataBase.Dal.Models.Items;
 using Microsoft.EntityFrameworkCore;
 
-namespace DiscordBotDB.Dal
+namespace DiscordBotDataBase.Dal
 {
     public class DataContext : DbContext
     {
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
-        public DbSet<Item> items { get; set; }
+        public DbSet<Item> Items { get; set; }
     }
 }
