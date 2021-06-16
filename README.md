@@ -27,4 +27,6 @@ __Modules :__
 * EntityFrameWorkCore => 5.0.7
 * LavaLink (https://github.com/freyacodes/lavalink)
 
+For More info you can contact me on Discord
 
+![](Images/DiscordIcon.png)
