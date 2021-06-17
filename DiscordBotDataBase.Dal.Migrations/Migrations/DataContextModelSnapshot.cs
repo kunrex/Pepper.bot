@@ -26,10 +26,10 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(8000)");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(8000)");
 
                     b.HasKey("Id");
 

@@ -44,7 +44,7 @@ namespace KunalsDiscordBot
             {
                 Token = configData.token,
                 TokenType = DSharpPlus.TokenType.Bot,
-                AutoReconnect = true,
+                AutoReconnect = true
                 /*LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true*/
             };
@@ -104,11 +104,6 @@ namespace KunalsDiscordBot
         {
             await client.ConnectAsync();
             await lavaLink.ConnectAsync(config);
-        }
-
-        private Task OnClientReady(ReadyEventArgs e)
-        {
-            return Task.CompletedTask;
         }
 
         class ConfigData

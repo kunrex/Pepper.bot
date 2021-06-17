@@ -195,6 +195,11 @@ namespace KunalsDiscordBot.Modules.Fun
             }
         }
 
+        [Command("LetMeGoogleThatForYou")]
+        [Description("For those who can't google things for themselves")]
+        [Aliases("Google")]
+        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("https://www.google.com/search?q=" + search).ConfigureAwait(false);
+
         private class FunData
         {
             public string[] BatBox1 { get; set; }

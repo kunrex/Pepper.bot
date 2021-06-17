@@ -1,6 +1,7 @@
 ﻿using System;
 using DiscordBotDataBase.Dal.Models.Items;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace DiscordBotDataBase.Dal
 {
