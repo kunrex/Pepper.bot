@@ -31,7 +31,7 @@ Does not have seperate prefix' for each server, but will look into that
 * C# => 
 * DSharpPlus => 4.0.1
 * Microsoft.EntityFrameWorkCore => 5.0.7
-* LavaLink (https://github.com/freyacodes/lavalink)
+* DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
 
 ## How to Set It Up?
 
