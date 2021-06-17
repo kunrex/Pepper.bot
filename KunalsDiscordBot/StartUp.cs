@@ -11,12 +11,19 @@ namespace KunalsDiscordBot
     {
         public void ConfigureServices(IServiceCollection services)
         {
+            Console.WriteLine("InConfigureServices");
             services.AddDbContext<DataContext>(options =>
             {
                 //options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=DataContext;Trusted_Connection=True;MultipleActiveResultSets=true", X => X.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
                 options.UseSqlite("Data Source=Data.db", x => x.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
             });
 
+            BuildService(services);
+        }
+
+        private void BuildService(IServiceCollection services)
+        {
+            Console.WriteLine("InBuildService");
             var serviceProvider = services.BuildServiceProvider();
 
             var bot = new Bot(serviceProvider);
@@ -25,7 +32,7 @@ namespace KunalsDiscordBot
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment)
         {
-
+            Console.WriteLine("InConfigure");
         }
     }
 }

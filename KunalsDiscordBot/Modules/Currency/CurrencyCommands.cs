@@ -34,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             try
             {
-                await context.Items.AddAsync(new Item { Name = name, Description = "just a test item" });
+                await context.AddAsync(new Item { Name = name, Description = "just a test item" });
                 await context.SaveChangesAsync().ConfigureAwait(false);
 
                 await ctx.Channel.SendMessageAsync("Added Item");

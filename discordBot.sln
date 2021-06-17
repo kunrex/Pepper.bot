@@ -11,7 +11,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DiscordBot.DataBase", "Disc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBotDataBase.Dal", "DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj", "{153F0327-F081-4432-917F-6BA485A5808D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBotDataBase.Dal.Migrations", "DiscordBotDataBase.Dal.Migrations\DiscordBotDataBase.Dal.Migrations.csproj", "{925A98A4-E50E-4572-A230-E93416749324}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DiscordBotDataBase.Dal.Migrations", "DiscordBotDataBase.Dal.Migrations\DiscordBotDataBase.Dal.Migrations.csproj", "{FD5F0238-C926-4753-A618-D7E22C9CE22D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,10 +35,10 @@ Global
 		{153F0327-F081-4432-917F-6BA485A5808D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153F0327-F081-4432-917F-6BA485A5808D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{153F0327-F081-4432-917F-6BA485A5808D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{925A98A4-E50E-4572-A230-E93416749324}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{925A98A4-E50E-4572-A230-E93416749324}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{925A98A4-E50E-4572-A230-E93416749324}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{925A98A4-E50E-4572-A230-E93416749324}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FD5F0238-C926-4753-A618-D7E22C9CE22D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD5F0238-C926-4753-A618-D7E22C9CE22D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD5F0238-C926-4753-A618-D7E22C9CE22D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD5F0238-C926-4753-A618-D7E22C9CE22D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -51,5 +51,6 @@ Global
 		{CE6E63F3-ACE1-4655-B699-B0FB654DD05A} = {C317853D-15AA-408C-84F1-16B8F072BAB3}
 		{EDB60A98-B6FF-4C30-ABC5-580611EDB8F2} = {AADF9DB6-2B66-49C3-8545-E7858E187010}
 		{153F0327-F081-4432-917F-6BA485A5808D} = {D640FE93-24F1-4DE0-93BB-9E878715D2C6}
+		{FD5F0238-C926-4753-A618-D7E22C9CE22D} = {D640FE93-24F1-4DE0-93BB-9E878715D2C6}
 	EndGlobalSection
 EndGlobal

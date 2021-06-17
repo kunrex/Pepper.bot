@@ -7,7 +7,7 @@ namespace DiscordBotDataBase.Dal
 {
     public class DataContext : DbContext
     {
-        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+        public DataContext(DbContextOptions<DataContext> options) : base(options) { Console.WriteLine("Created!"); }
 
         public DbSet<Item> Items { get; set; }
     }
