@@ -48,7 +48,6 @@
     <Folder Include="Help\" />
     <Folder Include="Modules\Fun\Services\" />
     <Folder Include="Modules\Math\LinearEquation\" />
-    <Folder Include="Modules\Games\AccessoryClasses\" />
     <Folder Include="Services\" />
     <Folder Include="Modules\Music\Services\" />
     <Folder Include="Modules\Fun\memes\" />

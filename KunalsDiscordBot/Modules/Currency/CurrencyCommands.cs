@@ -19,6 +19,7 @@ namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
     [Decor("Gold", ":coin:")]
+    [Description("A currency system!")]
     public class CurrencyCommands : BaseCommandModule
     {
         private readonly DataContext context;
@@ -32,17 +33,10 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Test command for adding items")]
         public async Task AddItem(CommandContext ctx, string name)
         {
-            try
-            {
-                await context.AddAsync(new Item { Name = name, Description = "just a test item" });
-                await context.SaveChangesAsync().ConfigureAwait(false);
+            await context.AddAsync(new Item { Name = name, Description = "just a test item" });
+            await context.SaveChangesAsync().ConfigureAwait(false);
 
-                await ctx.Channel.SendMessageAsync("Added Item");
-            }
-            catch(Exception e)
-            {
-                await ctx.Channel.SendMessageAsync($"{e.Message}, inner exception\n {e.InnerException}");
-            }           
+            await ctx.Channel.SendMessageAsync("Added Item");
         }
 
         [Command("GetItem")]

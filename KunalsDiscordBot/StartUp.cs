@@ -16,6 +16,8 @@ namespace KunalsDiscordBot
             {
                 //options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=DataContext;Trusted_Connection=True;MultipleActiveResultSets=true", X => X.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
                 options.UseSqlite("Data Source=Data.db", x => x.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
+
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
             BuildService(services);

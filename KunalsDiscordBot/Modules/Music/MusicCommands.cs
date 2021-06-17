@@ -17,7 +17,7 @@ namespace KunalsDiscordBot.Modules.Music
     [Group("Music")]
     [Decor("Aquamarine", ":musical_note:")]
     [Description("Set of music commands offered by Pepper")]
-    public class MusicCommands : BaseCommandModule
+    public sealed class MusicCommands : BaseCommandModule
     {
         private List<MusicService> musicServices = new List<MusicService>();
 
@@ -64,19 +64,19 @@ namespace KunalsDiscordBot.Modules.Music
         [Description("Leaves the joined channel")]
         public async Task Leave(CommandContext ctx)
         {
+            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+
+            if (service == null)
+            {
+                await ctx.Channel.SendMessageAsync("Service not found");
+                return;
+            }
+
             var channel = ctx.Member.VoiceState.Channel;
 
             if (channel == null || channel.Type != ChannelType.Voice)
             {
                 await ctx.Channel.SendMessageAsync("You need to be in a Voice Channel to run this command");
-                return;
-            }
-
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
-
-            if(service == null)
-            {
-                await ctx.Channel.SendMessageAsync("Service not found");
                 return;
             }
 
