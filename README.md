@@ -7,7 +7,8 @@ It's not a public bot and isn't meant to handle large number of servers although
 ## Table Of Contents
 * General Info
 * Technologies
-* Setup
+* How to Set It Up?
+* Plans for the future
 
 ## General Info
 __Modules :__
@@ -30,7 +31,7 @@ Does not have seperate prefix' for each server, but will look into that
 * C# => 
 * DSharpPlus => 4.0.1
 * Microsoft.EntityFrameWorkCore => 5.0.7
-* LavaLink (https://github.com/freyacodes/lavalink)
+* DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
 
 ## How to Set It Up?
 
@@ -50,7 +51,7 @@ The bot comes with a set up *application.yaml* file to configure LavaLink so it 
 ## Plans for the future
 
 I'm not quite done with the bot and will finish it before making this repo public. My main goal is to add a currency system linked to a database and its in developement :D.
-I can add more games, images and modules. After all this is just to learn
+I can add more games, images and modules. After all this is just to learn. Am also looking to add special prefix' for each server
 
 For More info you can contact me on Discord
 
