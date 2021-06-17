@@ -54,6 +54,7 @@
     <Folder Include="Modules\Fun\memes\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Moderation\SoftModeration\" />
+    <Folder Include="Modules\Currency\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -71,6 +72,7 @@
     <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
     <None Remove="Modules\Moderation\" />
     <None Remove="Modules\Moderation\SoftModeration\" />
+    <None Remove="Modules\CurrencyCommands\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal.Migrations\DiscordBotDataBase.Dal.Migrations.csproj">

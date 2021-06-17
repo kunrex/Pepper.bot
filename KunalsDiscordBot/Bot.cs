@@ -22,6 +22,7 @@ using KunalsDiscordBot.Modules.Music;
 using KunalsDiscordBot.Modules.Images;
 using KunalsDiscordBot.Modules.Moderation;
 using KunalsDiscordBot.Modules.Moderation.SoftModeration;
+using KunalsDiscordBot.Modules.Currency;
 
 using KunalsDiscordBot.Help;
 
@@ -94,6 +95,7 @@ namespace KunalsDiscordBot
             commands.RegisterCommands<ImageCommands>();
             commands.RegisterCommands<ModerationCommands>();
             commands.RegisterCommands<SoftModerationCommands>();
+            commands.RegisterCommands<CurrencyCommands>();
 
             commands.SetHelpFormatter<HelpFormatter>();
 
