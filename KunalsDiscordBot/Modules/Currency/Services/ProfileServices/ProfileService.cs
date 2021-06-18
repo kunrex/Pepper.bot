@@ -1,11 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
-using DiscordBotDataBase.Dal;
+﻿//System name spaces
+using System;
 using System.Linq;
-using DSharpPlus.Entities;
-using DiscordBotDataBase.Dal.Models.Profile;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+
+using DSharpPlus.Entities;
+
+using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Items;
+using DiscordBotDataBase.Dal.Models.Profile;
 
 namespace KunalsDiscordBot.Services.Currency
 {
@@ -64,8 +67,10 @@ namespace KunalsDiscordBot.Services.Currency
                 return false;
 
             profile.Coins += val;
-            context.UserProfiles.Update(profile);
+            var updateEntry = context.UserProfiles.Update(profile);
             await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
             return true;
         }
@@ -78,24 +83,59 @@ namespace KunalsDiscordBot.Services.Currency
                 return false;
 
             profile.CoinsBank += val;
-            context.UserProfiles.Update(profile);
+            var updateEntry = context.UserProfiles.Update(profile);
             await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
             return true;
         }
 
         public async Task<ItemDBData> GetItem(DiscordMember member, string name)
         {
-            return null;
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)member.Id);
+
+            if (profile == null)
+                return null;
+
+            var item = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+
+            return item;
         }
 
         public async Task<List<ItemDBData>> GetItems(DiscordMember member)
         {
-            return null;
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)member.Id);
+            var items = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
+
+            return items;
         }
 
-        public async Task<bool> AddItem(DiscordMember member, string name, int quantity)
+        public async Task<bool> AddOrRemoveItem(DiscordMember member, string name, int quantity)
         {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)member.Id);
+
+            if (profile == null)
+                return false;
+
+            var item = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+            if (item != null)//item already exists
+            {
+                item.Count += quantity;
+                var _updateEntry = context.ProfileItems.Update(item);
+                await context.SaveChangesAsync();
+
+                _updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                return true;
+            }
+
+            item = new ItemDBData { Name = name, Count = quantity };
+            profile.Items.Add(item);
+
+            var updateEntry = context.UserProfiles.Update(profile);
+            await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             return true;
         }
     }

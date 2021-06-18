@@ -18,6 +18,6 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<ItemDBData> GetItem(DiscordMember member, string name);
         public Task<List<ItemDBData>> GetItems(DiscordMember member);
-        public Task<bool> AddItem(DiscordMember member, string name, int quantity); 
+        public Task<bool> AddOrRemoveItem(DiscordMember member, string name, int quantity); 
     }
 }

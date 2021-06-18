@@ -237,7 +237,7 @@ namespace KunalsDiscordBot.Services.Music
 
                 foreach (var search in queue)
                 {
-                    description += $"{index}. `{search}` \n Requested By: `{members[index - 1]}`";
+                    description += $"{index}. `{search}` \n Requested By: `{members[index - 1]}`\n";
                     index++;
                 }
             }
@@ -282,7 +282,7 @@ namespace KunalsDiscordBot.Services.Music
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Now Playing: {currentTrack.Title}",
-                Description = $"`Length`: {currentTrack.Length}\n `Author`: {currentTrack.Author}\n `Url`: {currentTrack.Uri.AbsoluteUri}",
+                Description = $"`Length:` {currentTrack.Length}\n `Author:` {currentTrack.Author}\n `Url:` {currentTrack.Uri.AbsoluteUri}",
                 Color = DiscordColor.Aquamarine,
                 Url = currentTrack.Uri.AbsoluteUri,
                 Thumbnail = thumbnail
@@ -299,7 +299,7 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> Move(int trackToMove, int newIndex)
         {
-            var tracks = queue.ToList();
+            List<string> tracks = queue.ToList();
 
             if(queue.Count <= 1)
                 return "Queue is either empty or has only 1 search";
@@ -307,9 +307,9 @@ namespace KunalsDiscordBot.Services.Music
                 return "Invalid positions";
 
             var track = tracks[trackToMove - 1];
-            tracks.RemoveAt(trackToMove - 1);
 
-            track.Insert(newIndex - 1, track);
+            tracks.Insert(newIndex - 1, track);
+            tracks.RemoveAt(trackToMove - 1);
 
             Queue<string> newQueue = new Queue<string>();
             foreach (var _track in tracks)
@@ -348,6 +348,17 @@ namespace KunalsDiscordBot.Services.Music
 
             await Task.CompletedTask;
             return imageURL;
+        }
+
+        public async Task<string> ClearQueue()
+        {
+            if (queue.Count == 0)
+                return "Queue is already empty";
+
+            queue = new Queue<string>();
+            await Task.CompletedTask;
+
+            return "Queue cleared";
         }
 
         public async Task Skip(CommandContext _ctx)

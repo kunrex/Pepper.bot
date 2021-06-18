@@ -88,6 +88,22 @@ namespace KunalsDiscordBot.Modules.Currency
             bool completed = await service.ChangeCoins(ctx.Member, 10);
 
             await ctx.Channel.SendMessageAsync(completed.ToString());
-        } 
+        }
+
+        [Command("AddItem")]
+        public async Task AddItem(CommandContext ctx)
+        {
+            bool completed = await service.AddOrRemoveItem(ctx.Member, "testItem", 10);
+
+            await ctx.Channel.SendMessageAsync(completed.ToString());
+        }
+
+        [Command("GetItem")]
+        public async Task GetItem(CommandContext ctx)
+        {
+            ItemDBData data = await service.GetItem(ctx.Member, "testItem");
+
+            await ctx.Channel.SendMessageAsync(data.Count.ToString());
+        }
     }
 }
