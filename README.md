@@ -56,7 +56,7 @@ The bot comes with a set up **application.yaml** file to configure LavaLink so i
 ### Setting up the Database for Currecny Commands
 8. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
 
-### Continue with SQLite
+#### Continue with SQLite
 If you're on a Mac or Linux, we would use SQLite instead of an SQL Server.
 Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**, we're gonna be remaking those.
 
