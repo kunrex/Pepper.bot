@@ -39,7 +39,7 @@ Does not have seperate prefix' for each server, but will look into that
 
 1. Clone the repo on your local system and open it up on your prefered IDE or Code Editor.
 ### Creating and Setting up The Bot
-2. Open a new Browser window and search **Discord Developer Portal** or click the link below
+2. Open a new Browser window and search **Discord Developer Portal** or click the link below\n
 https://discord.com/developers/docs/intro
 3. Navigate to the Applicates window and select **New Application**. This application is your bot
 4. Fill in the details for the bot like the name and description.
@@ -54,8 +54,9 @@ java -jar Lavalink.jar
 The bot comes with a set up **application.yaml** file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DSharpPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
 ### Setting up the Database for Currecny Commands
-8. For the purposes of this set up we'll be remaking the entire database. Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**.
-You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database.
+8. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database.
+
+Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**.
 
 Next copy the path of the folder called **KunalsDiscordBot** and open a cmd prompt or terminal instance at this path.
 make sure you have dotnet installed by running 
@@ -70,14 +71,19 @@ after that we can add the migrations folder by running
 ```
 dotnet-ef migrations add InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
 ```
-This line, creates a new migration called "InitialCreate". the path being **../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj**
+This line, creates a new migration called "InitialCreate" in the project whose path is **../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj**
 or the project we deleted the **Migrations** folder from earlier. If you change the project name then you must change it here as well.
 the last line uses the DbContext called "DataContext" in the namespace "DiscordBotDataBase.Dal". Similarly if you change the class or name spaces names then you must do so here as well.
 If you have done everything correctly and the build succeedes its time to actually create our database using
 ```
-dotnet-ef databse update e -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
+dotnet-ef databse update InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
 ```
+Here we don't have specify the name since we only have 1 migration.
 If you get no errors and the build succeedes then you should see a file called Data.db appear in the folder called "KunalsDiscordBot" considering you haven't changed anything.
+
+Any time you make any chages to the Database Models you will be needed to run these last 2 commands to update the databse and add the new migrations.
+Although you would change the names of the Migrations. for this example we used "InitialCreate". You would put in a different value every time you create something new.
+I would reccomend reading up on these topics.
 
 ## Plans for the future
 
