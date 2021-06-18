@@ -14,6 +14,7 @@ using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Attributes;
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Items;
+using KunalsDiscordBot.Services.Currency;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -22,31 +23,71 @@ namespace KunalsDiscordBot.Modules.Currency
     [Description("A currency system!")]
     public class CurrencyCommands : BaseCommandModule
     {
-        private readonly DataContext context;
+        private readonly IProfileService service;
+        private const string coinsEmoji = ":coin:";
 
-        public CurrencyCommands(DataContext _context)
+        public CurrencyCommands(IProfileService _service)
         {
-            context = _context;
+            service = _service;
+        }
+        
+        [Command("profile")]
+        [Description("Gets the profile of he user")]
+        public async Task GetProfile(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+            bool sameMember = true;
+
+            if (member != ctx.Member)
+                sameMember = false;
+
+            var profile = await service.GetProfile(member, sameMember);
+
+            if(profile == null)
+            {
+                var nullEmbed = new DiscordEmbedBuilder
+                {
+                    Title = member.Username,
+                    Description = "Does not have an account",
+                    Color = DiscordColor.Gold
+                };
+
+                await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
+
+                return;
+            }
+
+            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            {
+                Url = member.AvatarUrl,
+                Height = 50,
+                Width = 50
+            };
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = profile.Name,
+                Thumbnail = thumbnail,
+                Color = DiscordColor.Gold
+            };
+
+            embed.AddField("ID: ", profile.DiscordUserID.ToString());
+            embed.AddField("Coins: ", $"{profile.Coins} {coinsEmoji}");
+            embed.AddField("Bank: ", $"{profile.CoinsBank}");
+
+            int level = profile.XP;
+
+            embed.AddField("Level: ", $"{level}");
+
+            await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
         }
 
-        [Command("AddItem")]
-        [Description("Test command for adding items")]
-        public async Task AddItem(CommandContext ctx, string name)
+        [Command("AddCoins")]
+        public async Task AddCoins(CommandContext ctx)
         {
-            await context.AddAsync(new Item { Name = name, Description = "just a test item" });
-            await context.SaveChangesAsync().ConfigureAwait(false);
+            bool completed = await service.ChangeCoins(ctx.Member, 10);
 
-            await ctx.Channel.SendMessageAsync("Added Item");
-        }
-
-        [Command("GetItem")]
-        [Description("Gets Item")]
-        public async Task RemoveItem(CommandContext ctx, string name)
-        {
-            var item = await context.Items.FirstOrDefaultAsync(x => x.Name.ToLower() == name.ToLower());
-
-            if (item != null)
-                await ctx.Channel.SendMessageAsync(item.Description);
-        }
+            await ctx.Channel.SendMessageAsync(completed.ToString());
+        } 
     }
 }

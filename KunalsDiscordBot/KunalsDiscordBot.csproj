@@ -54,6 +54,9 @@
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Moderation\SoftModeration\" />
     <Folder Include="Modules\Currency\" />
+    <Folder Include="Modules\Currency\Services\" />
+    <Folder Include="Modules\Currency\Services\ProfileServices\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -72,6 +75,9 @@
     <None Remove="Modules\Moderation\" />
     <None Remove="Modules\Moderation\SoftModeration\" />
     <None Remove="Modules\CurrencyCommands\" />
+    <None Remove="Modules\Currency\Services\" />
+    <None Remove="Modules\Currency\Services\ProfileServices\" />
+    <None Remove="Modules\Currency\AccessoryClasses\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

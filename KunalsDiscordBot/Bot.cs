@@ -108,7 +108,7 @@ namespace KunalsDiscordBot
             await lavaLink.ConnectAsync(config);
         }
 
-        class ConfigData
+        private class ConfigData
         {
             public string token { get; set; }
             public string[] prefixes { get; set; }

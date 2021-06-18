@@ -297,6 +297,30 @@ namespace KunalsDiscordBot.Services.Music
             return embed;
         }
 
+        public async Task<string> Move(int trackToMove, int newIndex)
+        {
+            var tracks = queue.ToList();
+
+            if(queue.Count <= 1)
+                return "Queue is either empty or has only 1 search";
+            if (trackToMove < 1 || trackToMove > queue.Count || newIndex == trackToMove || newIndex < 1 || newIndex > queue.Count)
+                return "Invalid positions";
+
+            var track = tracks[trackToMove - 1];
+            tracks.RemoveAt(trackToMove - 1);
+
+            track.Insert(newIndex - 1, track);
+
+            Queue<string> newQueue = new Queue<string>();
+            foreach (var _track in tracks)
+                newQueue.Enqueue(_track);
+
+            queue = newQueue;
+
+            await Task.CompletedTask;
+            return "Moved Track";
+        }
+
         private async Task<string> GetImageURL(string url)
         {
             string imageURL = string.Empty, watchString = string.Empty;

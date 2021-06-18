@@ -3,10 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace DiscordBotDataBase.Dal.Models.Items
 {
-    public class Item : Entity
+    public class ItemDBData : Entity
     {
         public string Name { get; set; }
-
-        public string Description { get; set; }
+        public int Count { get; set; }
     }
 }

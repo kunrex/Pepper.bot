@@ -376,5 +376,39 @@ namespace KunalsDiscordBot.Modules.Music
             var embed = await service.NowPlaying();
             await ctx.Channel.SendMessageAsync(embed: embed);
         }
+
+        [Command("move")]
+        [Description("Moves tracks around")]
+        public async Task Move(CommandContext ctx, int trackToMove, int newPosition)
+        {
+            if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+            {
+                await ctx.RespondAsync("You are not in a voice channel");
+                return;
+            }
+
+            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+
+            if (service == null)
+            {
+                await ctx.RespondAsync("Pepper isn't in a voice channel");
+                return;
+            }
+
+            if (service.connection == null)
+            {
+                await ctx.RespondAsync("LavaLink not connected");
+                return;
+            }
+
+            if (service.connection.CurrentState.CurrentTrack == null)
+            {
+                await ctx.RespondAsync("There are no tracks currently loaded");
+                return;
+            }
+
+            var message = await service.Move(trackToMove, newPosition);
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+        }
     }
 }

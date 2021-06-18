@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DiscordBotDataBase.Dal;
+using KunalsDiscordBot.Services.Currency;
 
 namespace KunalsDiscordBot
 {
@@ -19,6 +20,8 @@ namespace KunalsDiscordBot
 
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
+
+            services.AddScoped<IProfileService, ProfileService>();
 
             BuildService(services);
         }
