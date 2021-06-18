@@ -94,7 +94,7 @@ If you use a windows machine and want to use SQL Server then theres a couple of 
 Find the **StartUp.cs** file in the folder **KunalsDiscordBot**
 you sould see a ConfigureServices method like so
 ```
- public void ConfigureServices(IServiceCollection services)
+public void ConfigureServices(IServiceCollection services)
 {
   Console.WriteLine("InConfigureServices");
   services.AddDbContext<DataContext>(options =>
