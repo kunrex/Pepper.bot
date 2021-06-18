@@ -11,5 +11,6 @@ namespace DiscordBotDataBase.Dal
         public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
         public DbSet<Profile> UserProfiles { get; set; }
+        public DbSet<ItemDBData> ProfileItems { get; set; }
     }
 }
