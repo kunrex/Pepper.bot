@@ -1,5 +1,5 @@
 ﻿using System;
-namespace KunalsDiscordBot.Modules.Currency.AccessoryClasses
+namespace KunalsDiscordBot.Modules.Currency.Shop
 {
     public static class Shop
     {

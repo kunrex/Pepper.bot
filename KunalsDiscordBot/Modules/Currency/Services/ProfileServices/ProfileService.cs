@@ -36,7 +36,9 @@ namespace KunalsDiscordBot.Services.Currency
                 Name = member.Username,
                 XP = 0,
                 Coins = 0,
-                CoinsBank = 0
+                CoinsBank = 0,
+                CoinsBankMax = 100,
+                Job = "None"
             };
 
             await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
@@ -82,7 +84,12 @@ namespace KunalsDiscordBot.Services.Currency
             if (profile == null)
                 return false;
 
+            if (profile.CoinsBankMax == 0)
+                profile.CoinsBankMax = 100;
+
             profile.CoinsBank += val;
+            profile.CoinsBank = System.Math.Clamp(profile.CoinsBank, 0, profile.CoinsBankMax);
+
             var updateEntry = context.UserProfiles.Update(profile);
             await context.SaveChangesAsync();
 
@@ -136,6 +143,22 @@ namespace KunalsDiscordBot.Services.Currency
             await context.SaveChangesAsync();
 
             updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
+        public async Task<bool> ChangeJob(DiscordMember member, string jobName)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)member.Id);
+
+            if (profile == null)
+                return false;
+
+            profile.Job = jobName;
+            var updateEntry = context.UserProfiles.Update(profile);
+            await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
             return true;
         }
     }

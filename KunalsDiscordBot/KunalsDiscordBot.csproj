@@ -57,6 +57,8 @@
     <Folder Include="Modules\Currency\Services\" />
     <Folder Include="Modules\Currency\Services\ProfileServices\" />
     <Folder Include="Modules\Currency\AccessoryClasses\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\Shop\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -78,6 +80,8 @@
     <None Remove="Modules\Currency\Services\" />
     <None Remove="Modules\Currency\Services\ProfileServices\" />
     <None Remove="Modules\Currency\AccessoryClasses\" />
+    <None Remove="Modules\Currency\AccessoryClasses\Shop\" />
+    <None Remove="Modules\Currency\AccessoryClasses\Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">
