@@ -58,6 +58,8 @@ namespace KunalsDiscordBot.Modules.Games
                 Description = description
             };
             Embed.AddField("Turn :", currentUser.Username, true);
+            Embed.AddField("\nPLayer 1: ", RED);
+            Embed.AddField("PLayer 2: ", YELLOW, true);
 
             await ctx.Channel.SendMessageAsync(embed: Embed).ConfigureAwait(false);
 

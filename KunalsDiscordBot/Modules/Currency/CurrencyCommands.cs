@@ -2,7 +2,6 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 //D# name spaces
@@ -11,11 +10,9 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
+//Custom name spaces
 using KunalsDiscordBot.Attributes;
-using DiscordBotDataBase.Dal;
-using DiscordBotDataBase.Dal.Models.Items;
 using KunalsDiscordBot.Services.Currency;
-using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Modules.Currency.Jobs;
 
 namespace KunalsDiscordBot.Modules.Currency
@@ -101,12 +98,16 @@ namespace KunalsDiscordBot.Modules.Currency
             if (coinsBank == maxBank)
             {
                 await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} your bank is full");
+                return;
             }
             else if (coins <= 0)
             {
                 await ctx.Channel.SendMessageAsync($"your wallet is empty");
+                return;
             }
-            else if (amount.ToLower().Equals("max"))
+
+
+            if (amount.ToLower().Equals("max"))
             {
                 var toDep = System.Math.Min(difference, coins);
 
@@ -246,7 +247,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Resign")]
-        [Description("Apply for a job")]
+        [Description("Resign from a job")]
         public async Task Resign(CommandContext ctx)
         {
             var profile = await service.GetProfile(ctx.Member);
@@ -288,7 +289,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Work")]
-        [Description("Want some money?")]
+        [Description("Want to make some money?")]
         public async Task Work(CommandContext ctx)
         {
             var member = ctx.Member;
@@ -305,11 +306,11 @@ namespace KunalsDiscordBot.Modules.Currency
                 var workToDo = new Random().Next(1, 3);
                 var interactivity = ctx.Client.GetInteractivity();
 
-                var workInfo = await job.GetEmbed(workToDo, DiscordColor.Gold);
+                var workInfo = await job.GetWork(workToDo, DiscordColor.Gold);
                 await ctx.Channel.SendMessageAsync(embed: workInfo.embed).ConfigureAwait(false);
 
                 var message = await interactivity.WaitForMessageAsync(x => x.Author == ctx.Member && x.Channel == ctx.Channel, TimeSpan.FromSeconds(workInfo.timeToDo));
- 
+
                 if (message.TimedOut || !message.Result.Content.ToLower().Equals(workInfo.correctResult.ToLower()))
                 {
                     var money = new Random().Next(job.FailMin, job.FailMax);

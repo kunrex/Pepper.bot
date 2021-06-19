@@ -18,6 +18,7 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
         public readonly int SucceedMin;
         public readonly int SucceedMax;
 
+        public readonly int ValidWorkTypes;
         public readonly string[] RewriteSentences;
         public readonly Dictionary<string, string> FillInTheBlanks;
         public readonly string[][] RewriteWords;
@@ -25,7 +26,7 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
         public readonly string Emoji;
         public readonly int Time;
 
-        public Job(string name, int minLvl, int failMin, int failMax, int succedMin, int succedMax, string emoji, int time,  string[] rewrite, Dictionary<string, string> fill, string[][] rewriteWords)
+        public Job(string name, int minLvl, int failMin, int failMax, int succedMin, int succedMax, string emoji, int time, int validWorkTypes, string[] rewrite, Dictionary<string, string> fill, string[][] rewriteWords)
         {
             Name = name;
             minLvlNeeded = minLvl;
@@ -36,6 +37,8 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
             SucceedMin = succedMin;
             SucceedMax = succedMax;
 
+            ValidWorkTypes = validWorkTypes;
+
             RewriteSentences = rewrite;
             FillInTheBlanks = fill;
             RewriteWords = rewriteWords;
@@ -43,10 +46,10 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
             Time = time;
         }
 
-        public static readonly Job Teacher = new Job("Teacher", 1, 20, 30, 50, 70, ":woman_teacher:", 10,
+        public static readonly Job Teacher = new Job("Teacher", 1, 20, 30, 50, 70, ":woman_teacher:", 10, 3,
             new string[]
             {
-                "An object in motion will remain in motion in the same directiona and speed untill an external force is applied",
+                "An object in motion will remain in motion in the same direction and speed untill an external force is applied",
                 "Field Class today!",
                 "Time for attendence kids",
                 "Whats the law of conversation of energy?",
@@ -71,7 +74,7 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
 
         public static readonly Job[] AllJobs = { Teacher };
 
-        public async Task<WorkInfo> GetEmbed(int index, DiscordColor color)
+        public async Task<WorkInfo> GetWork(int index, DiscordColor color)
         {
             string description = string.Empty, result = string.Empty;
 
