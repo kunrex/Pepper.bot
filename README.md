@@ -29,10 +29,10 @@ Does not have seperate prefix' for each server, but will look into that
 
 ## Technologies
 
-* .NETCore3.1
-* .NETStandard2.1
-* DSharpPlus => 4.0.1
-* Microsoft.EntityFrameWorkCore => 5.0.7
+* .NETCore 3.1
+* .NETStandard 2.1
+* DSharpPlus 4.0.1
+* Microsoft.EntityFrameWorkCore 5.0.7
 * DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
 
 ## How to Set It Up?
@@ -56,8 +56,6 @@ The bot comes with a set up **application.yaml** file to configure LavaLink so i
 ### Setting up the Database for Currecny Commands
 8. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
 
-#### Continue with SQLite
-If you're on a Mac or Linux, we would use SQLite instead of an SQL Server.
 Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**, we're gonna be remaking those.
 
 Next copy the path of the folder called **KunalsDiscordBot** and open a cmd prompt or terminal instance at this path.\n
@@ -89,30 +87,6 @@ Any time you make any chages to the Database Models you will be needed to run th
 Although you would change the names of the Migrations on each update. for this example we used "InitialCreate". You would put in a different value every time you create something new.
 I would reccomend reading up on these topics.
 
-#### Using a SQL Server instead of SQLite
-If you use a windows machine and want to use SQL Server then theres a couple of things to change before running the above commands.
-Find the **StartUp.cs** file in the folder **KunalsDiscordBot**
-you sould see a ConfigureServices method like so
-```
-public void ConfigureServices(IServiceCollection services)
-{
-  Console.WriteLine("InConfigureServices");
-  services.AddDbContext<DataContext>(options =>
-  {
-    //options.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=DataContext;Trusted_Connection=True;MultipleActiveResultSets=true", X => X.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
-                
-    options.UseSqlite("Data Source=Data.db", x => x.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
-
-    options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-  });
-
-  services.AddScoped<IProfileService, ProfileService>();
-
-  BuildService(services);
-}
-```
-Uncomment the commented line saying "options.UseSqlServer(....." and comment the line saying "options.UseSqlite(.....".
-And thats it, now run the same commands listed in the above section from line *64*.
 ## Plans for the future
 
 I'm not quite done with the bot and will finish it before making this repo public. My main goal is to add a currency system linked to a database and its in developement :D.
