@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Services.Music
         public LavalinkExtension lava { get; private set; }
         public LavalinkNodeConnection node { get; private set; }
 
-        private string memberWhoRequested;
+        private string memberWhoRequested = string.Empty;
 
         private bool isLooping { get; set; }
         private bool queueLoop { get; set; }
@@ -108,13 +108,12 @@ namespace KunalsDiscordBot.Services.Music
                 }
 
                 currentTrack = loadResult.Tracks.First();
+                memberWhoRequested = _ctx.Member.Nickname == null ? _ctx.Member.Username : _ctx.Member.Nickname;
 
                 await connection.PlayAsync(currentTrack);
-                memberWhoRequested = _ctx.Member.Nickname;
 
                 var embed = await NowPlaying();
-
-                await _ctx.Channel.SendMessageAsync(embed: embed);
+                await _ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
             }
             else
             {
@@ -257,6 +256,17 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<DiscordEmbedBuilder> NowPlaying()
         {
+            if (currentTrack == null)
+            {
+                var emptyEmbed = new DiscordEmbedBuilder
+                {
+                    Title = $"Now Playing: Nothing",
+                    Description = "Use the `play` command to play some music."
+                };
+
+                return emptyEmbed;
+            }
+
             string id = await GetImageURL(currentTrack.Uri.AbsoluteUri);
             string thumbnailURL = $"https://img.youtube.com/vi/" + id + "/default.jpg";
 
@@ -266,18 +276,6 @@ namespace KunalsDiscordBot.Services.Music
                 Height = Height,
                 Width = Width
             };
-
-            if (currentTrack == null)
-            {
-                var emptyEmbed = new DiscordEmbedBuilder
-                {
-                    Title = $"Now Playing: Nothing",
-                    Description = "Use the `play` command to play some music."
-                };
-
-                await Task.CompletedTask;
-                return emptyEmbed;
-            }
 
             var embed = new DiscordEmbedBuilder
             {
@@ -293,7 +291,6 @@ namespace KunalsDiscordBot.Services.Music
             embed.AddField("`Looping`", isLooping.ToString(), true);
             embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
 
-            await Task.CompletedTask;
             return embed;
         }
 

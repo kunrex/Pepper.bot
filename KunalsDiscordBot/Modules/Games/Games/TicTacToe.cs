@@ -57,8 +57,8 @@ namespace KunalsDiscordBot.Modules.Games
             };
             Embed.AddField("Turn :", currentUser.Username, true);
 
-            Embed.AddField("\nPlayer 1 :", X);
-            Embed.AddField("Turn :", O, true);
+            Embed.AddField("Player 1 :", X, true);
+            Embed.AddField("Player 2 :", O, true);
 
 
             await ctx.Channel.SendMessageAsync(embed: Embed).ConfigureAwait(false);

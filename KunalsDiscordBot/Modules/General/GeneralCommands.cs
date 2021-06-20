@@ -98,7 +98,7 @@ namespace KunalsDiscordBot.Modules.General
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"{member.Nickname} ({member.Username}) #{member.Discriminator}",
+                Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} ({member.Username}) #{member.Discriminator}",
                 Color = DiscordColor.Blurple,
                 Thumbnail = thumbnail
             };
