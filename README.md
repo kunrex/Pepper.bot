@@ -24,6 +24,7 @@ Music | Set Of Commands to play music on the server, has functionality for a que
 Images | Set Of Commands to make your own memes and other image mdeia with pre built meme formats|
 Math | Set Of Commands for math problems like solving linear equations|
 School | Makes online school easier, will probably be removed (maybe)|
+Currency | Set Of Commands for a functioning currency system. Each user has their own profile which itself contains coins, levels, items and more|
 
 Does not have seperate prefix' for each server, but will look into that
 
