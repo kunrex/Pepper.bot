@@ -49,77 +49,64 @@ namespace KunalsDiscordBot.Services.Music
 
         public LavalinkTrack GetCurrentTrack() => currentTrack;
 
-        public async Task Disconnect(CommandContext ctx, string channelName)
+        public async Task<string> Disconnect(string channelName)
         {
             if (!isConnected)
-                return;
+                return "";
 
             isConnected = false;
 
             if (!lava.ConnectedNodes.Any())
-            {
-                await ctx.Channel.SendMessageAsync("LavaLink has not been established");
-                return;
-            }
+                return "LavaLink has not been established";
 
             if (connection == null)
-            {
-                await ctx.Channel.SendMessageAsync("LavaLink is not connected");
-                return;
-            }
+                return "LavaLink is not connected";
 
             await connection.DisconnectAsync();
-            await ctx.Channel.SendMessageAsync($"Left {channelName} succesfully");
+            return $"Left {channelName} succesfully";
         }
 
-        public async Task Connect(CommandContext _ctx, DiscordChannel _channel, DiscordChannel _boundChannel)
+        public async Task<string> Connect(DiscordChannel _channel, DiscordChannel _boundChannel)
         {
             if (isConnected)
-                return;
+                return "";
 
             isConnected = true;
 
             connection = await node.ConnectAsync(_channel);
 
-            await _ctx.Channel.SendMessageAsync($"Joined {_channel.Name}! \n Use the `play` command to play some music");
             connection.PlaybackFinished += OnSongFinish;
-
             boundChannel = _boundChannel;
+
+            return $"Joined {_channel.Name}! \nUse the `play` command to play some music";
         }
 
         private async Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args) => await PlayNext();
 
-        public async Task StartPlaying(string search, CommandContext _ctx)
+        public async Task<string> StartPlaying(string search, string member)
         {
             if (connection == null)
-            {
-                await _ctx.Channel.SendMessageAsync("LavaLink is not connected.");
-                return;
-            }
+                return "LavaLink is not connected.";
 
             if (currentTrack == null)
             {
                 var loadResult = await node.Rest.GetTracksAsync(search);
 
                 if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
-                {
-                    await _ctx.Channel.SendMessageAsync($"Track search failed for {search}");
-                    return;
-                }
+                    return $"Track search failed for {search}";
 
                 currentTrack = loadResult.Tracks.First();
-                memberWhoRequested = _ctx.Member.Nickname == null ? _ctx.Member.Username : _ctx.Member.Nickname;
+                memberWhoRequested = member;
 
                 await connection.PlayAsync(currentTrack);
 
-                var embed = await NowPlaying();
-                await _ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+                return "Playing...";
             }
             else
             {
                 queue.Enqueue(search);
-                memberswhoRequested.Enqueue(_ctx.Member.Nickname);
-                await _ctx.Channel.SendMessageAsync($"Added {search} to queue");
+                memberswhoRequested.Enqueue(member);
+                return $"Added {search} to queue";
             }
         }
 
@@ -171,16 +158,16 @@ namespace KunalsDiscordBot.Services.Music
             await boundChannel.SendMessageAsync(embed: embed);
         }
 
-        public async Task Pause(CommandContext ctx)
+        public async Task<string> Pause()
         {
             await connection.PauseAsync();
-            await ctx.Channel.SendMessageAsync("Paused");
+            return "Player Paused";
         }
 
-        public async Task Resume(CommandContext ctx)
+        public async Task<string> Resume()
         {
             await connection.ResumeAsync();
-            await ctx.Channel.SendMessageAsync("Resume");
+            return "Player Resumed";
         }
 
         public async Task<string> Remove(int index)
@@ -304,9 +291,9 @@ namespace KunalsDiscordBot.Services.Music
                 return "Invalid positions";
 
             var track = tracks[trackToMove - 1];
+            tracks.RemoveAt(trackToMove - 1);
 
             tracks.Insert(newIndex - 1, track);
-            tracks.RemoveAt(trackToMove - 1);
 
             Queue<string> newQueue = new Queue<string>();
             foreach (var _track in tracks)
@@ -358,10 +345,12 @@ namespace KunalsDiscordBot.Services.Music
             return "Queue cleared";
         }
 
-        public async Task Skip(CommandContext _ctx)
+        public async Task Skip() => await connection.StopAsync();
+
+        public async Task<string> Seek(TimeSpan span)
         {
-            await _ctx.Channel.SendMessageAsync("Skipped").ConfigureAwait(false);
-            await connection.StopAsync();
+            await connection.SeekAsync(span);
+            return $"Playing from {span.Minutes}:{span.Seconds}";
         }
     }
 }

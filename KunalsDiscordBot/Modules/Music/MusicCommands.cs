@@ -1,4 +1,5 @@
 ﻿//System name spaces
+using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
@@ -55,7 +56,9 @@ namespace KunalsDiscordBot.Modules.Music
             }
 
             var musicService = new MusicService(ctx.Guild.Id, node, lava);
-            await musicService.Connect(ctx, channel, ctx.Channel);
+            var message = await musicService.Connect(channel, ctx.Channel);
+
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
 
             musicServices.Add(musicService);
         }
@@ -80,7 +83,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await service.Disconnect(ctx, channel.Name);
+            var message = await service.Disconnect(channel.Name);
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
 
             musicServices.Remove(service);//remove the service
         }
@@ -102,7 +106,12 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await service.StartPlaying(search, ctx);
+            var message = await service.StartPlaying(search, ctx.Member.Nickname == null ? ctx.Member.Username : ctx.Member.Nickname);
+
+            if(message.Equals("Playing..."))
+                await ctx.Channel.SendMessageAsync(await service.NowPlaying()).ConfigureAwait(false);
+            else
+                await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         [Command("Pause")]
@@ -135,7 +144,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await service.Pause(ctx);
+            var message = await service.Pause();
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         [Command("Resume")]
@@ -168,7 +178,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await service.Resume(ctx);
+            var message = await service.Resume();
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         [Command("Loop")]
@@ -339,7 +350,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await service.Skip(ctx);
+            await ctx.Channel.SendMessageAsync("Skipped").ConfigureAwait(false);
+            await service.Skip();
         }
 
         [Command("NowPlaying")]
@@ -378,7 +390,7 @@ namespace KunalsDiscordBot.Modules.Music
         }
 
         [Command("move")]
-        [Description("Moves tracks around")]
+        [Description("Moves a track around")]
         public async Task Move(CommandContext ctx, int trackToMove, int newPosition)
         {
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
@@ -416,7 +428,7 @@ namespace KunalsDiscordBot.Modules.Music
 
         [Command("clear")]
         [Description("Clears the track")]
-        public async Task Clear(CommandContext ctx, int trackToMove, int newPosition)
+        public async Task Clear(CommandContext ctx)
         {
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
             {
@@ -445,6 +457,43 @@ namespace KunalsDiscordBot.Modules.Music
             }
 
             var message = await service.ClearQueue();
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        [Command("playfrom")]
+        [Aliases("pf", "seek")]
+        [Description("Starts playing from a specified position")]
+        public async Task Seek(CommandContext ctx, int seconds)
+        {
+            if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+            {
+                await ctx.Channel.SendMessageAsync("You are not in a voice channel");
+                return;
+            }
+
+            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+
+            if (service == null)
+            {
+                await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
+                return;
+            }
+
+            if (service.connection == null)
+            {
+                await ctx.Channel.SendMessageAsync("LavaLink not connected");
+                return;
+            }
+
+            if (service.connection.CurrentState.CurrentTrack == null)
+            {
+                await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
+                return;
+            }
+
+            TimeSpan time = TimeSpan.FromSeconds(seconds);
+
+            var message = await service.Seek(time);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
     }

@@ -9,17 +9,17 @@ namespace KunalsDiscordBot.Services.Currency
 {
     public interface IProfileService
     {
-        public Task<Profile> GetProfile(DiscordMember member, bool sameMember = true);
-        public Task<Profile> CreateProfile(DiscordMember member);
+        public Task<Profile> GetProfile(ulong id, string name, bool sameMember = true);
+        public Task<Profile> CreateProfile(ulong id, string name);
 
-        public Task<bool> AddXP(DiscordMember member, int val);
-        public Task<bool> ChangeCoins(DiscordMember member, int val);
-        public Task<bool> ChangeCoinsBank(DiscordMember member, int val);
+        public Task<bool> AddXP(ulong id, int val);
+        public Task<bool> ChangeCoins(ulong id, int val);
+        public Task<bool> ChangeCoinsBank(ulong id, int val);
 
-        public Task<ItemDBData> GetItem(DiscordMember member, string name);
-        public Task<List<ItemDBData>> GetItems(DiscordMember member);
-        public Task<bool> AddOrRemoveItem(DiscordMember member, string name, int quantity);
+        public Task<ItemDBData> GetItem(ulong id, string name);
+        public Task<List<ItemDBData>> GetItems(ulong id);
+        public Task<bool> AddOrRemoveItem(ulong id, string name, int quantity);
 
-        public Task<bool> ChangeJob(DiscordMember member, string jobName);
+        public Task<bool> ChangeJob(ulong id, string jobName);
     }
 }

@@ -5,8 +5,10 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
 {
     public struct WorkInfo
     {
-        public DiscordEmbedBuilder embed { get; set; }
-        public int timeToDo { get; set; }
+        public string description { get; set; }
         public string correctResult { get; set; }
+
+        public int tries { get; set; }
+        public int timeToDo { get; set; }
     }
 }

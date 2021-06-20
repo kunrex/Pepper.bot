@@ -112,7 +112,7 @@ namespace KunalsDiscordBot.Modules.General
 
             string roles = string.Empty;
             foreach (var role in member.Roles)
-                roles += $"<@&{role.Id}>";
+                roles += $"<@&{role.Id}>\n";
 
             embed.AddField("Roles: ", roles);
 

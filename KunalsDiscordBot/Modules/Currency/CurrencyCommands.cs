@@ -40,7 +40,7 @@ namespace KunalsDiscordBot.Modules.Currency
             if (member != ctx.Member)
                 sameMember = false;
 
-            var profile = await service.GetProfile(member, sameMember);
+            var profile = await service.GetProfile(member.Id, member.Username, sameMember);
 
             if(profile == null)
             {
@@ -88,7 +88,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Deposits Money into the bank")]
         public async Task Deposit(CommandContext ctx, string amount)
         {
-            var profile = await service.GetProfile(ctx.Member);
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
             var coins = profile.Coins;
             var coinsBank = profile.CoinsBank;
@@ -111,8 +111,8 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 var toDep = System.Math.Min(difference, coins);
 
-                await service.ChangeCoinsBank(ctx.Member, toDep);
-                await service.ChangeCoins(ctx.Member, -toDep);
+                await service.ChangeCoinsBank(ctx.Member.Id, toDep);
+                await service.ChangeCoins(ctx.Member.Id, -toDep);
 
                 await ctx.Channel.SendMessageAsync($"Desposited max({toDep} {coinsEmoji})");
             }
@@ -126,10 +126,10 @@ namespace KunalsDiscordBot.Modules.Currency
                     return;
                 }
 
-                await service.ChangeCoinsBank(ctx.Member, toDep);
-                await service.ChangeCoins(ctx.Member, -toDep);
+                await service.ChangeCoinsBank(ctx.Member.Id, toDep);
+                await service.ChangeCoins(ctx.Member.Id, -toDep);
 
-                await ctx.Channel.SendMessageAsync($"Deposited {coinsBank} {coinsEmoji}");
+                await ctx.Channel.SendMessageAsync($"Deposited {toDep} {coinsEmoji}");
             }
             else
                 await ctx.Channel.SendMessageAsync("Don't try to break the bot");
@@ -140,15 +140,15 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Withdraws Money into the bank")]
         public async Task Withdraw(CommandContext ctx, string amount)
         {
-            var profile = await service.GetProfile(ctx.Member);
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
             var coins = profile.Coins;
             var coinsBank = profile.CoinsBank;
 
             if (amount.ToLower().Equals("max"))
             {
-                await service.ChangeCoinsBank(ctx.Member, -coinsBank);
-                await service.ChangeCoins(ctx.Member, coinsBank);
+                await service.ChangeCoinsBank(ctx.Member.Id, -coinsBank);
+                await service.ChangeCoins(ctx.Member.Id, coinsBank);
 
                 await ctx.Channel.SendMessageAsync($"Withdrawed max({coinsBank} {coinsEmoji})");
             }
@@ -162,10 +162,10 @@ namespace KunalsDiscordBot.Modules.Currency
                     return;
                 }
 
-                await service.ChangeCoinsBank(ctx.Member, -toWith);
-                await service.ChangeCoins(ctx.Member, toWith);
+                await service.ChangeCoinsBank(ctx.Member.Id, -toWith);
+                await service.ChangeCoins(ctx.Member.Id, toWith);
 
-                await ctx.Channel.SendMessageAsync($"Withdrawed {coinsBank} {coinsEmoji}");
+                await ctx.Channel.SendMessageAsync($"Withdrawed {toWith} {coinsEmoji}");
             }
             else
                 await ctx.Channel.SendMessageAsync("Don't try to break the bot");
@@ -212,7 +212,7 @@ namespace KunalsDiscordBot.Modules.Currency
             if (job == null)
                 await ctx.Channel.SendMessageAsync("The given job was not found");
 
-            var profile = await service.GetProfile(ctx.Member);
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
             if(!profile.Job.Equals("None"))
             {
@@ -220,7 +220,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            bool completed = await service.ChangeJob(ctx.Member, job.Name);
+            bool completed = await service.ChangeJob(ctx.Member.Id, job.Name);
 
             if (!completed)
             {
@@ -250,7 +250,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Resign from a job")]
         public async Task Resign(CommandContext ctx)
         {
-            var profile = await service.GetProfile(ctx.Member);
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
             var prevJob = profile.Job;
 
             if (profile == null)
@@ -262,7 +262,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            bool completed = await service.ChangeJob(ctx.Member, "None");
+            bool completed = await service.ChangeJob(ctx.Member.Id, "None");
 
             if (!completed)
             {
@@ -288,56 +288,92 @@ namespace KunalsDiscordBot.Modules.Currency
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
+        Func<int, int, int> GenerateRandom = (int min, int max) => new Random().Next(min, max);
+
         [Command("Work")]
         [Description("Want to make some money?")]
         public async Task Work(CommandContext ctx)
         {
             var member = ctx.Member;
 
-            var profile = await service.GetProfile(member);
-            var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
-
-            if(profile.Job.Equals("None"))
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+            if (profile.Job.Equals("None"))
             {
                 await ctx.Channel.SendMessageAsync("You don't have a job, use the joblist command to list them");
+                return;
             }
-            else
+
+            var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
+            var workInfo = await job.GetWork();
+            int numOfTries = workInfo.tries, timeToDo = workInfo.timeToDo;
+
+            var interactivity = ctx.Client.GetInteractivity();
+            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
-                var workToDo = new Random().Next(1, 3);
-                var interactivity = ctx.Client.GetInteractivity();
+                Height = 50,
+                Width = 50,
+                Url = ctx.Member.AvatarUrl
+            };
 
-                var workInfo = await job.GetWork(workToDo, DiscordColor.Gold);
-                await ctx.Channel.SendMessageAsync(embed: workInfo.embed).ConfigureAwait(false);
-
-                var message = await interactivity.WaitForMessageAsync(x => x.Author == ctx.Member && x.Channel == ctx.Channel, TimeSpan.FromSeconds(workInfo.timeToDo));
-
-                if (message.TimedOut || !message.Result.Content.ToLower().Equals(workInfo.correctResult.ToLower()))
+            while (numOfTries > 0)
+            {
+                var embed = new DiscordEmbedBuilder
                 {
-                    var money = new Random().Next(job.FailMin, job.FailMax);
+                    Title = $"Work For {profile.Job}",
+                    Description = workInfo.description,
+                    Color = DiscordColor.Gold,
+                    Thumbnail = thumbnail
+                };
 
-                    var embed = new DiscordEmbedBuilder
+                embed.AddField("Time: ", $"{timeToDo} seconds");
+                await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+
+
+                DateTime prevTime = DateTime.Now;
+                var message = await interactivity.WaitForMessageAsync(x => x.Author == ctx.Member && x.Channel == ctx.Channel, TimeSpan.FromSeconds(timeToDo));
+
+                //any of the return cases
+                if (message.TimedOut || message.Result.Content.ToLower().Equals(workInfo.correctResult.ToLower()))
+                {
+                    int money = message.TimedOut ? GenerateRandom(job.FailMin, job.FailMax) : GenerateRandom(job.SucceedMin, job.SucceedMax);
+
+                    var completedEmbed = new DiscordEmbedBuilder
                     {
-                        Title = $"{(message.TimedOut ? "Timed Out" : "That wasn't the right answer")}",
-                        Description = $"You recieve {money} coins for a failed work"
+                        Title = message.TimedOut ? "Time Out" : "Good Job",
+                        Description = message.TimedOut ? $"You recieve only {money} coins" : $"You recieve {money} coins for a job well done",
+                        Color = DiscordColor.Gold,
+                        Thumbnail = thumbnail
                     };
 
-                    await service.ChangeCoins(ctx.Member, money);
-                    await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+                    await service.ChangeCoins(ctx.Member.Id, money);
+                    await ctx.Channel.SendMessageAsync(embed: completedEmbed).ConfigureAwait(false);
+                    return;
                 }
-                else 
+                else
                 {
-                    var money = new Random().Next(job.SucceedMin, job.SucceedMax);
+                    numOfTries--;
+                    DateTime messageTime = DateTime.Now;
 
-                    var embed = new DiscordEmbedBuilder
-                    {
-                        Title = $"Good Job",
-                        Description = $"You recieve {money} coins for a job well done"
-                    };
+                    int difference = (int)(messageTime - prevTime).TotalSeconds;
+                    timeToDo -= difference;
 
-                    await service.ChangeCoins(ctx.Member, money);
-                    await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+                    prevTime = messageTime;
+                    await ctx.Channel.SendMessageAsync($"Thats not the right answer, you get {numOfTries} more turn(s)");
                 }
             }
+
+            int coins = GenerateRandom(job.FailMin, job.FailMax);
+
+            var faileEmbed = new DiscordEmbedBuilder
+            {
+                Title = "Time Out",
+                Description = $"You recieve only {coins} coins",
+                Color = DiscordColor.Gold,
+                Thumbnail = thumbnail
+            };
+
+            await service.ChangeCoins(ctx.Member.Id, coins);
+            await ctx.Channel.SendMessageAsync(embed: faileEmbed).ConfigureAwait(false);
         }
     }
 }
