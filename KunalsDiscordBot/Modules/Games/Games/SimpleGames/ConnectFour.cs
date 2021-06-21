@@ -9,41 +9,43 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
-namespace KunalsDiscordBot.Modules.Games
+namespace KunalsDiscordBot.Modules.Games.Simple
 {
-    public class TicTacToe : SimpleBoardGame
+    public sealed class ConnectFour : SimpleBoardGame
     {
         private const float time = 60;
 
         public int numberOfCells { get; private set; }
 
-        private const string X = ":x:";
-        private const string O = ":o:";
-        private const string BLACK = ":black_large_square:";
+        private const string RED = ":red_circle:";
+        private const string YELLOW = ":yellow_circle:";
+        private const string BLACK = ":black_circle:";
+        private const string SPACE = "   ";
 
-        public TicTacToe(CommandContext _ctx, DiscordUser user1, DiscordUser user2, int _numberOfCells)
+        public ConnectFour(CommandContext _ctx, DiscordUser user1, DiscordUser user2, int _numberOfCells)
         {
             ctx = _ctx;
             player1 = user1;
             player2 = user2;
 
             numberOfCells = _numberOfCells;
-            numberOfCells = System.Math.Clamp(numberOfCells, 3, 5);
+            numberOfCells = System.Math.Clamp(numberOfCells, 5, 8);
 
             board = new int[numberOfCells, numberOfCells];
 
             currentUser = player1;
             PlayGame();
         }
+
         protected async override Task<bool> PrintBoard()
         {
             string description = string.Empty;
-            for (int i = 0; i < board.GetLength(0); i++)
+            for(int i = 0 ;i< board.GetLength(0);i++)
             {
-                for (int k = 0; k < board.GetLength(1); k++)
+                for(int k = 0;k<board.GetLength(1);k++)
                 {
-                    int state = board[i, k];
-                    description += (Evaluate(state));
+                    int state = board[i,k];
+                    description += (Evaluate(state) + SPACE);
                 }
 
                 description += "\n";
@@ -56,70 +58,42 @@ namespace KunalsDiscordBot.Modules.Games
                 Description = description
             };
             Embed.AddField("Turn :", currentUser.Username, true);
-
-            Embed.AddField("Player 1 :", X, true);
-            Embed.AddField("Player 2 :", O, true);
-
+            Embed.AddField("Player 1: ", RED, true);
+            Embed.AddField("Player 2: ", YELLOW, true);
 
             await ctx.Channel.SendMessageAsync(embed: Embed).ConfigureAwait(false);
 
             return true;
 
-            string Evaluate(int state) => state == 0 ? BLACK : (state == 1 ? X : O);
-        }
-
-
-        protected async override Task<bool> CheckForWinner()
-        {
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int k = 0; k < board.GetLength(1); k++)
-                {
-                    if (board[i, k] == 0)
-                        continue;
-
-                    CoOrdinate ordinate = new CoOrdinate
-                    {
-                        x = k,
-                        y = i,
-                        value = board[i, k]
-                    };
-
-                    bool isIn4 = await Evaluate(ordinate);
-
-                    if (isIn4)
-                        return true;
-                }
-            }
-
-            return false;
+            string Evaluate(int state) => state == 0 ? BLACK : (state == 1 ? RED : YELLOW);
         }
 
         protected async override Task<InputResult> GetInput()
         {
-            await ctx.Channel.SendMessageAsync($"{currentUser.Mention}, its your turn, type the slot in which you want to place a marker.\n Ex: a1. Type \"end\" to end the game ").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{currentUser.Mention}, its your turn, type the column in which you want to drop a coin.\n Type \"end\" to end the game ").ConfigureAwait(false);
             var interactivity = ctx.Client.GetInteractivity();
 
             var message = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == currentUser, TimeSpan.FromSeconds(time)).ConfigureAwait(false);
 
-            if (message.TimedOut)
+            if(message.TimedOut)
             {
-                return new InputResult { completed = false, type = InputResult.EndType.afk };
+                return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
             }
             else if (message.Result.Content.Equals("end"))
             {
-                return new InputResult { completed = false, type = InputResult.EndType.end };
+                return new InputResult { wasCompleted = false, type = InputResult.Type.end};
             }
-            else if (CanBeParsed(message.Result.Content, out int x, out int y))
+            else if(CanBeParsed(message.Result.Content, out int columnNum))
             {
-                board[x, y] = currentUser == player1 ? 1 : 2;
-                return new InputResult { completed = true, type = InputResult.EndType.none };
+                GetColumn(columnNum, out int nearest);
+                if(nearest == -1)
+                    return new InputResult { wasCompleted = true, type = InputResult.Type.inValid };
+
+                board[nearest, columnNum] = currentUser == player1 ? 1 : 2;
+                return new InputResult { wasCompleted = true, type = InputResult.Type.valid }; 
             }
             else
-            {
-                await ctx.Channel.SendMessageAsync($"{currentUser.Mention} thats an invalid answer dum dum, now you lose a turn").ConfigureAwait(false);
-                return new InputResult { completed = true, type = InputResult.EndType.none };
-            }
+                return new InputResult { wasCompleted = true, type = InputResult.Type.inValid };
         }
 
         protected async override void PlayGame()
@@ -132,18 +106,17 @@ namespace KunalsDiscordBot.Modules.Games
 
                     InputResult completed = await GetInput();
 
-                    if (!completed.completed)
+                    if (!completed.wasCompleted)
                     {
-                        if (completed.type == InputResult.EndType.end)
-                            await ctx.Channel.SendMessageAsync($"{currentUser.Mention} has ended the game. noob").ConfigureAwait(false);
-                        else if (completed.type == InputResult.EndType.afk)
-                            await ctx.Channel.SendMessageAsync($"{currentUser.Mention} has gone AFK").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync($"{(completed.type == InputResult.Type.end ? $"{currentUser.Mention} has ended the game. noob" : $"{currentUser.Mention} has gone AFK")}").ConfigureAwait(false);
                         break;
                     }
+                    else if (completed.type == InputResult.Type.inValid)
+                        await ctx.Channel.SendMessageAsync($"{currentUser.Mention} thats an invalid position dum dum, now you lose a turn").ConfigureAwait(false);
 
                     await CheckForWinner();
 
-                    if (gameOver)
+                    if(gameOver)
                     {
                         await ctx.Channel.SendMessageAsync($"{currentUser.Mention} Wins!").ConfigureAwait(false);
                         await PrintBoard();
@@ -152,7 +125,7 @@ namespace KunalsDiscordBot.Modules.Games
 
                     bool draw = await CheckDraw();
 
-                    if (draw)
+                    if(draw)
                     {
                         await ctx.Channel.SendMessageAsync($"{player1.Username} and {player2.Username} ends in a draw").ConfigureAwait(false);
                         await PrintBoard();
@@ -185,9 +158,35 @@ namespace KunalsDiscordBot.Modules.Games
             return true;
         }
 
+        protected async override Task<bool> CheckForWinner()
+        {
+            for(int i =0;i<board.GetLength(0); i++)
+            {
+                for (int k = 0; k < board.GetLength(1); k++)
+                {
+                    if (board[i, k] == 0)
+                        continue;
+
+                    CoOrdinate ordinate = new CoOrdinate
+                    {
+                        x = k,
+                        y = i,
+                        value = board[i, k]
+                    };
+
+                    bool isIn4 = await Evaluate(ordinate);
+
+                    if (isIn4)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         private async Task<bool> Evaluate(CoOrdinate ordinate, int indent = 1, int direction = 0)
         {
-            if (indent == 3)//player one
+            if (indent == 4)//player one
             {
                 gameOver = true;
                 return true;
@@ -229,14 +228,14 @@ namespace KunalsDiscordBot.Modules.Games
                         }
                     }
 
-                    CoOrdinate diagnol = ordinate.GetDiagnolDownPosition();
+                    CoOrdinate diagnolDown = ordinate.GetDiagnolDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(diagnol.x, diagnol.y, board.GetLength(0), board.GetLength(1)))
+                    if (CoOrdinate.EvaluatePosition(diagnolDown.x, diagnolDown.y, board.GetLength(0), board.GetLength(1)))
                     {
-                        diagnol.value = board[diagnol.y, diagnol.x];
-                        if (diagnol.value == ordinate.value)
+                        diagnolDown.value = board[diagnolDown.y, diagnolDown.x];
+                        if (diagnolDown.value == ordinate.value)
                         {
-                            bool isSame = await Evaluate(diagnol, indent + 1, 3);
+                            bool isSame = await Evaluate(diagnolDown, indent + 1, 3);
                             if (isSame)
                             {
                                 return true;
@@ -295,14 +294,14 @@ namespace KunalsDiscordBot.Modules.Games
 
                     return false;
                 case 3:
-                    CoOrdinate _diagnol = ordinate.GetDiagnolDownPosition();
+                    CoOrdinate _diagnolDown = ordinate.GetDiagnolDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(_diagnol.x, _diagnol.y, board.GetLength(0), board.GetLength(1)))
+                    if (CoOrdinate.EvaluatePosition(_diagnolDown.x, _diagnolDown.y, board.GetLength(0), board.GetLength(1)))
                     {
-                        _diagnol.value = board[_diagnol.y, _diagnol.x];
-                        if (_diagnol.value == ordinate.value)
+                        _diagnolDown.value = board[_diagnolDown.y, _diagnolDown.x];
+                        if (_diagnolDown.value == ordinate.value)
                         {
-                            bool isSame = await Evaluate(_diagnol, indent + 1, 3);
+                            bool isSame = await Evaluate(_diagnolDown, indent + 1, 3);
                             if (isSame)
                             {
                                 return true;
@@ -334,40 +333,28 @@ namespace KunalsDiscordBot.Modules.Games
             return false;
         }
 
-
-        private bool CanBeParsed(string value, out int x, out int y)
+        private bool CanBeParsed(string value, out int num)
         {
-            if(value.Length != 2)
+            if (!int.TryParse(value, out int x))
             {
-                x = 0;
-                y = 0;
+                num = 0;
                 return false;
             }
 
-            int c1 = value[0] - 97;
-            int c2;
+            num = int.Parse(value) - 1;
+            return num >= 0 && num < board.GetLength(0);
+        }
 
-            if (!int.TryParse(value[1].ToString(), out int val))
+        private void GetColumn(int columnIndex, out int nearestIndex)
+        {
+            nearestIndex = -1; bool found = false;
+
+            for(int i =0;i<board.GetLength(0);i++)
             {
-                x = 0;
-                y = 0;
-                return false;
-            }
-
-            c2 = int.Parse(value[1].ToString()) - 1;
-
-            if(c1 >= 0 && c1 < board.GetLength(0) && c2 >= 0 && c2 < board.GetLength(1))
-            {
-                x = c1;
-                y = c2;
-
-                return board[x, y] == 0;
-            }
-            else
-            {
-                x = 0;
-                y = 0;
-                return false;
+                if (board[i, columnIndex] == 0 && !found)
+                    nearestIndex++;
+                else if (board[i, columnIndex] != 0)
+                    found = true;
             }
         }
     }

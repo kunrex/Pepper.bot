@@ -9,6 +9,11 @@ using KunalsDiscordBot.Modules.Games.Players;
 
 namespace KunalsDiscordBot.Modules.Games
 {
+
+    //A game is as a simple board game
+    //if the players don't themselves store any data
+    //and can be represented by the DiscordUser type
+    //for example: the players don't have their own boards
     public abstract class SimpleBoardGame : Game
     {
         public CommandContext ctx { get; protected set; }

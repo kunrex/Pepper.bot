@@ -49,7 +49,7 @@
     <Folder Include="Modules\Fun\Services\" />
     <Folder Include="Modules\Math\LinearEquation\" />
     <Folder Include="Services\" />
-    <Folder Include="Modules\Music\Services\" />
+    <Folder Include="Modules\Music\Players\" />
     <Folder Include="Modules\Fun\memes\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Moderation\SoftModeration\" />
@@ -59,6 +59,9 @@
     <Folder Include="Modules\Currency\AccessoryClasses\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Jobs\" />
+    <Folder Include="Modules\Games\Games\SimpleGames\" />
+    <Folder Include="Modules\Games\Games\ComplexGames\" />
+    <Folder Include="Modules\Games\Players\Spectators\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -82,6 +85,9 @@
     <None Remove="Modules\Currency\AccessoryClasses\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\" />
     <None Remove="Modules\Currency\AccessoryClasses\Jobs\" />
+    <None Remove="Modules\Games\Games\SimpleGames\" />
+    <None Remove="Modules\Games\Games\ComplexGames\" />
+    <None Remove="Modules\Games\Players\Spectators\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

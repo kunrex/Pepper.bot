@@ -1,5 +1,8 @@
 ﻿//System name spaces
 using System.Threading.Tasks;
+using System.Reflection;
+using System;
+using System.Collections.Generic;
 
 //D# name spaces
 using DSharpPlus.CommandsNext;
@@ -8,6 +11,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Attributes;
+using KunalsDiscordBot.Modules.Games.Simple;
+using KunalsDiscordBot.Modules.Games.Complex;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -144,5 +149,32 @@ namespace KunalsDiscordBot.Modules.Games
             }
         }
 
+        [Command("Spectate")]
+        [Description("Spectate an ongoing match")]
+        public async Task Spectate(CommandContext ctx, DiscordUser user, [RemainingText]string game)
+        {
+            Type type = Game.GetGameByName(game);
+
+            if (type == null)
+            {
+                await ctx.Channel.SendMessageAsync("Game not found").ConfigureAwait(false);
+                return;
+            }
+
+            switch(type)
+            {
+                case var t when t == typeof(BattleShip):
+                    var player = BattleShip.currentPlayers.Find(x => x.member.Username == user.Username);
+
+                    if (player == null)
+                        await ctx.Channel.SendMessageAsync("Player isn't playing the specified game").ConfigureAwait(false);
+                    else
+                    {
+                        var battleShipGame = player.battleShipGame;
+                        await battleShipGame.AddSpectator(ctx.Member);
+                    }
+                    break;
+            }
+        }
     }
 }

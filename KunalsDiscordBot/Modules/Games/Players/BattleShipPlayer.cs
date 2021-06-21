@@ -8,21 +8,24 @@ using System.Linq;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus;
+using KunalsDiscordBot.Modules.Games.Complex;
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {
     public class BattleShipPlayer : DiscordPlayer
     {
-        public BattleShipPlayer(DiscordMember _member) : base(_member)
+        public BattleShipPlayer(DiscordMember _member, BattleShip game) : base(_member)
         {
             member = _member;
 
             ships = new Ship[BattleShip.numOfShips];
+            battleShipGame = game;
         }
 
         public Ship[] ships { get; private set; }
         private int[,] board;
 
+        public BattleShip battleShipGame { get; private set; }
         private DiscordDmChannel dmChannel { get; set; }
 
         public async Task<int[,]> GetBoard()
