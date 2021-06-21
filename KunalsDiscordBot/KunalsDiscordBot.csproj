@@ -37,7 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
-    <Folder Include="Attributes\" />
+    <Folder Include="Core\Attributes\" />
     <Folder Include="Modules\Music\" />
     <Folder Include="Modules\Fun\" />
     <Folder Include="Modules\General\" />
@@ -62,6 +62,8 @@
     <Folder Include="Modules\Games\Games\SimpleGames\" />
     <Folder Include="Modules\Games\Games\ComplexGames\" />
     <Folder Include="Modules\Games\Players\Spectators\" />
+    <Folder Include="Core\" />
+    <Folder Include="Modules\Games\Games\ComplexGames\BattleShip\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -88,6 +90,8 @@
     <None Remove="Modules\Games\Games\SimpleGames\" />
     <None Remove="Modules\Games\Games\ComplexGames\" />
     <None Remove="Modules\Games\Players\Spectators\" />
+    <None Remove="Core\" />
+    <None Remove="Modules\Games\Games\ComplexGames\BattleShip\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

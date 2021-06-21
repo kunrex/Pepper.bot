@@ -9,6 +9,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus;
 using KunalsDiscordBot.Modules.Games.Complex;
+using KunalsDiscordBot.Modules.Games.Complex.Battleship;
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {
@@ -127,9 +128,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return inputResult;
         }
 
-        #region ValidShipInputCheck
-
-
         private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
         {
             if (IsFormatted(message, out CoOrdinate position, out bool isVertical))
@@ -246,9 +244,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
 
         }
-        #endregion
-
-        #region validPlacementCheck
 
         private bool TryParseAndAdd(string message, out CoOrdinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
 
@@ -295,8 +290,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         private bool IsValid(CoOrdinate ordinate) => CoOrdinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize);
 
-        #endregion
-
         private async Task<bool> IsValidAttackplacement(CoOrdinate ordinate, int[,] other)
         {
             await Task.CompletedTask;
@@ -305,7 +298,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         public async Task<string> GetBoardToPrint(bool ourPlayer = true)
         {
-            string boardToString = $"{BattleShip.BLANK}{BattleShip.BLANK}{BattleShip.letters.Aggregate((i, j) => i + j)}\n\n";//im using SHIP here cause its basically a black square acting as a blank space, apparently embeds don't allow spaces
+            string boardToString = $"{BattleShip.BLANK}{BattleShip.BLANK}{BattleShip.letters.Aggregate((i, j) => i + j)}\n\n";//im using BLANK here cause its basically a black square acting as a blank space, apparently embeds don't allow spaces
 
             for (int i = 0; i < board.GetLength(0); i++)
             {
@@ -374,56 +367,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             await Task.CompletedTask;
             return true;
-        }
-
-        public class Ship
-        {
-            public List<BattleShipCoOrdinate> ordinates { get; set; }
-
-            public bool isDead { get; private set; }
-
-            public Ship(List<BattleShipCoOrdinate> coOrdinates)
-            {
-                ordinates = coOrdinates;
-            }
-
-            public async Task<(bool, bool)> CheckForHit(BattleShipCoOrdinate ordinateHit)
-            {
-                var coOrdinate = ordinates.FirstOrDefault(x => x.x == ordinateHit.x && x.y == ordinateHit.y);
-
-                if (coOrdinate != null && coOrdinate != default)
-                {
-                    coOrdinate.type = BattleShipCoOrdinate.OrdinateType.shipHit;
-
-                    isDead = await CheckForDead();
-                    return (true, isDead);
-                }
-
-                return (false, false);
-            }
-
-            private async Task<bool> CheckForDead()
-            {
-                foreach (var coOrdinate in ordinates)
-                    if (coOrdinate.type == BattleShipCoOrdinate.OrdinateType.ship)
-                        return false;
-
-                await Task.CompletedTask;
-                return true;
-            }
-        }
-
-        public class BattleShipCoOrdinate : CoOrdinate
-        {
-            public enum OrdinateType
-            {
-                free,
-                hit,
-                ship,
-                shipHit,
-            }
-
-            public OrdinateType type;
         }
     }
 }
