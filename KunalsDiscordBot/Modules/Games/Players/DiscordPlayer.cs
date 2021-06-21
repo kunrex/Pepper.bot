@@ -13,7 +13,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 {
     public abstract class DiscordPlayer
     {
-        public DiscordPlayer(DiscordMember user)
+        public DiscordPlayer(DiscordMember _member)
         {
 
         }

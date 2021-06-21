@@ -9,9 +9,11 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
+using KunalsDiscordBot.Modules.Games.Players;
+
 namespace KunalsDiscordBot.Modules.Games
 {
-    public class ConnectFour : BoardGame
+    public class ConnectFour : SimpleBoardGame
     {
         private const float time = 60;
 
@@ -77,29 +79,23 @@ namespace KunalsDiscordBot.Modules.Games
 
             if(message.TimedOut)
             {
-                return new InputResult { completed = false, type = InputResult.EndType.afk };
+                return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
             }
             else if (message.Result.Content.Equals("end"))
             {
-                return new InputResult { completed = false, type = InputResult.EndType.end};
+                return new InputResult { wasCompleted = false, type = InputResult.Type.end};
             }
             else if(CanBeParsed(message.Result.Content, out int columnNum))
             {
                 GetColumn(columnNum, out int nearest);
                 if(nearest == -1)
-                {
-                    await ctx.Channel.SendMessageAsync($"{currentUser.Mention} thats an invalid position dum dum, now you lose a turn").ConfigureAwait(false);
-                    return new InputResult { completed = true, type = InputResult.EndType.none }; 
-                }
+                    return new InputResult { wasCompleted = true, type = InputResult.Type.inValid };
 
                 board[nearest, columnNum] = currentUser == player1 ? 1 : 2;
-                return new InputResult { completed = true, type = InputResult.EndType.none }; 
+                return new InputResult { wasCompleted = true, type = InputResult.Type.valid }; 
             }
             else
-            {
-                await ctx.Channel.SendMessageAsync($"{currentUser.Mention} thats an invalid answer dum dum, now you lose a turn").ConfigureAwait(false);
-                return new InputResult { completed = true, type = InputResult.EndType.none }; 
-            }
+                return new InputResult { wasCompleted = true, type = InputResult.Type.inValid };
         }
 
         protected async override void PlayGame()
@@ -112,14 +108,13 @@ namespace KunalsDiscordBot.Modules.Games
 
                     InputResult completed = await GetInput();
 
-                    if (!completed.completed)
+                    if (!completed.wasCompleted)
                     {
-                        if(completed.type == InputResult.EndType.end)
-                            await ctx.Channel.SendMessageAsync($"{currentUser.Mention} has ended the game. noob").ConfigureAwait(false);
-                        else if(completed.type == InputResult.EndType.afk)
-                            await ctx.Channel.SendMessageAsync($"{currentUser.Mention} has gone AFK").ConfigureAwait(false);
+                        await ctx.Channel.SendMessageAsync($"{(completed.type == InputResult.Type.end ? $"{currentUser.Mention} has ended the game. noob" : $"{currentUser.Mention} has gone AFK")}").ConfigureAwait(false);
                         break;
                     }
+                    else if (completed.type == InputResult.Type.inValid)
+                        await ctx.Channel.SendMessageAsync($"{currentUser.Mention} thats an invalid position dum dum, now you lose a turn").ConfigureAwait(false);
 
                     await CheckForWinner();
 

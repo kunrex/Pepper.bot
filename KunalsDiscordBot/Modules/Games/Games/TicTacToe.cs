@@ -11,7 +11,7 @@ using DSharpPlus.Interactivity.Extensions;
 
 namespace KunalsDiscordBot.Modules.Games
 {
-    public class TicTacToe : BoardGame
+    public class TicTacToe : SimpleBoardGame
     {
         private const float time = 60;
 

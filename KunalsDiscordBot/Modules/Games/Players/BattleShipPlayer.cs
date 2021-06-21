@@ -13,9 +13,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
 {
     public class BattleShipPlayer : DiscordPlayer
     {
-        public BattleShipPlayer(DiscordMember user) : base(user)
+        public BattleShipPlayer(DiscordMember _member) : base(_member)
         {
-            member = user;
+            member = _member;
 
             ships = new Ship[BattleShip.numOfShips];
         }
@@ -40,10 +40,10 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
         }
 
-        public async Task<BattleShip.InputResult> GetShips(DiscordClient client)
+        public async Task<InputResult> GetShips(DiscordClient client)
         {
             var interactivity = client.GetInteractivity();
-            var inputResult = new BattleShip.InputResult();
+            var inputResult = new InputResult();
 
             var Embed = new DiscordEmbedBuilder
             {
@@ -66,9 +66,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
                     var message = await interactivity.WaitForMessageAsync(x => x.Channel == dmChannel && x.Author == member, TimeSpan.FromSeconds(BattleShip.time)).ConfigureAwait(false);
 
                     if (message.TimedOut)
-                        return new BattleShip.InputResult { wasCompleted = false, type = BattleShip.InputResult.Type.afk };
+                        return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
                     else if (message.Result.Content.ToLower().Equals("end"))
-                        return new BattleShip.InputResult { wasCompleted = false, type = BattleShip.InputResult.Type.end };
+                        return new InputResult { wasCompleted = false, type = InputResult.Type.end };
                     else if (TryParseAndAdd(message.Result.Content, numOfBlocks[i], i))
                         isCompleted = true;
                     else
@@ -90,15 +90,15 @@ namespace KunalsDiscordBot.Modules.Games.Players
             await dmChannel.SendMessageAsync("All Ship Positions Recorded").ConfigureAwait(false);
 
             inputResult.wasCompleted = true;
-            inputResult.type = BattleShip.InputResult.Type.valid;
+            inputResult.type = InputResult.Type.valid;
 
             return inputResult;
         }
 
-        public async Task<BattleShip.InputResult> GetAttackPos(DiscordClient client, int[,] other)
+        public async Task<InputResult> GetAttackPos(DiscordClient client, int[,] other)
         {
             var interactivity = client.GetInteractivity();
-            var inputResult = new BattleShip.InputResult();
+            var inputResult = new InputResult();
 
             bool isCompleted = false;
             CoOrdinate ordinate = new CoOrdinate();
@@ -109,9 +109,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 var message = await interactivity.WaitForMessageAsync(x => x.Channel == dmChannel && x.Author == member, TimeSpan.FromSeconds(BattleShip.time)).ConfigureAwait(false);
 
                 if (message.TimedOut)
-                    return new BattleShip.InputResult { wasCompleted = false, type = BattleShip.InputResult.Type.afk };
+                    return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
                 else if (message.Result.Content.ToLower().Equals("end"))
-                    return new BattleShip.InputResult { wasCompleted = false, type = BattleShip.InputResult.Type.end };
+                    return new InputResult { wasCompleted = false, type = InputResult.Type.end };
                 else if (TryParseAndAdd(message.Result.Content, out ordinate) && await IsValidAttackplacement(ordinate, other))
                     isCompleted = true;
                 else
@@ -120,7 +120,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             inputResult.ordinate = ordinate;
             inputResult.wasCompleted = true;
-            inputResult.type = BattleShip.InputResult.Type.valid;
+            inputResult.type = InputResult.Type.valid;
             return inputResult;
         }
 

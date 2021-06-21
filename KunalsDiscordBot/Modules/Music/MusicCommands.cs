@@ -20,13 +20,13 @@ namespace KunalsDiscordBot.Modules.Music
     [Description("Set of music commands offered by Pepper")]
     public sealed class MusicCommands : BaseCommandModule
     {
-        private List<MusicService> musicServices = new List<MusicService>();
+        private List<VCPlayer> players = new List<VCPlayer>();
 
         [Command("Join")]
         [Description("Joins a voice channel")]
         public async Task Join(CommandContext ctx)
         {
-            if(musicServices.Find(x => x.guildID == ctx.Guild.Id) != null)
+            if(players.Find(x => x.guildID == ctx.Guild.Id) != null)
             {
                 await ctx.Channel.SendMessageAsync("Already joined a voice channel in the server");
                 return;
@@ -55,19 +55,19 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var musicService = new MusicService(ctx.Guild.Id, node, lava);
-            var message = await musicService.Connect(channel, ctx.Channel);
+            var player = new VCPlayer(ctx.Guild.Id, node, lava);
+            var message = await player.Connect(channel, ctx.Channel);
 
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
 
-            musicServices.Add(musicService);
+            players.Add(player);
         }
 
         [Command("Leave")]
         [Description("Leaves the joined channel")]
         public async Task Leave(CommandContext ctx)
         {
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var service = players.Find(x => x.guildID == ctx.Guild.Id);
 
             if (service == null)
             {
@@ -75,18 +75,18 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var channel = ctx.Member.VoiceState.Channel;
+            var player = ctx.Member.VoiceState.Channel;
 
-            if (channel == null || channel.Type != ChannelType.Voice)
+            if (player == null || player.Type != ChannelType.Voice)
             {
                 await ctx.Channel.SendMessageAsync("You need to be in a Voice Channel to run this command");
                 return;
             }
 
-            var message = await service.Disconnect(channel.Name);
+            var message = await service.Disconnect(player.Name);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
 
-            musicServices.Remove(service);//remove the service
+            players.Remove(service);//remove the service
         }
 
         [Command("Play")]
@@ -99,17 +99,17 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Channel.Guild.Id);
-            if(service == null)
+            var player = players.Find(x => x.guildID == ctx.Channel.Guild.Id);
+            if(player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            var message = await service.StartPlaying(search, ctx.Member.Nickname == null ? ctx.Member.Username : ctx.Member.Nickname);
+            var message = await player.StartPlaying(search, ctx.Member.Nickname == null ? ctx.Member.Username : ctx.Member.Nickname);
 
             if(message.Equals("Playing..."))
-                await ctx.Channel.SendMessageAsync(await service.NowPlaying()).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync(await player.NowPlaying()).ConfigureAwait(false);
             else
                 await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
@@ -124,27 +124,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if(service == null)
+            if(player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if(service.connection == null)
+            if(player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if(service.connection.CurrentState.CurrentTrack == null)
+            if(player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.RespondAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var message = await service.Pause();
+            var message = await player.Pause();
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
@@ -158,27 +158,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var message = await service.Resume();
+            var message = await player.Resume();
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
@@ -192,27 +192,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            bool isLooping = await service.Loop();
+            bool isLooping = await player.Loop();
             await ctx.RespondAsync($"Loop set to {isLooping}.");
         }
 
@@ -228,27 +228,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            bool isLooping = await service.QueueLoop();
+            bool isLooping = await player.QueueLoop();
             await ctx.RespondAsync($"Queue Loop set to {isLooping}.");
         }
 
@@ -262,27 +262,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.RespondAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var embed = await service.GetQueue();
+            var embed = await player.GetQueue();
             await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
         }
 
@@ -296,27 +296,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var result = await service.Remove(index);
+            var result = await player.Remove(index);
             await ctx.Channel.SendMessageAsync(result).ConfigureAwait(false);
         }
 
@@ -330,28 +330,28 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.RespondAsync("There are no tracks currently loaded");
                 return;
             }
 
             await ctx.Channel.SendMessageAsync("Skipped").ConfigureAwait(false);
-            await service.Skip();
+            await player.Skip();
         }
 
         [Command("NowPlaying")]
@@ -365,27 +365,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.RespondAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.RespondAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var embed = await service.NowPlaying();
+            var embed = await player.NowPlaying();
             await ctx.Channel.SendMessageAsync(embed: embed);
         }
 
@@ -399,30 +399,30 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var message = await service.Move(trackToMove, newPosition);
+            var message = await player.Move(trackToMove, newPosition);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
 
-            var currentQueue = await service.GetQueue();
+            var currentQueue = await player.GetQueue();
             await ctx.Channel.SendMessageAsync(currentQueue).ConfigureAwait(false);
         }
 
@@ -436,27 +436,27 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
             }
 
-            var message = await service.ClearQueue();
+            var message = await player.ClearQueue();
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
@@ -471,21 +471,21 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var service = musicServices.Find(x => x.guildID == ctx.Guild.Id);
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
 
-            if (service == null)
+            if (player == null)
             {
                 await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
                 return;
             }
 
-            if (service.connection == null)
+            if (player.connection == null)
             {
                 await ctx.Channel.SendMessageAsync("LavaLink not connected");
                 return;
             }
 
-            if (service.connection.CurrentState.CurrentTrack == null)
+            if (player.connection.CurrentState.CurrentTrack == null)
             {
                 await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
                 return;
@@ -493,7 +493,7 @@ namespace KunalsDiscordBot.Modules.Music
 
             TimeSpan time = TimeSpan.FromSeconds(seconds);
 
-            var message = await service.Seek(time);
+            var message = await player.Seek(time);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
     }

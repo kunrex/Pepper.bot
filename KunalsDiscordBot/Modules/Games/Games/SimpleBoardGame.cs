@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Modules.Games.Players;
+
 namespace KunalsDiscordBot.Modules.Games
 {
-    public abstract class BoardGame : Game
+    public abstract class SimpleBoardGame : Game
     {
         public CommandContext ctx { get; protected set; }
         public DiscordUser player1 { get; protected set; }
@@ -28,18 +30,5 @@ namespace KunalsDiscordBot.Modules.Games
         protected abstract Task<bool> CheckForWinner();
 
         protected abstract void PlayGame();
-
-        public struct InputResult
-        {
-            public enum EndType
-            {
-                none,
-                end,
-                afk
-            }
-
-            public bool completed { get; set; }
-            public EndType type { get; set; }
-        }
     }
 }

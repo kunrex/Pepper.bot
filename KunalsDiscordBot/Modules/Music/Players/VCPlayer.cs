@@ -16,7 +16,7 @@ using DSharpPlus.Lavalink.EventArgs;
 
 namespace KunalsDiscordBot.Services.Music
 {
-    public class MusicService : BotService
+    public class VCPlayer 
     {
         private static readonly int Height = 50;
         private static readonly int Width = 75;
@@ -37,7 +37,7 @@ namespace KunalsDiscordBot.Services.Music
 
         private DiscordChannel boundChannel { get; set; }
 
-        public MusicService(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension)
+        public VCPlayer(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension)
         {
             guildID = id;
             queue = new Queue<string>();
@@ -46,8 +46,6 @@ namespace KunalsDiscordBot.Services.Music
             node = nodeConnection;
             lava = extension;
         }
-
-        public LavalinkTrack GetCurrentTrack() => currentTrack;
 
         public async Task<string> Disconnect(string channelName)
         {
@@ -154,7 +152,6 @@ namespace KunalsDiscordBot.Services.Music
             }
 
             var embed = await NowPlaying();
-
             await boundChannel.SendMessageAsync(embed: embed);
         }
 
