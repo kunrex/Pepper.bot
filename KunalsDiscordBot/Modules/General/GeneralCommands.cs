@@ -40,11 +40,8 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("describe")]
         [Description("Random charecter dexcription in one word")]
-        public async Task charecter(CommandContext ctx, string name)
+        public async Task charecter(CommandContext ctx)
         {
-            if (name.ToLower().Equals("rysa"))
-                await ctx.Channel.SendMessageAsync("thanush");
-
             string[] replies = { "sweat", "memes", "god", "assasin", "simp", "trash", "legend" };
             Random r = new Random();
             int rand = r.Next(0, replies.Length - 1);
