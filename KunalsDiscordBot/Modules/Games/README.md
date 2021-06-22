@@ -13,8 +13,8 @@ Game
 |                      
  --- SimpleBoardGame 
 |    |
-|     - TicTacToe  
-|     - Connect4  
+|     -- TicTacToe  
+|     -- Connect4  
 |
  --- ComplexBoardGame 
       |
