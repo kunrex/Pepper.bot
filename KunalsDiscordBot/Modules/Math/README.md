@@ -14,3 +14,5 @@ The output would be
 x is equal to 1
 ```
 The variable need not be "x", it can be any single character.
+
+<img source = "Images/solve.png" width = 500>
