@@ -9,6 +9,7 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
 {
     public class Job
     {
+        //DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss")
         public readonly string Name;
         public int minLvlNeeded;
 

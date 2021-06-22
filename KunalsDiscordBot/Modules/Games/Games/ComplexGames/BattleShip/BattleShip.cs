@@ -12,8 +12,9 @@ using KunalsDiscordBot.Modules.Games.Players.Spectators;
 
 namespace KunalsDiscordBot.Modules.Games.Complex
 {
-    public class BattleShip : ComplexBoardGame<BattleShipPlayer>
+    public sealed class BattleShip : ComplexBoardGame<BattleShipPlayer>
     {
+        public static List<BattleShip> currentGames { get; private set; } = new List<BattleShip>();
         public static readonly int BoardSize = 10;
 
         public DiscordDmChannel ctx1 { get; private set; }
@@ -34,22 +35,21 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         public static readonly string[] letters = { ":regional_indicator_a:", ":regional_indicator_b:", ":regional_indicator_c:", ":regional_indicator_d:", ":regional_indicator_e:", ":regional_indicator_f:", ":regional_indicator_g:", ":regional_indicator_h:", ":regional_indicator_i:", ":regional_indicator_j:" };
         public static readonly string[] number = { ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:" };
+        public static readonly int[] shipSizes = { 1, 1, 2, 2, 3 };
 
-        public static List<BattleShipPlayer> currentPlayers = new List<BattleShipPlayer>();
         private List<DiscordSpectator> spectators = new List<DiscordSpectator>();
 
         public BattleShip(DiscordMember user1, DiscordMember user2, DiscordClient _client)
         {
             players = new List<BattleShipPlayer>();
 
-            var player1 = new BattleShipPlayer(user1, this);
-            var player2 = new BattleShipPlayer(user2, this);
+            var player1 = new BattleShipPlayer(user1);
+            var player2 = new BattleShipPlayer(user2);
 
             players.Add(player1);
             players.Add(player2);
 
-            currentPlayers.Add(player1);
-            currentPlayers.Add(player2);
+            currentGames.Add(this);
 
             client = _client;
 
@@ -107,8 +107,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         private async Task RemovePlayers()
         {
-            currentPlayers.Remove(players[0]);
-            currentPlayers.Remove(players[1]);
+            currentGames.Remove(this);
 
             foreach (var spectator in spectators)
                 spectator.End();

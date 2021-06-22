@@ -14,6 +14,7 @@ using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Modules.Currency.Jobs;
+using KunalsDiscordBot.Modules.Currency.Shops;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -292,6 +293,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Work")]
         [Description("Want to make some money?")]
+        [Cooldown(1, 10800, CooldownBucketType.User)]
         public async Task Work(CommandContext ctx)
         {
             var member = ctx.Member;
@@ -374,6 +376,109 @@ namespace KunalsDiscordBot.Modules.Currency
 
             await service.ChangeCoins(ctx.Member.Id, coins);
             await ctx.Channel.SendMessageAsync(embed: faileEmbed).ConfigureAwait(false);
+        }
+
+        [Command("Buy")]
+        [Description("Buy an item")]
+        public async Task BuyItem(CommandContext ctx, int quantity, [RemainingText]string itemName)
+        {
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+
+            var result = Shop.Buy(itemName, quantity, in profile);
+            if (!result.completed)
+                await ctx.Channel.SendMessageAsync(result.message).ConfigureAwait(false);
+            else
+            {
+                await service.ChangeCoins(ctx.Member.Id , - result.item.Price * quantity);
+                await service.AddOrRemoveItem(ctx.Member.Id, result.item.Name, quantity);
+
+                var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Height = 50,
+                    Width = 50,
+                    Url = ctx.Member.AvatarUrl
+                };
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Purchase Successful",
+                    Description = result.message,
+                    Thumbnail = thumbnail,
+                    Color = DiscordColor.Gold
+                };
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+        }
+
+        [Command("Sell")]
+        [Description("Buy an item")]
+        public async Task Sell(CommandContext ctx, int quantity, [RemainingText] string itemName)
+        {
+            var result = Shop.GetItem(itemName);
+            var item = service.GetItem(ctx.Member.Id, itemName);
+
+            if (result == null)
+                await ctx.Channel.SendMessageAsync("The item doesn't exist??");  
+            else if (item == null)
+                await ctx.Channel.SendMessageAsync("You don't have this item??").ConfigureAwait(false);
+            else
+            {
+                await service.ChangeCoins(ctx.Member.Id, result.SellingPrice * quantity);
+                await service.AddOrRemoveItem(ctx.Member.Id, result.Name, -quantity);
+
+                var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Height = 50,
+                    Width = 50,
+                    Url = ctx.Member.AvatarUrl
+                };
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Sold item",
+                    Description = $"Successfuly sold {quantity} {result.Name}(s) for {quantity * result.SellingPrice}",
+                    Thumbnail = thumbnail,
+                    Color = DiscordColor.Gold
+                };
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+        }
+
+        [Command("Inventory")]
+        [Description("Shows your inventory")]
+        public async Task ShowInventory(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            var items = await service.GetItems(member.Id);
+
+            string descripton = string.Empty;
+
+            int index = 1;
+            foreach(var item in items)
+            {
+                descripton += $"{index}. {item.Name}\n  Quantity: {item.Count}\n\n";
+                index++;
+            }
+
+            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            {
+                Height = 50,
+                Width = 50,
+                Url = member.AvatarUrl
+            };
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{member.Username}'s Inventory",
+                Description = descripton,
+                Color = DiscordColor.Gold,
+                Thumbnail = thumbnail
+            };
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
     }
 }

@@ -16,7 +16,7 @@ using DSharpPlus.Lavalink.EventArgs;
 
 namespace KunalsDiscordBot.Services.Music
 {
-    public class VCPlayer 
+    public sealed class VCPlayer 
     {
         private static readonly int Height = 50;
         private static readonly int Width = 75;
@@ -76,7 +76,7 @@ namespace KunalsDiscordBot.Services.Music
             connection.PlaybackFinished += OnSongFinish;
             boundChannel = _boundChannel;
 
-            return $"Joined {_channel.Name}! \nUse the `play` command to play some music";
+            return $"Joined <#{_channel.Id}> and bound to <#{_boundChannel.Id}> \nUse the `play` command to play some music";
         }
 
         private async Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args) => await PlayNext();
@@ -210,7 +210,7 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<DiscordEmbedBuilder> GetQueue()
         {
-            string description = string.Empty;
+            string description;
 
             description = $"Now Playing: `{currentTrack.Title}`\n\n __Up Next__\n";
             if (queue.Count > 0)
@@ -271,6 +271,7 @@ namespace KunalsDiscordBot.Services.Music
             };
 
             embed.AddField("`Requested By:` ", memberWhoRequested);
+            embed.AddField("`Position`", $"{connection.CurrentState.PlaybackPosition.Minutes} : {connection.CurrentState.PlaybackPosition.Minutes}");
             embed.AddField("`Next Search:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
             embed.AddField("`Looping`", isLooping.ToString(), true);
             embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
@@ -344,10 +345,14 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task Skip() => await connection.StopAsync();
 
-        public async Task<string> Seek(TimeSpan span)
+        public async Task<string> Seek(TimeSpan span, bool relative = false)
         {
-            await connection.SeekAsync(span);
-            return $"Playing from {span.Minutes}:{span.Seconds}";
+            if(relative)
+                await connection.SeekAsync(connection.CurrentState.PlaybackPosition + span);
+            else
+                await connection.SeekAsync(span);
+
+            return $"Playing from {connection.CurrentState.PlaybackPosition.Minutes}:{connection.CurrentState.PlaybackPosition.Seconds}";
         }
     }
 }

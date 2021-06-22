@@ -64,6 +64,7 @@
     <Folder Include="Modules\Games\Players\Spectators\" />
     <Folder Include="Core\" />
     <Folder Include="Modules\Games\Games\ComplexGames\BattleShip\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\Shop\ItemData\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -92,6 +93,7 @@
     <None Remove="Modules\Games\Players\Spectators\" />
     <None Remove="Core\" />
     <None Remove="Modules\Games\Games\ComplexGames\BattleShip\" />
+    <None Remove="Modules\Currency\AccessoryClasses\Shop\ItemData\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

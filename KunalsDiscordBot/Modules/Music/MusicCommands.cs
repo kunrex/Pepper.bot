@@ -496,5 +496,76 @@ namespace KunalsDiscordBot.Modules.Music
             var message = await player.Seek(time);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
+
+        [Command("forward")]
+        [Description("move a few seconds forward")]
+        public async Task Forward(CommandContext ctx, int seconds)
+        {
+            if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+            {
+                await ctx.Channel.SendMessageAsync("You are not in a voice channel");
+                return;
+            }
+
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
+
+            if (player == null)
+            {
+                await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
+                return;
+            }
+
+            if (player.connection == null)
+            {
+                await ctx.Channel.SendMessageAsync("LavaLink not connected");
+                return;
+            }
+
+            if (player.connection.CurrentState.CurrentTrack == null)
+            {
+                await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
+                return;
+            }
+
+            TimeSpan time = TimeSpan.FromSeconds(seconds);
+            var message = await player.Seek(time, true);
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        [Command("rewind")]
+        [Description("move a few seconds backward")]
+        public async Task Rewind(CommandContext ctx, int seconds)
+        {
+            if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
+            {
+                await ctx.Channel.SendMessageAsync("You are not in a voice channel");
+                return;
+            }
+
+            var player = players.Find(x => x.guildID == ctx.Guild.Id);
+
+            if (player == null)
+            {
+                await ctx.Channel.SendMessageAsync("Pepper isn't in a voice channel");
+                return;
+            }
+
+            if (player.connection == null)
+            {
+                await ctx.Channel.SendMessageAsync("LavaLink not connected");
+                return;
+            }
+
+            if (player.connection.CurrentState.CurrentTrack == null)
+            {
+                await ctx.Channel.SendMessageAsync("There are no tracks currently loaded");
+                return;
+            }
+
+            TimeSpan time = TimeSpan.FromSeconds(seconds);
+
+            var message = await player.Seek(-time, true);
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+        }
     }
 }

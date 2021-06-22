@@ -76,7 +76,7 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync("You can't play against a bot dum dum").ConfigureAwait(false);
                 return;
             }
-            else if(BattleShip.currentPlayers.Find(x => x.member == ctx.Member) != null || BattleShip.currentPlayers.Find(x => x.member == other) != null)
+            else if(BattleShip.currentGames.Find(x => x.players.Find(x => x.member.Id == ctx.Member.Id) != null) != null)
             {
                 await ctx.Channel.SendMessageAsync("One of the players is already in a match").ConfigureAwait(false);
                 return;
@@ -164,13 +164,13 @@ namespace KunalsDiscordBot.Modules.Games
             switch(type)
             {
                 case var t when t == typeof(BattleShip):
-                    var player = BattleShip.currentPlayers.Find(x => x.member.Username == user.Username);
+                    var match = BattleShip.currentGames.Find(x => x.players.Find(x => x.member.Id == ctx.Member.Id) != null);
 
-                    if (player == null)
+                    if (match == null)
                         await ctx.Channel.SendMessageAsync("Player isn't playing the specified game").ConfigureAwait(false);
                     else
                     {
-                        var battleShipGame = player.battleShipGame;
+                        var battleShipGame = match;
                         await battleShipGame.AddSpectator(ctx.Member);
                     }
                     break;

@@ -129,6 +129,16 @@ namespace KunalsDiscordBot.Services.Currency
             if (item != null)//item already exists
             {
                 item.Count += quantity;
+
+                if(item.Count == 0)
+                {
+                    var removeEntry = context.ProfileItems.Remove(item);
+                    await context.SaveChangesAsync();
+
+                    removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                    return true;
+                }
+
                 var _updateEntry = context.ProfileItems.Update(item);
                 await context.SaveChangesAsync();
 

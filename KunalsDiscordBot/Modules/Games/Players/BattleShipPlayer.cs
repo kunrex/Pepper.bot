@@ -15,18 +15,16 @@ namespace KunalsDiscordBot.Modules.Games.Players
 {
     public class BattleShipPlayer : DiscordPlayer
     {
-        public BattleShipPlayer(DiscordMember _member, BattleShip game) : base(_member)
+        public BattleShipPlayer(DiscordMember _member) : base(_member)
         {
             member = _member;
 
             ships = new Ship[BattleShip.numOfShips];
-            battleShipGame = game;
         }
 
         public Ship[] ships { get; private set; }
         private int[,] board;
 
-        public BattleShip battleShipGame { get; private set; }
         private DiscordDmChannel dmChannel { get; set; }
 
         public async Task<int[,]> GetBoard()
@@ -47,8 +45,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
         public async Task<InputResult> GetShips(DiscordClient client)
         {
             var interactivity = client.GetInteractivity();
-            var inputResult = new InputResult();
-
             var Embed = new DiscordEmbedBuilder
             {
                 Title = "Board",
@@ -56,8 +52,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             };
 
             var setUpMessage = await dmChannel.SendMessageAsync($"This is your Board. \n Every time a ship is entered, it will be edited to show your placement", embed: Embed).ConfigureAwait(false);
-
-            int[] numOfBlocks = { 1, 1, 2, 2, 3 };
+            int[] numOfBlocks = BattleShip.shipSizes;
 
             for (int i = 0; i < BattleShip.numOfShips; i++)
             {
@@ -78,14 +73,11 @@ namespace KunalsDiscordBot.Modules.Games.Players
                     else
                         await dmChannel.SendMessageAsync("Invalid position, enter again").ConfigureAwait(false);
                 
-                    //edit the message
-                    Embed = new DiscordEmbedBuilder
+                    DiscordEmbed embed = new DiscordEmbedBuilder
                     {
                         Title = "Your Board",
                         Description = await GetBoardToPrint(true)
                     };
-
-                    DiscordEmbed embed = Embed;
 
                     await setUpMessage.ModifyAsync(embed: embed).ConfigureAwait(false);
                 }
@@ -93,16 +85,16 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             await dmChannel.SendMessageAsync("All Ship Positions Recorded").ConfigureAwait(false);
 
-            inputResult.wasCompleted = true;
-            inputResult.type = InputResult.Type.valid;
-
-            return inputResult;
+            return new InputResult
+            {
+                wasCompleted = true,
+                type = InputResult.Type.valid
+            };
         }
 
         public async Task<InputResult> GetAttackPos(DiscordClient client, int[,] other)
         {
             var interactivity = client.GetInteractivity();
-            var inputResult = new InputResult();
 
             bool isCompleted = false;
             CoOrdinate ordinate = new CoOrdinate();
@@ -122,10 +114,12 @@ namespace KunalsDiscordBot.Modules.Games.Players
                     await dmChannel.SendMessageAsync("Invalid Position");
             }
 
-            inputResult.ordinate = ordinate;
-            inputResult.wasCompleted = true;
-            inputResult.type = InputResult.Type.valid;
-            return inputResult;
+            return new InputResult
+            {
+                ordinate = ordinate,
+                wasCompleted = true,
+                type = InputResult.Type.valid
+            };
         }
 
         private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
@@ -194,6 +188,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
         }
 
+        private bool TryParseAndAdd(string message, out CoOrdinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
+
         private bool IsFormatted(string message, out CoOrdinate position, out bool isVertical)
         {
             isVertical = false;
@@ -244,8 +240,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
 
         }
-
-        private bool TryParseAndAdd(string message, out CoOrdinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
 
         private bool IsFormatted(string message, out CoOrdinate ordinate)
         {
