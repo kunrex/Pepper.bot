@@ -24,3 +24,5 @@ The player has the following commands to manipulate the current track
 * Loop
 
 Combined the player provides a simple, easy to use and robust system to vibe with some tunes.
+
+<img src="Images/music.png" width = 500> 
