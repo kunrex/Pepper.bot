@@ -139,7 +139,8 @@ public async Task NewImageCommand(CommandContext ctx, [RemainingText] string mes
     fs.Close();//close the stream
   }
 
-  image.Save(filePath);
+  saveImage.Save(filePath);
 }
 ```
+
 Congratulations, we've created a new Image Command! Now try it out on Discord.
