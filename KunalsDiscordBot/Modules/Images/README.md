@@ -144,3 +144,6 @@ public async Task NewImageCommand(CommandContext ctx, [RemainingText] string mes
 ```
 
 Congratulations, we've created a new Image Command! Now try it out on Discord.
+
+
+<image src="GitHubImages/amogus.png" width = 300>
