@@ -90,8 +90,8 @@ I would reccomend reading up on these topics.
 
 ## Plans for the future
 
-I'm not quite done with the bot and will finish it before making this repo public. My main goal is to add a currency system linked to a database and its in developement :D.
-I can add more games, images and modules. After all this is just to learn. Am also looking to add special prefix' for each server
+I'm not quite done with the bot and will finish it before making this repo public. Right now my goal is to finish the currency system linked to the database.
+I can add more games, images and modules. After all this is just to learn. Am also looking to add special prefix' for each server but that may include a custom command handler 
 
 For More info you can contact me on Discord
 
