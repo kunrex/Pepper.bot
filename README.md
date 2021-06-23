@@ -78,7 +78,7 @@ This is the same project we deleted the "Migrations" folder from earlier. If you
 the last part of the line line uses the DbContext called "DataContext" in the namespace "DiscordBotDataBase.Dal". Similarly to the migrations project, if you change the class or namespace names then you must do so here as well.
 If you have done everything correctly and the build succeedes its time to actually create our database using the following command
 ```
-dotnet-ef databse update InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
+dotnet-ef database update InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
 ```
 Its the same as before but instead of **migrations add**, we use **databse update**. The other parameters are the same.
 If you get no errors and the build succeedes then you should see a file called Data.db appear in the folder called "KunalsDiscordBot" considering you haven't changed anything.
