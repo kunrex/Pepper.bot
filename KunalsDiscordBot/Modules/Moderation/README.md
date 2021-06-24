@@ -18,4 +18,6 @@ The permissions needed -
 
 The User needs to be an Administrator to use these commands as well.
 
-These modules could easily be modified to add things like infractions and endorsements.
+These modules have functionality for endrosements and infractions. These services are linked to the database and can provide a valid base for keeping modertion in servers.
+The Database also keeps tracks of Bans and Kicks in the server.
+Each Endorsement, Infraction, Kick and Ban has its own unique ID which can be used to retrieve data about them
