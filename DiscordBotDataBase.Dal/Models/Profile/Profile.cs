@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DiscordBotDataBase.Dal.Models.Items;
+using DiscordBotDataBase.Dal.Models.Profile.Boosts;
 
 namespace DiscordBotDataBase.Dal.Models.Profile
 {
@@ -17,5 +18,6 @@ namespace DiscordBotDataBase.Dal.Models.Profile
         public string Job { get; set; }
 
         public List<ItemDBData> Items { get; set; } = new List<ItemDBData>();
+        public List<BoostData> Boosts { get; set; } = new List<BoostData>();
     }
 }

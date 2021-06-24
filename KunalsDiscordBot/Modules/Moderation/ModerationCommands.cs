@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
 using System;
+using KunalsDiscordBot.Modules.Moderation.Services;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -21,6 +22,10 @@ namespace KunalsDiscordBot.Modules.Moderation
     [RequireBotPermissions(Permissions.Administrator | Permissions.BanMembers | Permissions.KickMembers | Permissions.ManageRoles)]
     public class ModerationCommands : BaseCommandModule
     {
+        private readonly IModerationService service;
+
+        public ModerationCommands(IModerationService moderationService) => service = moderationService;
+
         [Command("AddRole")]
         [Aliases("ar")]
         public async Task AddRole(CommandContext ctx, DiscordRole role, DiscordMember member)
@@ -72,6 +77,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         }
 
         [Command("Ban")]
+        [Description("Bans a member")]
         public async Task BanMember(CommandContext ctx, DiscordMember member, int numOfDays = 5, string reason = "Unspecified")
         {
             await member.BanAsync(5, reason).ConfigureAwait(false);
@@ -86,9 +92,11 @@ namespace KunalsDiscordBot.Modules.Moderation
             embed.AddField("Reason: ", reason);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            await service.AddBan(member.Id, ctx.Guild.Id, reason, $"{numOfDays} days");
         }
 
         [Command("Kick")]
+        [Description("Kicks a member")]
         public async Task KickMember(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
             await member.RemoveAsync(reason).ConfigureAwait(false);
@@ -102,8 +110,56 @@ namespace KunalsDiscordBot.Modules.Moderation
             embed.AddField("Reason: ", reason);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            await service.AddKick(member.Id, ctx.Guild.Id, reason);
         }
 
+        [Command("GetKick")]
+        [Description("Gets a kick event using its ID")]
+        public async Task GetKick(CommandContext ctx, int kickID)
+        {
+            var kick = await service.GetKick(kickID);
+
+            if (kick == null)
+            {
+                await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist");
+                return;
+            }
+
+            var profile = await service.GetProfile(kick.ModerationProfileId);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Kick {kick.Id}",
+                Description = $"User: <@{profile.DiscordId}>\nReason: {kick.Reason}",
+                Color = DiscordColor.NotQuiteBlack
+            };
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("GetBan")]
+        [Description("Gets a kick event using its ID")]
+        public async Task GetBan(CommandContext ctx, int banID)
+        {
+            var ban = await service.GetBan(banID);
+
+            if (ban == null)
+            {
+                await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist");
+                return;
+            }
+
+            var profile = await service.GetProfile(ban.ModerationProfileId);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Ban {ban.Id}",
+                Description = $"User: <@{profile.DiscordId}>\nReason: {ban.Reason}",
+                Color = DiscordColor.NotQuiteBlack
+            };
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
 
         [Command("RemoveAllRoles")]
         [Aliases("rar")]
@@ -119,6 +175,39 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             embed.AddField("From: ", member.Mention);
             embed.AddField("Reason: ", reason);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("MemberInfo")]
+        [Description("Gets moderation info about the member")]
+        public async Task MembedInfo(CommandContext ctx, DiscordMember member)
+        {
+            var profile = await service.GetProfile(member.Id, ctx.Guild.Id);
+
+            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            {
+                Url = member.AvatarUrl,
+                Height = 30,
+                Width = 30
+            };
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
+                Thumbnail = thumbnail,
+                Color = DiscordColor.DarkButNotBlack
+            };
+
+            int infractions = await service.GetInfractions(member.Id, ctx.Guild.Id);
+            int endorsements = await service.GetEndorsements(member.Id, ctx.Guild.Id);
+            int bans = await service.GetBans(member.Id, ctx.Guild.Id);
+            int kicks = await service.GetKicks(member.Id, ctx.Guild.Id);
+
+            embed.AddField("Infractions: ", infractions.ToString(), true);
+            embed.AddField("Endorsements: ", endorsements.ToString(), true);
+            embed.AddField("Bans: ", bans.ToString());
+            embed.AddField("Kicks: ", kicks.ToString(), true);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }

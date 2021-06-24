@@ -30,7 +30,7 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             service = _service;
         }
-        
+
         [Command("profile")]
         [Description("Gets the profile of he user")]
         public async Task GetProfile(CommandContext ctx, DiscordMember member = null)
@@ -78,13 +78,22 @@ namespace KunalsDiscordBot.Modules.Currency
 
             int level = (int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
             embed.AddField("Level: ", $"{level}");
-
             embed.AddField("Job: ", profile.Job);
+
+            string boosts = string.Empty;
+            int index = 1;
+            foreach (var boost in await service.GetBoosts(ctx.Member.Id))
+            {
+                boosts += $"{index}. {boost.BoosteName}";
+                index++;
+            }
+
+            embed.AddField("Boosts:\n", boosts);
 
             await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
         }
 
-        [Command("Depsoit")]
+        [Command("Deposit")]
         [Aliases("dep")]
         [Description("Deposits Money into the bank")]
         public async Task Deposit(CommandContext ctx, string amount)
@@ -378,6 +387,69 @@ namespace KunalsDiscordBot.Modules.Currency
             await ctx.Channel.SendMessageAsync(embed: faileEmbed).ConfigureAwait(false);
         }
 
+        [Command("Shop")]
+        [Description("Diaplays items in the shop")]
+        public async Task ShowShop(CommandContext ctx, [RemainingText] string itemName = null)
+        {
+            if(itemName == null)
+            {
+                var items = Shop.AllItems;
+
+                var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Width = 30,
+                    Height = 30,
+                    Url = ctx.Member.AvatarUrl
+                };
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Shop",
+                    Thumbnail = thumbnail,
+                    Color = DiscordColor.Gold
+                };
+                int index = 0;
+
+                foreach (var item in items)
+                    embed.AddField($"{index++}. {item.Name}\n", $" Description: {item.Description}\nPrice: {item.Price}\n\n");
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+            else
+            {
+                var item = Shop.GetItem(itemName);
+                var proilfeItem = await service.GetItem(ctx.Member.Id, item.Name);
+
+                if (item == null)
+                {
+                    await ctx.Channel.SendMessageAsync("The item doesn't exist??");
+                    return;
+                }
+
+                var emoji = DiscordEmoji.FromName(ctx.Client, ":coin:");
+
+                var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Width = 30,
+                    Height = 30,
+                    Url = emoji.Url
+                };
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = item.Name,
+                    Description = item.Description,
+                    Thumbnail = thumbnail,
+                    Color = DiscordColor.Gold
+                };
+
+                embed.AddField("Price: ", item.Price.ToString(), true);
+                embed.AddField("Owned: ", proilfeItem.Count.ToString(), true);
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+        }
+
         [Command("Buy")]
         [Description("Buy an item")]
         public async Task BuyItem(CommandContext ctx, int quantity, [RemainingText]string itemName)
@@ -412,7 +484,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Sell")]
-        [Description("Buy an item")]
+        [Description("Sell an item")]
         public async Task Sell(CommandContext ctx, int quantity, [RemainingText] string itemName)
         {
             var result = Shop.GetItem(itemName);
@@ -479,6 +551,82 @@ namespace KunalsDiscordBot.Modules.Currency
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("Use")]
+        [Description("Shows your inventory")]
+        public async Task Use(CommandContext ctx, [RemainingText] string itemName)
+        {
+            var item = Shop.GetItem(itemName);
+            if(item == null)
+            {
+                await ctx.Channel.SendMessageAsync("This item doesn't exist??").ConfigureAwait(false);
+                return;
+            }
+
+            var itemData = await service.GetItem(ctx.Member.Id, item.Name);
+            if (itemData == null)
+            {
+                await ctx.Channel.SendMessageAsync("You don't have this item??").ConfigureAwait(false);
+                return;
+            }
+
+
+            var useResult = item.Use();
+            if (!useResult.usableItem)
+            {
+                await ctx.Channel.SendMessageAsync(useResult.message).ConfigureAwait(false);
+                return;
+            }
+            else if(useResult.BoostName != null)//Boost item
+            {
+                int boost = useResult.BoostValue;
+
+                if (!useResult.isTimed)
+                {
+                    await service.ChangeMaxCoinsBank(ctx.Member.Id, boost);
+                    await service.AddOrRemoveItem(ctx.Member.Id, item.Name, -1);
+
+                    var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Height = 50,
+                        Width = 50,
+                        Url = ctx.Member.AvatarUrl
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"Used {item.Name}",
+                        Description = $"Increaed bank space by {boost}",
+                        Color = DiscordColor.Gold,
+                        Thumbnail = thumbnail
+                    };
+
+                    await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                }
+                else
+                {
+                    await service.AddOrRemoveItem(ctx.Member.Id, item.Name, -1);
+                    await service.AddOrRemoveBoost(ctx.Member.Id, useResult.BoostName, boost, useResult.BooseTime, DateTime.Now.ToString(), 1);
+
+                    var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Height = 50,
+                        Width = 50,
+                        Url = ctx.Member.AvatarUrl
+                    };
+
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"Added boost",
+                        Description = $"Increaed luck by {boost} for {useResult.BooseTime} hours",
+                        Color = DiscordColor.Gold,
+                        Thumbnail = thumbnail
+                    };
+
+                    await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                }
+            }
         }
     }
 }

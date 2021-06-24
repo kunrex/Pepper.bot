@@ -12,6 +12,9 @@
     <None Remove="Models\" />
     <None Remove="Models\Items\" />
     <None Remove="Models\Profile\" />
+    <None Remove="Models\Profile\Boosts\" />
+    <None Remove="Models\Moderation\" />
+    <None Remove="Models\Moderation\SubData\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
@@ -26,5 +29,8 @@
     <Folder Include="Models\" />
     <Folder Include="Models\Items\" />
     <Folder Include="Models\Profile\" />
+    <Folder Include="Models\Profile\Boosts\" />
+    <Folder Include="Models\Moderation\" />
+    <Folder Include="Models\Moderation\SubData\" />
   </ItemGroup>
 </Project>

@@ -9,6 +9,7 @@ using DSharpPlus.Entities;
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Items;
 using DiscordBotDataBase.Dal.Models.Profile;
+using DiscordBotDataBase.Dal.Models.Profile.Boosts;
 
 namespace KunalsDiscordBot.Services.Currency
 {
@@ -77,15 +78,30 @@ namespace KunalsDiscordBot.Services.Currency
             return true;
         }
 
-        public async Task<bool> ChangeCoinsBank(ulong id, int val)
+
+        public async Task<bool> ChangeMaxCoinsBank(ulong id, int val)
         {
             var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
 
             if (profile == null)
                 return false;
 
-            if (profile.CoinsBankMax == 0)
-                profile.CoinsBankMax = 100;
+            profile.CoinsBankMax += val;
+
+            var updateEntry = context.UserProfiles.Update(profile);
+            await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
+        }
+
+        public async Task<bool> ChangeCoinsBank(ulong id, int val)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return false;
 
             profile.CoinsBank += val;
             profile.CoinsBank = System.Math.Clamp(profile.CoinsBank, 0, profile.CoinsBankMax);
@@ -170,6 +186,58 @@ namespace KunalsDiscordBot.Services.Currency
             updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
             return true;
+        }
+
+        public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, int time, string startTime, int quantity)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return false;
+
+            var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.BoosteName.ToLower() == name.ToLower());
+            if (boost != null)//boost already exists
+            {
+                if(quantity > 0)
+                    return false;//prevent more than one boost
+                else
+                {
+                    var removeEntry = context.ProfileBoosts.Remove(boost);
+                    await context.SaveChangesAsync();
+
+                    removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                    return true;
+                }
+            }
+
+            boost = new BoostData { BoosteName = name, BoostTime = time, BoostValue = value, BoostStartTime = startTime };
+            profile.Boosts.Add(boost);
+
+            var updateEntry = context.UserProfiles.Update(profile);
+            await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
+        public async Task<BoostData> GetBoost(ulong id, string name)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return null;
+
+            var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.BoosteName.ToLower() == name.ToLower());
+
+            return boost;
+        }
+
+        public async Task<List<BoostData>> GetBoosts(ulong id)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+            var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
+
+            return boosts;
         }
     }
 }

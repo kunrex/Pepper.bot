@@ -11,13 +11,23 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
 {
     public static class Shop
     {
-        public static readonly Item Laptop = new Item("Laptop", 125, "Allows you to run the currency meme, code and game commands",
-            UseType.Presence, new PresenceItem(PresenceItem.PresenceCommand.Code | PresenceItem.PresenceCommand.Game | PresenceItem.PresenceCommand.Meme));
+        public static readonly Item Laptop = new PresenceItem("Laptop", 125, "Allows you to run the currency meme, code and game commands", UseType.Presence, new PresenceItemData(
+            PresenceItemData.PresenceCommand.Meme | PresenceItemData.PresenceCommand.Game | PresenceItemData.PresenceCommand.Code
+            ));
 
-        public static readonly Item HuntingKit = new Item("Hunting Kit", 125, "Allows you to use the currency hunt and currency fish commands",
-            UseType.Presence, new PresenceItem(PresenceItem.PresenceCommand.Hunt | PresenceItem.PresenceCommand.Fish));
+        public static readonly Item HuntingKit = new PresenceItem("Hunting Kit", 125, "Allows you to run the currency hunt and fish commands", UseType.Presence, new PresenceItemData(
+           PresenceItemData.PresenceCommand.Hunt | PresenceItemData.PresenceCommand.Fish
+           ));
 
-        public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit };
+        public static readonly Item BankCard = new BoostItem("Bank Card", 125, "Provides extra bank space", UseType.BoostMoney, new BoostItemData(
+            BoostItemData.BoostType.BankSpace, 350, 700
+          ));
+
+        public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.BoostLuck, new BoostItemData(
+           BoostItemData.BoostType.Luck, 10, 20
+         ));
+
+        public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit, BankCard, Alcohol };
 
         public static BuyResult Buy(string itemName, int quantity, in Profile profile)
         {

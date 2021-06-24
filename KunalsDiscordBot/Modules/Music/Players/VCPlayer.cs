@@ -30,6 +30,7 @@ namespace KunalsDiscordBot.Services.Music
 
         private string memberWhoRequested = string.Empty;
 
+        private bool isPaused { get; set; }
         private bool isLooping { get; set; }
         private bool queueLoop { get; set; }
         private LavalinkTrack currentTrack;
@@ -157,13 +158,22 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> Pause()
         {
+            if (isPaused)
+                return "Player already paused";
+
             await connection.PauseAsync();
+            isPaused = true;
+
             return "Player Paused";
         }
 
         public async Task<string> Resume()
         {
+            if (!isPaused)
+                return "Player in't paused";
+
             await connection.ResumeAsync();
+            isPaused = false;
             return "Player Resumed";
         }
 
@@ -273,6 +283,7 @@ namespace KunalsDiscordBot.Services.Music
             embed.AddField("`Requested By:` ", memberWhoRequested);
             embed.AddField("`Position`", $"{connection.CurrentState.PlaybackPosition.Minutes} : {connection.CurrentState.PlaybackPosition.Minutes}");
             embed.AddField("`Next Search:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
+            embed.AddField("`Paused`", isPaused.ToString(), true);
             embed.AddField("`Looping`", isLooping.ToString(), true);
             embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
 

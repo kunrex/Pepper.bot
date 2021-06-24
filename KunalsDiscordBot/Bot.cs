@@ -105,7 +105,15 @@ namespace KunalsDiscordBot
         private async void ConnectAsync(DiscordClient client, LavalinkExtension lavaLink, LavalinkConfiguration config)
         {
             await client.ConnectAsync();
-            await lavaLink.ConnectAsync(config);
+
+            try
+            {
+                await lavaLink.ConnectAsync(config);
+            }
+            catch
+            {
+
+            }
         }
 
         private class ConfigData

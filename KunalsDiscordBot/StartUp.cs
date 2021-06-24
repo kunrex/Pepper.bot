@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DiscordBotDataBase.Dal;
 using KunalsDiscordBot.Services.Currency;
+using KunalsDiscordBot.Modules.Moderation.Services;
 
 namespace KunalsDiscordBot
 {
@@ -22,6 +23,7 @@ namespace KunalsDiscordBot
             });
 
             services.AddScoped<IProfileService, ProfileService>();
+            services.AddScoped<IModerationService, ModerationService>();
 
             BuildService(services);
         }

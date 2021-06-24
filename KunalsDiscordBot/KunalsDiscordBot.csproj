@@ -64,7 +64,9 @@
     <Folder Include="Modules\Games\Players\Spectators\" />
     <Folder Include="Core\" />
     <Folder Include="Modules\Games\Games\ComplexGames\BattleShip\" />
-    <Folder Include="Modules\Currency\AccessoryClasses\Shop\ItemData\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\" />
+    <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
+    <Folder Include="Modules\Moderation\Services\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -93,7 +95,9 @@
     <None Remove="Modules\Games\Players\Spectators\" />
     <None Remove="Core\" />
     <None Remove="Modules\Games\Games\ComplexGames\BattleShip\" />
-    <None Remove="Modules\Currency\AccessoryClasses\Shop\ItemData\" />
+    <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\" />
+    <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
+    <None Remove="Modules\Moderation\Services\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">
