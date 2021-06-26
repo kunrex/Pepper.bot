@@ -80,7 +80,7 @@ If you have done everything correctly and the build succeedes its time to actual
 ```
 dotnet-ef database update InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
 ```
-Its the same as before but instead of **migrations add**, we use **databse update**. The other parameters are the same.
+Its the same as before but instead of **migrations add**, we use **database update**. The other parameters are the same.
 If you get no errors and the build succeedes then you should see a file called Data.db appear in the folder called "KunalsDiscordBot" considering you haven't changed anything.
 If you do then great work! The databse has been set up succesfully.
 
