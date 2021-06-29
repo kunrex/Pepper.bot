@@ -1,6 +1,7 @@
 ﻿//System name spaces
 using System.Threading.Tasks;
 using System.Linq;
+using System.Reflection;
 
 //D# name spaces
 using DSharpPlus.CommandsNext;
@@ -16,18 +17,21 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
     [Group("SoftModeration")]
     [Aliases("softmod", "sm")]
-    [Decor("NotQuiteBlack", ":gear:")]
+    [Decor("DarkButNotBlack", ":gear:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
-    [RequireBotPermissions(Permissions.ManageNicknames)]
-    [RequireUserPermissions(Permissions.Administrator)]
+    [RequireBotPermissions(Permissions.Administrator)]
     public class SoftModerationCommands : BaseCommandModule
     {
         private readonly IModerationService service;
 
         public SoftModerationCommands(IModerationService moderationService) => service = moderationService;
+        private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<Decor>().color;
+        private static readonly int ThumbnailSize = 30;
 
         [Command("ChangeNickName")]
         [Aliases("cnn")]
+        [RequireBotPermissions(Permissions.ManageNicknames)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task ChangeNickName(CommandContext ctx, DiscordMember member, string newNick)
         {
             try
@@ -44,6 +48,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("VCMute")]
         [Aliases("vcm")]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task VoiceMuteMember(CommandContext ctx, DiscordMember member, bool toMute)
         {
             await member.SetMuteAsync(toMute).ConfigureAwait(false);
@@ -53,6 +58,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("VCDeafen")]
         [Aliases("vcd")]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task VoiceDeafenMember(CommandContext ctx, DiscordMember member, bool toDeafen)
         {
             await member.SetDeafAsync(toDeafen).ConfigureAwait(false);
@@ -63,30 +69,26 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Command("AddInfraction")]
         [Aliases("AI")]
         [Description("Adds an infraction for the user")]
-        public async Task AddInfraction(CommandContext ctx, DiscordMember member, string reason)
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddInfraction(CommandContext ctx, DiscordMember member, string reason = "Unpsecified")
         {
-            reason ??= string.Empty;
             var id = await service.AddInfraction(member.Id, ctx.Guild.Id, reason);
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Height = 40,
-                Width = 40,
-                Url = member.AvatarUrl
-            };
-
-            var footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"Id: {id}"
-            };
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Infraction Added",
                 Description = $"Reason: {reason}",
-                Thumbnail = thumbnail,
-                Color = DiscordColor.NotQuiteBlack,
-                Footer = footer
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize,
+                    Url = member.AvatarUrl
+                },
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Id: {id}"
+                }
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -95,30 +97,26 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Command("AddEndorsement")]
         [Aliases("AE")]
         [Description("Adds an endorsement for the user")]
-        public async Task AddEndorsement(CommandContext ctx, DiscordMember member, string reason)
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddEndorsement(CommandContext ctx, DiscordMember member, string reason = "Unpsecified")
         {
-            reason ??= string.Empty;
             var id = await service.AddEndorsement(member.Id, ctx.Guild.Id, reason);
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Height = 40,
-                Width = 40,
-                Url = member.AvatarUrl
-            };
-
-            var footer = new DiscordEmbedBuilder.EmbedFooter
-            {
-                Text = $"Id: {id}"
-            };
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Endrosement Added",
                 Description = $"Reason: {reason}",
-                Thumbnail = thumbnail,
-                Color = DiscordColor.NotQuiteBlack,
-                Footer = footer
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize,
+                    Url = member.AvatarUrl
+                },
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Id: {id}"
+                }
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -143,7 +141,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Endorsement {endorsement.Id}",
                 Description = $"User: <@{profile.DiscordId}>\nReason: {endorsement.Reason}",
-                Color = DiscordColor.NotQuiteBlack
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -168,7 +166,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Infraction {endorsement.Id}",
                 Description = $"User: <@{profile.DiscordId}>\nReason: {endorsement.Reason}",
-                Color = DiscordColor.NotQuiteBlack
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -178,20 +176,18 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Description("Gets moderation info about the member")]
         public async Task MembedInfo(CommandContext ctx, DiscordMember member)
         {
-            var profile = await service.GetProfile(member.Id, ctx.Guild.Id);
-
             var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
                 Url = member.AvatarUrl,
-                Height = 30,
-                Width = 30
+                Height = ThumbnailSize,
+                Width = ThumbnailSize
             };
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
                 Thumbnail = thumbnail,
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             int infractions = await service.GetInfractions(member.Id, ctx.Guild.Id);

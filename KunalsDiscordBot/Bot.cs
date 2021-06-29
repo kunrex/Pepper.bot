@@ -90,7 +90,7 @@ namespace KunalsDiscordBot
             commands.RegisterCommands<MathCommands>();
             commands.RegisterCommands<GameCommands>();
             commands.RegisterCommands<FunCommands>();
-            commands.RegisterCommands<SchoolCommands>();
+            //commands.RegisterCommands<SchoolCommands>();
             commands.RegisterCommands<MusicCommands>();
             commands.RegisterCommands<ImageCommands>();
             commands.RegisterCommands<ModerationCommands>();

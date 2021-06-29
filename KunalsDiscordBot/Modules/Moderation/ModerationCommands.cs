@@ -11,6 +11,7 @@ using DSharpPlus.Entities;
 using KunalsDiscordBot.Attributes;
 using System;
 using KunalsDiscordBot.Modules.Moderation.Services;
+using System.Reflection;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -18,16 +19,19 @@ namespace KunalsDiscordBot.Modules.Moderation
     [Aliases("Mod")]
     [Decor("DarkButNotBlack", ":gear:")]
     [Description("The user and the bot requires administration roles to run commands in this module")]
-    [RequireUserPermissions(Permissions.Administrator)]
-    [RequireBotPermissions(Permissions.Administrator | Permissions.BanMembers | Permissions.KickMembers | Permissions.ManageRoles)]
+    [RequireBotPermissions(Permissions.Administrator)]
     public class ModerationCommands : BaseCommandModule
     {
         private readonly IModerationService service;
 
         public ModerationCommands(IModerationService moderationService) => service = moderationService;
+        private static readonly DiscordColor Color = typeof(ModerationCommands).GetCustomAttribute<Decor>().color;
+        private static readonly int ThumbnailSize = 30;
 
         [Command("AddRole")]
         [Aliases("ar")]
+        [RequireBotPermissions(Permissions.ManageRoles)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddRole(CommandContext ctx, DiscordRole role, DiscordMember member)
         {
             if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
@@ -43,7 +47,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed role",
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             embed.AddField("Role: ", role.Mention);
@@ -54,6 +58,8 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RemoveRole")]
         [Aliases("rr")]
+        [RequireBotPermissions(Permissions.ManageRoles)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveRole(CommandContext ctx, DiscordRole role, DiscordMember member)
         {
             if (member.Roles.First(x => x.Id == role.Id) == null)
@@ -67,7 +73,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed role",
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             embed.AddField("Role: ", role.Mention);
@@ -78,6 +84,8 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("Ban")]
         [Description("Bans a member")]
+        [RequireBotPermissions(Permissions.BanMembers)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task BanMember(CommandContext ctx, DiscordMember member, int numOfDays = 5, string reason = "Unspecified")
         {
             await member.BanAsync(5, reason).ConfigureAwait(false);
@@ -85,7 +93,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Banned member {member.Username}",
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             embed.AddField("Days: ", numOfDays.ToString());
@@ -97,6 +105,8 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("Kick")]
         [Description("Kicks a member")]
+        [RequireBotPermissions(Permissions.KickMembers)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task KickMember(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
             await member.RemoveAsync(reason).ConfigureAwait(false);
@@ -104,7 +114,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Kicked member {member.Username}",
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             embed.AddField("Reason: ", reason);
@@ -131,7 +141,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = $"Kick {kick.Id}",
                 Description = $"User: <@{profile.DiscordId}>\nReason: {kick.Reason}",
-                Color = DiscordColor.NotQuiteBlack
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -155,7 +165,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = $"Ban {ban.Id}",
                 Description = $"User: <@{profile.DiscordId}>\nReason: {ban.Reason}",
-                Color = DiscordColor.NotQuiteBlack
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -163,6 +173,8 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RemoveAllRoles")]
         [Aliases("rar")]
+        [RequireBotPermissions(Permissions.ManageRoles)]
+        [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveAllRoles(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
             foreach(var role in member.Roles)
@@ -171,6 +183,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed all roles",
+                Color = Color
             };
 
             embed.AddField("From: ", member.Mention);
@@ -183,20 +196,18 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Gets moderation info about the member")]
         public async Task MembedInfo(CommandContext ctx, DiscordMember member)
         {
-            var profile = await service.GetProfile(member.Id, ctx.Guild.Id);
-
             var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
                 Url = member.AvatarUrl,
-                Height = 30,
-                Width = 30
+                Height = ThumbnailSize,
+                Width = ThumbnailSize
             };
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
                 Thumbnail = thumbnail,
-                Color = DiscordColor.DarkButNotBlack
+                Color = Color
             };
 
             int infractions = await service.GetInfractions(member.Id, ctx.Guild.Id);

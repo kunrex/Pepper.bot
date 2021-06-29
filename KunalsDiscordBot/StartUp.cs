@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using DiscordBotDataBase.Dal;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Modules.Moderation.Services;
+using KunalsDiscordBot.Reddit;
 
 namespace KunalsDiscordBot
 {
@@ -24,6 +25,9 @@ namespace KunalsDiscordBot
 
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IModerationService, ModerationService>();
+
+            var redditApp = new RedditApp();
+            services.AddSingleton(redditApp);
 
             BuildService(services);
         }

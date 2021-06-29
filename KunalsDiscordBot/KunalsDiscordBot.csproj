@@ -34,6 +34,7 @@
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="runtime.osx.10.10-x64.CoreCompat.System.Drawing" Version="5.8.64" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
+    <PackageReference Include="Reddit" Version="1.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -67,6 +68,9 @@
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
     <Folder Include="Modules\Moderation\Services\" />
+    <Folder Include="DialogueHandler\" />
+    <Folder Include="DialogueHandler\Steps\" />
+    <Folder Include="Reddit\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -98,6 +102,10 @@
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
     <None Remove="Modules\Moderation\Services\" />
+    <None Remove="DialogueHandler\" />
+    <None Remove="DialogueHandler\Steps\" />
+    <None Remove="Reddit" />
+    <None Remove="Reddit\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

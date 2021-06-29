@@ -130,16 +130,16 @@ namespace KunalsDiscordBot.Help
             foreach (var command in commands)
             {
                 var decor = (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor);
-                commandsToString += $"**{Format(command.Name)}** {(decor == null ? "" : decor.emoji)}\n";
+                commandsToString += $"• **{Format(command.Name)}** {(decor == null ? "" : decor.emoji)}\n Description: {command.Description}\n\n";
             }
 
             return commandsToString;
         }
 
-        private string GetAllCommands(Command[] commands, bool isHighlight)
+        private string GetAllCommands(Command[] commands, bool highlited)
         {
             string commandsToString = string.Empty;
-            string highlight = isHighlight ? "`" : "";
+            string highlight = highlited ? "`" : "";
 
             for (int i = 0; i < commands.Length; i++)
                 commandsToString += $"{highlight}{Format(commands[i].Name)}{highlight}{(i == commands.Length - 1 ? "." : ", ")}";

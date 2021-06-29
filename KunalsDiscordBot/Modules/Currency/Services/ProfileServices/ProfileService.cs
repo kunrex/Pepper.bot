@@ -39,11 +39,17 @@ namespace KunalsDiscordBot.Services.Currency
                 Coins = 0,
                 CoinsBank = 0,
                 CoinsBankMax = 100,
-                Job = "None"
+                Job = "None",
+                PrevLogDate = "None",
+                PrevWeeklyLogDate = "None",
+                PrevMonthlyLogDate = "None",
+                PrevWorkDate = "None",
+                SafeMode = 0
             };
 
-            await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
+            var entityEntry = await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
             await context.SaveChangesAsync().ConfigureAwait(false);
+            entityEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
             return profile;
         }
@@ -238,6 +244,63 @@ namespace KunalsDiscordBot.Services.Currency
             var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
 
             return boosts;
+        }
+
+        public int GetLevel(Profile profile) => (int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
+
+        public async Task<int> GetLevel(ulong id)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return -1;
+
+            return (int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
+        }
+
+        public async Task<bool> ChangeLogDate(ulong id, int index, DateTime date)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return false;
+            switch(index)
+            {
+                case 0:
+                    profile.PrevLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+                    break;
+                case 1:
+                    profile.PrevWeeklyLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+                    break;
+                case 2:
+                    profile.PrevMonthlyLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+                    break;
+                case 3:
+                    profile.PrevWorkDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+                    break;
+            }
+
+            var updateEntry = context.UserProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
+        public async Task<bool> ToggleSafeMode(ulong id)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return false;
+
+            profile.SafeMode = profile.SafeMode == 1 ? 0 : 1;
+            var updateEntry = context.UserProfiles.Update(profile);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
         }
     }
 }

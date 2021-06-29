@@ -12,6 +12,9 @@ using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Fun;
+using KunalsDiscordBot.DialogueHandlers;
+using KunalsDiscordBot.DialogueHandlers.Steps;
+using KunalsDiscordBot.Reddit;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
@@ -20,6 +23,10 @@ namespace KunalsDiscordBot.Modules.Fun
     public class FunCommands : BaseCommandModule
     {
         private static readonly FunData data = System.Text.Json.JsonSerializer.Deserialize<FunData>(File.ReadAllText(Path.Combine("Modules", "Fun", "FunData.json")));
+
+        private readonly RedditApp redditApp;
+
+        public FunCommands(RedditApp reddit) => redditApp = reddit;
 
         List<Spammer> currentSpammers = new List<Spammer>();
 
@@ -174,31 +181,90 @@ namespace KunalsDiscordBot.Modules.Fun
             return new Random().Next(min, max);
         };
 
-        [Command("meme")]
-        [Description("Uploads a random meme made by one the memmbers on the server")]
-        public async Task UploadMeme(CommandContext ctx)
-        {
-            var filePaths = Directory.GetFiles(Path.Combine(data.MemesPath));
-            var index = Generate(0, filePaths.Length);
-
-            var filePath = filePaths[index];
-            var file = Path.GetFileName(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-            {
-                var msg = await new DiscordMessageBuilder()
-                        .WithContent("I really don't know")
-                        .WithFiles(new Dictionary<string, Stream>() { { file, fs } })
-                        .SendAsync(ctx.Channel);
-
-                fs.Close();
-            }
-        }
-
         [Command("LetMeGoogleThatForYou")]
         [Description("For those who can't google things for themselves")]
         [Aliases("Google")]
         public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("https://www.google.com/search?q=" + search).ConfigureAwait(false);
+
+        [Command("Guess")]
+        [Description("Guess a random number")]
+        public async Task Guess(CommandContext ctx)
+        {
+            int num = new Random().Next(1, 21);
+
+            var config = new DialogueHandlerConfig
+            {
+                Channel = ctx.Channel,
+                Member = ctx.Member,
+                Client = ctx.Client,
+                UseEmbed = false
+            };
+
+            var handler = new DialogueHandler(config,
+                new List<Step>
+                {
+                    new GuessStep("Random Number Generator", "Guess the number I'm thinking off between 1 and 20", "That wasn't the number I was thinking off", 5, 20, "hint", num, 2)
+                });
+
+            var completed = await handler.ProcessDialogue().ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{(completed ? "Good job that was the number I'm thinking off" : $"Oops, wll I was thinking off {num}")}").ConfigureAwait(false);
+        }
+
+        [Command("meme")]
+        [Description("Juicy memes staright from r/memes")]
+        public async Task Meme(CommandContext ctx)
+        {
+            var post = redditApp.GetMeme();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                ImageUrl = post.Listing.URL,
+                Url = "https://www.reddit.com" + post.Permalink
+            }).ConfigureAwait(false);
+        }
+
+        [Command("animals")]
+        [Description("Animal pics form r/Animals :dog::cat:")]
+        public async Task Animals(CommandContext ctx)
+        {
+            var post = redditApp.GetAnimals();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                ImageUrl = post.Listing.URL,
+                Url = "https://www.reddit.com" + post.Permalink
+            }).ConfigureAwait(false);
+        }
+
+        [Command("awww")]
+        [Description("Cutee pics form r/aww :dog::cat:")]
+        public async Task Awww(CommandContext ctx)
+        {
+            var post = redditApp.GetAww();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                ImageUrl = post.Listing.URL,
+                Url = "https://www.reddit.com" + post.Permalink
+            }).ConfigureAwait(false);
+        }
+
+        [Command("post")]
+        [Description("Get a random post from any subredddit")]
+        public async Task Post(CommandContext ctx, string subreddit)
+        {
+            var post = redditApp.GetRandomPost(subreddit);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                ImageUrl = post.Listing.URL,
+                Url = "https://www.reddit.com" + post.Permalink
+            }).ConfigureAwait(false);
+        }
 
         private class FunData
         {
