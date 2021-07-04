@@ -35,6 +35,7 @@ Does not have seperate prefix' for each server, but will look into that
 * DSharpPlus 4.0.1
 * Microsoft.EntityFrameWorkCore 5.0.7
 * DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
+8 SQlite
 
 ## How to Set It Up?
 
