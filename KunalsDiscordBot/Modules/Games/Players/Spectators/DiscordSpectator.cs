@@ -15,7 +15,7 @@ namespace KunalsDiscordBot.Modules.Games.Players.Spectators
             client = _client;
             battleShipGame = game;
         }
-        private DiscordDmChannel dmChannel { get; set; }
+        private DiscordChannel dmChannel { get; set; }
         private DiscordClient client { get; set; }
         private BattleShip battleShipGame { get; set; }
 
@@ -23,7 +23,7 @@ namespace KunalsDiscordBot.Modules.Games.Players.Spectators
 
         public void End() => isEnded = true;
 
-        public override async Task<bool> Ready(DiscordDmChannel channel)
+        public override async Task<bool> Ready(DiscordChannel channel)
         {
             dmChannel = channel;
             await SendMessage("Starting to Spectate..., type `leave` to stop spectating");

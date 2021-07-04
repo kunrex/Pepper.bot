@@ -13,6 +13,6 @@ namespace KunalsDiscordBot.Modules.Games
 
         public bool wasCompleted { get; set; }
         public Type type;
-        public CoOrdinate ordinate { get; set; }
+        public Coordinate ordinate { get; set; }
     }
 }

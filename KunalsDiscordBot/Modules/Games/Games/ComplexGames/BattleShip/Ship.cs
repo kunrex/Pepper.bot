@@ -7,25 +7,29 @@ namespace KunalsDiscordBot.Modules.Games.Complex.Battleship
 {
     public class Ship
     {
-        public List<BattleShipCoOrdinate> ordinates { get; set; }
+        public List<Coordinate> ordinates { get; set; }
 
         public bool isDead { get; private set; }
 
-        public Ship(List<BattleShipCoOrdinate> coOrdinates)
+        public Ship(List<Coordinate> coOrdinates)
         {
             ordinates = coOrdinates;
         }
 
-        public async Task<(bool, bool)> CheckForHit(BattleShipCoOrdinate ordinateHit)
+        public async Task<(bool, bool)> CheckForHit(Coordinate ordinateHit)
         {
-            var coOrdinate = ordinates.FirstOrDefault(x => x.x == ordinateHit.x && x.y == ordinateHit.y);
-
-            if (coOrdinate != null && coOrdinate != default)
+            for(int i =0;i< ordinates.Count;i++)
             {
-                coOrdinate.type = BattleShipCoOrdinate.OrdinateType.shipHit;
+                var ordinate = ordinates[i];
 
-                isDead = await CheckForDead();
-                return (true, isDead);
+                if(ordinate == ordinateHit)
+                {
+                    ordinate.type = Coordinate.OrdinateType.shipHit;
+                    ordinates[i] = ordinate;
+
+                    isDead = await CheckForDead();
+                    return (true, isDead);
+                }
             }
 
             return (false, false);
@@ -34,7 +38,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex.Battleship
         private async Task<bool> CheckForDead()
         {
             foreach (var coOrdinate in ordinates)
-                if (coOrdinate.type == BattleShipCoOrdinate.OrdinateType.ship)
+                if (coOrdinate.type == Coordinate.OrdinateType.ship)
                     return false;
 
             await Task.CompletedTask;

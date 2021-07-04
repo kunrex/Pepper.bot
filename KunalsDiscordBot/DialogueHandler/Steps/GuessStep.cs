@@ -75,6 +75,8 @@ namespace KunalsDiscordBot.DialogueHandlers.Steps
 
                     await channel.SendMessageAsync($"{(prevEntry > answer ? $"{prevEntry} was too high" : $"{prevEntry} was too low")}").ConfigureAwait(false);
                     hints--;
+
+                    currentTry--;
                 }
                 else if (!int.TryParse(messageResult.Result.Content, out int x) || int.Parse(messageResult.Result.Content) != answer)
                 {
@@ -92,9 +94,6 @@ namespace KunalsDiscordBot.DialogueHandlers.Steps
                 }
                 else
                     return true;
-
-
-                currentTry--;
             }
 
             return false;

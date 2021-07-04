@@ -23,6 +23,7 @@ using KunalsDiscordBot.Modules.Images;
 using KunalsDiscordBot.Modules.Moderation;
 using KunalsDiscordBot.Modules.Moderation.SoftModeration;
 using KunalsDiscordBot.Modules.Currency;
+using KunalsDiscordBot.ArgumentConverters;
 
 using KunalsDiscordBot.Help;
 
@@ -44,7 +45,7 @@ namespace KunalsDiscordBot
             var config = new DiscordConfiguration
             {
                 Token = configData.token,
-                TokenType = DSharpPlus.TokenType.Bot,
+                TokenType = TokenType.Bot,
                 AutoReconnect = true
                 /*LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true*/
@@ -81,7 +82,7 @@ namespace KunalsDiscordBot
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = services,
-                DmHelp = false,
+                DmHelp = false,            
             };
 
             commands = client.UseCommandsNext(commandsConfig);
@@ -98,6 +99,9 @@ namespace KunalsDiscordBot
             commands.RegisterCommands<CurrencyCommands>();
 
             commands.SetHelpFormatter<HelpFormatter>();
+
+            commands.RegisterConverter(new BoolArgumentConverter());
+            commands.RegisterConverter(new TimeSpanArgumentConverter());
 
             ConnectAsync(client, lavaLink, lavaLinkConfig);
         }

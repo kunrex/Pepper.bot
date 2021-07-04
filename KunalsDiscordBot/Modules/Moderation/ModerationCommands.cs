@@ -17,7 +17,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 {
     [Group("Moderation")]
     [Aliases("Mod")]
-    [Decor("DarkButNotBlack", ":gear:")]
+    [Decor("Blurple", ":gear:")]
     [Description("The user and the bot requires administration roles to run commands in this module")]
     [RequireBotPermissions(Permissions.Administrator)]
     public class ModerationCommands : BaseCommandModule
@@ -46,8 +46,18 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Removed role",
-                Color = Color
+                Title = $"Removed Role",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                },
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = member.AvatarUrl,
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize
+                }
             };
 
             embed.AddField("Role: ", role.Mention);
@@ -73,7 +83,17 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed role",
-                Color = Color
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                },
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = member.AvatarUrl,
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize
+                }
             };
 
             embed.AddField("Role: ", role.Mention);
@@ -86,21 +106,38 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Bans a member")]
         [RequireBotPermissions(Permissions.BanMembers)]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task BanMember(CommandContext ctx, DiscordMember member, int numOfDays = 5, string reason = "Unspecified")
+        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan span, string reason = "Unspecified")
         {
-            await member.BanAsync(5, reason).ConfigureAwait(false);
-
-            var embed = new DiscordEmbedBuilder
+            try
             {
-                Title = $"Banned member {member.Username}",
-                Color = Color
-            };
+                await member.BanAsync(5, reason).ConfigureAwait(false);
+                int id = await service.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
 
-            embed.AddField("Days: ", numOfDays.ToString());
-            embed.AddField("Reason: ", reason);
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Banned member {member.Username} [Id: {id}]",
+                    Color = Color,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                    },
+                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Url = member.AvatarUrl,
+                        Height = ThumbnailSize,
+                        Width = ThumbnailSize
+                    }
+                };
 
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
-            await service.AddBan(member.Id, ctx.Guild.Id, reason, $"{numOfDays} days");
+                embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
+                embed.AddField("Reason: ", reason);
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+            catch
+            {
+                await ctx.Channel.SendMessageAsync($"Cannot ban specified member.\nThis may be because the member is a moderator or administrator").ConfigureAwait(false);
+            }
         }
 
         [Command("Kick")]
@@ -109,18 +146,35 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task KickMember(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
-            await member.RemoveAsync(reason).ConfigureAwait(false);
-
-            var embed = new DiscordEmbedBuilder
+            try
             {
-                Title = $"Kicked member {member.Username}",
-                Color = Color
-            };
+                await member.RemoveAsync(reason).ConfigureAwait(false);
+                int id = await service.AddKick(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
-            embed.AddField("Reason: ", reason);
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Kicked member {member.Username} [Id: {id}]",
+                    Color = Color,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                    },
+                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Url = member.AvatarUrl,
+                        Height = ThumbnailSize,
+                        Width = ThumbnailSize
+                    }
+                };
 
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
-            await service.AddKick(member.Id, ctx.Guild.Id, reason);
+                embed.AddField("Reason: ", reason);
+
+                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }
+            catch
+            {
+                await ctx.Channel.SendMessageAsync($"Cannot kick specified member.\nThis may be because the member is a modertaor or administrator").ConfigureAwait(false);
+            }
         }
 
         [Command("GetKick")]
@@ -131,7 +185,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             if (kick == null)
             {
-                await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist");
+                await ctx.Channel.SendMessageAsync("Kick with this Id doesn't exist");
                 return;
             }
 
@@ -140,8 +194,12 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Kick {kick.Id}",
-                Description = $"User: <@{profile.DiscordId}>\nReason: {kick.Reason}",
-                Color = Color
+                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {kick.Reason}",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)kick.ModeratorID).ConfigureAwait(false)).Nickname}"
+                }
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -155,7 +213,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             if (ban == null)
             {
-                await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist");
+                await ctx.Channel.SendMessageAsync("Ban with this Id doesn't exist");
                 return;
             }
 
@@ -164,9 +222,16 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Ban {ban.Id}",
-                Description = $"User: <@{profile.DiscordId}>\nReason: {ban.Reason}",
-                Color = Color
+                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {ban.Reason}",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)ban.ModeratorID).ConfigureAwait(false)).Nickname}"
+                }
             };
+
+            var span = TimeSpan.Parse(ban.Time);
+            embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -183,7 +248,12 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed all roles",
-                Color = Color
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                }
+                
             };
 
             embed.AddField("From: ", member.Mention);
@@ -194,7 +264,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("MemberInfo")]
         [Description("Gets moderation info about the member")]
-        public async Task MembedInfo(CommandContext ctx, DiscordMember member)
+        public async Task MemberInfo(CommandContext ctx, DiscordMember member)
         {
             var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
@@ -207,7 +277,11 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
                 Thumbnail = thumbnail,
-                Color = Color
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Member info: {member.Username} #{member.Discriminator}"
+                }
             };
 
             int infractions = await service.GetInfractions(member.Id, ctx.Guild.Id);

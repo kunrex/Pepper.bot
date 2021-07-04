@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using KunalsDiscordBot.Modules.Currency.Shops.Items;
+using KunalsDiscordBot.Services.Currency;
 
 namespace KunalsDiscordBot.Modules.Currency.Shops
 {
@@ -18,6 +21,6 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
             Data = data;
         }
 
-        public override UseResult Use() => new UseResult { usableItem = false, message = "You can't use this item??" };
+        public async override Task<UseResult> Use(IProfileService service, DiscordMember member) => new UseResult { useComplete = false, message = "You can't use this item??" };
     }
 }

@@ -463,7 +463,7 @@ namespace KunalsDiscordBot.Modules.Music
         [Command("playfrom")]
         [Aliases("pf", "seek")]
         [Description("Starts playing from a specified position")]
-        public async Task Seek(CommandContext ctx, int seconds)
+        public async Task Seek(CommandContext ctx, TimeSpan span)
         {
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
             {
@@ -491,15 +491,13 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            TimeSpan time = TimeSpan.FromSeconds(seconds);
-
-            var message = await player.Seek(time);
+            var message = await player.Seek(span);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         [Command("forward")]
         [Description("move a few seconds forward")]
-        public async Task Forward(CommandContext ctx, int seconds)
+        public async Task Forward(CommandContext ctx, TimeSpan span)
         {
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
             {
@@ -527,14 +525,13 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            TimeSpan time = TimeSpan.FromSeconds(seconds);
-            var message = await player.Seek(time, true);
+            var message = await player.Seek(span, true);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
 
         [Command("rewind")]
         [Description("move a few seconds backward")]
-        public async Task Rewind(CommandContext ctx, int seconds)
+        public async Task Rewind(CommandContext ctx, TimeSpan span)
         {
             if (ctx.Member.VoiceState == null || ctx.Member.VoiceState.Channel == null)
             {
@@ -562,9 +559,7 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            TimeSpan time = TimeSpan.FromSeconds(seconds);
-
-            var message = await player.Seek(-time, true);
+            var message = await player.Seek(-span, true);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
     }

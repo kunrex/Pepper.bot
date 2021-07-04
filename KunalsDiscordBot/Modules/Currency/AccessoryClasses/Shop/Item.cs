@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
+using DSharpPlus.Entities;
 using KunalsDiscordBot.Modules.Currency.Shops.Items;
+using KunalsDiscordBot.Services.Currency;
 
 namespace KunalsDiscordBot.Modules.Currency.Shops
 {
@@ -32,6 +35,6 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
 
         }
 
-        public abstract UseResult Use();
+        public abstract Task<UseResult> Use(IProfileService service, DiscordMember member);
     }
 }

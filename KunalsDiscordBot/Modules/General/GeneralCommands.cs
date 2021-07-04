@@ -57,14 +57,13 @@ namespace KunalsDiscordBot.Modules.General
             var interactivity = ctx.Client.GetInteractivity();
             var options = reactions.Select(x => x.ToString());
 
-            Console.WriteLine(options);
-            var Embed = new DiscordEmbedBuilder
+            var embed = new DiscordEmbedBuilder
             {
                 Title = poll,
                 Description = string.Join(" ", options)
             };
 
-            var pollMessage = await ctx.Channel.SendMessageAsync(embed: Embed).ConfigureAwait(false);
+            var pollMessage = await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
 
             foreach (var option in reactions)
             {

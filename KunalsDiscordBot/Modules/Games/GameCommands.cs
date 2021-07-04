@@ -13,6 +13,7 @@ using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Modules.Games.Simple;
 using KunalsDiscordBot.Modules.Games.Complex;
+using KunalsDiscordBot.Modules.Games.Complex.Pacman;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -147,6 +148,12 @@ namespace KunalsDiscordBot.Modules.Games
 
                 return 0;
             }
+        }
+
+        [Command("Pacman")]
+        public async Task Pacman(CommandContext ctx)
+        {
+            var pacman = new PacMan(ctx.Member, ctx.Channel, ctx.Client);
         }
 
         [Command("Spectate")]

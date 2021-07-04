@@ -23,6 +23,8 @@ namespace KunalsDiscordBot.Help
         private string module { get; set; }
         private string overloads { get; set; }
 
+        private string usage { get; set; }
+
         private bool isCommand = true, isModule = true;
 
         private DiscordColor color { get; set; }
@@ -37,7 +39,7 @@ namespace KunalsDiscordBot.Help
             var Embed = new DiscordEmbedBuilder
             {
                 Title = commandName,
-                Description = description,
+                Description = $"{usage}\n{description}",
                 Color = color
             };
 
@@ -56,11 +58,12 @@ namespace KunalsDiscordBot.Help
         public override BaseHelpFormatter WithCommand(Command command)
         {
             commandName = Format(command.Name);
-            description = $"Description: {command.Description}";
+            description = $"**Description**: {command.Description}";
 
             aliases = GetAliases(command.Aliases);
 
             module = command.Parent == null ? string.Empty : command.Parent.Name;
+            usage = $"**Usage**: pep {module} {commandName}";
 
             var decor = command.Parent == null ? (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor) : (Decor)command.Parent.CustomAttributes.FirstOrDefault(x => x is Decor);
             commandName += $" {(decor == null ? "" : decor.emoji)}";
@@ -87,10 +90,11 @@ namespace KunalsDiscordBot.Help
                 var parent = commands[0].Parent;
 
                 commandName = Format(parent.Name);
+                usage = $"**Help Usage**: pep help {commandName} <Command Name>";
 
                 description = aliases = string.Empty;
 
-                description = $"Description: {parent.Description}\n\n Commands:";
+                description = $"**Description**: {parent.Description}\n\n Commands:";
 
                 var decor = (Decor)parent.CustomAttributes.FirstOrDefault(x => x is Decor);
                 bool isHighlited = decor == null ? true : decor.isHighlited;
@@ -108,8 +112,10 @@ namespace KunalsDiscordBot.Help
             {
                 isModule = false;
 
+                usage = $"**Help Usage**: pep help <Module Name>";
+
                 commandName = "Help";
-                description = "Description: All the modules offered by Pepper -\n\n Modules:\n";
+                description = "**Description**: All the modules offered by Pepper -\n\n Modules:\n";
                 color = DiscordColor.Blurple;
 
                 description += GetAllCommands(commands);

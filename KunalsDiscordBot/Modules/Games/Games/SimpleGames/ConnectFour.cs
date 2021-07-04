@@ -167,7 +167,7 @@ namespace KunalsDiscordBot.Modules.Games.Simple
                     if (board[i, k] == 0)
                         continue;
 
-                    CoOrdinate ordinate = new CoOrdinate
+                    Coordinate ordinate = new Coordinate
                     {
                         x = k,
                         y = i,
@@ -184,7 +184,7 @@ namespace KunalsDiscordBot.Modules.Games.Simple
             return false;
         }
 
-        private async Task<bool> Evaluate(CoOrdinate ordinate, int indent = 1, int direction = 0)
+        private async Task<bool> Evaluate(Coordinate ordinate, int indent = 1, int direction = 0)
         {
             if (indent == 4)//player one
             {
@@ -198,9 +198,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
             switch (direction)
             {
                 case 0:
-                    CoOrdinate down = ordinate.GetDownPosition();
+                    Coordinate down = ordinate.GetDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(down.x, down.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(down.x, down.y, board.GetLength(0), board.GetLength(1)))
                     {
                         down.value = board[down.y, down.x];
                         if (down.value == ordinate.value)
@@ -213,9 +213,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
                         }
                     }
 
-                    CoOrdinate right = ordinate.GetRightPosition();
+                    Coordinate right = ordinate.GetRightPosition();
 
-                    if (CoOrdinate.EvaluatePosition(right.x, right.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(right.x, right.y, board.GetLength(0), board.GetLength(1)))
                     {
                         right.value = board[right.y, right.x];
                         if (right.value == ordinate.value)
@@ -228,9 +228,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
                         }
                     }
 
-                    CoOrdinate diagnolDown = ordinate.GetDiagnolDownPosition();
+                    Coordinate diagnolDown = ordinate.GetDiagnolDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(diagnolDown.x, diagnolDown.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(diagnolDown.x, diagnolDown.y, board.GetLength(0), board.GetLength(1)))
                     {
                         diagnolDown.value = board[diagnolDown.y, diagnolDown.x];
                         if (diagnolDown.value == ordinate.value)
@@ -243,9 +243,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
                         }
                     }
 
-                    CoOrdinate diagnolUp = ordinate.GetDiagnolUpPosition();
+                    Coordinate diagnolUp = ordinate.GetDiagnolUpPosition();
 
-                    if (CoOrdinate.EvaluatePosition(diagnolUp.x, diagnolUp.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(diagnolUp.x, diagnolUp.y, board.GetLength(0), board.GetLength(1)))
                     {
                         diagnolUp.value = board[diagnolUp.y, diagnolUp.x];
                         if (diagnolUp.value == ordinate.value)
@@ -260,9 +260,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
 
                     return false;
                 case 1:
-                    CoOrdinate _down = ordinate.GetDownPosition();
+                    Coordinate _down = ordinate.GetDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(_down.x, _down.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(_down.x, _down.y, board.GetLength(0), board.GetLength(1)))
                     {
                         _down.value = board[_down.y, _down.x];
                         if (_down.value == ordinate.value)
@@ -277,9 +277,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
 
                     return false;
                 case 2:
-                    CoOrdinate _right = ordinate.GetRightPosition();
+                    Coordinate _right = ordinate.GetRightPosition();
 
-                    if (CoOrdinate.EvaluatePosition(_right.x, _right.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(_right.x, _right.y, board.GetLength(0), board.GetLength(1)))
                     {
                         _right.value = board[_right.y, _right.x];
                         if (_right.value == ordinate.value)
@@ -294,9 +294,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
 
                     return false;
                 case 3:
-                    CoOrdinate _diagnolDown = ordinate.GetDiagnolDownPosition();
+                    Coordinate _diagnolDown = ordinate.GetDiagnolDownPosition();
 
-                    if (CoOrdinate.EvaluatePosition(_diagnolDown.x, _diagnolDown.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(_diagnolDown.x, _diagnolDown.y, board.GetLength(0), board.GetLength(1)))
                     {
                         _diagnolDown.value = board[_diagnolDown.y, _diagnolDown.x];
                         if (_diagnolDown.value == ordinate.value)
@@ -312,9 +312,9 @@ namespace KunalsDiscordBot.Modules.Games.Simple
                     return false;
 
                 case 4:
-                    CoOrdinate _diagnolUp = ordinate.GetDiagnolUpPosition();
+                    Coordinate _diagnolUp = ordinate.GetDiagnolUpPosition();
 
-                    if (CoOrdinate.EvaluatePosition(_diagnolUp.x, _diagnolUp.y, board.GetLength(0), board.GetLength(1)))
+                    if (Coordinate.EvaluatePosition(_diagnolUp.x, _diagnolUp.y, board.GetLength(0), board.GetLength(1)))
                     {
                         _diagnolUp.value = board[_diagnolUp.y, _diagnolUp.x];
                         if (_diagnolUp.value == ordinate.value)

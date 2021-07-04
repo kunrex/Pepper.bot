@@ -26,7 +26,6 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
-    <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="DSharpPlus" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
     <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
@@ -35,6 +34,7 @@
     <PackageReference Include="runtime.osx.10.10-x64.CoreCompat.System.Drawing" Version="5.8.64" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
     <PackageReference Include="Reddit" Version="1.5.0" />
+    <PackageReference Include="Discord.Net" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -71,6 +71,12 @@
     <Folder Include="DialogueHandler\" />
     <Folder Include="DialogueHandler\Steps\" />
     <Folder Include="Reddit\" />
+    <Folder Include="ArgumentConverters\" />
+    <Folder Include="Modules\Games\Games\ComplexGames\Pacman\" />
+    <Folder Include="Modules\Images\Services\" />
+    <Folder Include="Core\Attributes\ImageCommands\" />
+    <Folder Include="Core\Exceptions\" />
+    <Folder Include="Core\Exceptions\ImageCommands\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -106,6 +112,12 @@
     <None Remove="DialogueHandler\Steps\" />
     <None Remove="Reddit" />
     <None Remove="Reddit\" />
+    <None Remove="BoolArgumentConverter\" />
+    <None Remove="Modules\Games\Games\ComplexGames\Pacman\" />
+    <None Remove="Modules\Images\Services\" />
+    <None Remove="Core\Attributes\ImageCommands\" />
+    <None Remove="Core\Exeptions\" />
+    <None Remove="Core\Exceptions\ImageCommands\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

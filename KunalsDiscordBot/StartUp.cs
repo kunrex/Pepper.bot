@@ -7,6 +7,7 @@ using DiscordBotDataBase.Dal;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Modules.Moderation.Services;
 using KunalsDiscordBot.Reddit;
+using KunalsDiscordBot.Modules.Images.Services;
 
 namespace KunalsDiscordBot
 {
@@ -25,9 +26,9 @@ namespace KunalsDiscordBot
 
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IModerationService, ModerationService>();
+            services.AddScoped<IImageService, ImageService>();
 
-            var redditApp = new RedditApp();
-            services.AddSingleton(redditApp);
+            services.AddSingleton(new RedditApp());
 
             BuildService(services);
         }

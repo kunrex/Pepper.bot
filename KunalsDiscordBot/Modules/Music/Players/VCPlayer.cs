@@ -358,6 +358,9 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> Seek(TimeSpan span, bool relative = false)
         {
+            if (relative ? span + connection.CurrentState.PlaybackPosition > currentTrack.Length : span > currentTrack.Length)
+                return "Cannot play from specified position";
+
             if(relative)
                 await connection.SeekAsync(connection.CurrentState.PlaybackPosition + span);
             else

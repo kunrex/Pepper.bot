@@ -67,21 +67,30 @@ namespace KunalsDiscordBot.Reddit
         {
             foreach (var post in e.Added)
                 if (!post.Listing.IsSelf && !post.Listing.IsVideo)
+                {
+                    memes.RemoveAt(0);//cycle
                     memes.Add(post);
+                }
         }
 
         public void OnAnimalPostAdded(object sender, PostsUpdateEventArgs e)
         {
             foreach (var post in e.Added)
                 if (!post.Listing.IsSelf && !post.Listing.IsVideo)
+                {
+                    animals.RemoveAt(0);//cycle
                     animals.Add(post);
+                }
         }
 
         public void OnAwwPostAdded(object sender, PostsUpdateEventArgs e)
         {
             foreach (var post in e.Added)
                 if (!post.Listing.IsSelf && !post.Listing.IsVideo)
+                {
+                    awww.RemoveAt(0);//cycle
                     awww.Add(post);
+                }
         }
 
         private class Config

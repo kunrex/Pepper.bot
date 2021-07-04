@@ -1,7 +1,8 @@
 ﻿using System;
-namespace KunalsDiscordBot.Modules.Games.Complex.Battleship
+
+namespace KunalsDiscordBot.Modules.Games
 {
-    public class BattleShipCoOrdinate : CoOrdinate
+    public partial struct Coordinate
     {
         public enum OrdinateType
         {

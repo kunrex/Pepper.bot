@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus;
 using KunalsDiscordBot.Modules.Games.Complex;
 using KunalsDiscordBot.Modules.Games.Complex.Battleship;
+using KunalsDiscordBot.Modules.Games;
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {
@@ -25,7 +26,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
         public Ship[] ships { get; private set; }
         private int[,] board;
 
-        private DiscordDmChannel dmChannel { get; set; }
+        private DiscordChannel dmChannel { get; set; }
 
         public async Task<int[,]> GetBoard()
         {
@@ -33,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return board;
         }
 
-        public async override Task<bool> Ready(DiscordDmChannel channel)
+        public async override Task<bool> Ready(DiscordChannel channel)
         {
             board = new int[BattleShip.BoardSize, BattleShip.BoardSize];
             dmChannel = channel;
@@ -97,7 +98,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             var interactivity = client.GetInteractivity();
 
             bool isCompleted = false;
-            CoOrdinate ordinate = new CoOrdinate();
+            Coordinate ordinate = new Coordinate();
 
             while (!isCompleted)
             {
@@ -124,29 +125,29 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
         {
-            if (IsFormatted(message, out CoOrdinate position, out bool isVertical))
+            if (IsFormatted(message, out Coordinate position, out bool isVertical))
                 return IsValidShipPosition(position, isVertical, numberOfBlocks, shipIndex);
             else
                 return false;
         }
 
-        private bool IsValidShipPosition(CoOrdinate position, bool isVertical, int numOfBlocks, int shipIndex)
+        private bool IsValidShipPosition(Coordinate position, bool isVertical, int numOfBlocks, int shipIndex)
         {
             if (board[position.y, position.x] != 0)
                 return false;
 
-            List<CoOrdinate> validCoOrdinates = new List<CoOrdinate>();
+            List<Coordinate> validCoOrdinates = new List<Coordinate>();
             for (int i = 0; i < 2; i++)
             {
                 for (int k = 1; k <= numOfBlocks; k++)
                 {
                     if (i == 0)
                     {
-                        CoOrdinate ordinate = new CoOrdinate { x = isVertical ? position.x : position.x - k, y = isVertical ? position.y - k : position.y };
+                        Coordinate ordinate = new Coordinate { x = isVertical ? position.x : position.x - k, y = isVertical ? position.y - k : position.y };
 
-                        if (!CoOrdinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize) || board[ordinate.y, ordinate.x] != 0)
+                        if (!Coordinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize) || board[ordinate.y, ordinate.x] != 0)
                         {
-                            foreach (CoOrdinate coOrdinate in validCoOrdinates)
+                            foreach (Coordinate coOrdinate in validCoOrdinates)
                                 board[coOrdinate.y, coOrdinate.x] = 0;
 
                             return false;
@@ -157,11 +158,11 @@ namespace KunalsDiscordBot.Modules.Games.Players
                     }
                     else
                     {
-                        CoOrdinate ordinate = new CoOrdinate { x = isVertical ? position.x : position.x + k, y = isVertical ? position.y + k : position.y };
+                        Coordinate ordinate = new Coordinate { x = isVertical ? position.x : position.x + k, y = isVertical ? position.y + k : position.y };
 
-                        if (!CoOrdinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize) || board[ordinate.y, ordinate.x] != 0)
+                        if (!Coordinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize) || board[ordinate.y, ordinate.x] != 0)
                         {
-                            foreach (CoOrdinate coOrdinate in validCoOrdinates)
+                            foreach (Coordinate coOrdinate in validCoOrdinates)
                                 board[coOrdinate.y, coOrdinate.x] = 0;
 
                             return false;
@@ -175,25 +176,25 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             validCoOrdinates.Add(position);
 
-            foreach (CoOrdinate ordinate in validCoOrdinates)
+            foreach (Coordinate ordinate in validCoOrdinates)
                 board[ordinate.y, ordinate.x] = 2;
 
-            List<BattleShipCoOrdinate> ordinates = new List<BattleShipCoOrdinate>();
+            List<Coordinate> ordinates = new List<Coordinate>();
 
-            foreach (CoOrdinate ordinate in validCoOrdinates)
-                ordinates.Add(new BattleShipCoOrdinate { x = ordinate.x, y = ordinate.y, type = BattleShipCoOrdinate.OrdinateType.ship, value = 2 });
+            foreach (Coordinate ordinate in validCoOrdinates)
+                ordinates.Add(new Coordinate { x = ordinate.x, y = ordinate.y, type = Coordinate.OrdinateType.ship, value = 2 });
 
             ships[shipIndex] = new Ship(ordinates);
 
             return true;
         }
 
-        private bool TryParseAndAdd(string message, out CoOrdinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
+        private bool TryParseAndAdd(string message, out Coordinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
 
-        private bool IsFormatted(string message, out CoOrdinate position, out bool isVertical)
+        private bool IsFormatted(string message, out Coordinate position, out bool isVertical)
         {
             isVertical = false;
-            position = new CoOrdinate();
+            position = new Coordinate();
 
             if (message.Length < 5 || message.Length > 6)
                 return false;
@@ -241,9 +242,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         }
 
-        private bool IsFormatted(string message, out CoOrdinate ordinate)
+        private bool IsFormatted(string message, out Coordinate ordinate)
         {
-            ordinate = new CoOrdinate();
+            ordinate = new Coordinate();
 
             if (message.Length < 2 || message.Length > 4)
                 return false;
@@ -282,9 +283,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
         }
 
-        private bool IsValid(CoOrdinate ordinate) => CoOrdinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize);
+        private bool IsValid(Coordinate ordinate) => Coordinate.EvaluatePosition(ordinate.x, ordinate.y, BattleShip.BoardSize, BattleShip.BoardSize);
 
-        private async Task<bool> IsValidAttackplacement(CoOrdinate ordinate, int[,] other)
+        private async Task<bool> IsValidAttackplacement(Coordinate ordinate, int[,] other)
         {
             await Task.CompletedTask;
             return other[ordinate.y, ordinate.x] != 1 && other[ordinate.y, ordinate.x] != 3;
@@ -328,9 +329,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return boardToString;
         }
 
-        public async Task<(bool, bool)> SetAttackPos(CoOrdinate ordinate)
+        public async Task<(bool, bool)> SetAttackPos(Coordinate ordinate)
         {
-            BattleShipCoOrdinate battleShipCoOrdinate = new BattleShipCoOrdinate { x = ordinate.x, y = ordinate.y };
+            Coordinate battleShipCoOrdinate = new Coordinate { x = ordinate.x, y = ordinate.y };
 
             board[battleShipCoOrdinate.y, battleShipCoOrdinate.x] = 1;
 

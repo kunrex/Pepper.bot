@@ -13,10 +13,10 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
         public Task<ModerationProfile> GetProfile(int id);
         public Task<ModerationProfile> CreateProfile(ulong id, ulong guildId);
 
-        public Task<int> AddInfraction(ulong id, ulong guildId, string reason);
-        public Task<int> AddEndorsement(ulong id, ulong guildId, string reason);
-        public Task<int> AddBan(ulong id, ulong guildId, string reason, string time);
-        public Task<int> AddKick(ulong id, ulong guildId, string reason);
+        public Task<int> AddInfraction(ulong id, ulong guildId, ulong moderatorID, string reason);
+        public Task<int> AddEndorsement(ulong id, ulong guildId, ulong moderatorID, string reason);
+        public Task<int> AddBan(ulong id, ulong guildId, ulong moderatorID, string reason, string time);
+        public Task<int> AddKick(ulong id, ulong guildId, ulong moderatorID, string reason);
 
         public Task<Infraction> GetInfraction(int infractionID);
         public Task<Endorsement> GetEndorsement(int endorsementID);

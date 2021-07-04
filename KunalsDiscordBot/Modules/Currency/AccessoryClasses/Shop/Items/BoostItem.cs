@@ -1,5 +1,9 @@
 ﻿using System;
+using System.Threading.Tasks;
+using DiscordBotDataBase.Dal;
+using DSharpPlus.Entities;
 using KunalsDiscordBot.Modules.Currency.Shops.Items;
+using KunalsDiscordBot.Services.Currency;
 
 namespace KunalsDiscordBot.Modules.Currency.Shops
 {
@@ -18,35 +22,25 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
             Data = data;
         }
 
-        public override UseResult Use()
+        public async override Task<UseResult> Use(IProfileService service, DiscordMember member)
         {
+            if(await service.GetBoost(member.Id, Data.Type.ToString()) != null)
+                return new UseResult
+                {
+                    useComplete = false,
+                    message = $"You already have a {Data.Type} boost"
+                };
+
             int boost = Data.GetBoost();
             int time = Data.GetBoostTime();
 
+            await service.AddOrRemoveBoost(member.Id, Data.Type.ToString(), boost, time, DateTime.Now.ToString("dddd, dd MMMM yyyy"), 1);
+
             return new UseResult
             {
-                usableItem = true,
-                BoostName = Data.Type.ToString(),
-
-                isTimed = Data.IsTimed(),
-                BoostValue = boost,
-                BooseTime = time,
-
-                boostType = Data.Type
+                useComplete = true,
+                message = $"{member.Mention}, {boost}% increase in {Data.Type} for {time} hours"
             };
         }
-    }
-
-    public partial struct UseResult
-    {
-        public bool isTimed { get; set; }
-
-        public int BoostValue { get; set; }
-        public int BooseTime { get; set; }
-
-        public string BoostName { get; set; }
-        public string BoostStart { get; set; }
-
-        public BoostItemData.BoostType boostType { get; set; }
     }
 }

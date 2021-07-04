@@ -15,14 +15,14 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
 
         public ModerationService(DataContext _context) => context = _context;
 
-        public async Task<int> AddBan(ulong id, ulong guildId, string reason, string time)
+        public async Task<int> AddBan(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
                 profile = await CreateProfile(id, guildId);
 
-            var ban = new Ban { Reason = reason, Time = time };
+            var ban = new Ban { Reason = reason, Time = time , ModeratorID = (long)moderatorID};
             profile.Bans.Add(ban);
 
             var update = context.ModerationProfiles.Update(profile);
@@ -32,14 +32,14 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             return ban.Id;
         }
 
-        public async Task<int> AddEndorsement(ulong id, ulong guildId, string reason)
+        public async Task<int> AddEndorsement(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
                 profile = await CreateProfile(id, guildId);
 
-            var endorsement = new Endorsement { Reason = reason};
+            var endorsement = new Endorsement { Reason = reason, ModeratorID = (long)moderatorID };
             profile.Endorsements.Add(endorsement);
 
             var update = context.ModerationProfiles.Update(profile);
@@ -49,14 +49,14 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             return endorsement.Id;
         }
 
-        public async Task<int> AddInfraction(ulong id, ulong guildId, string reason)
+        public async Task<int> AddInfraction(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
                 profile = await CreateProfile(id, guildId);
 
-            var infraction = new Infraction { Reason = reason };
+            var infraction = new Infraction { Reason = reason, ModeratorID = (long)moderatorID };
             profile.Infractions.Add(infraction);
 
             var update = context.ModerationProfiles.Update(profile);
@@ -66,14 +66,14 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             return infraction.Id;
         }
 
-        public async Task<int> AddKick(ulong id, ulong guildId, string reason)
+        public async Task<int> AddKick(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
                 profile = await CreateProfile(id, guildId);
 
-            var kick = new Kick { Reason = reason };
+            var kick = new Kick { Reason = reason, ModeratorID = (long)moderatorID };
             profile.Kicks.Add(kick);
 
             var update = context.ModerationProfiles.Update(profile);

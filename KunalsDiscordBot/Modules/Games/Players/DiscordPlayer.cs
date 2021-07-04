@@ -20,6 +20,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         public DiscordMember member { get; protected set; }
 
-        public abstract Task<bool> Ready(DiscordDmChannel channel);
+        public abstract Task<bool> Ready(DiscordChannel channel);
     }
 }
