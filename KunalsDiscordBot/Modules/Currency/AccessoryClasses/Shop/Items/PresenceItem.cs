@@ -8,9 +8,9 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
 {
     public class PresenceItem : Item
     {
-        public PresenceItemData Data { get; private set; }
-
-        public PresenceItem(string name, int price, string description, UseType type, PresenceItemData data) : base(name, price, description, type)
+        public PresenceData Data { get; private set; }
+         
+        public PresenceItem(string name, int price, string description, UseType type, PresenceData data) : base(name, price, description, type)
         {
             Name = name;
             Price = price;

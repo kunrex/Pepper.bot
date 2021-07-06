@@ -35,6 +35,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
     <PackageReference Include="Reddit" Version="1.5.0" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -77,6 +78,8 @@
     <Folder Include="Core\Attributes\ImageCommands\" />
     <Folder Include="Core\Exceptions\" />
     <Folder Include="Core\Exceptions\ImageCommands\" />
+    <Folder Include="Core\Attributes\CurrencyCommands\" />
+    <Folder Include="Core\Exceptions\CurrencyCommands\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -118,6 +121,9 @@
     <None Remove="Core\Attributes\ImageCommands\" />
     <None Remove="Core\Exeptions\" />
     <None Remove="Core\Exceptions\ImageCommands\" />
+    <None Remove="Microsoft.CSharp" />
+    <None Remove="Core\Attributes\CurrencyCommands\" />
+    <None Remove="Core\Exceptions\CurrencyCommands\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

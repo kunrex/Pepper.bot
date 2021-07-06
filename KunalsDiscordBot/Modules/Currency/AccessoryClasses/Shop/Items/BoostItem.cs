@@ -9,9 +9,9 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
 {
     public class BoostItem : Item
     {
-        public BoostItemData Data { get; private set; }
+        public BoostData Data { get; private set; }
 
-        public BoostItem(string name, int price, string description, UseType type, BoostItemData data) : base(name, price, description, type)
+        public BoostItem(string name, int price, string description, UseType type, BoostData data) : base(name, price, description, type)
         {
             Name = name;
             Price = price;

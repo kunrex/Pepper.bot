@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using DSharpPlus.Entities;
-
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Items;
 using DiscordBotDataBase.Dal.Models.Profile;
@@ -17,7 +15,27 @@ namespace KunalsDiscordBot.Services.Currency
     {
         private readonly DataContext context;
 
-        public ProfileService(DataContext _context) => context = _context;
+        public ProfileService(DataContext _context)
+        {
+            context = _context;
+
+            CheckBoosts();
+        }
+
+        private async void CheckBoosts()
+        {
+            foreach (var boost in context.ProfileBoosts)
+            {
+                var startTime = DateTime.Parse(boost.BoostStartTime);
+                var span = TimeSpan.FromHours(boost.BoostTime);
+
+                if(DateTime.Now - startTime > span)
+                {
+                    var profile = context.UserProfiles.First(x => x.Id == boost.ProfileId);
+                    await AddOrRemoveBoost((ulong)profile.DiscordUserID, boost.BoosteName, 0, 0, "", -1);
+                }
+            }
+        }
 
         public async Task<Profile> GetProfile(ulong id, string name, bool sameMember = true)
         {
@@ -206,7 +224,7 @@ namespace KunalsDiscordBot.Services.Currency
             {
                 if(quantity > 0)
                     return false;//prevent more than one boost
-                else
+                else 
                 {
                     var removeEntry = context.ProfileBoosts.Remove(boost);
                     await context.SaveChangesAsync();

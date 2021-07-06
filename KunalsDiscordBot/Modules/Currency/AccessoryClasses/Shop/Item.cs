@@ -12,8 +12,8 @@ namespace KunalsDiscordBot.Modules.Currency.Shops
         Presence = 0,
         Invincibility = 1,
         Decoration = 2,
-        BoostLuck = 4,
-        BoostMoney = 8,
+        Boost = 4,
+        Tool = 8,
         Offensive = 16,
         Defensive = 32,
         NonBuyable = 64

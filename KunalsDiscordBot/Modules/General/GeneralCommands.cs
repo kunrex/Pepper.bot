@@ -12,6 +12,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Attributes;
+using System.Reflection;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -20,6 +21,7 @@ namespace KunalsDiscordBot.Modules.General
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class GeneralCommands : BaseCommandModule
     {
+        private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<Decor>().color;
         private const int Height = 50;
         private const int Width = 75;
 
@@ -60,7 +62,8 @@ namespace KunalsDiscordBot.Modules.General
             var embed = new DiscordEmbedBuilder
             {
                 Title = poll,
-                Description = string.Join(" ", options)
+                Description = string.Join(" ", options),
+                Color = Color
             };
 
             var pollMessage = await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
@@ -92,11 +95,17 @@ namespace KunalsDiscordBot.Modules.General
                 Width = Width
             };
 
+            var footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"User: {ctx.Member.Nickname}, at {DateTime.Now.ToString("dd hh:mm:ss.s")}"
+            };
+
             var embed = new DiscordEmbedBuilder
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} ({member.Username}) #{member.Discriminator}",
-                Color = DiscordColor.Blurple,
-                Thumbnail = thumbnail
+                Color = Color,
+                Thumbnail = thumbnail,
+                Footer = footer
             };
 
             embed.AddField("Account Created Date: ", $"{member.CreationTimestamp.Date}");
@@ -113,6 +122,46 @@ namespace KunalsDiscordBot.Modules.General
             embed.AddField("Roles: ", roles);
 
             await ctx.Channel.SendMessageAsync(embed: embed);
+        }
+
+        [Command("ServerInfo")]
+        [Aliases("si")]
+        [Description("Gives geenral information about the server")]
+        public async Task ServerInfo(CommandContext ctx)
+        {
+            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            {
+                Url = ctx.Guild.IconUrl,
+                Height = Height,
+                Width = Width
+            };
+
+            var footer = new DiscordEmbedBuilder.EmbedFooter
+            {
+                Text = $"User: {ctx.Member.Nickname}, at {DateTime.Now.ToString("dd hh:mm:ss.s")}"
+            };
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = ctx.Guild.Name,
+                Description = ctx.Guild.Description == string.Empty ? "None" : ctx.Guild.Description,
+                Color = Color,
+                Thumbnail = thumbnail,
+                Footer = footer
+            }.AddField("__General Info__", "** **")
+             .AddField("Member Count", ctx.Guild.MemberCount.ToString(), true)
+             .AddField("ID", ctx.Guild.Id.ToString(), true)
+             .AddField("Region", ctx.Guild.VoiceRegion.Name.ToString(), true)
+             .AddField("Owner", ctx.Guild.Owner.Username.ToString(), true)
+             .AddField("__Roles, Emojis and Channels__", "** **")
+             .AddField("Emoji Count", ctx.Guild.Emojis.Count.ToString(), true)
+             .AddField("Roles Count", ctx.Guild.Roles.Count.ToString(), true)
+             .AddField("Channel Count", ctx.Guild.Channels.Values.Where(x => !x.IsCategory).ToList().Count.ToString(), true)
+             .AddField("__More__", "** **")
+             .AddField("Verification Level", ctx.Guild.VerificationLevel.ToString(), true)
+             .AddField("Nitro Tier", ctx.Guild.PremiumTier.ToString(), true);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
     }
 }

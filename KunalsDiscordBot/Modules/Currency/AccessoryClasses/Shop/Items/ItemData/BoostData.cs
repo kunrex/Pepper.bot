@@ -1,12 +1,11 @@
 ﻿using System;
 namespace KunalsDiscordBot.Modules.Currency.Shops.Items
 {
-    public struct BoostItemData 
+    public struct BoostData 
     {
         public enum BoostType
         {
             Luck,
-            BankSpace,
             Invincibility
         }
 
@@ -18,7 +17,7 @@ namespace KunalsDiscordBot.Modules.Currency.Shops.Items
 
         public readonly BoostType Type;
 
-        public BoostItemData(BoostType type, int min, int max, int minTime = 0, int maxTime = 0)
+        public BoostData(BoostType type, int min, int max, int minTime, int maxTime)
         {
             MinBoost = min;
             MaxBoost = max;
@@ -31,6 +30,5 @@ namespace KunalsDiscordBot.Modules.Currency.Shops.Items
 
         public int GetBoost() => new Random().Next(MinBoost, MaxBoost);
         public int GetBoostTime() => new Random().Next(MinBoostTime, MaxBoostTime);
-        public bool IsTimed() => Type == BoostType.Invincibility || Type == BoostType.Luck;
     }
 }

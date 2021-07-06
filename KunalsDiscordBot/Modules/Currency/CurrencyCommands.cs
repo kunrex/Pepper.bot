@@ -19,6 +19,8 @@ using KunalsDiscordBot.Modules.Currency.Shops;
 using KunalsDiscordBot.DialogueHandlers;
 using KunalsDiscordBot.DialogueHandlers.Steps;
 
+using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
+
 namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
@@ -29,7 +31,6 @@ namespace KunalsDiscordBot.Modules.Currency
         private readonly IProfileService service;
         private const string coinsEmoji = ":coin:";
 
-        public CurrencyCommands(IProfileService _service) => service = _service;
         private static readonly DiscordColor Color = typeof(CurrencyCommands).GetCustomAttribute<Decor>().color;
         private static readonly int ThumbnailSize = 30;
 
@@ -44,6 +45,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
         private static readonly int monthlyMin = 1000;
         private static readonly int monthlyMax = 2500;
+
+        public CurrencyCommands(IProfileService _service) => service = _service;
 
         [Command("profile")]
         [Description("Gets the profile of he user")]
@@ -839,6 +842,62 @@ namespace KunalsDiscordBot.Modules.Currency
                     Height = ThumbnailSize,
                     Width = ThumbnailSize
                 }
+            }).ConfigureAwait(false);
+        }
+
+        [Command("Meme")]
+        [Description("The currency meme command")]
+        [PresenceItem(Shops.Items.PresenceData.PresenceCommand.Meme)]
+        public async Task Meme(CommandContext ctx)
+        {
+            var itemNeed = Shop.GetPresneceItem(ctx);
+
+            var itemData = await service.GetItem(ctx.Member.Id, itemNeed.Name).ConfigureAwait(false);
+            if(itemData == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"You need a {itemNeed.Name} to run this command, you have 0",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"User: {ctx.Member.Username}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+
+                return;
+            }
+
+            if (!(itemNeed is PresenceItem))
+                throw new Exception("Somethings terribly wrong here");
+
+            var casted = itemNeed as PresenceItem;
+            var reward = casted.Data.GetReward();
+
+            await service.ChangeCoins(ctx.Member.Id, reward);
+
+            string descripion = reward switch
+            {
+                0 => "Well no one liked your meme lmao, you get 0 coins",
+                var y when y < casted.Data.maxReward / 2 => $"Your meme got a half decent reponse online, good job. You get {reward} coins",
+                _ => $"Damn your meme is **Trending**, gotta say im impressed. Here you go, {reward} coins"
+            };
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Memes",
+                Description = descripion,
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = ctx.Member.AvatarUrl,
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize
+                },
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"User: {ctx.Member.Username}"
+                },
+                Color = Color
             }).ConfigureAwait(false);
         }
     }
