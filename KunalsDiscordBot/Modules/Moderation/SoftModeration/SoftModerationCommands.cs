@@ -32,7 +32,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Aliases("cnn")]
         [RequireBotPermissions(Permissions.ManageNicknames)]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task ChangeNickName(CommandContext ctx, DiscordMember member, string newNick)
+        public async Task ChangeNickName(CommandContext ctx, DiscordMember member, [RemainingText] string newNick)
         {
             try
             {
@@ -84,7 +84,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Aliases("AI", "Infract")]
         [Description("Adds an infraction for the user")]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task AddInfraction(CommandContext ctx, DiscordMember member, string reason = "Unpsecified")
+        public async Task AddInfraction(CommandContext ctx, DiscordMember member, [RemainingText]  string reason = "Unpsecified")
         {
             var id = await service.AddInfraction(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
@@ -112,7 +112,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Aliases("AE", "Endorse")]
         [Description("Adds an endorsement for the user")]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task AddEndorsement(CommandContext ctx, DiscordMember member, string reason = "Unpsecified")
+        public async Task AddEndorsement(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unpsecified")
         {
             var id = await service.AddEndorsement(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
@@ -149,7 +149,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await service.GetProfile(endorsement.ModerationProfileId);
+            var profile = await service.GetModerationProfile(endorsement.ModerationProfileId);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -178,7 +178,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await service.GetProfile(infraction.ModerationProfileId);
+            var profile = await service.GetModerationProfile(infraction.ModerationProfileId);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -192,6 +192,25 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("Rule")]
+        [Description("Displays a rule by its index")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddRule(CommandContext ctx, int index)
+        {
+           var rule =  await service.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = $"Rule {index}",
+                Description = $"{(rule == null ? "Rule doesn't exist" : rule.RuleContent)}",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                },
+                Color = Color
+            }).ConfigureAwait(false);
         }
     }
 }

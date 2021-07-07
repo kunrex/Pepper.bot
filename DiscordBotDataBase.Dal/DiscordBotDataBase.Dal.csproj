@@ -10,11 +10,11 @@
     <None Remove="Microsoft.EntityFrameworkCore" />
     <None Remove="System.ComponentModel.Annotations" />
     <None Remove="Models\" />
-    <None Remove="Models\Items\" />
-    <None Remove="Models\Profile\" />
-    <None Remove="Models\Profile\Boosts\" />
     <None Remove="Models\Moderation\" />
     <None Remove="Models\Moderation\SubData\" />
+    <None Remove="Models\Currency\" />
+    <None Remove="Models\Currency\Items\" />
+    <None Remove="Models\Currency\Profile\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
@@ -27,10 +27,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Models\" />
-    <Folder Include="Models\Items\" />
-    <Folder Include="Models\Profile\" />
-    <Folder Include="Models\Profile\Boosts\" />
     <Folder Include="Models\Moderation\" />
     <Folder Include="Models\Moderation\SubData\" />
+    <Folder Include="Models\Currency\" />
+    <Folder Include="Models\Currency\Items\" />
+    <Folder Include="Models\Currency\Profile\" />
   </ItemGroup>
 </Project>

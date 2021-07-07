@@ -2,14 +2,16 @@
 using DiscordBotDataBase.Dal;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DiscordBotDataBase.Dal.Migrations.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20210707121922_RulesAndMuting")]
+    partial class RulesAndMuting
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,31 +164,6 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                     b.ToTable("ModKicks");
                 });
 
-            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Mute", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("ModerationProfileId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("ModeratorID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Time")
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ModerationProfileId");
-
-                    b.ToTable("ModMutes");
-                });
-
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Rule", b =>
                 {
                     b.Property<int>("Id")
@@ -326,15 +303,6 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Mute", b =>
-                {
-                    b.HasOne("DiscordBotDataBase.Dal.Models.Moderation.ModerationProfile", null)
-                        .WithMany("Mutes")
-                        .HasForeignKey("ModerationProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Rule", b =>
                 {
                     b.HasOne("DiscordBotDataBase.Dal.Models.Moderation.ServerProfile", null)
@@ -362,8 +330,6 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                     b.Navigation("Infractions");
 
                     b.Navigation("Kicks");
-
-                    b.Navigation("Mutes");
                 });
 
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.ServerProfile", b =>

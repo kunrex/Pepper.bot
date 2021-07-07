@@ -46,7 +46,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Removed Role",
+                Title = $"Added Role",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -189,7 +189,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await service.GetProfile(kick.ModerationProfileId);
+            var profile = await service.GetModerationProfile(kick.ModerationProfileId);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -217,7 +217,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await service.GetProfile(ban.ModerationProfileId);
+            var profile = await service.GetModerationProfile(ban.ModerationProfileId);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -295,6 +295,230 @@ namespace KunalsDiscordBot.Modules.Moderation
             embed.AddField("Kicks: ", kicks.ToString(), true);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("SetMuteRole")]
+        [Description("Sets the mute role of a server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task SetMuteRole(CommandContext ctx, DiscordRole role)
+        {
+            await service.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Muted Role Saved",
+                Description = $"Succesfully stored {role.Mention} as the mute role for the server",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                },
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("Mute")]
+        [Description("Mutes a member")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "unspecified")
+        {
+            var mutedRoleId = await service.GetMuteRoleId(ctx.Guild.Id);
+            var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
+
+            if(role == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"There is no muted rle stored for server: {ctx.Guild.Name}. Use the `SetMuteRole` command to do so",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+
+                return;
+            }
+
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
+            {
+                await ctx.Channel.SendMessageAsync("Member is already muted");
+                return;
+            }
+
+            await member.GrantRoleAsync(role).ConfigureAwait(false);
+            int id = await service.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Muted Member {member.DisplayName} [Id: {id}]",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                },
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = member.AvatarUrl,
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize
+                }
+            };
+
+            embed.AddField("Reason: ", reason);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("Unmute")]
+        [Description("Unmutes a member")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "unspecified")
+        {
+            var mutedRoleId = await service.GetMuteRoleId(ctx.Guild.Id);
+            var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
+
+            if (role == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"There is no muted rle stored for server: {ctx.Guild.Name}. Use the `SetMuteRole` command to do so",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+
+                return;
+            }
+
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) == null)
+            {
+                await ctx.Channel.SendMessageAsync("Member isn't muted?");
+                return;
+            }
+
+            await member.RevokeRoleAsync(role).ConfigureAwait(false);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Unmuted Member {member.DisplayName}",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
+                },
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = member.AvatarUrl,
+                    Height = ThumbnailSize,
+                    Width = ThumbnailSize
+                }
+            };
+
+            embed.AddField("Reason: ", reason);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("GetMute")]
+        [Description("Gets a kick event using its ID")]
+        public async Task GetMute(CommandContext ctx, int muteId)
+        {
+            var mute = await service.GetMute(muteId);
+
+            if (mute == null)
+            {
+                await ctx.Channel.SendMessageAsync("Ban with this Id doesn't exist");
+                return;
+            }
+
+            var profile = await service.GetModerationProfile(mute.ModerationProfileId);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Mute {mute.Id}",
+                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {mute.Reason}",
+                Color = Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)mute.ModeratorID).ConfigureAwait(false)).Nickname}"
+                }
+            };
+
+            var span = TimeSpan.Parse(mute.Time);
+            embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("AddRule")]
+        [Description("Add a rule in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddRule(CommandContext ctx, [RemainingText] string rule)
+        {
+            var completed = await service.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
+
+            if(!completed)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Rule already exists",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Added Rule",
+                Description = $"Rule added: {rule}",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                },
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("RemoveRule")]
+        [Description("Add a rule in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task RemoveRule(CommandContext ctx, int index)
+        {
+            var rule = await service.GetRule(ctx.Guild.Id, index - 1);
+            if(rule == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Rule doesn't exists",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+
+                return;
+            }
+
+            await service.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Removed Rule",
+                Description = $"Rule {index} removed",
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                },
+                Color = Color
+            }).ConfigureAwait(false);
         }
     }
 }

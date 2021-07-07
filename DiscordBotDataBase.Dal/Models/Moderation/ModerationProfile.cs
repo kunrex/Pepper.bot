@@ -14,5 +14,6 @@ namespace DiscordBotDataBase.Dal.Models.Moderation
 
         public List<Ban> Bans { get; set; } = new List<Ban>();
         public List<Kick> Kicks { get; set; } = new List<Kick>();
+        public List<Mute> Mutes { get; set; } = new List<Mute>();
     }
 }

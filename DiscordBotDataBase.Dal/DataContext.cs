@@ -23,5 +23,9 @@ namespace DiscordBotDataBase.Dal
         public DbSet<Endorsement> ModEndorsements { get; set; }
         public DbSet<Ban> ModBans { get; set; }
         public DbSet<Kick> ModKicks { get; set; }
+        public DbSet<Mute> ModMutes { get; set; }
+
+        public DbSet<ServerProfile> ServerProfiles { get; set; }
+        public DbSet<Rule> ServerRules { get; set; }
     }
 }
