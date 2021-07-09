@@ -50,7 +50,7 @@ namespace KunalsDiscordBot.Help
             }
 
             if (isCommand)
-                Embed.AddField("Overloads:\n", overloads);
+                Embed.AddField("Overloads (the same command with different parameters):\n", overloads);
 
             return new CommandHelpMessage(embed: Embed);
         }
@@ -75,7 +75,7 @@ namespace KunalsDiscordBot.Help
 
             overloads = string.Empty;
             for (int i = 0; i < command.Overloads.Count; i++)
-                overloads += $"{i + 1}.\n{GetOverload(command.Overloads[i])}";
+                overloads += $"🗕 __Overload {i + 1}__:\n{GetOverload(command.Overloads[i])}\n";
 
             return this;
         }
@@ -163,10 +163,10 @@ namespace KunalsDiscordBot.Help
                 if (overloadArguments[i].Type == typeof(CommandContext))//skip the command context
                     continue;
 
-                toString += $"=>{"  "}Argument {i + 1}\n Name: `{overloadArguments[i].Name}`\n Type: `{overloadArguments[i].Type}`\n Description: `{(overloadArguments[i].Description == string.Empty || overloadArguments[i].Description == null ? "None" : overloadArguments[i].Description)}`\n";
+                toString += $"•`{overloadArguments[i].Type.Name} {overloadArguments[i].Name}`, Description: `{(overloadArguments[i].Description == string.Empty || overloadArguments[i].Description == null ? "None" : overloadArguments[i].Description)}`\n";
             }
 
-            return toString;
+            return toString == string.Empty ? "No Parameters" : toString;
         }
 
         private string GetAliases(IReadOnlyList<string> aliases, bool isHighlight = true)

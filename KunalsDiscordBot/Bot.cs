@@ -26,6 +26,11 @@ using KunalsDiscordBot.Modules.Currency;
 using KunalsDiscordBot.ArgumentConverters;
 
 using KunalsDiscordBot.Help;
+using System.Reflection;
+using DSharpPlus.Entities;
+using System.Linq;
+using DSharpPlus.CommandsNext.Attributes;
+using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot
 {
@@ -46,7 +51,8 @@ namespace KunalsDiscordBot
             {
                 Token = configData.token,
                 TokenType = TokenType.Bot,
-                AutoReconnect = true
+                AutoReconnect = true,
+                Intents  = DiscordIntents.AllUnprivileged
                 /*LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true*/
             };
@@ -59,6 +65,7 @@ namespace KunalsDiscordBot
             });
 
             //client.Ready += OnClientReady;
+            client.GuildCreated += OnGuildCreated;
 
             var endPoint = new ConnectionEndpoint
             {
@@ -118,6 +125,19 @@ namespace KunalsDiscordBot
             {
 
             }
+        }
+
+        private Task OnGuildCreated(DiscordClient s, GuildCreateEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                var channel = e.Guild.GetDefaultChannel();
+                if (channel == null)
+                    return;
+
+                await e.Guild.GetDefaultChannel().SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
+            });
+            return Task.CompletedTask;
         }
 
         private class ConfigData

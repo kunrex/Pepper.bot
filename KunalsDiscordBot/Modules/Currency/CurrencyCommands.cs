@@ -467,10 +467,16 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.Channel.SendMessageAsync("The given job was not found");
 
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+            var level = service.GetLevel(profile);
 
             if(!profile.Job.Equals("None"))
             {
                 await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} you already have a job, use the resign command to resign");
+                return;
+            }
+            else if(level < job.minLvlNeeded)
+            {
+                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} the min level needed for the job is {job.minLvlNeeded}, you're level is {level}");
                 return;
             }
 
@@ -572,6 +578,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var timeSpan = DateTime.Now - prevDate;
                 if (timeSpan.TotalHours < job.CoolDown)
+                {
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Chill out",
@@ -580,9 +587,10 @@ namespace KunalsDiscordBot.Modules.Currency
                         Color = Color
                     }).ConfigureAwait(false);
 
-                return; 
+                    return;
+                }
             }
-           
+
             DialogueHandlerConfig config = new DialogueHandlerConfig
             {
                 Channel = ctx.Channel,

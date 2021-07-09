@@ -9,8 +9,6 @@ using DSharpPlus.CommandsNext.Attributes;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Math;
 
-using Math = System.Math;
-
 namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
@@ -22,7 +20,7 @@ namespace KunalsDiscordBot.Modules.Math
         [Description("Solves an equation")]
         public async Task Solve(CommandContext ctx, [RemainingText] string equation)
         {
-            var solver = new LinearEquationSolver($"{equation} .");
+            var solver = new LinearEquationSolver(equation);
 
             string answer = solver.Solve(solver.GetPolynomials(equation));
             await ctx.RespondAsync(answer).ConfigureAwait(false);
@@ -45,30 +43,30 @@ namespace KunalsDiscordBot.Modules.Math
         public async Task Div(CommandContext ctx, float number1, float number2) => await ctx.RespondAsync((number1 / number2).ToString()).ConfigureAwait(false);
 
         [Command("sin")]
-        [Description("Find the sin of a number")]
+        [Description("Returns the sin of a number")]
         public async Task Sin(CommandContext ctx, float number) => await ctx.RespondAsync(System.Math.Sin(number).ToString()).ConfigureAwait(false);
 
         [Command("cos")]
-        [Description("Find the cos of a number")]
+        [Description("Returns the cos of a number")]
         public async Task Cos(CommandContext ctx, float number) => await ctx.RespondAsync(System.Math.Cos(number).ToString()).ConfigureAwait(false);
 
         [Command("tan")]
-        [Description("Find the tan of a number")]
+        [Description("Returns the tan of a number")]
         public async Task Tan(CommandContext ctx, float number) => await ctx.RespondAsync(System.Math.Tan(number).ToString()).ConfigureAwait(false);
 
         [Command("cosecant")]
         [Aliases("cosec")]
-        [Description("Find the cosecant of a number")]
+        [Description("Returns the cosecant of a number")]
         public async Task Cosecant(CommandContext ctx, float number) => await ctx.RespondAsync((1f / System.Math.Sin(number)).ToString()).ConfigureAwait(false);
 
         [Command("secant")]
         [Aliases("sec")]
-        [Description("Find the cosecant of a number")]
+        [Description("Returns the cosecant of a number")]
         public async Task Secant(CommandContext ctx, float number) => await ctx.RespondAsync((1f / System.Math.Cos(number)).ToString()).ConfigureAwait(false);
 
         [Command("cotangent")]
         [Aliases("cot")]
-        [Description("Find the cosecant of a number")]
+        [Description("Returns the cosecant of a number")]
         public async Task Cotangent(CommandContext ctx, float number) => await ctx.RespondAsync((1f / System.Math.Tan(number)).ToString()).ConfigureAwait(false);
 
         [Command("pi")]
@@ -81,15 +79,19 @@ namespace KunalsDiscordBot.Modules.Math
 
         [Command("squareroot")]
         [Aliases("sqrt")]
-        [Description("Find the square root of a number")]
+        [Description("Returns the square root of a number")]
         public async Task Sqrt(CommandContext ctx, float number) => await ctx.RespondAsync((System.Math.Sqrt(number)).ToString()).ConfigureAwait(false);
 
         [Command("root")]
-        [Description("Finds the N'th root of a number")]
+        [Description("Returns the N'th root of a number")]
         public async Task Root(CommandContext ctx, float number, float root) => await ctx.RespondAsync((System.Math.Pow(number, 1.0 / root)).ToString()).ConfigureAwait(false);
 
         [Command("pow")]
-        [Description("Finds the N'th power of a number")]
+        [Description("Returns the N'th power of a number")]
         public async Task Pow(CommandContext ctx, float number, float root) => await ctx.RespondAsync((System.Math.Pow(number, root)).ToString()).ConfigureAwait(false);
+
+        [Command("log")]
+        [Description("Returns the base 10 logarithm of a number")]
+        public async Task Log(CommandContext ctx, float number) => await ctx.RespondAsync((System.Math.Log10(number)).ToString()).ConfigureAwait(false);
     }
 }

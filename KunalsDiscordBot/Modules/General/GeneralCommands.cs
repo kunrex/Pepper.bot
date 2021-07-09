@@ -12,6 +12,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Attributes;
+using KunalsDiscordBot.Services;
 using System.Reflection;
 
 namespace KunalsDiscordBot.Modules.General
@@ -40,24 +41,25 @@ namespace KunalsDiscordBot.Modules.General
             await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("hh:mm tt")).ConfigureAwait(false);
         }
 
-        [Command("describe")]
-        [Description("Random charecter dexcription in one word")]
-        public async Task charecter(CommandContext ctx)
-        {
-            string[] replies = { "sweat", "memes", "god", "assasin", "simp", "trash", "legend" };
-            Random r = new Random();
-            int rand = r.Next(0, replies.Length - 1);
-
-            await ctx.Channel.SendMessageAsync(replies[rand]).ConfigureAwait(false);
-        }
-
-
         [Command("poll")]
         [Description("Conducts a poll **DEMOCRACY**")]
-        public async Task Poll(CommandContext ctx, TimeSpan duration, string poll, params DiscordEmoji[] reactions)
+        public async Task Poll(CommandContext ctx, TimeSpan duration, params DiscordEmoji[] reactions)
         {
             var interactivity = ctx.Client.GetInteractivity();
             var options = reactions.Select(x => x.ToString());
+
+            string poll = string.Empty;
+            await ctx.Channel.SendMessageAsync($"What is the title of the poll?").ConfigureAwait(false);
+
+            var message = await interactivity.WaitForMessageAsync(x => x.Channel.Id == ctx.Channel.Id && x.Author.Id == ctx.Member.Id, TimeSpan.FromMinutes(1)).ConfigureAwait(false);
+
+            if (message.TimedOut)
+            {
+                await ctx.Channel.SendMessageAsync($"Late response").ConfigureAwait(false);
+                return;
+            }
+            else
+                poll = message.Result.Content;
 
             var embed = new DiscordEmbedBuilder
             {
@@ -77,8 +79,8 @@ namespace KunalsDiscordBot.Modules.General
 
             var results = result.Select(x => $"{x.Emoji} : {x.Total}");
 
-            await ctx.Channel.SendMessageAsync("\n Results for the pole " + poll + " are ");
-            await ctx.Channel.SendMessageAsync(string.Join("\n-", results)).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"\n Results for the pole: `{poll}` are -");
+            await ctx.Channel.SendMessageAsync(string.Join("\n", results)).ConfigureAwait(false);
         }
 
         [Command("UserInfo")]
@@ -163,5 +165,18 @@ namespace KunalsDiscordBot.Modules.General
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
+
+        [Command("Ping")]
+        [Description("Current ping of the client")]
+        public async Task Ping(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        {
+            Title = "Ping",
+            Description = $"Current latency is about {ctx.Client.Ping}ms",
+            Color = Color
+        }).ConfigureAwait(false);
+
+        [Command("AboutMe")]
+        [Description("Allow me to intorduce myself :D")]
+        public async Task AboutMe(CommandContext ctx) => await ctx.Channel.SendMessageAsync(BotService.GetBotInfo(ctx.Client, ctx.Member, 30)).ConfigureAwait(false);
     }
 }

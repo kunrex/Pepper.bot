@@ -62,6 +62,16 @@ namespace KunalsDiscordBot.Modules.Fun
                 await ctx.Channel.SendMessageAsync("No spam going on to stop");
         }
 
+        [Command("describe")]
+        [Description("Random charecter dexcription in one word")]
+        public async Task charecter(CommandContext ctx)
+        {
+            string[] replies = { "sweat", "memes", "god", "assasin", "simp", "trash", "legend" };
+            Random r = new Random();
+            int rand = r.Next(0, replies.Length - 1);
+
+            await ctx.Channel.SendMessageAsync(replies[rand]).ConfigureAwait(false);
+        }
 
         [Command("Coolrate")]
         [Description("cool rate")]
@@ -135,7 +145,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = "Truth",
+                Title = "Only The Truth",
                 Description = $"{other.Username}: {pp}"
             };
 
