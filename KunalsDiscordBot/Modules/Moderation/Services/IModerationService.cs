@@ -25,11 +25,12 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
         public Task<Kick> GetKick(int kickID);
         public Task<Mute> GetMute(int muteId);
 
-        public Task<int> GetInfractions(ulong id, ulong guildId);
-        public Task<int> GetEndorsements(ulong id, ulong guildId);
-        public Task<int> GetBans(ulong id, ulong guildId);
-        public Task<int> GetKicks(ulong id, ulong guildId);
-        public Task<int> GetMutes(ulong id, ulong guildId);
+        public Task<List<Infraction>> GetInfractions(ulong id, ulong guildId);
+        public Task<List<Endorsement>> GetEndorsements(ulong id, ulong guildId);
+        public Task<List<Ban>> GetBans(ulong id, ulong guildId);
+        public Task<List<Kick>> GetKicks(ulong id, ulong guildId);
+        public Task<List<Mute>> GetMutes(ulong id, ulong guildId);
+        public Task<List<Mute>> GetMutes(ulong guildId);
 
         public Task<bool> ClearInfractions(ulong id, ulong guildId);
         public Task<bool> ClearEndorsements(ulong id, ulong guildId);

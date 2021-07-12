@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 //D# name spaces
 using DSharpPlus.Net;
@@ -13,16 +14,6 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Lavalink;
 
 //Custom name spaces
-using KunalsDiscordBot.Modules.General;
-using KunalsDiscordBot.Modules.Fun;
-using KunalsDiscordBot.Modules.Math;
-using KunalsDiscordBot.Modules.Games;
-using KunalsDiscordBot.Modules.School;
-using KunalsDiscordBot.Modules.Music;
-using KunalsDiscordBot.Modules.Images;
-using KunalsDiscordBot.Modules.Moderation;
-using KunalsDiscordBot.Modules.Moderation.SoftModeration;
-using KunalsDiscordBot.Modules.Currency;
 using KunalsDiscordBot.ArgumentConverters;
 
 using KunalsDiscordBot.Help;
@@ -31,6 +22,8 @@ using DSharpPlus.Entities;
 using System.Linq;
 using DSharpPlus.CommandsNext.Attributes;
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Modules.Moderation.Services;
+using KunalsDiscordBot.Events;
 
 namespace KunalsDiscordBot
 {
@@ -40,9 +33,11 @@ namespace KunalsDiscordBot
         public CommandsNextExtension commands { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
 
+        private readonly IServiceProvider services;
+
         public static readonly string KunalsID = System.Text.Json.JsonSerializer.Deserialize<ConfigData>(File.ReadAllText("Config.json")).KunalsID;
 
-        public Bot (IServiceProvider services)
+        public Bot (IServiceProvider _services)
         {
             string fileData = File.ReadAllText("Config.json");
             var configData = System.Text.Json.JsonSerializer.Deserialize<ConfigData>(fileData);
@@ -64,7 +59,6 @@ namespace KunalsDiscordBot
                 Timeout = TimeSpan.FromSeconds(configData.timeOut)
             });
 
-            //client.Ready += OnClientReady;
             client.GuildCreated += OnGuildCreated;
 
             var endPoint = new ConnectionEndpoint
@@ -81,6 +75,7 @@ namespace KunalsDiscordBot
             };
 
             var lavaLink = client.UseLavalink();
+            services = _services;
 
             CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
             {
@@ -88,22 +83,14 @@ namespace KunalsDiscordBot
                 EnableDms = configData.dms,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
-                Services = services,
+                Services = _services,
                 DmHelp = false,            
             };
 
             commands = client.UseCommandsNext(commandsConfig);
 
-            commands.RegisterCommands<GeneralCommands>();
-            commands.RegisterCommands<MathCommands>();
-            commands.RegisterCommands<GameCommands>();
-            commands.RegisterCommands<FunCommands>();
-            //commands.RegisterCommands<SchoolCommands>();
-            commands.RegisterCommands<MusicCommands>();
-            commands.RegisterCommands<ImageCommands>();
-            commands.RegisterCommands<ModerationCommands>();
-            commands.RegisterCommands<SoftModerationCommands>();
-            commands.RegisterCommands<CurrencyCommands>();
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
+                commands.RegisterCommands(type);
 
             commands.SetHelpFormatter<HelpFormatter>();
 
@@ -124,6 +111,34 @@ namespace KunalsDiscordBot
             catch
             {
 
+            }
+
+            await CheckData();
+        }
+
+        private async Task CheckData()
+        {
+            var modService = (IModerationService)services.GetService(typeof(IModerationService));
+
+            foreach(var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
+            {
+                foreach(var mute in await modService.GetMutes(guild.Value.Id))
+                {
+                    var span = DateTime.Now - DateTime.Parse(mute.StartTime);
+                    ulong id = await modService.GetMuteRoleId(guild.Value.Id);
+
+                    var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
+                    var profile = await modService.GetModerationProfile(mute.ModerationProfileId);
+                    var member = guild.Value.Members.FirstOrDefault(x => x.Value.Id == (ulong)profile.DiscordId).Value;
+
+                    if (!TimeSpan.TryParse(mute.Time, out var x) || span > TimeSpan.Parse(mute.Time))
+                        await member.RevokeRoleAsync(role).ConfigureAwait(false);
+                    else
+                        BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
+                        {
+                            Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
+                        }).Execute();
+                }
             }
         }
 

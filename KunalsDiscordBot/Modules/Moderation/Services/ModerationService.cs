@@ -7,6 +7,9 @@ using DiscordBotDataBase.Dal.Models.Moderation.SubData;
 using System.Linq;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Events;
+using DSharpPlus.Entities;
+
 namespace KunalsDiscordBot.Modules.Moderation.Services
 {
     public class ModerationService : IModerationService
@@ -184,66 +187,66 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
 
         public async Task<Ban> GetBan(int banID) => await context.ModBans.FirstOrDefaultAsync(x => x.Id == banID);
 
-        public async Task<int> GetBans(ulong id, ulong guildId)
+        public async Task<List<Ban>> GetBans(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
             {
                 profile = await CreateModerationProfile(id, guildId);
-                return 0;
+                return profile.Bans;
             }
 
             var bans = context.ModBans.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
-            return bans.Count;
+            return bans;
         }
 
         public async Task<Endorsement> GetEndorsement(int endorsementID) => await context.ModEndorsements.FirstOrDefaultAsync(x => x.Id == endorsementID);
 
-        public async Task<int> GetEndorsements(ulong id, ulong guildId)
+        public async Task<List<Endorsement>> GetEndorsements(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
             {
                 profile = await CreateModerationProfile(id, guildId);
-                return 0;
+                return profile.Endorsements;
             }
 
-            var bans = context.ModEndorsements.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
-            return bans.Count;
+            var endorsements = context.ModEndorsements.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
+            return endorsements;
         }
 
         public async Task<Infraction> GetInfraction(int infractionID) => await context.ModInfractions.FirstOrDefaultAsync(x => x.Id == infractionID);
 
-        public async Task<int> GetInfractions(ulong id, ulong guildId)
+        public async Task<List<Infraction>> GetInfractions(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
             {
                 profile = await CreateModerationProfile(id, guildId);
-                return 0;
+                return profile.Infractions;
             }
 
-            var bans = context.ModInfractions.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
-            return bans.Count;
+            var infractions = context.ModInfractions.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
+            return infractions;
         }
 
         public async Task<Kick> GetKick(int kickID) => await context.ModKicks.FirstOrDefaultAsync(x => x.Id == kickID);
 
-        public async Task<int> GetKicks(ulong id, ulong guildId)
+        public async Task<List<Kick>> GetKicks(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
             {
                 profile = await CreateModerationProfile(id, guildId);
-                return 0;
+                return profile.Kicks;
             }
 
-            var bans = context.ModKicks.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
-            return bans.Count;
+            var kicks = context.ModKicks.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
+            return kicks;
         }
 
         public async Task<ModerationProfile> GetModerationProfile(ulong id, ulong guildId)
@@ -292,7 +295,7 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             if (profile == null)
                 profile = await CreateModerationProfile(id, guildId);
 
-            var mute = new Mute { Reason = reason, Time = time, ModeratorID = (long)moderatorID };
+            var mute = new Mute { Reason = reason, Time = time, StartTime = DateTime.Now.ToString("dddd, dd MMMM yyyy"), ModeratorID = (long)moderatorID };
             profile.Mutes.Add(mute);
 
             var update = context.ModerationProfiles.Update(profile);
@@ -304,18 +307,29 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
 
         public async Task<Mute> GetMute(int muteId) => await context.ModMutes.FirstOrDefaultAsync(x => x.Id == muteId);
 
-        public async Task<int> GetMutes(ulong id, ulong guildId)
+        public async Task<List<Mute>> GetMutes(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
 
             if (profile == null)
             {
                 profile = await CreateModerationProfile(id, guildId);
-                return 0;
+                return profile.Mutes;
             }
 
             var mutes = context.ModMutes.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
-            return mutes.Count;
+            return mutes;
+        }
+
+        public async Task<List<Mute>> GetMutes(ulong guildId)
+        {
+            var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)guildId);
+
+            if (profile == null)
+                return null;
+
+            var mutes = context.ModMutes.AsQueryable().Where(x => x.ModerationProfileId == profile.Id).ToList();
+            return mutes;
         }
     }
 }

@@ -45,7 +45,6 @@
     <Folder Include="Modules\General\" />
     <Folder Include="Modules\Games\" />
     <Folder Include="Modules\Math\" />
-    <Folder Include="Modules\School\" />
     <Folder Include="Modules\Games\Players\" />
     <Folder Include="Help\" />
     <Folder Include="Modules\Fun\Services\" />
@@ -73,13 +72,13 @@
     <Folder Include="DialogueHandler\Steps\" />
     <Folder Include="Reddit\" />
     <Folder Include="ArgumentConverters\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\Pacman\" />
     <Folder Include="Modules\Images\Services\" />
     <Folder Include="Core\Attributes\ImageCommands\" />
     <Folder Include="Core\Exceptions\" />
     <Folder Include="Core\Exceptions\ImageCommands\" />
     <Folder Include="Core\Attributes\CurrencyCommands\" />
     <Folder Include="Core\Exceptions\CurrencyCommands\" />
+    <Folder Include="Events\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -116,7 +115,6 @@
     <None Remove="Reddit" />
     <None Remove="Reddit\" />
     <None Remove="BoolArgumentConverter\" />
-    <None Remove="Modules\Games\Games\ComplexGames\Pacman\" />
     <None Remove="Modules\Images\Services\" />
     <None Remove="Core\Attributes\ImageCommands\" />
     <None Remove="Core\Exeptions\" />
@@ -124,6 +122,7 @@
     <None Remove="Microsoft.CSharp" />
     <None Remove="Core\Attributes\CurrencyCommands\" />
     <None Remove="Core\Exceptions\CurrencyCommands\" />
+    <None Remove="Events\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

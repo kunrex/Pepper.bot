@@ -30,6 +30,7 @@ namespace KunalsDiscordBot.Modules.Currency.Shops.Items
                      await service.ChangeCoinsBank(member.Id, boost);
                      break;
             }
+            await service.AddOrRemoveItem(member.Id, Name, -1).ConfigureAwait(false);
 
             return new UseResult
             {

@@ -71,15 +71,14 @@ namespace KunalsDiscordBot.Modules.General
             var pollMessage = await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
 
             foreach (var option in reactions)
-            {
                 await pollMessage.CreateReactionAsync(option).ConfigureAwait(false);
-            }
+            await ctx.Channel.SendMessageAsync($"The poll :{poll} has begun").ConfigureAwait(false);
 
             var result = await interactivity.CollectReactionsAsync(pollMessage, duration).ConfigureAwait(false);
 
             var results = result.Select(x => $"{x.Emoji} : {x.Total}");
 
-            await ctx.Channel.SendMessageAsync($"\n Results for the pole: `{poll}` are -");
+            await ctx.Channel.SendMessageAsync($"\n Results for the poll: `{poll}` are -");
             await ctx.Channel.SendMessageAsync(string.Join("\n", results)).ConfigureAwait(false);
         }
 
@@ -99,7 +98,7 @@ namespace KunalsDiscordBot.Modules.General
 
             var footer = new DiscordEmbedBuilder.EmbedFooter
             {
-                Text = $"User: {ctx.Member.Nickname}, at {DateTime.Now.ToString("dd hh:mm:ss.s")}"
+                Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("dd hh:mm:ss.s")}"
             };
 
             var embed = new DiscordEmbedBuilder
@@ -110,8 +109,8 @@ namespace KunalsDiscordBot.Modules.General
                 Footer = footer
             };
 
-            embed.AddField("Account Created Date: ", $"{member.CreationTimestamp.Date}");
-            embed.AddField("Server Join Date: ", $"{member.JoinedAt.Date}");
+            embed.AddField("Account Created Date: ", $"{member.CreationTimestamp.Date.ToString("dddd, dd MMMM yyyy")}");
+            embed.AddField("Server Join Date: ", $"{member.JoinedAt.Date.ToString("dddd, dd MMMM yyyy")}");
             embed.AddField("Id: ", $"`{member.Id}`");
 
             if (member.IsBot)

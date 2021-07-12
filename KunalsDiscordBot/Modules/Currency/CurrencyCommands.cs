@@ -270,6 +270,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var timeSpan = DateTime.Now - prevDate;
                 if (timeSpan.TotalDays < 1)
+                {
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Chill out",
@@ -283,7 +284,8 @@ namespace KunalsDiscordBot.Modules.Currency
                         Color = Color
                     }).ConfigureAwait(false);
 
-                return;
+                    return;
+                }
             }
 
             var coins = new Random().Next(dailyMin, dailyMax);
@@ -316,6 +318,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var timeSpan = DateTime.Now - prevDate;
                 if (timeSpan.TotalDays < 7)
+                {
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Chill out",
@@ -329,7 +332,8 @@ namespace KunalsDiscordBot.Modules.Currency
                         Color = Color
                     }).ConfigureAwait(false);
 
-                return;
+                    return;
+                }
             }
 
             var coins = new Random().Next(weeklyMin, weeklyMax);
@@ -362,6 +366,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var timeSpan = DateTime.Now - prevDate;
                 if (timeSpan.TotalDays < 30)
+                {
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Chill out",
@@ -375,7 +380,8 @@ namespace KunalsDiscordBot.Modules.Currency
                         Color = Color
                     }).ConfigureAwait(false);
 
-                return;
+                    return;
+                }
             }
 
             var coins = new Random().Next(monthlyMin, monthlyMax);

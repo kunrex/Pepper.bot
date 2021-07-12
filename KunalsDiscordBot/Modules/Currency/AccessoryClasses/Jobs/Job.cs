@@ -205,14 +205,14 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
                     var words = string.Empty;
 
                     foreach (string word in RewriteWords.workData[wordsIndex])
-                        words += $"`{word}`\n";
+                        words += $"{word}\n";
 
                     words.Remove(words.Length - 1);
 
                     tries = RewriteWords.numberOfTurns;
                     time = RewriteWords.totalTime;
 
-                    description = $"Rewrite these words in the following order: \n{words}";
+                    description = $"Rewrite these words in the following order: \n`{words}`";
                     result = words;
 
                     return new List<Step>

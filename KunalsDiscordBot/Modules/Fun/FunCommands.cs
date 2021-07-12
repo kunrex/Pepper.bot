@@ -276,6 +276,32 @@ namespace KunalsDiscordBot.Modules.Fun
             }).ConfigureAwait(false);
         }
 
+        [Command("GhostPresence")]
+        [Aliases("ghost")]
+        [Description("Make the bot come alive!")]
+        public async Task Ghost(CommandContext ctx, DiscordChannel channel = null)
+        {
+            if(GhostPresence.presences.Find(x => x.guildId == ctx.Guild.Id || x.userID == ctx.Member.Id) != null)
+            {
+                await ctx.Channel.SendMessageAsync("There already is a ghost presence in this server or you have another presence in another server so point being you can't have 2").ConfigureAwait(false);
+                return;
+            }
+
+            var dmChannel = await ctx.Member.CreateDmChannelAsync().ConfigureAwait(false);
+            var presence = new GhostPresence(ctx.Client, dmChannel, channel == null ? ctx.Channel : channel, ctx.Channel.Id, ctx.Member.Id);
+
+            try
+            {
+                await ctx.Message.DeleteAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                await dmChannel.SendMessageAsync("I can't delete messages in that server so you might want to?").ConfigureAwait(false);
+            }
+
+            presence.BegineGhostPresence();
+        }
+
         private class FunData
         {
             public string[] BatBox1 { get; set; }

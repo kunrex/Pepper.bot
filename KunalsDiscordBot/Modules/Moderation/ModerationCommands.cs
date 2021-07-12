@@ -9,6 +9,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
+using KunalsDiscordBot.Events;
 using System;
 using KunalsDiscordBot.Modules.Moderation.Services;
 using System.Reflection;
@@ -284,15 +285,10 @@ namespace KunalsDiscordBot.Modules.Moderation
                 }
             };
 
-            int infractions = await service.GetInfractions(member.Id, ctx.Guild.Id);
-            int endorsements = await service.GetEndorsements(member.Id, ctx.Guild.Id);
-            int bans = await service.GetBans(member.Id, ctx.Guild.Id);
-            int kicks = await service.GetKicks(member.Id, ctx.Guild.Id);
-
-            embed.AddField("Infractions: ", infractions.ToString(), true);
-            embed.AddField("Endorsements: ", endorsements.ToString(), true);
-            embed.AddField("Bans: ", bans.ToString());
-            embed.AddField("Kicks: ", kicks.ToString(), true);
+            embed.AddField("Infractions: ", (await service.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true);
+            embed.AddField("Endorsements: ", (await service.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true);
+            embed.AddField("Bans: ", (await service.GetBans(member.Id, ctx.Guild.Id)).Count.ToString());
+            embed.AddField("Kicks: ", (await service.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -347,6 +343,10 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             await member.GrantRoleAsync(role).ConfigureAwait(false);
             int id = await service.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+            BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
+            { 
+                Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
+            }).Execute();
 
             var embed = new DiscordEmbedBuilder
             {
