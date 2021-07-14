@@ -9,8 +9,9 @@ using System.Collections.Generic;
 
 using KunalsDiscordBot.Events;
 using DSharpPlus.Entities;
+using DiscordBotDataBase.Dal.Models.Servers;
 
-namespace KunalsDiscordBot.Modules.Moderation.Services
+namespace KunalsDiscordBot.Services.Moderation
 {
     public class ModerationService : IModerationService
     {
@@ -86,43 +87,6 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             return kick.Id;
         }
 
-        public async Task<bool> AddOrRemoveRule(ulong id, string ruleContent, bool add)
-        {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
-            if (profile == null)
-                profile = await CreateServerProfile(id);
-
-            if (add)
-            {
-                if (await CheckIfRuleExists(id, ruleContent))
-                    return false;
-
-                profile.Rules.Add(new Rule
-                {
-                    RuleContent = ruleContent,
-                });
-            }
-            else
-            {
-                var rule = context.ServerRules.AsQueryable().FirstOrDefault(x => x.ServerProfileId == profile.Id && x.RuleContent == ruleContent);
-                context.ServerRules.Remove(rule);
-            }
-
-            var updateEntry = context.ServerProfiles.Update(profile);
-            await context.SaveChangesAsync();
- 
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
-        private async Task<bool> CheckIfRuleExists(ulong id, string ruleContent)
-        {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
-            var rules = context.ServerRules.AsQueryable().Where(x => x.ServerProfileId == profile.Id).ToList();
-
-            return rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null;
-        }
-
         public async Task<bool> ClearEndorsements(ulong id, ulong guildId)
         {
             var profile = await context.ModerationProfiles.FirstOrDefaultAsync(x => x.DiscordId == (long)id && x.GuildId == (long)guildId);
@@ -173,16 +137,6 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
             await context.SaveChangesAsync();
 
             return modProfile;
-        }
-
-        public async Task<ServerProfile> CreateServerProfile(ulong guildId)
-        {
-            var serverProfile = new ServerProfile { GuildId = (long)guildId };
-
-            await context.AddAsync(serverProfile);
-            await context.SaveChangesAsync();
-
-            return serverProfile;
         }
 
         public async Task<Ban> GetBan(int banID) => await context.ModBans.FirstOrDefaultAsync(x => x.Id == banID);
@@ -260,33 +214,6 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
         }
 
         public async Task<ModerationProfile> GetModerationProfile(int id) => await context.ModerationProfiles.FirstOrDefaultAsync(x => x.Id == id);
-
-        public async Task<Rule> GetRule(ulong guildId, int index)
-        {
-            if (index < 0)
-                return null;
-
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)guildId).ConfigureAwait(false);
-            var rules = context.ServerRules.AsQueryable().Where(x => x.ServerProfileId == profile.Id).ToList();
-
-            return index >= rules.Count ? null : rules[index];
-        }
-
-        public async Task<bool> SetMuteRoleId(ulong id, ulong roleId)
-        {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
-            if (profile == null)
-                profile = await CreateServerProfile(id);
-
-            profile.MutedRoleId = (long)roleId;
-            var updateEntry = context.ServerProfiles.Update(profile);
-
-            await context.SaveChangesAsync();
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
-        public async Task<ulong> GetMuteRoleId(ulong id) => (ulong)(await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id)).MutedRoleId;
 
         public async Task<int> AddMute(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {

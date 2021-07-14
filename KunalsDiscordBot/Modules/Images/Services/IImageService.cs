@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using DSharpPlus.CommandsNext;
+using KunalsDiscordBot.Modules.Images;
 
-namespace KunalsDiscordBot.Modules.Images.Services
+namespace KunalsDiscordBot.Services.Images
 {
     public interface IImageService
     {

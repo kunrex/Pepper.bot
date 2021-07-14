@@ -79,6 +79,10 @@
     <Folder Include="Core\Attributes\CurrencyCommands\" />
     <Folder Include="Core\Exceptions\CurrencyCommands\" />
     <Folder Include="Events\" />
+    <Folder Include="Modules\Games\Games\ComplexGames\UNO\" />
+    <Folder Include="Modules\General\Services\" />
+    <Folder Include="Modules\Music\Services\" />
+    <Folder Include="Core\Attributes\MusicCommands\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -123,6 +127,10 @@
     <None Remove="Core\Attributes\CurrencyCommands\" />
     <None Remove="Core\Exceptions\CurrencyCommands\" />
     <None Remove="Events\" />
+    <None Remove="Modules\Games\Games\ComplexGames\UNO\" />
+    <None Remove="Modules\General\Services\" />
+    <None Remove="Modules\Music\Services\" />
+    <None Remove="Core\Attributes\Music\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

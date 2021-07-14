@@ -48,7 +48,7 @@ namespace KunalsDiscordBot.Services.Music
             lava = extension;
         }
 
-        public async Task<string> Disconnect(string channelName)
+        public async Task<string> Disconnect()
         {
             if (!isConnected)
                 return "";
@@ -62,7 +62,7 @@ namespace KunalsDiscordBot.Services.Music
                 return "LavaLink is not connected";
 
             await connection.DisconnectAsync();
-            return $"Left {channelName} succesfully";
+            return $"Left {connection.Channel.Mention} succesfully";
         }
 
         public async Task<string> Connect(DiscordChannel _channel, DiscordChannel _boundChannel)
@@ -281,7 +281,7 @@ namespace KunalsDiscordBot.Services.Music
             };
 
             embed.AddField("`Requested By:` ", memberWhoRequested);
-            embed.AddField("`Position`", $"{connection.CurrentState.PlaybackPosition.Minutes} : {connection.CurrentState.PlaybackPosition.Minutes}");
+            embed.AddField("`Position`",  $"{connection.CurrentState.PlaybackPosition:mm\\:ss}");
             embed.AddField("`Next Search:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
             embed.AddField("`Paused`", isPaused.ToString(), true);
             embed.AddField("`Looping`", isLooping.ToString(), true);
@@ -358,15 +358,16 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> Seek(TimeSpan span, bool relative = false)
         {
-            if (relative ? span + connection.CurrentState.PlaybackPosition > currentTrack.Length : span > currentTrack.Length)
+            if (span > TimeSpan.FromSeconds(0) ? (relative ? span + connection.CurrentState.PlaybackPosition > currentTrack.Length  : span > currentTrack.Length) : (relative ? span + connection.CurrentState.PlaybackPosition < TimeSpan.FromSeconds(0) : span < TimeSpan.FromSeconds(0)))
                 return "Cannot play from specified position";
 
-            if(relative)
-                await connection.SeekAsync(connection.CurrentState.PlaybackPosition + span);
+            var newSpan = connection.CurrentState.PlaybackPosition + span;
+            if (relative)
+                await connection.SeekAsync(newSpan);
             else
                 await connection.SeekAsync(span);
 
-            return $"Playing from {connection.CurrentState.PlaybackPosition.Minutes}:{connection.CurrentState.PlaybackPosition.Seconds}";
+            return $"Playing from {newSpan:mm\\:ss}";
         }
     }
 }

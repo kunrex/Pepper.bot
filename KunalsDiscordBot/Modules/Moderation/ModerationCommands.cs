@@ -11,8 +11,10 @@ using DSharpPlus.Entities;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Events;
 using System;
-using KunalsDiscordBot.Modules.Moderation.Services;
+
 using System.Reflection;
+using KunalsDiscordBot.Services.Moderation;
+using KunalsDiscordBot.Services.General;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -23,9 +25,14 @@ namespace KunalsDiscordBot.Modules.Moderation
     [RequireBotPermissions(Permissions.Administrator)]
     public class ModerationCommands : BaseCommandModule
     {
-        private readonly IModerationService service;
+        private readonly IModerationService modService;
+        private readonly IServerService serverService;
 
-        public ModerationCommands(IModerationService moderationService) => service = moderationService;
+        public ModerationCommands(IModerationService moderationService, IServerService _serverService)
+        {
+            modService = moderationService;
+            serverService = _serverService;
+        }
         private static readonly DiscordColor Color = typeof(ModerationCommands).GetCustomAttribute<Decor>().color;
         private static readonly int ThumbnailSize = 30;
 
@@ -112,7 +119,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             try
             {
                 await member.BanAsync(5, reason).ConfigureAwait(false);
-                int id = await service.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
 
                 var embed = new DiscordEmbedBuilder
                 {
@@ -150,7 +157,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             try
             {
                 await member.RemoveAsync(reason).ConfigureAwait(false);
-                int id = await service.AddKick(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
+                int id = await modService.AddKick(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
                 var embed = new DiscordEmbedBuilder
                 {
@@ -182,7 +189,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Gets a kick event using its ID")]
         public async Task GetKick(CommandContext ctx, int kickID)
         {
-            var kick = await service.GetKick(kickID);
+            var kick = await modService.GetKick(kickID);
 
             if (kick == null)
             {
@@ -190,7 +197,13 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await service.GetModerationProfile(kick.ModerationProfileId);
+            var profile = await modService.GetModerationProfile(kick.ModerationProfileId);
+
+            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            {
+                await ctx.Channel.SendMessageAsync("Kick with this Id doesn't exist exist in this server");
+                return;
+            }
 
             var embed = new DiscordEmbedBuilder
             {
@@ -210,7 +223,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Gets a kick event using its ID")]
         public async Task GetBan(CommandContext ctx, int banID)
         {
-            var ban = await service.GetBan(banID);
+            var ban = await modService.GetBan(banID);
 
             if (ban == null)
             {
@@ -218,7 +231,13 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await service.GetModerationProfile(ban.ModerationProfileId);
+            var profile = await modService.GetModerationProfile(ban.ModerationProfileId);
+
+            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            {
+                await ctx.Channel.SendMessageAsync("Ban with this Id doesn't exist exist in this server");
+                return;
+            }
 
             var embed = new DiscordEmbedBuilder
             {
@@ -285,10 +304,10 @@ namespace KunalsDiscordBot.Modules.Moderation
                 }
             };
 
-            embed.AddField("Infractions: ", (await service.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true);
-            embed.AddField("Endorsements: ", (await service.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true);
-            embed.AddField("Bans: ", (await service.GetBans(member.Id, ctx.Guild.Id)).Count.ToString());
-            embed.AddField("Kicks: ", (await service.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true);
+            embed.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true);
+            embed.AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true);
+            embed.AddField("Bans: ", (await modService.GetBans(member.Id, ctx.Guild.Id)).Count.ToString());
+            embed.AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -298,7 +317,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task SetMuteRole(CommandContext ctx, DiscordRole role)
         {
-            await service.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+            await serverService.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -317,7 +336,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "unspecified")
         {
-            var mutedRoleId = await service.GetMuteRoleId(ctx.Guild.Id);
+            var mutedRoleId = await serverService.GetMuteRoleId(ctx.Guild.Id);
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
 
             if(role == null)
@@ -342,7 +361,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             }
 
             await member.GrantRoleAsync(role).ConfigureAwait(false);
-            int id = await service.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+            int id = await modService.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
             BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
             { 
                 Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
@@ -374,7 +393,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "unspecified")
         {
-            var mutedRoleId = await service.GetMuteRoleId(ctx.Guild.Id);
+            var mutedRoleId = await serverService.GetMuteRoleId(ctx.Guild.Id);
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
 
             if (role == null)
@@ -425,7 +444,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Gets a kick event using its ID")]
         public async Task GetMute(CommandContext ctx, int muteId)
         {
-            var mute = await service.GetMute(muteId);
+            var mute = await modService.GetMute(muteId);
 
             if (mute == null)
             {
@@ -433,7 +452,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await service.GetModerationProfile(mute.ModerationProfileId);
+            var profile = await modService.GetModerationProfile(mute.ModerationProfileId);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -457,7 +476,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddRule(CommandContext ctx, [RemainingText] string rule)
         {
-            var completed = await service.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
+            var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
 
             if(!completed)
             {
@@ -491,7 +510,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveRule(CommandContext ctx, int index)
         {
-            var rule = await service.GetRule(ctx.Guild.Id, index - 1);
+            var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
             if(rule == null)
             {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -507,7 +526,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            await service.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
+            await serverService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

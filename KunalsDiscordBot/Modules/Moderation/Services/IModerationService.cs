@@ -4,8 +4,9 @@ using DiscordBotDataBase.Dal.Models.Moderation;
 using DiscordBotDataBase.Dal.Models.Moderation.SubData;
 
 using System.Collections.Generic;
+using DiscordBotDataBase.Dal.Models.Servers;
 
-namespace KunalsDiscordBot.Modules.Moderation.Services
+namespace KunalsDiscordBot.Services.Moderation
 {
     public interface IModerationService
     {
@@ -34,11 +35,5 @@ namespace KunalsDiscordBot.Modules.Moderation.Services
 
         public Task<bool> ClearInfractions(ulong id, ulong guildId);
         public Task<bool> ClearEndorsements(ulong id, ulong guildId);
-
-        public Task<bool> SetMuteRoleId(ulong id, ulong roleId);
-        public Task<ulong> GetMuteRoleId(ulong id);
-        public Task<bool> AddOrRemoveRule(ulong id, string ruleToAdd, bool add);
-        public Task<Rule> GetRule(ulong guildId, int index);
-        public Task<ServerProfile> CreateServerProfile(ulong guildId);
     }
 }

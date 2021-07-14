@@ -54,27 +54,13 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                     b.ToTable("ModerationProfiles");
                 });
 
-            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.ServerProfile", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("GuildId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<long>("MutedRoleId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ServerProfiles");
-                });
-
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Ban", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("GuildID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ModerationProfileId")
@@ -102,6 +88,9 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("GuildID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ModerationProfileId")
                         .HasColumnType("INTEGER");
 
@@ -122,6 +111,9 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("GuildID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ModerationProfileId")
@@ -146,6 +138,9 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("GuildID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("ModerationProfileId")
                         .HasColumnType("INTEGER");
 
@@ -166,6 +161,9 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("GuildID")
                         .HasColumnType("INTEGER");
 
                     b.Property<int>("ModerationProfileId")
@@ -284,6 +282,35 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                     b.ToTable("UserProfiles");
                 });
 
+            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Servers.ServerProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("AllowNSFW")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("DJRoleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("GuildId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("MutedRoleId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("RestrictPermissionsToAdmin")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UseDJRoleEnforcement")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServerProfiles");
+                });
+
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Items.ItemDBData", b =>
                 {
                     b.HasOne("DiscordBotDataBase.Dal.Models.Profile.Profile", null)
@@ -340,7 +367,7 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
 
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.SubData.Rule", b =>
                 {
-                    b.HasOne("DiscordBotDataBase.Dal.Models.Moderation.ServerProfile", null)
+                    b.HasOne("DiscordBotDataBase.Dal.Models.Servers.ServerProfile", null)
                         .WithMany("Rules")
                         .HasForeignKey("ServerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -369,16 +396,16 @@ namespace DiscordBotDataBase.Dal.Migrations.Migrations
                     b.Navigation("Mutes");
                 });
 
-            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Moderation.ServerProfile", b =>
-                {
-                    b.Navigation("Rules");
-                });
-
             modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Profile.Profile", b =>
                 {
                     b.Navigation("Boosts");
 
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("DiscordBotDataBase.Dal.Models.Servers.ServerProfile", b =>
+                {
+                    b.Navigation("Rules");
                 });
 #pragma warning restore 612, 618
         }

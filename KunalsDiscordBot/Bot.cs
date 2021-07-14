@@ -22,8 +22,9 @@ using DSharpPlus.Entities;
 using System.Linq;
 using DSharpPlus.CommandsNext.Attributes;
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Modules.Moderation.Services;
 using KunalsDiscordBot.Events;
+using KunalsDiscordBot.Services.Moderation;
+using KunalsDiscordBot.Services.General;
 
 namespace KunalsDiscordBot
 {
@@ -107,10 +108,15 @@ namespace KunalsDiscordBot
             try
             {
                 await lavaLink.ConnectAsync(config);
+                Console.WriteLine("Lavalink connection success");
             }
             catch
             {
-
+                Console.WriteLine("Lavalink connection failed");
+            }
+            finally
+            {
+                Console.WriteLine("Lavalink connection section complete");
             }
 
             await CheckData();
@@ -119,13 +125,14 @@ namespace KunalsDiscordBot
         private async Task CheckData()
         {
             var modService = (IModerationService)services.GetService(typeof(IModerationService));
+            var serverService = (IServerService)services.GetService(typeof(IServerService));
 
-            foreach(var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
+            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
             {
                 foreach(var mute in await modService.GetMutes(guild.Value.Id))
                 {
                     var span = DateTime.Now - DateTime.Parse(mute.StartTime);
-                    ulong id = await modService.GetMuteRoleId(guild.Value.Id);
+                    ulong id = await serverService.GetMuteRoleId(guild.Value.Id);
 
                     var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
                     var profile = await modService.GetModerationProfile(mute.ModerationProfileId);

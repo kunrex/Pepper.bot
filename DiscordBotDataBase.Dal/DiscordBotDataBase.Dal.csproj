@@ -15,6 +15,7 @@
     <None Remove="Models\Currency\" />
     <None Remove="Models\Currency\Items\" />
     <None Remove="Models\Currency\Profile\" />
+    <None Remove="Models\Server\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
@@ -32,5 +33,6 @@
     <Folder Include="Models\Currency\" />
     <Folder Include="Models\Currency\Items\" />
     <Folder Include="Models\Currency\Profile\" />
+    <Folder Include="Models\Server\" />
   </ItemGroup>
 </Project>

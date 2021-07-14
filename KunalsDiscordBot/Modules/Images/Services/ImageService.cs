@@ -9,10 +9,11 @@ using System.Net;
 using System.Text.Json;
 using DSharpPlus.CommandsNext;
 
+using KunalsDiscordBot.Modules.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Exceptions.ImageCommands;
 
-namespace KunalsDiscordBot.Modules.Images.Services
+namespace KunalsDiscordBot.Services.Images
 {
     public class ImageService : IImageService
     {

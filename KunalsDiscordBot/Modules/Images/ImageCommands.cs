@@ -11,7 +11,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 using KunalsDiscordBot.Attributes;
 
-using KunalsDiscordBot.Modules.Images.Services;
+using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 
 namespace KunalsDiscordBot.Modules.Images

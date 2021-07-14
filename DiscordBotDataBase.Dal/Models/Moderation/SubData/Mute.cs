@@ -10,6 +10,7 @@ namespace DiscordBotDataBase.Dal.Models.Moderation.SubData
         public string StartTime { get; set; } = string.Empty;
 
         public long ModeratorID { get; set; }
+        public long GuildID { get; set; }
 
         [ForeignKey("ModerationProfileId")]
         public int ModerationProfileId { get; set; }

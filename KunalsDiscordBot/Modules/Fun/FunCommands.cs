@@ -15,6 +15,9 @@ using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.DialogueHandlers;
 using KunalsDiscordBot.DialogueHandlers.Steps;
 using KunalsDiscordBot.Reddit;
+using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Services.General;
+using System.Reflection;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
@@ -23,10 +26,16 @@ namespace KunalsDiscordBot.Modules.Fun
     public class FunCommands : BaseCommandModule
     {
         private static readonly FunData data = System.Text.Json.JsonSerializer.Deserialize<FunData>(File.ReadAllText(Path.Combine("Modules", "Fun", "FunData.json")));
+        private static readonly DiscordColor Color = typeof(FunCommands).GetCustomAttribute<Decor>().color;
 
         private readonly RedditApp redditApp;
+        private readonly IServerService serverService;
 
-        public FunCommands(RedditApp reddit) => redditApp = reddit;
+        public FunCommands(RedditApp reddit, IServerService _serverService)
+        {
+            redditApp = reddit;
+            serverService = _serverService;
+        }
 
         List<Spammer> currentSpammers = new List<Spammer>();
 
@@ -73,6 +82,21 @@ namespace KunalsDiscordBot.Modules.Fun
             await ctx.Channel.SendMessageAsync(replies[rand]).ConfigureAwait(false);
         }
 
+        [Command("ask")]
+        [Description("Ask the bot something")]
+        public async Task Ask(CommandContext ctx, [RemainingText] string question)
+        {
+            string[] reponses = {"Yes", "No", "Come back later", "How about no", "How about yes", "How about i just ignore you", "Depends, is the sky blue?",
+            "Indeed", "Whos asking?", "Come back later when Im not busy", "Well yes", "Well no", "God no!", "Depends, is the Earth round (PS it is)"};
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+            {
+                Title = "8ball thingy",
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, 30),
+                Color = Color
+            }.AddField("Question", question).AddField("What I say", reponses[new Random().Next(0, reponses.Length)]));
+        }
+
         [Command("Coolrate")]
         [Description("cool rate")]
         public async Task CoolRate(CommandContext ctx, DiscordMember member = null)
@@ -86,7 +110,8 @@ namespace KunalsDiscordBot.Modules.Fun
             var Embed = new DiscordEmbedBuilder
             {
                 Title = "Cool Rate",
-                Description = "Hey " + member.Nickname + " , you are " + number + "% **cool** 😎"
+                Description = "Hey " + member.Nickname + " , you are " + number + "% **cool** 😎",
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed: Embed);
@@ -146,7 +171,8 @@ namespace KunalsDiscordBot.Modules.Fun
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Only The Truth",
-                Description = $"{other.Username}: {pp}"
+                Description = $"{other.Username}: {pp}",
+                Color = Color
             };
 
             await ctx.Channel.SendMessageAsync(embed: embed);
@@ -207,7 +233,7 @@ namespace KunalsDiscordBot.Modules.Fun
                 Channel = ctx.Channel,
                 Member = ctx.Member,
                 Client = ctx.Client,
-                UseEmbed = false
+                UseEmbed = false,
             };
 
             var handler = new DialogueHandler(config,
@@ -224,13 +250,16 @@ namespace KunalsDiscordBot.Modules.Fun
         [Description("Juicy memes staright from r/memes")]
         public async Task Meme(CommandContext ctx)
         {
-            var post = redditApp.GetMeme();
+            var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+            var post = redditApp.GetMeme(profile.AllowNSFW == 1);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink
+                Url = "https://www.reddit.com" + post.Permalink,
+                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
+                Color = Color
             }).ConfigureAwait(false);
         }
 
@@ -244,7 +273,9 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink
+                Url = "https://www.reddit.com" + post.Permalink,
+                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
+                Color = Color
             }).ConfigureAwait(false);
         }
 
@@ -258,22 +289,56 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink
+                Url = "https://www.reddit.com" + post.Permalink,
+                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
+                Color = Color
             }).ConfigureAwait(false);
         }
 
         [Command("post")]
         [Description("Get a random post from any subredddit")]
-        public async Task Post(CommandContext ctx, string subreddit)
+        public async Task Post(CommandContext ctx, string subRedditname, string filter = "New", bool useImage = false)
         {
-            var post = redditApp.GetRandomPost(subreddit);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            var subReddit = redditApp.GetSubReddit(subRedditname);
+            if(subReddit == null)
             {
-                Title = post.Title,
-                ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink
-            }).ConfigureAwait(false);
+                await ctx.RespondAsync("Given subreddit not found").ConfigureAwait(false);
+                return;
+            }
+
+            var serverProfile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+            if(subReddit.Over18.Value == true && serverProfile.AllowNSFW == 0)
+            {
+                await ctx.RespondAsync("Given subreddit has NSFW content, this server does not allow NSFW posts").ConfigureAwait(false);
+                return;
+            }
+
+            var filterToString = filter.Replace(filter[0], char.ToUpper(filter[0]));
+            if (!Enum.TryParse(typeof(RedditPostFilter), filterToString, out var x))
+            {
+                await ctx.RespondAsync("Thats not a valid filter type").ConfigureAwait(false);
+                return;
+            }
+
+            var post = redditApp.GetRandomPost(subReddit, serverProfile.AllowNSFW == 1, useImage, (RedditPostFilter)Enum.Parse(typeof(RedditPostFilter), filterToString));
+
+            if(post == null)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = "Could not find a post in the subreddit with the given filter",
+                    Footer = BotService.GetEmbedFooter("The bot does not take into account all the posts only the a few from the top (like 50 or something, i donno)"),
+                    Color = Color
+                }).ConfigureAwait(false);
+            else
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = post.Title,
+                    ImageUrl = post.Listing.URL,
+                    Url = "https://www.reddit.com" + post.Permalink,
+                    Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
+                    Color = Color
+                }).ConfigureAwait(false);
         }
 
         [Command("GhostPresence")]

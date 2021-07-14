@@ -11,7 +11,8 @@ using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
 using System;
-using KunalsDiscordBot.Modules.Moderation.Services;
+using KunalsDiscordBot.Services.Moderation;
+using KunalsDiscordBot.Services.General;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
@@ -22,9 +23,15 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
     [RequireBotPermissions(Permissions.Administrator)]
     public class SoftModerationCommands : BaseCommandModule
     {
-        private readonly IModerationService service;
+        private readonly IModerationService modService;
+        private readonly IServerService serverService;
 
-        public SoftModerationCommands(IModerationService moderationService) => service = moderationService;
+        public SoftModerationCommands(IModerationService moderationService, IServerService _serverService)
+        {
+            modService = moderationService;
+            serverService = _serverService;
+        }
+
         private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<Decor>().color;
         private static readonly int ThumbnailSize = 30;
 
@@ -38,7 +45,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 await member.ModifyAsync((DSharpPlus.Net.Models.MemberEditModel obj) => obj.Nickname = newNick);
 
-                await ctx.Channel.SendMessageAsync($"Changed nickname for {member.Username} to {member.Nickname}");
+                await ctx.Channel.SendMessageAsync($"Changed nickname for {member.Username} to {newNick}");
             }
             catch
             {
@@ -86,7 +93,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddInfraction(CommandContext ctx, DiscordMember member, [RemainingText]  string reason = "Unpsecified")
         {
-            var id = await service.AddInfraction(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
+            var id = await modService.AddInfraction(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -114,7 +121,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddEndorsement(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unpsecified")
         {
-            var id = await service.AddEndorsement(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
+            var id = await modService.AddEndorsement(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
             var embed = new DiscordEmbedBuilder
             {
@@ -141,7 +148,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Description("Gets an infraction using its ID")]
         public async Task GetEndorsement(CommandContext ctx, int endorsementID)
         {
-            var endorsement = await service.GetEndorsement(endorsementID);
+            var endorsement = await modService.GetEndorsement(endorsementID);
 
             if(endorsement == null)
             {
@@ -149,7 +156,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await service.GetModerationProfile(endorsement.ModerationProfileId);
+            var profile = await modService.GetModerationProfile(endorsement.ModerationProfileId);
+
+            if((ulong)profile.GuildId != ctx.Guild.Id)
+            {
+                await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist exist in this server");
+                return;
+            }
 
             var embed = new DiscordEmbedBuilder
             {
@@ -170,7 +183,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Description("Gets an infraction using its ID")]
         public async Task GetInfraction(CommandContext ctx, int infractionID)
         {
-            var infraction = await service.GetInfraction(infractionID);
+            var infraction = await modService.GetInfraction(infractionID);
 
             if(infraction == null)
             {
@@ -178,7 +191,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await service.GetModerationProfile(infraction.ModerationProfileId);
+            var profile = await modService.GetModerationProfile(infraction.ModerationProfileId);
+
+            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            {
+                await ctx.Channel.SendMessageAsync("Infraction with this Id doesn't exist exist in this server");
+                return;
+            }
 
             var embed = new DiscordEmbedBuilder
             {
@@ -199,7 +218,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddRule(CommandContext ctx, int index)
         {
-           var rule =  await service.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
+           var rule =  await serverService.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

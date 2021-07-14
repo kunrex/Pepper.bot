@@ -5,9 +5,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using DiscordBotDataBase.Dal;
 using KunalsDiscordBot.Services.Currency;
-using KunalsDiscordBot.Modules.Moderation.Services;
+using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Reddit;
-using KunalsDiscordBot.Modules.Images.Services;
+using KunalsDiscordBot.Services.Images;
+using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services.Music;
 
 namespace KunalsDiscordBot
 {
@@ -27,6 +29,8 @@ namespace KunalsDiscordBot
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IModerationService, ModerationService>();
             services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IServerService, ServerService>();
+            services.AddScoped<IMusicService, MusicService>();
 
             services.AddSingleton(new RedditApp());
 
