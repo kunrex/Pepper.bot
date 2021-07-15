@@ -308,9 +308,9 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var serverProfile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
 
-            if(subReddit.Over18.Value == true && serverProfile.AllowNSFW == 0)
+            if(subReddit.Over18.Value == true && serverProfile.AllowNSFW == 0 && !ctx.Channel.IsNSFW)
             {
-                await ctx.RespondAsync("Given subreddit has NSFW content, this server does not allow NSFW posts").ConfigureAwait(false);
+                await ctx.RespondAsync("Given subreddit has NSFW content, this server does not allow NSFW posts or this channel does not allow NSFW content").ConfigureAwait(false);
                 return;
             }
 
@@ -323,7 +323,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var post = redditApp.GetRandomPost(subReddit, serverProfile.AllowNSFW == 1, useImage, (RedditPostFilter)Enum.Parse(typeof(RedditPostFilter), filterToString));
 
-            if(post == null)
+            if (post == null)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = "Could not find a post in the subreddit with the given filter",
@@ -331,6 +331,10 @@ namespace KunalsDiscordBot.Modules.Fun
                     Color = Color
                 }).ConfigureAwait(false);
             else
+            {
+                if (post.NSFW)
+                    await ctx.Channel.SendMessageAsync("**THE FOLLOWING POST IS NSFW**").ConfigureAwait(false);
+
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = post.Title,
@@ -339,6 +343,7 @@ namespace KunalsDiscordBot.Modules.Fun
                     Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
                     Color = Color
                 }).ConfigureAwait(false);
+            }
         }
 
         [Command("GhostPresence")]

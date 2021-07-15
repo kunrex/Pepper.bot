@@ -9,13 +9,21 @@ namespace KunalsDiscordBot.Modules.Games
 {
     public static class GameExtensions
     {
-        public static List<T> AsList<T>(this ReadOnlyCollection<T> reactions)
+        public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            List<T> reactionsNeeded = new List<T>();
-            foreach (var reaction in reactions)
-                    reactionsNeeded.Add(reaction);
+            var random = new Random();
 
-            return reactionsNeeded;
+            int n = list.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = random.Next(n + 1);
+                T value = list[k];
+                list[k] = list[n];
+                list[n] = value;
+            }
+
+            return list;
         }
     }
 }

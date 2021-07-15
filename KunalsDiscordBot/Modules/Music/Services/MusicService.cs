@@ -61,7 +61,8 @@ namespace KunalsDiscordBot.Services.Music
             if (!players.ContainsKey(id))
                 return new DiscordEmbedBuilder
                 {
-                    Description = "I'm not in a voice Channel?"
+                    Description = "I'm not in a voice Channel?",
+                    Color = DiscordColor.Aquamarine
                 };
 
             var player = players[id];
@@ -69,12 +70,14 @@ namespace KunalsDiscordBot.Services.Music
             if (player.connection == null)
                 return new DiscordEmbedBuilder
                 {
-                    Description = "LavaLink not connected"
+                    Description = "LavaLink not connected",
+                    Color = DiscordColor.Aquamarine
                 };
             if (player.connection.CurrentState.CurrentTrack == null)
                 return new DiscordEmbedBuilder
                 {
-                    Description = "There are no tracks currently loaded"
+                    Description = "There are no tracks currently loaded",
+                    Color = DiscordColor.Aquamarine
                 };
 
             return await player.GetQueue();
@@ -115,7 +118,8 @@ namespace KunalsDiscordBot.Services.Music
             if (!players.ContainsKey(id))
                 return new DiscordEmbedBuilder
                 {
-                    Description = "I'm not in a voice Channel?"
+                    Description = "I'm not in a voice Channel?",
+                    Color = DiscordColor.Aquamarine
                 };
 
             var player = players[id];
@@ -123,12 +127,14 @@ namespace KunalsDiscordBot.Services.Music
             if (player.connection == null)
                 return new DiscordEmbedBuilder
                 {
-                    Description = "LavaLink not connected"
+                    Description = "LavaLink not connected",
+                    Color = DiscordColor.Aquamarine
                 };
             if (player.connection.CurrentState.CurrentTrack == null)
                 return new DiscordEmbedBuilder
                 {
-                    Description = "There are no tracks currently loaded"
+                    Description = "There are no tracks currently loaded",
+                    Color = DiscordColor.Aquamarine
                 };
 
             return await player.NowPlaying();

@@ -20,6 +20,7 @@ using KunalsDiscordBot.DialogueHandlers;
 using KunalsDiscordBot.DialogueHandlers.Steps;
 
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
+using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -872,18 +873,12 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"You need a {itemNeed.Name} to run this command, you have 0",
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"User: {ctx.Member.Username}"
-                    },
+                    Footer = BotService.GetEmbedFooter($"User: {ctx.Member.Username}"),
                     Color = Color
                 }).ConfigureAwait(false);
 
                 return;
             }
-
-            if (!(itemNeed is PresenceItem))
-                throw new Exception("Somethings terribly wrong here");
 
             var casted = itemNeed as PresenceItem;
             var reward = casted.Data.GetReward();
@@ -901,16 +896,8 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Memes",
                 Description = descripion,
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Url = ctx.Member.AvatarUrl,
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize
-                },
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"User: {ctx.Member.Username}"
-                },
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.Username}"),
                 Color = Color
             }).ConfigureAwait(false);
         }

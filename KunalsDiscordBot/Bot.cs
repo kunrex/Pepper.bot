@@ -25,6 +25,13 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Events;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
+using DSharpPlus.CommandsNext.Exceptions;
+using KunalsDiscordBot.Core.Exceptions;
+
+//Look into turret bot on github
+//Create an error to throw when a check fails
+//Use the BeforeExecution and AfterExecution methods in the modules to perform all checks, if any check fails throw said error
+//in the CommandErrored event, add a method to handle said exception
 
 namespace KunalsDiscordBot
 {
@@ -89,6 +96,7 @@ namespace KunalsDiscordBot
             };
 
             commands = client.UseCommandsNext(commandsConfig);
+            commands.CommandErrored += CommandErrored;
 
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
                 commands.RegisterCommands(type);
@@ -147,6 +155,44 @@ namespace KunalsDiscordBot
                         }).Execute();
                 }
             }
+        }
+
+        private async Task CommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+        {
+            DiscordEmbedBuilder embed = null;
+
+            var exception = e.Exception;
+
+            if (exception is CommandNotFoundException)
+            {
+                //according to database
+            }
+            else if (exception is InvalidOverloadException)
+            {
+                //according to database
+            }
+            else if (exception is CustomCommandException)//ignore
+            { }
+            else if (exception is ChecksFailedException cfe)
+            {
+                embed = new DiscordEmbedBuilder
+                {
+                    Title = "Permission denied",
+                    Description = $"You lack permissions necessary to run this command.",
+                    Color = DiscordColor.Red
+                };
+            }
+            else
+            {
+                embed = new DiscordEmbedBuilder
+                {
+                    Title = "A problem occured while executing the command",
+                    Description = $"Exception: {exception.Message} at {Formatter.InlineCode(e.Command.QualifiedName)}",
+                    Color = DiscordColor.Red
+                };
+            }
+
+            await e.Context.RespondAsync(embed).ConfigureAwait(false);
         }
 
         private Task OnGuildCreated(DiscordClient s, GuildCreateEventArgs e)

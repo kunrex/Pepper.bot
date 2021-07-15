@@ -257,7 +257,7 @@ namespace KunalsDiscordBot.Modules.General
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Edited Configuration",
-                Description = $"Changed `Allow NSFW to {toChange}",
+                Description = $"Changed `Allow NSFW` to {toChange}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);

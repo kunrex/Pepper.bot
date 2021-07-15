@@ -149,6 +149,15 @@ namespace KunalsDiscordBot.Modules.Games
             }
         }
 
+        [Command("UNO")]
+        public async Task UNO(CommandContext ctx)
+        {
+            UNOGame game = new UNOGame(new List<DiscordMember>
+            {
+                ctx.Member
+            }, ctx.Client);
+        }
+
         [Command("Spectate")]
         [Description("Spectate an ongoing match")]
         public async Task Spectate(CommandContext ctx, DiscordUser user, [RemainingText]string game)

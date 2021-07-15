@@ -361,11 +361,11 @@ namespace KunalsDiscordBot.Services.Music
             if (span > TimeSpan.FromSeconds(0) ? (relative ? span + connection.CurrentState.PlaybackPosition > currentTrack.Length  : span > currentTrack.Length) : (relative ? span + connection.CurrentState.PlaybackPosition < TimeSpan.FromSeconds(0) : span < TimeSpan.FromSeconds(0)))
                 return "Cannot play from specified position";
 
-            var newSpan = connection.CurrentState.PlaybackPosition + span;
+            var newSpan = relative ? connection.CurrentState.PlaybackPosition + span : span;
             if (relative)
                 await connection.SeekAsync(newSpan);
             else
-                await connection.SeekAsync(span);
+                await connection.SeekAsync(newSpan);
 
             return $"Playing from {newSpan:mm\\:ss}";
         }
