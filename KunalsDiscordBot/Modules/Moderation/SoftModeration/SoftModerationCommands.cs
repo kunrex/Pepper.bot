@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Linq;
 using System.Reflection;
+using System.Collections.Generic;
 
 //D# name spaces
 using DSharpPlus.CommandsNext;
@@ -13,6 +14,10 @@ using KunalsDiscordBot.Attributes;
 using System;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.Attributes.ModerationCommands;
+using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Exceptions;
+using DSharpPlus.CommandsNext.Exceptions;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
@@ -35,10 +40,48 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<Decor>().color;
         private static readonly int ThumbnailSize = 30;
 
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var moderatorNeeded = ctx.Command.CustomAttributes.FirstOrDefault(x => x is ModeratorNeededAttribute) != null;
+            if(moderatorNeeded)
+            {
+                if ((ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
+                {
+                    var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+
+                    if (profile.ModeratorRoleId == 0)
+                    {
+                        await ctx.RespondAsync("This server does not have a registered Moderator role, use the `general`").ConfigureAwait(false);
+                        throw new CustomCommandException();
+                    }
+                    else if (ctx.Member.Roles.FirstOrDefault(x => x.Id == (ulong)profile.ModeratorRoleId) == null)
+                        throw new ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute> { });
+                }
+            }
+
+            await base.BeforeExecutionAsync(ctx);
+        }
+
+        [Command("SetModRole")]
+        [Description("Assigns the moderator role for the server. This command can only be ran by an administrator")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task SetModRole(CommandContext ctx, DiscordRole role)
+        {
+            await serverService.SetModeratorRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {role.Mention} as the moderator role for the server",
+                Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
         [Command("ChangeNickName")]
         [Aliases("cnn")]
         [RequireBotPermissions(Permissions.ManageNicknames)]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [ModeratorNeeded]
         public async Task ChangeNickName(CommandContext ctx, DiscordMember member, [RemainingText] string newNick)
         {
             try
@@ -55,7 +98,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("VCMute")]
         [Aliases("vcm")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [ModeratorNeeded]
         public async Task VoiceMuteMember(CommandContext ctx, DiscordMember member, bool toMute)
         {
             try
@@ -72,7 +115,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("VCDeafen")]
         [Aliases("vcd")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [ModeratorNeeded]
         public async Task VoiceDeafenMember(CommandContext ctx, DiscordMember member, bool toDeafen)
         {
             try
@@ -90,7 +133,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Command("AddInfraction")]
         [Aliases("AI", "Infract")]
         [Description("Adds an infraction for the user")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [ModeratorNeeded]
         public async Task AddInfraction(CommandContext ctx, DiscordMember member, [RemainingText]  string reason = "Unpsecified")
         {
             var id = await modService.AddInfraction(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
@@ -118,7 +161,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Command("AddEndorsement")]
         [Aliases("AE", "Endorse")]
         [Description("Adds an endorsement for the user")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [ModeratorNeeded]
         public async Task AddEndorsement(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unpsecified")
         {
             var id = await modService.AddEndorsement(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
@@ -215,7 +258,6 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("Rule")]
         [Description("Displays a rule by its index")]
-        [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddRule(CommandContext ctx, int index)
         {
            var rule =  await serverService.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
@@ -230,6 +272,19 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 },
                 Color = Color
             }).ConfigureAwait(false);
+        }
+
+        [Command("ClearChat")]
+        [Aliases("Clear")]
+        [Description("Deletes `x` number of messages")]
+        [RequireBotPermissions(Permissions.ManageMessages)]
+        [ModeratorNeeded]
+        public async Task ClearChat(CommandContext ctx, int number)
+        {
+            foreach (var message in await ctx.Channel.GetMessagesAsync(number))
+                await message.DeleteAsync();
+
+            await ctx.Channel.SendMessageAsync("**Chat has been cleaned**").ConfigureAwait(false);
         }
     }
 }

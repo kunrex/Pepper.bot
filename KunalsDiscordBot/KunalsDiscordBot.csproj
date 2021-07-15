@@ -84,6 +84,8 @@
     <Folder Include="Modules\Music\Services\" />
     <Folder Include="Core\Attributes\MusicCommands\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\" />
+    <Folder Include="Core\Attributes\ModerationCommands\" />
+    <Folder Include="Core\Attributes\GeneralCommands\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -133,6 +135,8 @@
     <None Remove="Modules\Music\Services\" />
     <None Remove="Core\Attributes\Music\" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\" />
+    <None Remove="Core\Attributes\ModerationCommands\" />
+    <None Remove="Core\Attributes\GeneralCommands\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

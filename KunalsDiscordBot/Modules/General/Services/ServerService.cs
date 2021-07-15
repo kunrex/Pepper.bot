@@ -20,6 +20,9 @@ namespace KunalsDiscordBot.Services.General
                 return null;
 
             var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)guildId).ConfigureAwait(false);
+            if (profile == null)
+                return null;
+
             var rules = context.ServerRules.AsQueryable().Where(x => x.ServerProfileId == profile.Id).ToList();
 
             return index >= rules.Count ? null : rules[index];
@@ -29,7 +32,7 @@ namespace KunalsDiscordBot.Services.General
         {
             var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             profile.MutedRoleId = (long)roleId;
             var updateEntry = context.ServerProfiles.Update(profile);
@@ -38,9 +41,6 @@ namespace KunalsDiscordBot.Services.General
             updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             return true;
         }
-
-        public async Task<ulong> GetMuteRoleId(ulong id) => (ulong)(await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id)).MutedRoleId;
-
 
         public async Task<ServerProfile> CreateServerProfile(ulong guildId)
         {
@@ -56,7 +56,7 @@ namespace KunalsDiscordBot.Services.General
         {
             var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             if (add)
             {
@@ -104,7 +104,7 @@ namespace KunalsDiscordBot.Services.General
             var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
 
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             profile.AllowNSFW = toToggle ? 1 : 0 ;
             var update = context.ServerProfiles.Update(profile);
@@ -120,7 +120,7 @@ namespace KunalsDiscordBot.Services.General
             var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
 
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             profile.UseDJRoleEnforcement = toToggle ? 1 : 0;
             var update = context.ServerProfiles.Update(profile);
@@ -136,7 +136,7 @@ namespace KunalsDiscordBot.Services.General
             var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
 
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             profile.DJRoleId = (long)roleID;
             var update = context.ServerProfiles.Update(profile);
@@ -154,7 +154,7 @@ namespace KunalsDiscordBot.Services.General
             var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
 
             if (profile == null)
-                profile = await CreateServerProfile(id);
+                return false;
 
             profile.RestrictPermissionsToAdmin = toToggle ? 1 : 0;
             var update = context.ServerProfiles.Update(profile);
@@ -172,6 +172,92 @@ namespace KunalsDiscordBot.Services.General
                 profile = await CreateServerProfile(guildId);
 
             return context.ServerRules.AsQueryable().Where(x => x.ServerProfileId == profile.Id).ToList();
+        }
+
+        public async Task RemoveServerProfile(ulong id)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+
+            if (profile == null)
+                return;
+
+            context.ServerProfiles.Remove(profile);
+            await context.SaveChangesAsync();
+        }
+
+        public async Task<bool> ToggleLogErrors(ulong id, bool toToggle)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+            if (profile == null)
+                return false;
+
+            profile.LogErrors = toToggle ? 1 : 0;
+            var update = context.ServerProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
+        }
+
+        public async Task<bool> ToggleNewMemberLog(ulong id, bool toToggle)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+            if (profile == null)
+                return false;
+
+            profile.LogNewMembers = toToggle ? 1 : 0;
+            var update = context.ServerProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
+        }
+
+        public async Task<bool> SetLogChannel(ulong id, ulong channelId)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+            if (profile == null)
+                return false;
+
+            profile.LogChannel = (long)channelId;
+            var update = context.ServerProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
+        }
+
+        public async Task<bool> SetRuleChannel(ulong id, ulong channelId)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+            if (profile == null)
+                return false;
+
+            profile.RulesChannelId = (long)channelId;
+            var update = context.ServerProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
+        }
+
+        public async Task<bool> SetModeratorRole(ulong id, ulong roleId)
+        {
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
+            if (profile == null)
+                return false;
+
+            profile.ModeratorRoleId = (long)roleId;
+            var update = context.ServerProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return true;
         }
     }
 }

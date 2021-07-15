@@ -15,6 +15,8 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services;
 using System.Reflection;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.Attributes.GeneralCommands;
+using KunalsDiscordBot.Core.Exceptions;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -30,6 +32,24 @@ namespace KunalsDiscordBot.Modules.General
         private readonly IServerService serverService;
 
         public GeneralCommands(IServerService service) => serverService = service;
+
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+
+            if (configPermsCheck)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                {
+                    await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
+            await base.BeforeExecutionAsync(ctx);
+        }
 
         [Command("date")]
         [Description("Tells you the date")]
@@ -195,29 +215,34 @@ namespace KunalsDiscordBot.Modules.General
                 Color = Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.Client.CurrentUser, 30)
             }.AddField("__General__", "** **")
-             .AddField("Enforce Admin Permissions For Editing Config", (profile.RestrictPermissionsToAdmin == 1).ToString());
+             .AddField($"Only Allow Admins To Edit Config: `{profile.RestrictPermissionsToAdmin == 1}`", "When set to true only admins can edit the configuration")
+             .AddField($"Log Errors: `{profile.LogErrors == 1}`", "When set to true, a message is sent if an error happens during command execution")
+             .AddField($"Log New Members: `{profile.LogNewMembers == 1}`", "When set to true, a message is sent if a new member joins or or a member leaves the server")
+             .AddField($"Log Channel:", $" {(profile.LogChannel == 0 ? "`None`" : "<@#{(ulong)profile.RulesChannelId}>")}\nThe log channel of the server, or the channel in which welcome messages are sent");
 
             var permissions = (await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).PermissionsIn(ctx.Channel);
 
             var enabled = (permissions & DSharpPlus.Permissions.Administrator) == DSharpPlus.Permissions.Administrator;
-            embed.AddField("__Moderation and Soft Moderation__", "** **").AddField("Enabled", enabled.ToString());
+            embed.AddField("__Moderation and Soft Moderation__", "** **").AddField($"Enabled: `{enabled}`",
+                "Wether or not the moderation and soft moderation modules are enabled in thi server");
 
             if (enabled)
             {
-                var muteRole = await serverService.GetMuteRoleId(ctx.Guild.Id);
                 var ruleCount = (await serverService.GetAllRules(ctx.Guild.Id)).Count;
 
-                embed.AddField("Muted Role: ", muteRole == 0 ? "None" : $"<@&{muteRole}>", true);
-                embed.AddField("Rule Count: ", ruleCount.ToString(), true);
+                embed.AddField($"Muted Role:", $"{(profile.MutedRoleId == 0 ? "`None`" : $"<@&{(ulong)profile.MutedRoleId}>")}\nThe role that ias assigned when a member is muted", true);
+                embed.AddField($"Rule Count: `{ruleCount}`", "The amount of rules in the server", true);
+                embed.AddField($"Rule Channel:", $"{(profile.RulesChannelId == 0 ? "`None`" : $"<@#{(ulong)profile.RulesChannelId}>")}\nThe amount of rules in the server", true);
+                embed.AddField($"Moderator Role:", $"{(profile.ModeratorRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.ModeratorRoleId}>")}\nThe moderator role of this server", true);
             }
 
             embed.AddField("__Music__", "** **")
-                 .AddField("Enforce DJ Permissions", (profile.UseDJRoleEnforcement == 1).ToString());
+                 .AddField($"Enforce DJ Permissions: `{(profile.UseDJRoleEnforcement == 1)}`", "When set to true, a member cannot run most music commands without the DJ role");
 
             if (profile.UseDJRoleEnforcement == 1)
-                embed.AddField("DJ Role", $"<@&{(ulong)profile.DJRoleId}>", true);
+                embed.AddField($"DJ Role:", $"{(profile.DJRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.DJRoleId}>")}The DJ role for this server", true);
 
-            embed.AddField("__Fun__", "** **").AddField("Allow NSFW", (profile.AllowNSFW == 1).ToString());
+            embed.AddField("__Fun__", "** **").AddField($"Allow NSFW: `{(profile.AllowNSFW == 1)}`", "When set to true the bot can post NSFW posts from NSFW subreddits".ToString());
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -242,16 +267,9 @@ namespace KunalsDiscordBot.Modules.General
         [Command("ToggleNSFW")]
         [Aliases("NSFW")]
         [Description("Changes wether or not NSFW content is allowed in the server")]
+        [CheckConfigPerms]
         public async Task ToggleNSFW(CommandContext ctx, bool toChange)
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false); 
-
-            if(profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
-            {
-                await ctx.RespondAsync("You need to be an admin to run this command").ConfigureAwait(false);
-                return;
-            }
-
             await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -266,16 +284,9 @@ namespace KunalsDiscordBot.Modules.General
         [Command("ToggleDJ")]
         [Aliases("DJ")]
         [Description("Changes wether or not the DJ role should be enforced for music commands")]
+        [CheckConfigPerms]
         public async Task ToggeDJ(CommandContext ctx, bool toChange)
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
-
-            if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
-            {
-                await ctx.RespondAsync("You need to be an admin to run this command").ConfigureAwait(false);
-                return;
-            }
-
             await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -289,16 +300,10 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("DJRole")]
         [Description("Assigns the DJ role for a server")]
+        [CheckConfigPerms]
         public async Task DJRole(CommandContext ctx, DiscordRole role)
         {
             var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
-
-            if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
-            {
-                await ctx.RespondAsync("You need to be an admin to run this command").ConfigureAwait(false);
-                return;
-            }
-
             if(profile.UseDJRoleEnforcement == 0)
             {
                 await ctx.RespondAsync("`Enforce DJ Role` must be set to true to use this command, you can do so using the `general ToggleDJ` command").ConfigureAwait(false);
@@ -311,6 +316,70 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce DJ Role` to {role.Mention}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("LogErrors")]
+        [Description("If true, a message is sent if an error happens during command execution")]
+        [CheckConfigPerms]
+        public async Task LogErrors(CommandContext ctx, bool toSet)
+        {
+            await serverService.ToggleLogErrors(ctx.Guild.Id, toSet).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Log Errors` to {toSet}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("LogNewMembers")]
+        [Description("If true, a message is sent if a new member joins or or a member leaves the server")]
+        [CheckConfigPerms]
+        public async Task LogNewMembers(CommandContext ctx, bool toSet)
+        {
+            await serverService.ToggleNewMemberLog(ctx.Guild.Id, toSet).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Log New Members` to {toSet}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("LogChannel")]
+        [Description("Assigns the log channel for a server")]
+        [CheckConfigPerms]
+        public async Task LogChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetLogChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the log channel for guild: {ctx.Guild.Name}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("RuleChannel")]
+        [Description("Assigns the rule channel for a server")]
+        [CheckConfigPerms]
+        public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the rule channel for guild: {ctx.Guild.Name}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);

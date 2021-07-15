@@ -55,7 +55,7 @@ namespace KunalsDiscordBot
                 Token = configData.token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
-                Intents  = DiscordIntents.AllUnprivileged
+                Intents  = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers
                 /*LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true*/
             };
@@ -68,6 +68,9 @@ namespace KunalsDiscordBot
             });
 
             client.GuildCreated += OnGuildCreated;
+            client.GuildDeleted += OnGuildDeleted;
+            client.GuildMemberAdded += OnGuildMemberAdded;
+            client.GuildMemberRemoved += OnGuildMemberRemoved;
 
             var endPoint = new ConnectionEndpoint
             {
@@ -127,20 +130,20 @@ namespace KunalsDiscordBot
                 Console.WriteLine("Lavalink connection section complete");
             }
 
-            await CheckData();
+            await CheckMutes();
         }
 
-        private async Task CheckData()
+        private async Task CheckMutes()
         {
             var modService = (IModerationService)services.GetService(typeof(IModerationService));
             var serverService = (IServerService)services.GetService(typeof(IServerService));
 
-            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
+            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions.Value & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
             {
                 foreach(var mute in await modService.GetMutes(guild.Value.Id))
                 {
                     var span = DateTime.Now - DateTime.Parse(mute.StartTime);
-                    ulong id = await serverService.GetMuteRoleId(guild.Value.Id);
+                    ulong id = (ulong)(await serverService.GetServerProfile(guild.Value.Id)).MutedRoleId;
 
                     var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
                     var profile = await modService.GetModerationProfile(mute.ModerationProfileId);
@@ -162,14 +165,28 @@ namespace KunalsDiscordBot
             DiscordEmbedBuilder embed = null;
 
             var exception = e.Exception;
+            var serverService = (IServerService)services.GetService(typeof(IServerService));
+            var profile = await serverService.GetServerProfile(e.Context.Guild.Id);
 
-            if (exception is CommandNotFoundException)
+            var log = profile.LogErrors == 1;
+
+            if (exception is CommandNotFoundException && log)
             {
-                //according to database
+                embed = new DiscordEmbedBuilder
+                {
+                    Title = "The Given Command or its over load wasn't found",
+                    Description = $"Did you mispell something? Try using the `pep help` command for help",
+                    Color = DiscordColor.Red
+                };
             }
-            else if (exception is InvalidOverloadException)
+            else if (exception is InvalidOverloadException && log)
             {
-                //according to database
+                embed = new DiscordEmbedBuilder
+                {
+                    Title = "No Version of the command given uses these parameters",
+                    Description = $"Did you miss or not add something? Try using the `pep help` command for help",
+                    Color = DiscordColor.Red
+                };
             }
             else if (exception is CustomCommandException)//ignore
             { }
@@ -203,8 +220,92 @@ namespace KunalsDiscordBot
                 if (channel == null)
                     return;
 
-                await e.Guild.GetDefaultChannel().SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
+                await channel.SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
+                var serverService = (IServerService)services.GetService(typeof(IServerService));
+
+                await serverService.CreateServerProfile(e.Guild.Id);
             });
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildDeleted(DiscordClient s, GuildDeleteEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var profile = await serverService.GetServerProfile(e.Guild.Id);
+
+                var channel = e.Guild.GetDefaultChannel();
+                if (channel == null)
+                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+
+                if (channel == null)
+                    return;
+
+                await channel.SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
+                await serverService.RemoveServerProfile(e.Guild.Id);
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildMemberAdded(DiscordClient s, GuildMemberAddEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var profile = await serverService.GetServerProfile(e.Guild.Id);
+
+                if (profile.LogNewMembers == 0)
+                    return;
+
+                var channel = e.Guild.GetDefaultChannel();
+                if (channel == null)
+                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+
+                if (channel == null)
+                    return;
+
+                await channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = $"Everybody Welcome {e.Member.Username}!",
+                    Description = $"Hey there {e.Member.Username}, welcome to the server! {(profile.RulesChannelId == 0 ? "" : $"Check out the rules at {(e.Guild.Channels.FirstOrDefault(x => x.Value.Id == (ulong) profile.RulesChannelId)).Value.Mention}")}",
+                    Thumbnail = BotService.GetEmbedThumbnail(e.Member, 30),
+                    Footer = BotService.GetEmbedFooter($"At {DateTime.Now}"),
+                    Color = DiscordColor.SpringGreen
+                }).ConfigureAwait(false);
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnGuildMemberRemoved(DiscordClient s, GuildMemberRemoveEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var profile = await serverService.GetServerProfile(e.Guild.Id);
+
+                if (profile.LogNewMembers == 0)
+                    return;
+
+                var channel = e.Guild.GetDefaultChannel();
+                if (channel == null)
+                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+
+                if (channel == null)
+                    return;
+
+                await channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = $"See You Later {e.Member.Username}!",
+                    Description = $"Hope you had a great time",
+                    Thumbnail = BotService.GetEmbedThumbnail(e.Member, 30),
+                    Footer = BotService.GetEmbedFooter($"At {DateTime.Now}"),
+                    Color = DiscordColor.CornflowerBlue
+                }).ConfigureAwait(false);
+            });
+
             return Task.CompletedTask;
         }
 

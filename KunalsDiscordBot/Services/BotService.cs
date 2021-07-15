@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using DiscordBotDataBase.Dal.Models.Servers;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using KunalsDiscordBot.Services.General;
 
 namespace KunalsDiscordBot.Services
 {
@@ -47,6 +49,6 @@ namespace KunalsDiscordBot.Services
         public static DiscordEmbedBuilder.EmbedFooter GetEmbedFooter(string text) => new DiscordEmbedBuilder.EmbedFooter
         {
             Text = text
-        }; 
+        };
     }
 }
