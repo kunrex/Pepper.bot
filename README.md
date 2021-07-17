@@ -68,8 +68,8 @@ Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things re
 We need 2 things from here, your **client app id** (The set of characters under **personal use script**) and **client secret**.
 
 4. Apart from those 2 we also need a **refreshToken**. Now I have to admit getting this is a bit trickier than the appId and secret. You can either follow the instructions at https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization or just use this simple link: https://not-an-aardvark.github.io/reddit-oauth-helper/. 
-5. After you have all 3 of this you can open up **RedditConfig.json** at **KunalsDiscordBot/Reddit/**. This is the config for your Reddit app which is used my Pepper. 
-its gonna look like this.
+5. After you have all 3 of this you can open up **RedditConfig.json** at **KunalsDiscordBot/Reddit/**. This is the config for your Reddit app which is used by Pepper. 
+Its gonna look like this.
 ```
 {
   "appId": "paster you app id here",
@@ -78,7 +78,7 @@ its gonna look like this.
   "postLimit" :  50
 }
 ```
-What is **postLimit**? postLimit is simply the maximum amount of posts the bot collects from each of the filter types from subreddits(Top, Hot and new).
+What is **postLimit**? postLimit is simply the maximum amount of posts the bot collects from each of the filter types (Top, Hot and New) from registered subreddits (r/memes, r/animals and r/aww).
 We use this value to store memes and animals posts when the bot starts, instead of doing it on the spot when the command executes simply because its wayyy faster and efficient (like waaaayy faster. On the spot could take like 7 seconds while with the current set up it takes less than a second)
 
 You can look into the Readme for at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
