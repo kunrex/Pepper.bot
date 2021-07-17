@@ -16,6 +16,7 @@ __Modules :__
 
 Module | Description
 --- | --- |
+General | Set Of Commands for general purposes, this also includes config commands for servers |
 Moderation | Set Of Commands to moderate a server, including role and member management |
 Soft Moderation | Set Of Commands for soft moderation like changing nick names and muting and deafening members in voice channels|
 Games | Set Of Commands to play games with other server members, Games inlcuded => TicTacToe, RockPaperScissors, Connect4 and Battleship|
