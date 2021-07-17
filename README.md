@@ -81,7 +81,7 @@ Its gonna look like this.
 What is **postLimit**? postLimit is simply the maximum amount of posts the bot collects from each of the filter types (Top, Hot and New) from registered subreddits (r/memes, r/animals and r/aww).
 We use this value to store memes and animals posts when the bot starts, instead of doing it on the spot when the command executes simply because its wayyy faster and efficient (like waaaayy faster. On the spot could take like 7 seconds while with the current set up it takes less than a second)
 
-You can look into the Readme for at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
+You can look into the Readme at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
 
 ### 9. Setting up the Database for Currency Commands
 For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
