@@ -59,7 +59,7 @@ java -jar Lavalink.jar
 The bot comes with a set up **application.yaml** file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DSharpPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
 ### Reddit Services
-Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things reddit. This is primarily used in the FunModule for the `post`, `meme`, `animals` and `awww` command but can be built upon for more complex Reddit related commands.
+8. Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things reddit. This is primarily used in the FunModule for the `post`, `meme`, `animals` and `awww` command but can be built upon for more complex Reddit related commands.
 #### __Settings Up the Reddit App__
 1. Go to your apps page on reddit at https://www.reddit.com/prefs/apps and hit the **create an app** button at the bottom.
 2. Give the app a name and a description. Under **App Type** choose **script**. The **Redirect URL** can really be any valid URL. After that you can just hit **Create App**
