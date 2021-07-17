@@ -62,7 +62,23 @@ Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things re
 #### __Settings Up the Reddit App__
 1. Go to your apps page on reddit at https://www.reddit.com/prefs/apps and hit the "create an app" button at the bottom.
 2. Give the app a name and a description. Under **App Type** choose **script**. The Redirect URL can be any valid URL. After that you can just hit **Create App**
-3. Its gonna redirect your page to
+3. Its gonna redirect your page that looks something like this.
+<img src="Images/RedditExample.png" width = 400> 
+We need 2 things from here, your **client app id** (The set of characters under **personal use script**) and **client secret**.
+4. Apart from those 2 we also need a **refreshToken**. Now I have to admit gettings this is trickier than the appId and secret. You can either follow the instructions at https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization or just use this simple link: https://not-an-aardvark.github.io/reddit-oauth-helper/. 
+5. After you have all 3 of this you can open up **RedditConfig.json** at **KunalsDiscordBot/Reddit/**. This is the config for your Reddit app whcih is used my Pepper. 
+its gonna look like this.
+```
+{
+  "appId": "paster you app id here",
+  "appSecret": "paste your app secret here",
+  "refreshToken": "past your refresh token here",
+  "postLimit" :  50
+}
+```
+What is **postLimit**? postLimit is simply the maximum amount of posts the bot collects from each of the filter types from subreddits(Top, Hot and new).
+We use this value to store memes and animals posts when the bot starts, instead of doing it on the spot when the command executes simply because its wayyy faster and efficient (around waaaayy faster. From 2 => 7 seconds faster)
+You can look into the Readme for at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
 
 ### Setting up the Database for Currency Commands
 9. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
