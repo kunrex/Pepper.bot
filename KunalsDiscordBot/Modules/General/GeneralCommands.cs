@@ -194,7 +194,7 @@ namespace KunalsDiscordBot.Modules.General
         [Description("Current ping of the client")]
         public async Task Ping(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
         {
-            Title = "Ping",
+            Title = "Pong! :ping_pong:",
             Description = $"Current latency is about {ctx.Client.Ping}ms",
             Color = Color
         }).ConfigureAwait(false);
