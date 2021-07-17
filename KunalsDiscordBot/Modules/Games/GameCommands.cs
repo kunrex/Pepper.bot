@@ -13,6 +13,7 @@ using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Modules.Games.Simple;
 using KunalsDiscordBot.Modules.Games.Complex;
+using KunalsDiscordBot.Services.Images;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -155,7 +156,7 @@ namespace KunalsDiscordBot.Modules.Games
             UNOGame game = new UNOGame(new List<DiscordMember>
             {
                 ctx.Member
-            }, ctx.Client);
+            }, ctx.Client, (IImageService)ctx.Services.GetService(typeof(IImageService)));
         }
 
         [Command("Spectate")]

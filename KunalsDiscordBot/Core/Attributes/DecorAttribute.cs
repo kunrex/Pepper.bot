@@ -6,13 +6,13 @@ using System.Reflection;
 namespace KunalsDiscordBot.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
-    public class Decor : Attribute 
+    public class DecorAttribute : Attribute 
     {
         public DiscordColor color;
         public bool isHighlited;
         public string emoji;
 
-        public Decor(string colorToSet, string groupEmoji, bool highlited = true)
+        public DecorAttribute(string colorToSet, string groupEmoji, bool highlited = true)
         {
             var property = typeof(DiscordColor).GetProperty(colorToSet);
 

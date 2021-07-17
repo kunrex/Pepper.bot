@@ -25,14 +25,14 @@ using KunalsDiscordBot.Services;
 namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
-    [Decor("Gold", ":coin:")]
+    [DecorAttribute("Gold", ":coin:")]
     [Description("A currency system!")]
     public class CurrencyCommands : BaseCommandModule
     {
         private readonly IProfileService service;
         private const string coinsEmoji = ":coin:";
 
-        private static readonly DiscordColor Color = typeof(CurrencyCommands).GetCustomAttribute<Decor>().color;
+        private static readonly DiscordColor Color = typeof(CurrencyCommands).GetCustomAttribute<DecorAttribute>().color;
         private static readonly int ThumbnailSize = 30;
 
         private static readonly string tick = ":white_check_mark:";

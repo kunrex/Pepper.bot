@@ -7,75 +7,91 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
 using System.Collections.Generic;
+using DSharpPlus.CommandsNext.Attributes;
 
 //Custom name spaces
 using KunalsDiscordBot.Attributes;
 using System.Reflection;
+using System;
+using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot.Help
 {
     public class HelpFormatter : BaseHelpFormatter
     {
-        private string commandName { get; set; }
-        private string description { get; set; }
+        private string Title { get; set; }
+        private string Description { get; set; }
 
-        private string aliases { get; set; }
-        private string module { get; set; }
-        private string overloads { get; set; }
+        private DiscordColor Color { get; set; }
+        private List<FieldData> Fields { get; set; } = new List<FieldData>();
 
-        private string usage { get; set; }
+        private FieldData Commands { get; set; }
+        private FieldData Aliases { get; set; }
+        private FieldData Module { get; set; }
+        private FieldData Overloads { get; set; }
 
-        private bool isCommand = true, isModule = true;
+        private bool IsCommand { get; set; } = false;
+        private bool IsModule { get; set; } = false;
+        private bool IsGeneralHelp { get; set; } = false;
 
-        private DiscordColor color { get; set; }
+        private string Footer { get; set; } = string.Empty;
 
-        public HelpFormatter(CommandContext ctx) : base(ctx)
-        {
-
-        }
+        public HelpFormatter(CommandContext ctx) : base(ctx) => Footer = $"User: {ctx.Member.DisplayName} at {DateTime.Now}";
 
         public override CommandHelpMessage Build()
         {
             var Embed = new DiscordEmbedBuilder
             {
-                Title = commandName,
-                Description = $"{usage}\n{description}",
-                Color = color
+                Title = Title,
+                Description = Description,
+                Color = Color,
+                Footer = BotService.GetEmbedFooter(Footer),
             };
 
-            if (isCommand || isModule)
+            if (IsModule)
+                Embed.AddField(Commands.name, Commands.value, false);
+
+            if (IsGeneralHelp)
             {
-                Embed.AddField("Aliases : ", aliases == string.Empty ? "None" : aliases, false);
-                Embed.AddField("Module : ", module == null || module == string.Empty ? "None" : module, false);
+                foreach (var field in Fields)
+                    Embed.AddField(field.name, field.value, field.inline);
+            }
+            else
+            {
+                Embed.AddField(Aliases.name, Aliases.value, false);
+                Embed.AddField(Module.name, Module.value, false);
             }
 
-            if (isCommand)
-                Embed.AddField("Overloads (the same command with different parameters):\n", overloads);
+            if(IsCommand && !IsModule)
+                Embed.AddField(Overloads.name, Overloads.value, false);
 
             return new CommandHelpMessage(embed: Embed);
         }
 
         public override BaseHelpFormatter WithCommand(Command command)
         {
-            commandName = Format(command.Name);
-            description = $"**Description**: {command.Description}";
+            IsCommand = true;
 
-            aliases = GetAliases(command.Aliases);
+            Title = Format(command.Name);
+            Description = $"**Description**: {command.Description}\n**Usage**: pep {command.Parent.Name} {command.Name} [comand parameters]";
 
-            module = command.Parent == null ? string.Empty : command.Parent.Name;
-            usage = $"**Usage**: pep {module} {commandName}";
+            string aliases = GetAliases(command.Aliases);
+            if (aliases == string.Empty || string.IsNullOrWhiteSpace(aliases))
+                aliases = "None";
 
-            var decor = command.Parent == null ? (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor) : (Decor)command.Parent.CustomAttributes.FirstOrDefault(x => x is Decor);
-            commandName += $" {(decor == null ? "" : decor.emoji)}";
+            Aliases = new FieldData { name = "__Aliases__", value = aliases, inline = false};
 
-            if (decor == null)
-                isCommand = false;
+            string module = command.Parent == null ? "None" : Format(command.Parent.Name);
+            Module = new FieldData { name = "__Module__", value = module, inline = false };
 
-            color = decor == null ? DiscordColor.Blurple : decor.color;
+            var decor = command.Parent == null ? (DecorAttribute)command.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) : (DecorAttribute)command.Parent.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
+            Title += $" {(decor == null ? "" : decor.emoji)}";
+            Color = decor == null ? DiscordColor.Blurple : decor.color;
 
-            overloads = string.Empty;
+            string overloads = string.Empty;
             for (int i = 0; i < command.Overloads.Count; i++)
                 overloads += $"🗕 __Overload {i + 1}__:\n{GetOverload(command.Overloads[i])}\n";
+            Overloads = new FieldData { name = "__Overloads (Same command with different parameters)__", value = overloads == string.Empty ? "None" : overloads, inline = false };
 
             return this;
         }
@@ -83,63 +99,66 @@ namespace KunalsDiscordBot.Help
         public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             Command[] commands = subcommands.ToArray();
-            isCommand = false;
-
             if (commands[0].Parent != null)//checks if a module or sub module was specified
             {
+                IsModule = true;
+
                 var parent = commands[0].Parent;
 
-                commandName = Format(parent.Name);
-                usage = $"**Help Usage**: pep help {commandName} <Command Name>";
+                Title = Format(parent.Name);
 
-                description = aliases = string.Empty;
+                Description = $"**Description**: {parent.Description}\n\n";
+                Description += $"**Help Usage**: pep help {parent.Name} <command name>\n";
+                Description += $"**Command Usage**: pep {parent.Name} <command name> [command parameters]";
 
-                description = $"**Description**: {parent.Description}\n\n Commands:";
-
-                var decor = (Decor)parent.CustomAttributes.FirstOrDefault(x => x is Decor);
+                var decor = (DecorAttribute)parent.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
                 bool isHighlited = decor == null ? true : decor.isHighlited;
-                commandName += $" {(decor == null ? "" : decor.emoji)}";
+                Title += $" {(decor == null ? "" : decor.emoji)}";
 
-                aliases += GetAliases(parent.Aliases, decor.isHighlited);
+                Color = decor == null ? DiscordColor.Blurple : decor.color;
 
-                if (aliases == string.Empty)
+                var comands = GetAllCommands(commands, isHighlited);
+                Commands = new FieldData { name = "__Commands__", value = comands == string.Empty ? "None" : comands, inline = false };
+
+                string aliases = GetAliases(parent.Aliases, isHighlited);
+                if (aliases == string.Empty || string.IsNullOrWhiteSpace(aliases))
                     aliases = "None";
 
-                description += "\n";
-                description += GetAllCommands(commands, decor.isHighlited);
+                Aliases = new FieldData { name = "__Aliases__", value = aliases, inline = false};
+
+                Module = new FieldData { name = "__Module__", value = "None", inline = false};
             }
             else
             {
-                isModule = false;
+                IsGeneralHelp = true;
 
-                usage = $"**Help Usage**: pep help <Module Name>";
+                Title = "Help";
+                Description = "**Description**: All the modules offered by Pepper \n";
+                Description += $"**Help Usage**: pep help <module/command name>\n";
 
-                commandName = "Help";
-                description = "**Description**: All the modules offered by Pepper -\n\n Modules:\n";
-                color = DiscordColor.Blurple;
+                Color = DiscordColor.Blurple;
 
-                description += GetAllCommands(commands);
+                Fields.Add(new FieldData { name = "__Modules__", value = "** **", inline = false });
+                foreach (var command in GetAllCommands(commands))
+                    Fields.Add(new FieldData { name = command.name, value = command.value, inline = false });
 
-                aliases = string.Empty;
-                isCommand = false;
+                Fields.Add(new FieldData { name = "** **", value = "** **", inline = false });
+                Fields.Add(new FieldData { name = "__Commands__", value = "** **", inline = false });
+
+                var helpCommand = commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) == null).ToList()[0];
+                Fields.Add(new FieldData { name = $"• {Format(helpCommand.Name)}", value = $"Description: {helpCommand.Description}", inline = false });
             }
-
-            module = "None";
 
             return this;
         }
 
-        private string GetAllCommands(Command[] commands)
+        private IEnumerable<FieldData> GetAllCommands(Command[] commands)
         {
-            string commandsToString = string.Empty;
-
-            foreach (var command in commands)
+            foreach (var command in commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) != null))//get all modules, ignore help command
             {
-                var decor = (Decor)command.CustomAttributes.FirstOrDefault(x => x is Decor);
-                commandsToString += $"• **{Format(command.Name)}** {(decor == null ? "" : decor.emoji)}\n Description: {command.Description}\n\n";
+                var decor = (DecorAttribute)command.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
+                yield return new FieldData { name = $"• **{Format(command.Name)}** {(decor == null ? "" : decor.emoji)}\n", value = $"Description: {command.Description}\n\n"};
             }
-
-            return commandsToString;
         }
 
         private string GetAllCommands(Command[] commands, bool highlited)
@@ -180,6 +199,12 @@ namespace KunalsDiscordBot.Help
             return aliasesToString;
         }
 
-        private string Format(string name) => name.Replace(name[0], char.ToUpper(name[0]));
+        private string Format(string name)
+        {
+            var str = name;
+            str = str.Remove(0, 1);
+            
+            return str.Insert(0, char.ToUpper(name[0]).ToString());
+        }
     }
 }

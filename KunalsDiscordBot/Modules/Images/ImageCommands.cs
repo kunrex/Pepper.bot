@@ -17,7 +17,7 @@ using KunalsDiscordBot.Core.Attributes.ImageCommands;
 namespace KunalsDiscordBot.Modules.Images
 {
     [Group("Image")]
-    [Decor("Chartreuse", ":camera:")]
+    [DecorAttribute("Chartreuse", ":camera:")]
     public class ImageCommands : BaseCommandModule
     {
         private readonly IImageService service;

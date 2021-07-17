@@ -138,7 +138,7 @@ namespace KunalsDiscordBot
             var modService = (IModerationService)services.GetService(typeof(IModerationService));
             var serverService = (IServerService)services.GetService(typeof(IServerService));
 
-            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions.Value & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
+            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
             {
                 foreach(var mute in await modService.GetMutes(guild.Value.Id))
                 {
@@ -174,8 +174,8 @@ namespace KunalsDiscordBot
             {
                 embed = new DiscordEmbedBuilder
                 {
-                    Title = "The Given Command or its over load wasn't found",
-                    Description = $"Did you mispell something? Try using the `pep help` command for help",
+                    Title = "The given command wasn't found",
+                    Description = $"Did you mispell something? Use the `pep help` command for help",
                     Color = DiscordColor.Red
                 };
             }
@@ -183,8 +183,8 @@ namespace KunalsDiscordBot
             {
                 embed = new DiscordEmbedBuilder
                 {
-                    Title = "No Version of the command given uses these parameters",
-                    Description = $"Did you miss or not add something? Try using the `pep help` command for help",
+                    Title = "No version of the command uses has these parameters",
+                    Description = $"Did you miss a parameter? Use the `pep help` command for help",
                     Color = DiscordColor.Red
                 };
             }
@@ -195,7 +195,7 @@ namespace KunalsDiscordBot
                 embed = new DiscordEmbedBuilder
                 {
                     Title = "Permission denied",
-                    Description = $"You lack permissions necessary to run this command.",
+                    Description = $"Either you or the bot lacks the permissions necessary to run this command.",
                     Color = DiscordColor.Red
                 };
             }

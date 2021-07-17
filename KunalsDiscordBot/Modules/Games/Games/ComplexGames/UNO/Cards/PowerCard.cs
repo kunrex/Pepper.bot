@@ -19,10 +19,13 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
             powerType = power;
 
             fileName = GetFileName();
+            cardName = GetCardName();
+
             if ((power == PowerType.plus4 || power == PowerType.Wild) && color != CardColor.none)
                 throw new Exception($"Invalid color for {power} card");
         }
 
         protected override string GetFileName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())}{powerType.ToString().Replace("plus", "+")}.png";
+        protected override string GetCardName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())} {powerType.ToString().Replace("plus", "+")}";
     }
 }

@@ -22,11 +22,11 @@ using System.Reflection;
 namespace KunalsDiscordBot.Modules.Fun
 {
     [Group("Fun")]
-    [Decor("Lilac", ":game_die:")]
+    [DecorAttribute("Lilac", ":game_die:")]
     public class FunCommands : BaseCommandModule
     {
         private static readonly FunData data = System.Text.Json.JsonSerializer.Deserialize<FunData>(File.ReadAllText(Path.Combine("Modules", "Fun", "FunData.json")));
-        private static readonly DiscordColor Color = typeof(FunCommands).GetCustomAttribute<Decor>().color;
+        private static readonly DiscordColor Color = typeof(FunCommands).GetCustomAttribute<DecorAttribute>().color;
 
         private readonly RedditApp redditApp;
         private readonly IServerService serverService;

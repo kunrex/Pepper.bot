@@ -36,6 +36,7 @@
     <PackageReference Include="Reddit" Version="1.5.0" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Imgur.API" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -70,7 +71,6 @@
     <Folder Include="Modules\Moderation\Services\" />
     <Folder Include="DialogueHandler\" />
     <Folder Include="DialogueHandler\Steps\" />
-    <Folder Include="Reddit\" />
     <Folder Include="ArgumentConverters\" />
     <Folder Include="Modules\Images\Services\" />
     <Folder Include="Core\Attributes\ImageCommands\" />
@@ -86,6 +86,7 @@
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\" />
     <Folder Include="Core\Attributes\ModerationCommands\" />
     <Folder Include="Core\Attributes\GeneralCommands\" />
+    <Folder Include="Reddit\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -120,7 +121,6 @@
     <None Remove="DialogueHandler\" />
     <None Remove="DialogueHandler\Steps\" />
     <None Remove="Reddit" />
-    <None Remove="Reddit\" />
     <None Remove="BoolArgumentConverter\" />
     <None Remove="Modules\Images\Services\" />
     <None Remove="Core\Attributes\ImageCommands\" />
@@ -137,6 +137,8 @@
     <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\" />
     <None Remove="Core\Attributes\ModerationCommands\" />
     <None Remove="Core\Attributes\GeneralCommands\" />
+    <None Remove="Reddit\" />
+    <None Remove="Imgur.API" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

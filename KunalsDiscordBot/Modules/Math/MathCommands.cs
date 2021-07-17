@@ -12,7 +12,7 @@ using KunalsDiscordBot.Services.Math;
 namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
-    [Decor("MidnightBlue", ":1234:")]
+    [DecorAttribute("MidnightBlue", ":1234:")]
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class MathCommands : BaseCommandModule
     {

@@ -21,11 +21,11 @@ using KunalsDiscordBot.Core.Exceptions;
 namespace KunalsDiscordBot.Modules.General
 {
     [Group("General")]
-    [Decor("Blurple", ":tools:")]
+    [DecorAttribute("Blurple", ":tools:")]
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class GeneralCommands : BaseCommandModule
     {
-        private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<Decor>().color;
+        private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<DecorAttribute>().color;
         private const int Height = 50;
         private const int Width = 75;
 

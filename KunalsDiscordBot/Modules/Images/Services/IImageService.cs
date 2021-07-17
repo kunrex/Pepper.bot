@@ -18,5 +18,8 @@ namespace KunalsDiscordBot.Services.Images
 
         public string GetFileByCommand(in CommandContext ctx);
         public List<Image> GetImages(Dictionary<string, int> urls);
+
+        public Bitmap GetNewBitmap(int height, int width);
+        public Image GetImageFromFile(string filePath);
     }
 }

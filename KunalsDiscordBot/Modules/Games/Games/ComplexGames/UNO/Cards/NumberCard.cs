@@ -9,11 +9,13 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         {
             cardNumber = number;
             fileName = GetFileName();
+            cardName = GetCardName();
 
             if (color == CardColor.none)
                 throw new Exception("Invalid Color Given to NumberCard");
         }
 
         protected override string GetFileName() => $"{cardColor}{cardNumber}.png";
+        protected override string GetCardName() => $"{cardColor} {cardNumber}";
     }
 }

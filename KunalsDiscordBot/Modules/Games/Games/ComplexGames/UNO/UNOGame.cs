@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using KunalsDiscordBot.Modules.Games.Players;
 using KunalsDiscordBot.Modules.Games.Complex.UNO.Cards;
 using KunalsDiscordBot.Modules.Games.Complex.UNO;
+using KunalsDiscordBot.Services.Images;
 
 namespace KunalsDiscordBot.Modules.Games.Complex
 {
@@ -15,7 +16,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         public static readonly List<CardColor> colors = Enum.GetValues(typeof(CardColor)).Cast<CardColor>().ToList();
         public static readonly List<CardType> types = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
 
-        public static int maxPlayers = 5;
+        public static int maxPlayers = 5, startCardNumber = 8;
 
         public DiscordClient client { get; private set; }
         private bool gameOver { get; set; }
@@ -23,6 +24,9 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         private List<UNOPlayer> playersWhoFinished { get; set; }
         private List<DiscordChannel> dmChannels { get; set; }
         private List<Card> cards { get; set; } = GetDeck().Shuffle().ToList();
+        private Card currenctCard { get; set; }
+
+        private IImageService imageService;
 
         public static List<Card> GetDeck()
         {
@@ -53,21 +57,18 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             return cards;
         }
 
-        public UNOGame(List<DiscordMember> members, DiscordClient _client)
+        public UNOGame(List<DiscordMember> members, DiscordClient _client, IImageService service)
         {
-            Console.WriteLine("here");
             var _players = new List<UNOPlayer>();
             foreach (var member in members)
-                _players.Add(new UNOPlayer(member, new List<Card>()));
+                _players.Add(new UNOPlayer(member, service));
 
-            Console.WriteLine("here");
             client = _client;
             players = _players;
+            imageService = service;
 
-            Console.WriteLine("here");
             currentPlayer = players[0];
             gameOver = false;
-            Console.WriteLine("here");
             SetUp();
         }
 
@@ -83,29 +84,64 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         protected async override void SetUp()
         {
-            var str = string.Empty;
-            foreach (var card in cards)
-                str += card.fileName + "\n";
-            Console.WriteLine("here");
-            var embed = new DiscordEmbedBuilder
-            {
-                Description = str
-            };
-
-            await (await currentPlayer.member.CreateDmChannelAsync()).SendMessageAsync(embed);
-
-            /*            dmChannels = new List<DiscordChannel>();
-
+            dmChannels = new List<DiscordChannel>();
             foreach (var player in players)
+            {
                 dmChannels.Add(await player.member.CreateDmChannelAsync());
+                player.InitiliasePlayerCards(cards.Take(startCardNumber).ToList());
 
-             * 
-             * List<Task<bool>> awaitReady = new List<Task<bool>>();
-            for(int i =0;i<players.Count;i++)
+                cards.RemoveRange(0, startCardNumber);
+            }
+
+            List <Task<bool>> awaitReady = new List<Task<bool>>();
+            for (int i = 0; i < players.Count; i++)
                 awaitReady.Add(players[i].Ready(dmChannels[i]));
 
             var task = Task.WhenAll(awaitReady);
-            await task;*/
+            await task;
+            currenctCard = cards[0];
+
+            await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
+            {
+                Title = "UNO!"
+            }.AddField("Host:", "Me", true)
+             .AddField("Starting Cards Number:", startCardNumber.ToString(), true)
+             .AddField("Players: ", string.Join(',', players)));
+            await SendMessageToAllPlayers("Starting Game!").ConfigureAwait(false);
+
+            await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
+            {
+                Title = $"{currentPlayer.member.Username}'s Turn",
+                ImageUrl = Card.GetLink(currenctCard.fileName).link + ".png"
+            }.AddField("Current Card:", "** **"));
+        }
+
+        private async Task SendMessageToAllPlayers(string message = null, DiscordEmbedBuilder embed = null)
+        {
+            foreach(var channel in dmChannels)
+            {
+                var messageBuild = new DiscordMessageBuilder();
+
+                if(message != null)
+                    messageBuild.WithContent(message);
+                if (embed != null)
+                    messageBuild.WithEmbed(embed);
+
+                await messageBuild.SendAsync(channel);
+            }
+        }
+
+        private async Task SendMessageToSpecificPlayer(int index, string message = null, DiscordEmbedBuilder embed = null)
+        {
+            var channel = dmChannels[index];
+            var messageBuild = new DiscordMessageBuilder();
+
+            if (message != null)
+                messageBuild.WithContent(message);
+            if (embed != null)
+                messageBuild.WithEmbed(embed);
+
+            await messageBuild.SendAsync(channel);
         }
     }
 }

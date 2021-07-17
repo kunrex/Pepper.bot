@@ -18,7 +18,7 @@ using KunalsDiscordBot.Core.Exceptions;
 namespace KunalsDiscordBot.Modules.Music
 {
     [Group("Music")]
-    [Decor("Aquamarine", ":musical_note:")]
+    [DecorAttribute("Aquamarine", ":musical_note:")]
     [Description("Set of music commands offered by Pepper")]
     public sealed class MusicCommands : BaseCommandModule
     {

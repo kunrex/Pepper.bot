@@ -8,10 +8,14 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using DSharpPlus.CommandsNext;
+using Imgur;
 
 using KunalsDiscordBot.Modules.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Exceptions.ImageCommands;
+using System.Net.Http;
+using Imgur.API.Authentication;
+using Imgur.API.Endpoints;
 
 namespace KunalsDiscordBot.Services.Images
 {
@@ -112,6 +116,21 @@ namespace KunalsDiscordBot.Services.Images
             }
 
             return images;
+        }
+
+        public Bitmap GetNewBitmap(int height, int width) => new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format32bppPArgb);
+
+        public Image GetImageFromFile(string filePath)
+        {
+            if (!Directory.Exists(filePath))
+                throw new Exception("Path given does not exist");
+
+            byte[] data = File.ReadAllBytes(filePath);
+
+            using (MemoryStream stream = new MemoryStream(data))
+            {
+               return Bitmap.FromStream(stream);
+            }
         }
     }
 }

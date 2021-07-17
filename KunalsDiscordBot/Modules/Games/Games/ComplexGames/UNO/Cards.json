@@ -1,0 +1,224 @@
+﻿{
+  "links": [
+    {
+      "card": "logo.png",
+      "link": "https://imgur.com/oKKPjK8"
+    },
+    {
+      "card": "Wild.png",
+      "link": "https://imgur.com/7t2d1cc"
+    },
+    {
+      "card": "+4.png",
+      "link": "https://imgur.com/HzF0Haw"
+    },
+    {
+      "card": "yellow1.png",
+      "link": "https://imgur.com/Cly2Lg0"
+    },
+    {
+      "card": "yellow2.png",
+      "link": "https://imgur.com/BlOQiKU"
+    },
+    {
+      "card": "yellow3.png",
+      "link": "https://imgur.com/qkVftAp"
+    },
+    {
+      "card": "yellow4.png",
+      "link": "https://imgur.com/a66NOcg"
+    },
+    {
+      "card": "yellow5.png",
+      "link": "https://imgur.com/5IdMmne"
+    },
+    {
+      "card": "yellow6.png",
+      "link": "https://imgur.com/Hk6uhHc"
+    },
+    {
+      "card": "yellow7.png",
+      "link": "https://imgur.com/3zQjPVr"
+    },
+    {
+      "card": "yellow8.png",
+      "link": "https://imgur.com/JxBCynM"
+    },
+    {
+      "card": "yellow9.png",
+      "link": "https://imgur.com/Al24h93"
+    },
+    {
+      "card": "yellow0.png",
+      "link": "https://imgur.com/PiiyHAH"
+    },
+    {
+      "card": "yellow+2.png",
+      "link": "https://imgur.com/rQWVjA8"
+    },
+    {
+      "card": "yellowSkip.png",
+      "link": "https://imgur.com/ywYx9dm"
+    },
+    {
+      "card": "yellowReverse.png",
+      "link": "https://imgur.com/JHwx3Hi"
+    },
+    {
+      "card": "red1.png",
+      "link": "https://imgur.com/TV0CLch"
+    },
+    {
+      "card": "red2.png",
+      "link": "https://imgur.com/v0AVU7L"
+    },
+    {
+      "card": "red3.png",
+      "link": "https://imgur.com/hKuqVxX"
+    },
+    {
+      "card": "red4.png",
+      "link": "https://imgur.com/w889haH"
+    },
+    {
+      "card": "red5.png",
+      "link": "https://imgur.com/QP29gGb"
+    },
+    {
+      "card": "red6.png",
+      "link": "https://imgur.com/fL2KIVL"
+    },
+    {
+      "card": "red7.png",
+      "link": "https://imgur.com/3zQjPVr"
+    },
+    {
+      "card": "red8.png",
+      "link": "https://imgur.com/lLvJcIh"
+    },
+    {
+      "card": "red9.png",
+      "link": "https://imgur.com/37Fkm5s"
+    },
+    {
+      "card": "red0.png",
+      "link": "https://imgur.com/Fobnhq6"
+    },
+    {
+      "card": "red+2.png",
+      "link": "https://imgur.com/bRg6NaT"
+    },
+    {
+      "card": "redSkip.png",
+      "link": "https://imgur.com/KpNSFns"
+    },
+    {
+      "card": "redReverse.png",
+      "link": "https://imgur.com/uHmyx4p"
+    },
+    {
+      "card": "blue1.png",
+      "link": "https://imgur.com/clfNbvv"
+    },
+    {
+      "card": "blue2.png",
+      "link": "https://imgur.com/nb8qLHP"
+    },
+    {
+      "card": "blue3.png",
+      "link": "https://imgur.com/sZczzmh"
+    },
+    {
+      "card": "blue4.png",
+      "link": "https://imgur.com/nvs9PEJ"
+    },
+    {
+      "card": "blue5.png",
+      "link": "https://imgur.com/YG8Kkdj"
+    },
+    {
+      "card": "blue6.png",
+      "link": "https://imgur.com/1zsY78t"
+    },
+    {
+      "card": "blue7.png",
+      "link": "https://imgur.com/J34MOie"
+    },
+    {
+      "card": "blue8.png",
+      "link": "https://imgur.com/bG48sMt"
+    },
+    {
+      "card": "blue9.png",
+      "link": "https://imgur.com/ChkigAM"
+    },
+    {
+      "card": "blue0.png",
+      "link": "https://imgur.com/UxeYHW3"
+    },
+    {
+      "card": "blue+2.png",
+      "link": "https://imgur.com/LXY3AoE"
+    },
+    {
+      "card": "blueSkip.png",
+      "link": "https://imgur.com/1VXFgaS"
+    },
+    {
+      "card": "blueReverse.png",
+      "link": "https://imgur.com/uLEcV1j"
+    },
+    {
+      "card": "green1.png",
+      "link": "https://imgur.com/UhAYNex"
+    },
+    {
+      "card": "green2.png",
+      "link": "https://imgur.com/y3ydPLK"
+    },
+    {
+      "card": "green3.png",
+      "link": "https://imgur.com/RmzmQEf"
+    },
+    {
+      "card": "green4.png",
+      "link": "https://imgur.com/42w8ACm"
+    },
+    {
+      "card": "green5.png",
+      "link": "https://imgur.com/VpWd3n8"
+    },
+    {
+      "card": "green6.png",
+      "link": "https://imgur.com/EkOAyWB"
+    },
+    {
+      "card": "green7.png",
+      "link": "https://imgur.com/0Nu5MWB"
+    },
+    {
+      "card": "green8.png",
+      "link": "https://imgur.com/FMfQOh5"
+    },
+    {
+      "card": "green9.png",
+      "link": "https://imgur.com/yhKviA5"
+    },
+    {
+      "card": "green0.png",
+      "link": "https://imgur.com/EsaVGVK"
+    },
+    {
+      "card": "green+2.png",
+      "link": "https://imgur.com/GSnEPJL"
+    },
+    {
+      "card": "greenSkip.png",
+      "link": "https://imgur.com/zfNQmN9"
+    },
+    {
+      "card": "greenReverse.png",
+      "link": "https://imgur.com/0MsvAyy"
+    }
+  ]
+}

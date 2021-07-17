@@ -20,7 +20,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 {
     [Group("Moderation")]
     [Aliases("Mod")]
-    [Decor("Blurple", ":gear:")]
+    [Decor("Blurple", ":scales:")]
     [Description("The user and the bot requires administration roles to run commands in this module")]
     [RequireBotPermissions(Permissions.Administrator)]
     public class ModerationCommands : BaseCommandModule
@@ -33,7 +33,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             modService = moderationService;
             serverService = _serverService;
         }
-        private static readonly DiscordColor Color = typeof(ModerationCommands).GetCustomAttribute<Decor>().color;
+        private static readonly DiscordColor Color = typeof(ModerationCommands).GetCustomAttribute<DecorAttribute>().color;
         private static readonly int ThumbnailSize = 30;
 
         [Command("AddRole")]
@@ -127,7 +127,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Bans a member")]
         [RequireBotPermissions(Permissions.BanMembers)]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan span, string reason = "Unspecified")
+        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "Unspecified")
         {
             try
             {
@@ -165,7 +165,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Description("Kicks a member")]
         [RequireBotPermissions(Permissions.KickMembers)]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task KickMember(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
+        public async Task KickMember(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unspecified")
         {
             try
             {
@@ -356,7 +356,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Command("Mute")]
         [Description("Mutes a member")]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "unspecified")
+        public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "Unspecified")
         {
             try
             {
@@ -422,7 +422,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Command("Unmute")]
         [Description("Unmutes a member")]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "unspecified")
+        public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unspecified")
         {
             try
             {

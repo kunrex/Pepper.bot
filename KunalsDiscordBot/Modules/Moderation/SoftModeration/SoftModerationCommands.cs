@@ -18,12 +18,13 @@ using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Exceptions;
 using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Net.Models;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
     [Group("SoftModeration")]
     [Aliases("softmod", "sm")]
-    [Decor("Blurple", ":gear:")]
+    [Decor("Blurple", ":scales:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
     [RequireBotPermissions(Permissions.Administrator)]
     public class SoftModerationCommands : BaseCommandModule
@@ -37,7 +38,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             serverService = _serverService;
         }
 
-        private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<Decor>().color;
+        private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<DecorAttribute>().color;
         private static readonly int ThumbnailSize = 30;
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -285,6 +286,52 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 await message.DeleteAsync();
 
             await ctx.Channel.SendMessageAsync("**Chat has been cleaned**").ConfigureAwait(false);
+        }
+
+        [Command("Slowmode")]
+        [Aliases("slow")]
+        [ModeratorNeeded]
+        [Description("Sets the slow mode for the chat")]
+        [RequireBotPermissions(Permissions.ManageChannels)]
+        public async Task SlowMode(CommandContext ctx, int seconds)
+        {
+            if(ctx.Channel.PerUserRateLimit == seconds)
+            {
+                await ctx.RespondAsync($"Slow mode for {ctx.Channel.Mention} already is {seconds} seconds?").ConfigureAwait(false);
+                return;
+            }
+
+            await ctx.Channel.ModifyAsync((ChannelEditModel obj) => obj.PerUserRateLimit = seconds);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Description = $"{(seconds == 0 ? $"Disabled slow mode for {ctx.Channel.Mention}": "$Set Slow Mode for {ctx.Channel.Mention} to {seconds} seconds")}",
+                Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("SetNSFW")]
+        [Aliases("NSFW")]
+        [ModeratorNeeded]
+        [Description("Changes the NSFW status of a channel")]
+        [RequireBotPermissions(Permissions.ManageChannels)]
+        public async Task NSFW(CommandContext ctx, bool toSet)
+        {
+            if(ctx.Channel.IsNSFW == toSet)
+            {
+                await ctx.RespondAsync($"{(toSet ? "Channel already is NSFW?" : "Channel isn't NSFW in the first place?")}");
+                return;
+            }
+
+            await ctx.Channel.ModifyAsync((ChannelEditModel obj) => obj.Nsfw = toSet);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Description = $"{ctx.Channel.Mention} {(toSet ? "is now NSFW" : "is not NSFW anymore")}",
+                Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
+                Color = Color
+            }).ConfigureAwait(false);
         }
     }
 }
