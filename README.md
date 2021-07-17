@@ -38,6 +38,7 @@ Does not have seperate prefix' for each server, but will look into that. The bot
 * Microsoft.EntityFrameWorkCore 5.0.7
 * DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
 * SQlite
+* Reddit.NET
 
 ## How to Set It Up?
 
