@@ -57,8 +57,15 @@ java -jar Lavalink.jar
 ```
 The bot comes with a set up **application.yaml** file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DSharpPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
+### Reddit Services
+Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things reddit. This is primarily used in the FunModule for the `post`, `meme`, `animals` and `awww` command but can be built upon for more complex Reddit related commands.
+#### __Settings Up the Reddit App__
+1. Go to your apps page on reddit at https://www.reddit.com/prefs/apps and hit the "create an app" button at the bottom.
+2. Give the app a name and a description. Under **App Type** choose **script**. The Redirect URL can be any valid URL. After that you can just hit **Create App**
+3. Its gonna redirect your page to
+
 ### Setting up the Database for Currency Commands
-8. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
+9. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
 
 Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**, we're gonna be remaking those.
 
@@ -71,7 +78,9 @@ Also make sure you have the package **Microsoft.EntityFrameWorkCore.Design** ins
 ```
 dotnet add package Microsoft.EntityFrameWorkCore.Design
 ```
-after that we can add the migrations folder by running
+
+#### __Creating the Database and its migrations__
+We can now create a migration using
 ```
 dotnet-ef migrations add InitialCreate -p ../DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj --context DiscordBotDataBase.Dal.DataContext
 ```
