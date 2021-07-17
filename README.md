@@ -51,15 +51,15 @@ https://discord.com/developers/docs/intro
 5. Navigate to Bot tab and click **Click To Reveal Token**.This copies your token and is needed to run your bot. **DO NOT** show anyone your token.
 6. Come back to the project and find the **Config.json** file inside the folder called KunalsDiscordBot, there for the value called *token*, paste the token you copied from the dev portal. You can also change the prefix' to your liking. At this point you're done with the basic setting up of the bot.
 
-### Setting up Music Commands with LavaLink
-7. For Music, find the LavaLink.jar file at **KunalsDiscordBot/Modules/Music**. open a cmd prompt or terminal instance at this path and run
+### 7. Setting up Music Commands with LavaLink
+For Music, find the LavaLink.jar file at **KunalsDiscordBot/Modules/Music**. open a cmd prompt or terminal instance at this path and run
 ```
 java -jar Lavalink.jar
 ```
 The bot comes with a set up **application.yaml** file to configure LavaLink so it should run locally on your device. You can look into LavaLinks official Repo (https://github.com/freyacodes/lavalink) or the DSharpPlus tutorial for more info to set it up (https://dsharpplus.github.io/articles/audio/lavalink/setup.html)
 
-### Reddit Services
-8. Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things reddit. This is primarily used in the FunModule for the `post`, `meme`, `animals` and `awww` command but can be built upon for more complex Reddit related commands.
+### 8. Reddit Services
+Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things reddit. This is primarily used in the FunModule for the `post`, `meme`, `animals` and `awww` command but can be built upon for more complex Reddit related commands.
 #### __Settings Up the Reddit App__
 1. Go to your apps page on reddit at https://www.reddit.com/prefs/apps and hit the **create an app** button at the bottom.
 2. Give the app a name and a description. Under **App Type** choose **script**. The **Redirect URL** can really be any valid URL. After that you can just hit **Create App**
@@ -83,8 +83,8 @@ We use this value to store memes and animals posts when the bot starts, instead 
 
 You can look into the Readme for at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
 
-### Setting up the Database for Currency Commands
-9. For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
+### 9. Setting up the Database for Currency Commands
+For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
 
 Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**, we're gonna be remaking those.
 
