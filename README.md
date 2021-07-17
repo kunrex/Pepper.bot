@@ -79,7 +79,7 @@ its gonna look like this.
 }
 ```
 What is **postLimit**? postLimit is simply the maximum amount of posts the bot collects from each of the filter types from subreddits(Top, Hot and new).
-We use this value to store memes and animals posts when the bot starts, instead of doing it on the spot when the command executes simply because its wayyy faster and efficient (around waaaayy faster. From 2 => 7 seconds faster)
+We use this value to store memes and animals posts when the bot starts, instead of doing it on the spot when the command executes simply because its wayyy faster and efficient (like waaaayy faster. On the spot could take like 7 seconds while with the current set up it takes less than a second)
 
 You can look into the Readme for at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
 
