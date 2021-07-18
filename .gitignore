@@ -351,3 +351,4 @@ MigrationBackup/
 
 #Ignore custom folders and files
 DiscordBotDataBase.Dal.Migrations/Migrations/*
+KunalsDiscordBot/Config.json
