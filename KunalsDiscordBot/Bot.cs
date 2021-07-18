@@ -235,9 +235,9 @@ namespace KunalsDiscordBot
                 var serverService = (IServerService)services.GetService(typeof(IServerService));
                 var profile = await serverService.GetServerProfile(e.Guild.Id);
 
-                var channel = e.Guild.GetDefaultChannel();
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
                 if (channel == null)
-                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+                    channel = e.Guild.GetDefaultChannel();
 
                 if (channel == null)
                     return;
@@ -259,9 +259,9 @@ namespace KunalsDiscordBot
                 if (profile.LogNewMembers == 0)
                     return;
 
-                var channel = e.Guild.GetDefaultChannel();
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
                 if (channel == null)
-                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+                    channel = e.Guild.GetDefaultChannel();
 
                 if (channel == null)
                     return;
@@ -289,9 +289,9 @@ namespace KunalsDiscordBot
                 if (profile.LogNewMembers == 0)
                     return;
 
-                var channel = e.Guild.GetDefaultChannel();
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
                 if (channel == null)
-                    channel = e.Guild.GetChannel((ulong)profile.LogChannel);
+                    channel = e.Guild.GetDefaultChannel();
 
                 if (channel == null)
                     return;

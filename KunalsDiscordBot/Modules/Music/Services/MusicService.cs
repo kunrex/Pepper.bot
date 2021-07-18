@@ -262,6 +262,9 @@ namespace KunalsDiscordBot.Services.Music
             if (profile.UseDJRoleEnforcement == 0)
                 return true;
 
+            if (profile.DJRoleId == 0)//allowed but no role assigned
+                return true;
+
             return ctx.Member.Roles.FirstOrDefault(x => x.Id == (ulong)profile.DJRoleId) != null;
         }
     }

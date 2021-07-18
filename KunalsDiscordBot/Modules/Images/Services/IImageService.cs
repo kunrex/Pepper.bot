@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Threading.Tasks;
 using DSharpPlus.CommandsNext;
 using KunalsDiscordBot.Modules.Images;
+
+using Image = System.Drawing.Image;
 
 namespace KunalsDiscordBot.Services.Images
 {
@@ -18,8 +22,5 @@ namespace KunalsDiscordBot.Services.Images
 
         public string GetFileByCommand(in CommandContext ctx);
         public List<Image> GetImages(Dictionary<string, int> urls);
-
-        public Bitmap GetNewBitmap(int height, int width);
-        public Image GetImageFromFile(string filePath);
     }
 }

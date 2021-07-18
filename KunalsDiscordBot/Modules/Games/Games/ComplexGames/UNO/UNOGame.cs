@@ -14,8 +14,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex
     public class UNOGame : ComplexBoardGame<UNOPlayer>
     {
         public static readonly List<CardColor> colors = Enum.GetValues(typeof(CardColor)).Cast<CardColor>().ToList();
-        public static readonly List<CardType> types = Enum.GetValues(typeof(CardType)).Cast<CardType>().ToList();
-
         public static int maxPlayers = 5, startCardNumber = 8;
 
         public DiscordClient client { get; private set; }
@@ -26,46 +24,45 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         private List<Card> cards { get; set; } = GetDeck().Shuffle().ToList();
         private Card currenctCard { get; set; }
 
-        private IImageService imageService;
-
         public static List<Card> GetDeck()
         {
             var cards = new List<Card>();
             //4 wild cards
             for (int i = 0; i < 4; i++)
-                cards.Add(new PowerCard(CardType.powerplay, CardColor.none, PowerType.Wild));
+                cards.Add(new WildCard(CardColor.none, CardType.Wild));
 
             //4 wild cards
             for (int i = 0; i < 4; i++)
-                cards.Add(new PowerCard(CardType.powerplay, CardColor.none, PowerType.plus4));
+                cards.Add(new Plus4Card(CardColor.none, CardType.plus4));
 
             foreach (var color in colors.Where(x => x != CardColor.none).ToList())
             {
                 //add number cards
-                cards.Add(new NumberCard(CardType.number, color, 0));
+                cards.Add(new NumberCard(color, 0));
                 for (int i = 1; i <= 2; i++)
                     for (int k = 1;k <= 9; k++)
-                        cards.Add(new NumberCard(CardType.number, color, i));
+                        cards.Add(new NumberCard(color,  i));
 
                 //add reverse, skip and +2
-                var actionCards = Enum.GetValues(typeof(PowerType)).Cast<PowerType>().Where(x => x != PowerType.Wild && x != PowerType.plus4).ToList();
-                for (int i = 0; i < actionCards.Count; i++)
-                    for (int k = 1; k <= 2; k++)
-                        cards.Add(new PowerCard(CardType.powerplay, color, actionCards[i]));
+                for (int k = 1; k <= 2; k++)
+                {
+                    cards.Add(new SkipCard(color));
+                    cards.Add(new ReverseCard(color));
+                    cards.Add(new Plus2Card(color));
+                }
             }
 
             return cards;
         }
 
-        public UNOGame(List<DiscordMember> members, DiscordClient _client, IImageService service)
+        public UNOGame(List<DiscordMember> members, DiscordClient _client)
         {
             var _players = new List<UNOPlayer>();
             foreach (var member in members)
-                _players.Add(new UNOPlayer(member, service));
+                _players.Add(new UNOPlayer(member));
 
             client = _client;
             players = _players;
-            imageService = service;
 
             currentPlayer = players[0];
             gameOver = false;
@@ -88,7 +85,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             foreach (var player in players)
             {
                 dmChannels.Add(await player.member.CreateDmChannelAsync());
-                player.InitiliasePlayerCards(cards.Take(startCardNumber).ToList());
+                player.InitialisePlayer(cards.Take(startCardNumber).ToList(), client);
 
                 cards.RemoveRange(0, startCardNumber);
             }
@@ -114,6 +111,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 Title = $"{currentPlayer.member.Username}'s Turn",
                 ImageUrl = Card.GetLink(currenctCard.fileName).link + ".png"
             }.AddField("Current Card:", "** **"));
+
+            await currentPlayer.PrintCards();
         }
 
         private async Task SendMessageToAllPlayers(string message = null, DiscordEmbedBuilder embed = null)

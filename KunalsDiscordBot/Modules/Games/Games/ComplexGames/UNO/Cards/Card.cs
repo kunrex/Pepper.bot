@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using KunalsDiscordBot.Modules.Games.Complex.UNO.Cards;
 
 namespace KunalsDiscordBot.Modules.Games.Complex.UNO
 {
-    public enum CardType
-    {
-        number,
-        powerplay,
-    }
-
     public enum CardColor
     {
         red,
@@ -20,27 +15,36 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO
         none
     }
 
-    public abstract class Card
+    [Flags]
+    public enum CardType
     {
-        public CardType cardType { get; protected set; }
+        plus2,
+        Skip,
+        Reverse,
+        plus4,
+        Wild,
+        number
+    }
+
+    public abstract class Card : IStackable
+    {
+        public static readonly CardLinks cardLinks = System.Text.Json.JsonSerializer.Deserialize<CardLinks>(System.IO.File.ReadAllText(System.IO.Path.Combine("Modules", "Games", "Games", "ComplexGames", "UNO", "Cards.json")));
+
         public CardColor cardColor { get; protected set; }
+        public CardType cardType { get; protected set; }
 
         public string fileName { get; protected set; }
         public string cardName { get; protected set; }
 
-        public static IReadOnlyList<string> Path = new List<string>() { "Modules", "Games", "Games", "ComplexGames", "UNO", "Cards.json" };
-        public static readonly CardLinks cardLinks = System.Text.Json.JsonSerializer.Deserialize<CardLinks>(System.IO.File.ReadAllText(System.IO.Path.Combine("Modules", "Games", "Games", "ComplexGames", "UNO", "Cards.json")));
-
+        public abstract CardType stackables { get; }
         public static Link GetLink(string fileName) => cardLinks.links.FirstOrDefault(x => x.card == fileName);
 
-        public Card(CardType type, CardColor color)
-        {
-            cardType = type;
-            cardColor = color;
-        }
+        public Card(CardColor color) => cardColor = color;
 
         protected abstract string GetFileName();
         protected abstract string GetCardName();
+
+        public virtual bool Stack(Card card) => (card.cardType & stackables) == card.cardType;
     }
 
     public class CardLinks

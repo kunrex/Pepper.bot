@@ -15,6 +15,7 @@ using System;
 using System.Reflection;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -576,6 +577,23 @@ namespace KunalsDiscordBot.Modules.Moderation
                 {
                     Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                 },
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+
+        [Command("RuleChannel")]
+        [Description("Assigns the rule channel for a server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the rule channel for guild: {ctx.Guild.Name}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);
         }

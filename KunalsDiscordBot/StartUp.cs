@@ -26,13 +26,13 @@ namespace KunalsDiscordBot
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
+            services.AddSingleton(new RedditApp());
+
             services.AddScoped<IProfileService, ProfileService>();
             services.AddScoped<IModerationService, ModerationService>();
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<IServerService, ServerService>();
             services.AddScoped<IMusicService, MusicService>();
-
-            services.AddSingleton(new RedditApp());
 
             BuildService(services);
         }

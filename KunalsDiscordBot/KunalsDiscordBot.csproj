@@ -36,7 +36,6 @@
     <PackageReference Include="Reddit" Version="1.5.0" />
     <PackageReference Include="Discord.Net" Version="2.4.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="Imgur.API" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -87,6 +86,7 @@
     <Folder Include="Core\Attributes\ModerationCommands\" />
     <Folder Include="Core\Attributes\GeneralCommands\" />
     <Folder Include="Reddit\" />
+    <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -139,6 +139,7 @@
     <None Remove="Core\Attributes\GeneralCommands\" />
     <None Remove="Reddit\" />
     <None Remove="Imgur.API" />
+    <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

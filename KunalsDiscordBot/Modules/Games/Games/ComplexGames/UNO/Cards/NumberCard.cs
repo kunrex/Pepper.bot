@@ -5,8 +5,12 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
     {
         public int cardNumber { get; private set; }
 
-        public NumberCard(CardType type, CardColor color, int number) : base(type, color)
+        public override CardType stackables => CardType.number;
+
+        public NumberCard(CardColor color, int number) : base(color)
         {
+            cardType = CardType.number;
+
             cardNumber = number;
             fileName = GetFileName();
             cardName = GetCardName();
@@ -17,5 +21,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
 
         protected override string GetFileName() => $"{cardColor}{cardNumber}.png";
         protected override string GetCardName() => $"{cardColor} {cardNumber}";
+
+        public override bool Stack(Card card) => base.Stack(card);
     }
 }

@@ -17,6 +17,7 @@ using System.Reflection;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Attributes.GeneralCommands;
 using KunalsDiscordBot.Core.Exceptions;
+using DSharpPlus.Interactivity;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -207,44 +208,39 @@ namespace KunalsDiscordBot.Modules.General
         public async Task Config(CommandContext ctx)
         {
             var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+            var footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}. Message will collect reactions for 2 minutes");
+            var thumbnail = BotService.GetEmbedThumbnail(ctx.Client.CurrentUser, 30);
 
-            var embed = new DiscordEmbedBuilder
+            var isMod = ((await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) == DSharpPlus.Permissions.Administrator; 
+            var ruleCount = isMod ? (await serverService.GetAllRules(ctx.Guild.Id)).Count : 0;
+
+            var embeds = new List<DiscordEmbedBuilder>()
             {
-                Title = "Configuration",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}"),
-                Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.Client.CurrentUser, 30)
-            }.AddField("__General__", "** **")
-             .AddField($"Only Allow Admins To Edit Config: `{profile.RestrictPermissionsToAdmin == 1}`", "When set to true only admins can edit the configuration")
-             .AddField($"Log Errors: `{profile.LogErrors == 1}`", "When set to true, a message is sent if an error happens during command execution")
-             .AddField($"Log New Members: `{profile.LogNewMembers == 1}`", "When set to true, a message is sent if a new member joins or or a member leaves the server")
-             .AddField($"Log Channel:", $" {(profile.LogChannel == 0 ? "`None`" : "<@#{(ulong)profile.RulesChannelId}>")}\nThe log channel of the server, or the channel in which welcome messages are sent");
+                BotService.GetGeneralConfig(profile),
+                BotService.GetModConfig(profile, isMod, ruleCount),
+                BotService.GetMusicAndFunConfig(profile)
+            };
 
-            var permissions = (await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).PermissionsIn(ctx.Channel);
-
-            var enabled = (permissions & DSharpPlus.Permissions.Administrator) == DSharpPlus.Permissions.Administrator;
-            embed.AddField("__Moderation and Soft Moderation__", "** **").AddField($"Enabled: `{enabled}`",
-                "Wether or not the moderation and soft moderation modules are enabled in thi server");
-
-            if (enabled)
+            var pages = new Page[embeds.Count];
+            for (int i = 0; i < embeds.Count; i++)
             {
-                var ruleCount = (await serverService.GetAllRules(ctx.Guild.Id)).Count;
+                embeds[i].Footer = footer;
+                embeds[i].Thumbnail = thumbnail;
+                embeds[i].Color = Color;
 
-                embed.AddField($"Muted Role:", $"{(profile.MutedRoleId == 0 ? "`None`" : $"<@&{(ulong)profile.MutedRoleId}>")}\nThe role that ias assigned when a member is muted", true);
-                embed.AddField($"Rule Count: `{ruleCount}`", "The amount of rules in the server", true);
-                embed.AddField($"Rule Channel:", $"{(profile.RulesChannelId == 0 ? "`None`" : $"<@#{(ulong)profile.RulesChannelId}>")}\nThe amount of rules in the server", true);
-                embed.AddField($"Moderator Role:", $"{(profile.ModeratorRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.ModeratorRoleId}>")}\nThe moderator role of this server", true);
+                pages[i] = new Page($"Configuration for `{ctx.Guild.Name}`", embeds[i]);
             }
 
-            embed.AddField("__Music__", "** **")
-                 .AddField($"Enforce DJ Permissions: `{(profile.UseDJRoleEnforcement == 1)}`", "When set to true, a member cannot run most music commands without the DJ role");
+            var emojis = new PaginationEmojis
+            {
+                Left = DiscordEmoji.FromName(ctx.Client, ":arrow_backward:"),
+                Right = DiscordEmoji.FromName(ctx.Client, ":arrow_forward:"),
+                SkipLeft = null,
+                SkipRight = null,
+                Stop = null
+            };
 
-            if (profile.UseDJRoleEnforcement == 1)
-                embed.AddField($"DJ Role:", $"{(profile.DJRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.DJRoleId}>")}The DJ role for this server", true);
-
-            embed.AddField("__Fun__", "** **").AddField($"Allow NSFW: `{(profile.AllowNSFW == 1)}`", "When set to true the bot can post NSFW posts from NSFW subreddits".ToString());
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteEmojis, TimeSpan.FromMinutes(2)).ConfigureAwait(false);
         }
 
         [Command("ChangeEditPermissions")]
@@ -364,22 +360,6 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the log channel for guild: {ctx.Guild.Name}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
-            }).ConfigureAwait(false);
-        }
-
-        [Command("RuleChannel")]
-        [Description("Assigns the rule channel for a server")]
-        [CheckConfigPerms]
-        public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
-        {
-            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Edited Configuration",
-                Description = $"Saved {channel.Mention} as the rule channel for guild: {ctx.Guild.Name}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);

@@ -5,7 +5,10 @@ using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Modules.Games.Complex.UNO;
+using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.Images;
 
 namespace KunalsDiscordBot.Modules.Games.Players
@@ -18,17 +21,24 @@ namespace KunalsDiscordBot.Modules.Games.Players
         public static int gapInPxiels = 10;
 
         public DiscordChannel dmChannel { get; private set; }
+        private Dictionary<string, DiscordEmoji> controls { get; set; }
 
         private List<Card> cards { get; set; }
-        private IImageService imageService;
 
-        public UNOPlayer(DiscordMember _member, IImageService service) : base(_member)
+        public UNOPlayer(DiscordMember _member) : base(_member)
         {
             member = _member;
-            imageService = service;
         }
 
-        public void InitiliasePlayerCards(List<Card> _cards) => cards = _cards;
+        public void InitialisePlayer(List<Card> _cards, DiscordClient client)
+        {
+            cards = _cards;
+            controls = new Dictionary<string, DiscordEmoji>()
+            {
+                {"Left",  DiscordEmoji.FromName(client, ":arrow_backward:")},
+                {"Right",  DiscordEmoji.FromName(client, ":arrow_forward:")},
+            };
+        }
 
         public async override Task<bool> Ready(DiscordChannel channel)
         {
@@ -38,52 +48,32 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
         }
 
-        public async Task<DiscordEmbedBuilder> GetPlayerEmbed()
+        public async Task PrintCards()
         {
-            return new DiscordEmbedBuilder
-            {
-                Title = $"{member.Username}'s Cards"
-            };
-        }
+            var pages = new List<Page>();
+            int index = 1;
 
-        private byte[] GetPlayerCards()
-        {
-            int height = 0, width = 0, numInRow = 0;
             foreach(var card in cards)
             {
-                width += widthInPixel + gapInPxiels;
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Your Cards",
+                    ImageUrl = Card.GetLink(card.fileName).link + ".png",
+                    Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
+                }.AddField("Card", card.cardName);
 
-                numInRow++;
-                if (numInRow == maxImagesPerRow)
-                    height += gapInPxiels;
+                pages.Add(new Page(null, embed));
+                index++;
             }
 
-            var bitmap = imageService.GetNewBitmap(height, width);
-            using (var graphics = Graphics.FromImage(bitmap))
+            var emojis = new PaginationEmojis()
             {
-                height = 0; width = 0; numInRow = 0;
-                foreach (var card in cards)
-                {
-                    var pathList = new List<string>();
-                    pathList.AddRange(Card.Path);
-                    pathList.Add(card.fileName);
+                Left = controls["Left"],
+                Right = controls["Right"],
+                Stop = null
+            };
 
-                    using (var imgGraphic = imageService.GetImageFromFile(Path.Combine(pathList.ToArray())))
-                    {
-                        graphics.DrawImage(imgGraphic, new Point(height, width));
-                    }
-
-                    numInRow++;
-                    if (numInRow == maxImagesPerRow)
-                        height += gapInPxiels;
-                }
-
-                using (MemoryStream ms = new MemoryStream())
-                {
-                    bitmap.Save(ms, bitmap.RawFormat);
-                    return ms.ToArray();
-                }
-            }
+            await dmChannel.SendPaginatedMessageAsync(member, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2));
         }
     }
 }

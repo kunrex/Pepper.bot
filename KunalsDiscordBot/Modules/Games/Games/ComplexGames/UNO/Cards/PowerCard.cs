@@ -1,31 +1,24 @@
 ﻿using System;
 namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
 {
-    public enum PowerType
+    public abstract class PowerCard : Card
     {
-        plus2,
-        Skip,
-        Reverse,
-        plus4,
-        Wild
-    }
+        public abstract override CardType stackables { get; }
 
-    public class PowerCard : Card
-    {
-        public PowerType powerType { get; private set; }
-
-        public PowerCard(CardType type, CardColor color, PowerType power) : base(type, color)
+        public PowerCard(CardColor color, CardType power) : base(color)
         {
-            powerType = power;
+            cardType = power;
 
             fileName = GetFileName();
             cardName = GetCardName();
 
-            if ((power == PowerType.plus4 || power == PowerType.Wild) && color != CardColor.none)
+            if ((power == CardType.plus4 || power == CardType.Wild) && color != CardColor.none)
                 throw new Exception($"Invalid color for {power} card");
         }
 
-        protected override string GetFileName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())}{powerType.ToString().Replace("plus", "+")}.png";
-        protected override string GetCardName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())} {powerType.ToString().Replace("plus", "+")}";
+        protected override string GetFileName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())}{cardType.ToString().Replace("plus", "+")}.png";
+        protected override string GetCardName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())} {cardType.ToString().Replace("plus", "+")}";
+
+        public override bool Stack(Card card) => base.Stack(card);
     }
 }

@@ -156,7 +156,7 @@ namespace KunalsDiscordBot.Modules.Games
             UNOGame game = new UNOGame(new List<DiscordMember>
             {
                 ctx.Member
-            }, ctx.Client, (IImageService)ctx.Services.GetService(typeof(IImageService)));
+            }, ctx.Client);
         }
 
         [Command("Spectate")]
