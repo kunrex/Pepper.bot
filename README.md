@@ -83,6 +83,7 @@ Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things re
 2. Give the app a name and a description. Under **App Type** choose **script**. The **Redirect URL** can really be any valid URL. After that you can just hit **Create App**
 3. Its gonna redirect your page that looks something like this.
 <img src="Images/RedditExample.png" width = 400> 
+
 We need 2 things from here, your **client app id** (The set of characters under **personal use script**) and **client secret**.
 
 4. Apart from those 2 we also need a **refreshToken**. Now I have to admit getting this is a bit trickier than the appId and secret. You can either follow the instructions at https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization or just use this simple link: https://not-an-aardvark.github.io/reddit-oauth-helper/. 
