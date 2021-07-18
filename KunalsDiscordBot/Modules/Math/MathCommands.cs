@@ -1,21 +1,27 @@
 ﻿//System name spaces
+using System;
+using System.Reflection;
 using System.Threading.Tasks;
 
 //D# name spaces
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Entities;
 
 //Custom name spcaes
 using KunalsDiscordBot.Attributes;
+using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.Math;
 
 namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
-    [DecorAttribute("MidnightBlue", ":1234:")]
+    [Decor("MidnightBlue", ":1234:")]
     [ModuleLifespan(ModuleLifespan.Transient)]
     public class MathCommands : BaseCommandModule
     {
+        private static readonly DiscordColor Color = typeof(MathCommands).GetCustomAttribute<DecorAttribute>().color;
+
         [Command("Solve")]
         [Description("Solves an equation")]
         public async Task Solve(CommandContext ctx, [RemainingText] string equation)
@@ -25,6 +31,16 @@ namespace KunalsDiscordBot.Modules.Math
             string answer = solver.Solve(solver.GetPolynomials(equation));
             await ctx.RespondAsync(answer).ConfigureAwait(false);
         }
+
+        [Command("Graph")]
+        [Description("Graph an equation. API used: https://denzven.pythonanywhere.com/")]
+        public async Task Graph(CommandContext ctx, [RemainingText] string equation) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        {
+            Title = "Graph",
+            ImageUrl = $"http://denzven.pythonanywhere.com/DenzGraphingApi/v1/flat_graph/test/plot?formula={Uri.EscapeDataString(equation)}",
+            Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName}"),
+            Color = Color
+        });
 
         [Command("add")]
         [Description("Adds the given 2 numbers")]
