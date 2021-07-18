@@ -100,7 +100,7 @@ namespace KunalsDiscordBot.Services
             }.AddField("__Music__", "** **")
              .AddField($"• Enforce DJ Permissions: `{(profile.UseDJRoleEnforcement == 1)}`", "When set to true, a member cannot run most music commands without the DJ role"
               + "\n**Edit Command**: `pep general toggledj`")
-             .AddField($"• DJ Role:", $"{(profile.DJRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.DJRoleId}>")}. The DJ role for this server"
+             .AddField($"• DJ Role:", $"{(profile.DJRoleId == 0 ? "`None`" : $" <@&{(ulong)profile.DJRoleId}>")}. \nThe DJ role for this server"
               + "\n**Edit Command**: `pep general DJrole`", true);
 
             embed.AddField("__Fun__", "** **")

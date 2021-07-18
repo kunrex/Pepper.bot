@@ -11,6 +11,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         }
 
         public override CardType stackables => CardType.Wild;
-        public override bool Stack(Card card) => base.Stack(card);
+        public override bool Stack(Card card) => false;
     }
 }
