@@ -39,6 +39,7 @@ Does not have seperate prefix' for each server, but will look into that. The bot
 * DSharpPlus.LavaLink (https://github.com/freyacodes/lavalink)
 * SQlite
 * Reddit.NET
+* Denzven Graphing API (https://denzven.pythonanywhere.com/)
 
 ## How to Set It Up?
 
