@@ -350,4 +350,4 @@ MigrationBackup/
 .ionide/
 
 #Ignore custom folders and files
-DiscordBotDataBase.Dal.Migrations/Migrations/*
+DiscordBotDataBase.Dal.Migrations/Migrations/
