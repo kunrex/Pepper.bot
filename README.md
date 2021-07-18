@@ -49,7 +49,25 @@ https://discord.com/developers/docs/intro
 3. Navigate to the Applicates window and select **New Application**. This application is your bot
 4. Fill in the details for the bot like the name and description.
 5. Navigate to Bot tab and click **Click To Reveal Token**.This copies your token and is needed to run your bot. **DO NOT** show anyone your token.
-6. Come back to the project and find the **Config.json** file inside the folder called KunalsDiscordBot, there for the value called *token*, paste the token you copied from the dev portal. You can also change the prefix' to your liking. At this point you're done with the basic setting up of the bot.
+
+#### Creating the Config File
+6. Come back to the project and find the folder **KunalsDiscordBot** and create a new json file called **Config.json** exactly. You can change the name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
+```
+{
+  "token": "paste your client token here",
+  "prefixes": [ "Assign the prefix' of your bot here" ],
+  "dms": true,
+  "timeOut": 60,
+  "KunalsID": "744901615919562813"
+}
+```
+
+**What these values are**
+1. **token**: The client token for your bot.
+2. **prefixes**: The default prefixes for your bot.
+3. **dms**: Are commands sent through direct messages are processed or not
+4. **timeOut**: The default timeout (in seconds) for the interactivity for your bot. The value be overriden wherever nececarry but defaults to the value here.
+5. **KunalsID**: **Only For Dev** The id the bot pings if something goes wrong. Will be removed
 
 ### 7. Setting up Music Commands with LavaLink
 For Music, find the LavaLink.jar file at **KunalsDiscordBot/Modules/Music**. open a cmd prompt or terminal instance at this path and run
@@ -68,13 +86,15 @@ Pepper uses Reddit.NET (https://github.com/sirkris/Reddit.NET) for all things re
 We need 2 things from here, your **client app id** (The set of characters under **personal use script**) and **client secret**.
 
 4. Apart from those 2 we also need a **refreshToken**. Now I have to admit getting this is a bit trickier than the appId and secret. You can either follow the instructions at https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization or just use this simple link: https://not-an-aardvark.github.io/reddit-oauth-helper/. 
-5. After you have all 3 of this you can open up **RedditConfig.json** at **KunalsDiscordBot/Reddit/**. This is the config for your Reddit app which is used by Pepper. 
-Its gonna look like this.
+
+#### Create the RedditConfig File
+5. After you have all 3 of this we can create the RedditConfig file. Find the folder **KunalsDiscordBot/Reddit/** and create a new json file called **RedditConfig.json** exactly. You can change the name later if needed. This is the config for your Reddit app which is used by Pepper. 
+Copy Paste the following lines into the json file and fill in the appropriate details wherever nececarry.
 ```
 {
-  "appId": "paster you app id here",
+  "appId": "paste your app id here",
   "appSecret": "paste your app secret here",
-  "refreshToken": "past your refresh token here",
+  "refreshToken": "paste your refresh token here",
   "postLimit" :  50
 }
 ```
@@ -84,11 +104,10 @@ We use this value to store memes and animals posts when the bot starts, instead 
 You can look into the Readme at **KunalsDiscordBot/Reddit/** for more info on the Reddit implementation but all the setting up has been done!
 
 ### 9. Setting up the Database for Currency Commands
-For the purposes of this set up we'll be remaking the entire database. You don't have to do this, but its advised to know how this is done if you add your own models and change things in the database and if you are might want to create a back up that you can revert to.
+The github repo does not include the **Migrations folder** nor does it include the Database itself. So you need to do this when you clone the repo locally if you want currency commands to work.
 
-Delete the **Migrations** folder under **DiscordBotDataBase.Dal.Migrations** and the file called **Data.db** under **KunalsDiscordBot**, we're gonna be remaking those.
-
-Next copy the path of the folder called **KunalsDiscordBot** and open a cmd prompt or terminal instance at this path.\n
+#### Prerequisites
+Copy the path of the folder called **KunalsDiscordBot** and open a cmd prompt or terminal instance at this path.\n
 First make sure you have dotnet-ef installed by running.
 ```
 dotnet tool install -global dotnet-ef
