@@ -1,5 +1,6 @@
 ﻿//System name spaces
 using System;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -38,7 +39,7 @@ namespace KunalsDiscordBot.Modules.Math
         {
             Title = "Graph",
             ImageUrl = $"http://denzven.pythonanywhere.com/DenzGraphingApi/v1/flat_graph/test/plot?formula={Uri.EscapeDataString(equation)}",
-            Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName}"),
+            Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName} (If theres no image, then an error occured. Check the formula and don't include spaces.)"),
             Color = Color
         });
 
@@ -109,5 +110,12 @@ namespace KunalsDiscordBot.Modules.Math
         [Command("log")]
         [Description("Returns the base 10 logarithm of a number")]
         public async Task Log(CommandContext ctx, float number) => await ctx.RespondAsync((System.Math.Log10(number)).ToString()).ConfigureAwait(false);
+
+        private class JsonData
+        {
+            public string error { get; set; }
+            public string error_id { get; set; }
+            public string fix { get; set; }
+        }
     }
 }

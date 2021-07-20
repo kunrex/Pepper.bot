@@ -84,7 +84,7 @@ namespace KunalsDiscordBot.Reddit
                 return null;
 
             if (onlyImages)
-                filtered = filtered.Where(x => x.Listing.URL.EndsWith(".png") || x.Listing.URL.EndsWith(".jpeg") || x.Listing.URL.EndsWith(".gif")).ToList();
+                filtered = filtered.Where(x => x.IsValidDiscordPost()).ToList();
             if (filtered.Count == 0 || filtered == null)
                 return null;
 
@@ -97,11 +97,11 @@ namespace KunalsDiscordBot.Reddit
 
             var posts = new List<Post>();
 
-            posts.AddRange(subReddit.Posts.New.Where(x => x.Listing.URL.EndsWith(".png") || x.Listing.URL.EndsWith(".jpeg") || x.Listing.URL.EndsWith(".gif"))
+            posts.AddRange(subReddit.Posts.New.Where(x => x.IsValidDiscordPost())
                 .Take(configuration.postLimit).ToList());
-            posts.AddRange(subReddit.Posts.Hot.Where(x => x.Listing.URL.EndsWith(".png") || x.Listing.URL.EndsWith(".jpeg") || x.Listing.URL.EndsWith(".gif"))
+            posts.AddRange(subReddit.Posts.Hot.Where(x => x.IsValidDiscordPost())
                 .Take(configuration.postLimit).ToList());
-            posts.AddRange(subReddit.Posts.Top.Where(x => x.Listing.URL.EndsWith(".png") || x.Listing.URL.EndsWith(".jpeg") || x.Listing.URL.EndsWith(".gif"))
+            posts.AddRange(subReddit.Posts.Top.Where(x => x.IsValidDiscordPost())
                 .Take(configuration.postLimit).ToList());
 
             //subscribe to all events
@@ -127,10 +127,16 @@ namespace KunalsDiscordBot.Reddit
                 return;
 
             foreach (var post in e.Added)
-                if (post.Listing.URL.EndsWith(".png") || post.Listing.URL.EndsWith(".jpeg") || post.Listing.URL.EndsWith(".gif"))
+                if (post.IsValidDiscordPost())
                 {
                     memes.RemoveAt(0);//cycle
                     memes.Add(post);
+
+                    if (!post.NSFW)
+                    {
+                        nonNSFWMemes.RemoveAt(0);
+                        nonNSFWMemes.Add(post);
+                    }
                 }
         }
 
@@ -140,7 +146,7 @@ namespace KunalsDiscordBot.Reddit
                 return;
 
             foreach (var post in e.Added)
-                if (post.Listing.URL.EndsWith(".png") || post.Listing.URL.EndsWith(".jpeg") || post.Listing.URL.EndsWith(".gif"))
+                if (post.IsValidDiscordPost())
                 {
                     animals.RemoveAt(0);//cycle
                     animals.Add(post);
@@ -153,7 +159,7 @@ namespace KunalsDiscordBot.Reddit
                 return;
 
             foreach (var post in e.Added)
-                if (post.Listing.URL.EndsWith(".png") || post.Listing.URL.EndsWith(".jpeg") || post.Listing.URL.EndsWith(".gif"))
+                if (post.IsValidDiscordPost())
                 {
                     awww.RemoveAt(0);//cycle
                     awww.Add(post);

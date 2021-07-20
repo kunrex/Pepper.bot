@@ -73,7 +73,7 @@ namespace KunalsDiscordBot.Help
             IsCommand = true;
 
             Title = Format(command.Name);
-            Description = $"**Description**: {command.Description}\n**Usage**: pep {command.Parent.Name} {command.Name} [comand parameters]";
+            Description = $"**Description**: {command.Description}\n**Usage**: pep {(command.Parent == null ? "" : command.Parent.Name)} {command.Name} [comand parameters]";
 
             string aliases = GetAliases(command.Aliases);
             if (aliases == string.Empty || string.IsNullOrWhiteSpace(aliases))
