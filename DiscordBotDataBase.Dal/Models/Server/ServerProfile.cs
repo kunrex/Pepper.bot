@@ -14,14 +14,13 @@ namespace DiscordBotDataBase.Dal.Models.Servers
         public List<Rule> Rules  {get; set; } = new List<Rule>();
 
         public int RestrictPermissionsToAdmin { get; set; } = 1;
+        public int LogErrors { get; set; } = 1;
+        public int LogNewMembers { get; set; } = 1;
+        public long LogChannel { get; set; } = 1;
 
         public int AllowNSFW { get; set; } = 0;
 
         public int UseDJRoleEnforcement { get; set; } = 0;
         public long DJRoleId { get; set; } = 0;
-
-        public int LogErrors { get; set; } = 1;
-        public int LogNewMembers { get; set; } = 1;
-        public long LogChannel { get; set; } = 1;
     }
 }

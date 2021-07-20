@@ -18,6 +18,7 @@ using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Attributes.GeneralCommands;
 using KunalsDiscordBot.Core.Exceptions;
 using DSharpPlus.Interactivity;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -247,6 +248,7 @@ namespace KunalsDiscordBot.Modules.General
         [Aliases("ConfigPerms", "Perms")]
         [Description("Changes if only an administrator can change the config data of the bot per server. This command can only be run by an Administrator")]
         [RequireUserPermissions(DSharpPlus.Permissions.Administrator)]
+        [ConfigData(ConfigData.EnforcePermissions)]
         public async Task ToggleAdminPermission(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -263,7 +265,7 @@ namespace KunalsDiscordBot.Modules.General
         [Command("ToggleNSFW")]
         [Aliases("NSFW")]
         [Description("Changes wether or not NSFW content is allowed in the server")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.AllowNSFW)]
         public async Task ToggleNSFW(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -280,7 +282,7 @@ namespace KunalsDiscordBot.Modules.General
         [Command("ToggleDJ")]
         [Aliases("DJ")]
         [Description("Changes wether or not the DJ role should be enforced for music commands")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.DJEnfore)]
         public async Task ToggeDJ(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -296,7 +298,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("DJRole")]
         [Description("Assigns the DJ role for a server")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.DJRole)]
         public async Task DJRole(CommandContext ctx, DiscordRole role)
         {
             var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
@@ -319,7 +321,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogErrors")]
         [Description("If true, a message is sent if an error happens during command execution")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.LogErrors)]
         public async Task LogErrors(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleLogErrors(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -335,7 +337,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogNewMembers")]
         [Description("If true, a message is sent if a new member joins or or a member leaves the server")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.LogMembers)]
         public async Task LogNewMembers(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleNewMemberLog(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -351,7 +353,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogChannel")]
         [Description("Assigns the log channel for a server")]
-        [CheckConfigPerms]
+        [CheckConfigPerms, ConfigData(ConfigData.LogChannel)]
         public async Task LogChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetLogChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);

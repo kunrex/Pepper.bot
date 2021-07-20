@@ -19,6 +19,7 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Exceptions;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Net.Models;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
@@ -65,7 +66,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("SetModRole")]
         [Description("Assigns the moderator role for the server. This command can only be ran by an administrator")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.ModRole)]
         public async Task SetModRole(CommandContext ctx, DiscordRole role)
         {
             await serverService.SetModeratorRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);

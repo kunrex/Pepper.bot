@@ -16,6 +16,7 @@ using System.Reflection;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
@@ -337,7 +338,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("SetMuteRole")]
         [Description("Sets the mute role of a server")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.MutedRole)]
         public async Task SetMuteRole(CommandContext ctx, DiscordRole role)
         {
             await serverService.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
@@ -514,7 +515,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("AddRule")]
         [Description("Add a rule in the server")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleCount)]
         public async Task AddRule(CommandContext ctx, [RemainingText] string rule)
         {
             var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
@@ -548,7 +549,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RemoveRule")]
         [Description("Add a rule in the server")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleCount)]
         public async Task RemoveRule(CommandContext ctx, int index)
         {
             var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
@@ -584,7 +585,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RuleChannel")]
         [Description("Assigns the rule channel for a server")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleChannel)]
         public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
