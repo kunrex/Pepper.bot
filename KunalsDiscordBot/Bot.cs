@@ -114,7 +114,11 @@ namespace KunalsDiscordBot
 
         private async void ConnectAsync(DiscordClient client, LavalinkExtension lavaLink, LavalinkConfiguration config)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(new DiscordActivity
+            {
+                Name = "pep help",
+                ActivityType = ActivityType.Playing,
+            });
 
             try
             {
@@ -138,7 +142,7 @@ namespace KunalsDiscordBot
             var modService = (IModerationService)services.GetService(typeof(IModerationService));
             var serverService = (IServerService)services.GetService(typeof(IServerService));
 
-            foreach (var guild in client.Guilds.Where(x => (x.Value.Permissions & Permissions.Administrator)== Permissions.Administrator))//all servers where the bot is an admin
+            foreach (var guild in client.Guilds.Where(x => x.Value.Permissions.HasValue).Where(x => (x.Value.Permissions & Permissions.Administrator) == Permissions.Administrator))//all servers where the bot is an admin
             {
                 foreach(var mute in await modService.GetMutes(guild.Value.Id))
                 {
@@ -192,10 +196,30 @@ namespace KunalsDiscordBot
             { }
             else if (exception is ChecksFailedException cfe)
             {
+                string title = string.Empty, description = string.Empty;
+
+                if (cfe.FailedChecks.FirstOrDefault(x => x is RequireBotPermissionsAttribute) != null)
+                {
+                    title = "Permission denied";
+                    description = $"The bot lacks the permissions necessary to run this command.";
+                }
+                else if(cfe.FailedChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute) != null)
+                {
+                    title = "Permission denied";
+                    description = $"You lack the permissions necessary to run this command.";
+                }
+                else if(cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute) != null)
+                {
+                    title = "Chill out";
+                    var casted = (CooldownAttribute)cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute);
+
+                    description = $"You just used this command and can use it after this much time:\n{casted.GetRemainingCooldown(e.Context)}";
+                }
+
                 embed = new DiscordEmbedBuilder
                 {
-                    Title = "Permission denied",
-                    Description = $"Either you or the bot lacks the permissions necessary to run this command.",
+                    Title = title,
+                    Description = description,
                     Color = DiscordColor.Red
                 };
             }

@@ -27,6 +27,8 @@ namespace KunalsDiscordBot.Reddit
         private List<Post> animals { get; set; } = new List<Post>();
         private List<Post> awww { get; set; } = new List<Post>();
 
+        private readonly bool isOnline = false;
+
         public RedditApp()
         {
             client = new RedditClient(appId: configuration.appId, appSecret: configuration.appSecret, refreshToken: configuration.refreshToken);
@@ -36,6 +38,7 @@ namespace KunalsDiscordBot.Reddit
             awww = SubRedditSetUp("aww", (s, e) => OnAwwPostAdded(s, e));
 
             nonNSFWMemes = memes.Where(x => !x.NSFW).ToList();
+            isOnline = true;
         }
 
         public Subreddit GetSubReddit(string subreddit)
@@ -123,7 +126,7 @@ namespace KunalsDiscordBot.Reddit
 
         public void OnMemePostAdded(object sender, PostsUpdateEventArgs e)
         {
-            if (memes == null)
+            if (!isOnline)
                 return;
 
             foreach (var post in e.Added)
@@ -142,7 +145,7 @@ namespace KunalsDiscordBot.Reddit
 
         public void OnAnimalPostAdded(object sender, PostsUpdateEventArgs e)
         {
-            if (animals == null)
+            if (!isOnline)
                 return;
 
             foreach (var post in e.Added)
@@ -155,7 +158,7 @@ namespace KunalsDiscordBot.Reddit
 
         public void OnAwwPostAdded(object sender, PostsUpdateEventArgs e)
         {
-            if (awww == null)
+            if (!isOnline)
                 return;
 
             foreach (var post in e.Added)

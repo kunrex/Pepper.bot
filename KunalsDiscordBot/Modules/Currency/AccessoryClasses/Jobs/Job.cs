@@ -10,6 +10,8 @@ namespace KunalsDiscordBot.Modules.Currency.Jobs
 {
     public class Job
     {
+        public static readonly TimeSpan resignTimeSpan = TimeSpan.FromHours(12);
+
         public readonly string Name;
         public int minLvlNeeded;
 

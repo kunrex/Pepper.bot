@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.EventHandling;
+using KunalsDiscordBot.Modules.Games.Complex.UNO;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -11,19 +12,45 @@ namespace KunalsDiscordBot.Modules.Games
     {
         public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            var random = new Random();
-
-            int n = list.Count;
-            while (n > 1)
+            for (int i = 0; i < 3; i++)
             {
-                n--;
-                int k = random.Next(n + 1);
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
+                var random = new Random();
+
+                int n = list.Count;
+                while (n > 1)
+                {
+                    n--;
+                    int k = random.Next(n + 1);
+                    T value = list[k];
+                    list[k] = list[n];
+                    list[n] = value;
+                }
             }
 
             return list;
+        }
+
+        public static IList<T> GetElemantsWithIndex<T>(this IList<T> list, int[] indexs)
+        {
+            var newList = new List<T>();
+
+            for (int i = 0; i < list.Count; i++)
+                if (indexs.Contains(i))
+                    newList.Add(list[i]);
+
+            return newList;
+        }
+
+        public static bool HasDuplicates<T>(this IList<T> list) => list.Count != list.Distinct().ToList().Count;
+
+        public static StackType AsStackType(this CardType type)
+        {
+            if (type == CardType.Skip)
+                return StackType.skip;
+            else if (type == CardType.plus2 || type == CardType.plus2)
+                return StackType.cards;
+            else
+                return StackType.none;
         }
     }
 }

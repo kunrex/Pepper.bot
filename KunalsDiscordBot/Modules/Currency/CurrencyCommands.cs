@@ -21,13 +21,23 @@ using KunalsDiscordBot.DialogueHandlers.Steps;
 
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Exceptions;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
+    enum TimeSpanEnum
+    {
+        Minute = 60,
+        Hour = 3600,
+        Day = 86400
+    }
+
+    //(int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
+
     [Group("Currency")]
-    [DecorAttribute("Gold", ":coin:")]
+    [Decor("Gold", ":coin:")]
     [Description("A currency system!")]
-    public class CurrencyCommands : BaseCommandModule
+    public partial class CurrencyCommands : BaseCommandModule
     {
         private readonly IProfileService service;
         private const string coinsEmoji = ":coin:";
@@ -49,19 +59,134 @@ namespace KunalsDiscordBot.Modules.Currency
 
         public CurrencyCommands(IProfileService _service) => service = _service;
 
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var requireProfile = ctx.Command.CustomAttributes.FirstOrDefault(x => x is RequireProfileAttribute) != null;
+            if(requireProfile)
+            {
+                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username, false);
+
+                if (profile == null)
+                {
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Description = "You need a profile to run this command",
+                        Footer = BotService.GetEmbedFooter("Use the `currency profile` command to create a profile"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+            }
+
+            var jobCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is RequireJobAttribute);
+            if(jobCheck != null)
+            {
+                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+                if (profile.Job.Equals("None") && ((RequireJobAttribute)jobCheck).require)
+                {
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Description = "You need a job to run this command",
+                        Footer = BotService.GetEmbedFooter("Use the \"currency hire\" command to get a job"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+                else if(!profile.Job.Equals("None") && !((RequireJobAttribute)jobCheck).require)
+                {
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Description = "You should not have a job to run this command",
+                        Footer = BotService.GetEmbedFooter("Use the `currency resign` command to resign from your job"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+            }
+
+            var checkWorkDate = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckWorkDateAttribute) != null;
+            if(checkWorkDate)
+            {
+                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+                var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
+
+                if (DateTime.TryParse(profile.PrevWorkDate, out var x))
+                {
+                    var prevDate = DateTime.Parse(profile.PrevWorkDate);
+
+                    var timeSpan =  DateTime.Now - prevDate;
+                    if (timeSpan.TotalHours < (profile.Job == "None" ? Job.resignTimeSpan.TotalHours : job.CoolDown))
+                    {
+                        await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                        {
+                            Title = "Chill out",
+                            Description = profile.Job == "None" ? $"You just resigned and its only been {timeSpan}, gotta wait {Job.resignTimeSpan} hours before you can apply again" : $"Its only been {timeSpan} since your last shift, {job.CoolDown} hours is the minimum time.",
+                            Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                            Color = Color
+                        }).ConfigureAwait(false);
+
+                        throw new CustomCommandException();
+                    }
+                }
+            }
+
+            await base.BeforeExecutionAsync(ctx);
+        }
+
+        [Command("profile")]
+        [Description("Gets the profile of he user")]
+        public async Task GetProfile(CommandContext ctx)
+        {
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username, true);
+
+            if(profile == null)
+            {
+                var nullEmbed = new DiscordEmbedBuilder
+                {
+                    Title = ctx.Member.Username,
+                    Description = "Does not have an account",
+                    Color = Color
+                };
+
+                await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
+
+                return;
+            }
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = profile.Name,
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Color = DiscordColor.Gold
+            }.AddField("ID: ", profile.DiscordUserID.ToString())
+             .AddField("Coins: ", $"{profile.Coins} {coinsEmoji}")
+             .AddField("Bank: ", $"{profile.CoinsBank} {coinsEmoji} (max: {profile.CoinsBankMax})");
+
+            embed.AddField("Level: ", $"{profile.Level}");
+            embed.AddField("Job: ", profile.Job);
+
+            string boosts = string.Empty;
+            int index = 1;
+            foreach (var boost in await service.GetBoosts(ctx.Member.Id))
+            {
+                boosts += $"{index}. {boost.BoosteName}\n";
+                index++;
+            }
+            embed.AddField("Boosts:\n", boosts == string.Empty ? "None" : boosts);
+
+            await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
+        }
+
         [Command("profile")]
         [Description("Gets the profile of he user")]
         public async Task GetProfile(CommandContext ctx, DiscordMember member = null)
         {
-            member = member == null ? ctx.Member : member;
-            bool sameMember = true;
+            var profile = await service.GetProfile(member.Id, member.Username, false);
 
-            if (member.Id != ctx.Member.Id)
-                sameMember = false;
-
-            var profile = await service.GetProfile(member.Id, member.Username, sameMember);
-
-            if(profile == null)
+            if (profile == null)
             {
                 var nullEmbed = new DiscordEmbedBuilder
                 {
@@ -75,26 +200,16 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = member.AvatarUrl,
-                Height = ThumbnailSize,
-                Width = ThumbnailSize
-            };
-
             var embed = new DiscordEmbedBuilder
             {
                 Title = profile.Name,
-                Thumbnail = thumbnail,
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
                 Color = DiscordColor.Gold
-            };
+            }.AddField("ID: ", profile.DiscordUserID.ToString())
+             .AddField("Coins: ", $"{profile.Coins} {coinsEmoji}")
+             .AddField("Bank: ", $"{profile.CoinsBank} {coinsEmoji} (max: {profile.CoinsBankMax})");
 
-            embed.AddField("ID: ", profile.DiscordUserID.ToString());
-            embed.AddField("Coins: ", $"{profile.Coins} {coinsEmoji}");
-            embed.AddField("Bank: ", $"{profile.CoinsBank} {coinsEmoji} (max: {profile.CoinsBankMax})");
-
-            int level = service.GetLevel(profile);
-            embed.AddField("Level: ", $"{level}");
+            embed.AddField("Level: ", $"{profile.Level}");
             embed.AddField("Job: ", profile.Job);
 
             string boosts = string.Empty;
@@ -112,30 +227,26 @@ namespace KunalsDiscordBot.Modules.Currency
         [Command("Deposit")]
         [Aliases("dep")]
         [Description("Deposits Money into the bank")]
+        [RequireProfile]
         public async Task Deposit(CommandContext ctx, string amount)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+            var difference = profile.CoinsBankMax - profile.CoinsBank;
 
-            var coins = profile.Coins;
-            var coinsBank = profile.CoinsBank;
-            var maxBank = profile.CoinsBankMax;
-            var difference = maxBank - coinsBank;
-
-            if (coinsBank == maxBank)
+            if (profile.CoinsBank == profile.CoinsBankMax)
             {
                 await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} your bank is full");
                 return;
             }
-            else if (coins <= 0)
+            else if (profile.Coins <= 0)
             {
                 await ctx.Channel.SendMessageAsync($"your wallet is empty");
                 return;
             }
 
-
             if (amount.ToLower().Equals("max"))
             {
-                var toDep = System.Math.Min(difference, coins);
+                var toDep = System.Math.Min(difference, profile.Coins);
 
                 await service.ChangeCoinsBank(ctx.Member.Id, toDep);
                 await service.ChangeCoins(ctx.Member.Id, -toDep);
@@ -148,7 +259,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 if(toDep > difference)
                 {
-                    await ctx.Channel.SendMessageAsync("Don't try to break the bot");
+                    await ctx.Channel.SendMessageAsync("You can't deposit more than your bank can hold?");
                     return;
                 }
 
@@ -158,31 +269,35 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.Channel.SendMessageAsync($"Deposited {toDep} {coinsEmoji}");
             }
             else
-                await ctx.Channel.SendMessageAsync("Don't try to break the bot");
+                await ctx.Channel.SendMessageAsync("Your amount wasn't even a number?");
         }
 
         [Command("Withdraw")]
         [Aliases("with")]
         [Description("Withdraws Money into the bank")]
+        [RequireProfile]
         public async Task Withdraw(CommandContext ctx, string amount)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
-            var coins = profile.Coins;
-            var coinsBank = profile.CoinsBank;
+            if(profile.CoinsBank <= 0)
+            {
+                await ctx.Channel.SendMessageAsync("Your bank is empty?");
+                return;
+            }
 
             if (amount.ToLower().Equals("max"))
             {
-                await service.ChangeCoinsBank(ctx.Member.Id, -coinsBank);
-                await service.ChangeCoins(ctx.Member.Id, coinsBank);
+                await service.ChangeCoinsBank(ctx.Member.Id, -profile.CoinsBank);
+                await service.ChangeCoins(ctx.Member.Id, profile.CoinsBank);
 
-                await ctx.Channel.SendMessageAsync($"Withdrawed max({coinsBank} {coinsEmoji})");
+                await ctx.Channel.SendMessageAsync($"Withdrawed max({profile.CoinsBank} {coinsEmoji})");
             }
             else if (int.TryParse(amount, out int x))
             {
                 var toWith = int.Parse(amount);
 
-                if (toWith > coinsBank)
+                if (toWith > profile.CoinsBank)
                 {
                     await ctx.Channel.SendMessageAsync("Don't try to break the bot");
                     return;
@@ -199,6 +314,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Lend")]
         [Description("Lend another user money")]
+        [RequireProfile]
         public async Task Lend(CommandContext ctx, DiscordMember member, string amount)
         {
             if (member.Id == ctx.Member.Id)
@@ -261,171 +377,62 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Daily")]
         [Description("Log in daily to collect some coins")]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.Global)]
         public async Task Daily(CommandContext ctx)
         {
-            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username).ConfigureAwait(false); ;
-
-            if (DateTime.TryParse(profile.PrevLogDate, out var x))
-            {
-                var prevDate = DateTime.Parse(profile.PrevLogDate);
-
-                var timeSpan = DateTime.Now - prevDate;
-                if (timeSpan.TotalDays < 1)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Title = "Chill out",
-                        Description = $"Its only been {timeSpan.TotalHours} hours since you've used this command",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                        {
-                            Height = ThumbnailSize,
-                            Width = ThumbnailSize,
-                            Url = ctx.Member.AvatarUrl
-                        },
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-            }
-
             var coins = new Random().Next(dailyMin, dailyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
-            await service.ChangeLogDate(ctx.Member.Id, 0, DateTime.Now).ConfigureAwait(false); 
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Daily Coins",
                 Description = $"{coins} {coinsEmoji}, Here are your coins for the day.",
                 Color = Color,
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
-                    Url = ctx.Member.AvatarUrl
-                },
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             }).ConfigureAwait(false);
         }
 
         [Command("Weekly")]
         [Description("Log in weekly to collect some coins")]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day * 7, CooldownBucketType.Global)]
         public async Task Weekly(CommandContext ctx)
         {
-            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username).ConfigureAwait(false); ;
-
-            if (DateTime.TryParse(profile.PrevMonthlyLogDate, out var x))
-            {
-                var prevDate = DateTime.Parse(profile.PrevMonthlyLogDate);
-
-                var timeSpan = DateTime.Now - prevDate;
-                if (timeSpan.TotalDays < 7)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Title = "Chill out",
-                        Description = $"Its only been {timeSpan.TotalDays} days since you've used this command",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                        {
-                            Height = ThumbnailSize,
-                            Width = ThumbnailSize,
-                            Url = ctx.Member.AvatarUrl
-                        },
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-            }
-
             var coins = new Random().Next(weeklyMin, weeklyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
-            await service.ChangeLogDate(ctx.Member.Id, 1, DateTime.Now).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Weekly Coins",
                 Description = $"{coins} {coinsEmoji}, Here are your coins for the week.",
                 Color = Color,
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
-                    Url = ctx.Member.AvatarUrl
-                },
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
             }).ConfigureAwait(false);
         }
 
         [Command("Monthly")]
         [Description("Log in monthly to collect some coins, for simplcity a month is averegaed to 30 days")]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day * 30, CooldownBucketType.Global)]
         public async Task Monthly(CommandContext ctx)
         {
-            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username).ConfigureAwait(false); ;
-
-            if (DateTime.TryParse(profile.PrevMonthlyLogDate, out var x))
-            {
-                var prevDate = DateTime.Parse(profile.PrevMonthlyLogDate);
-
-                var timeSpan = DateTime.Now - prevDate;
-                if (timeSpan.TotalDays < 30)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Title = "Chill out",
-                        Description = $"Its only been {timeSpan.TotalDays} days since you've used this command",
-                        Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                        {
-                            Height = ThumbnailSize,
-                            Width = ThumbnailSize,
-                            Url = ctx.Member.AvatarUrl
-                        },
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-            }
-
             var coins = new Random().Next(monthlyMin, monthlyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); ;
-            await service.ChangeLogDate(ctx.Member.Id, 2, DateTime.Now).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Monthly Coins",
                 Description = $"{coins} {coinsEmoji}, Here are your coins for the monthly.",
                 Color = Color,
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
-                    Url = ctx.Member.AvatarUrl
-                },
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
             }).ConfigureAwait(false);
         }
 
         [Command("SafeMode")]
         [Aliases("sm")]
         [Description("Toggles safe mode")]
+        [RequireProfile]
         public async Task SafeMode(CommandContext ctx)
         {
-            bool completed = await service.ToggleSafeMode(ctx.Member.Id).ConfigureAwait(false);
-            if(!completed)
-            {
-                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                {
-                    Description = "You don't have an account",
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize,
-                        Url = ctx.Member.AvatarUrl
-                    },
-                    Color = Color
-                });
-
-                return;
-            }
-
+            await service.ToggleSafeMode(ctx.Member.Id).ConfigureAwait(false);
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
             await ctx.RespondAsync($"Safe mode set to {profile.SafeMode == 1}").ConfigureAwait(false);
@@ -438,7 +445,7 @@ namespace KunalsDiscordBot.Modules.Currency
             var jobs = Job.AllJobs;
 
             string description = string.Empty;
-            int level = await service.GetLevel(ctx.Member.Id);
+            int level = (await service.GetProfile(ctx.Member.Id, ctx.Member.Username)).Level;
 
             for (int i = 0; i < jobs.Length; i++)
             {
@@ -446,68 +453,40 @@ namespace KunalsDiscordBot.Modules.Currency
                 description += $"{i + 1}. {(level < job.minLvlNeeded ? cross : tick)} **{job.Name}** {job.Emoji}\n `Min Level:` {job.minLvlNeeded}\n `Avg wage:` {((job.SucceedMax + job.SucceedMin) / 2)}\n\n";
             }
 
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = ctx.Member.AvatarUrl,
-                Width = ThumbnailSize,
-                Height = ThumbnailSize
-            };
-
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Job List",
                 Description = description,
                 Color = Color,
-                Thumbnail = thumbnail
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Footer = BotService.GetEmbedFooter("Use the \"currency hire\" command to get a job")
+            }).ConfigureAwait(false);
         }
 
         [Command("Hire")]
         [Description("Apply for a job")]
+        [RequireProfile, RequireJob(false), CheckWorkDate]
         public async Task Hire(CommandContext ctx, string jobName)
         {
             var job = Job.AllJobs.FirstOrDefault(x => x.Name.ToLower() == jobName.ToLower());
-
             if (job == null)
                 await ctx.Channel.SendMessageAsync("The given job was not found");
 
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
-            var level = service.GetLevel(profile);
+            int level = (await service.GetProfile(ctx.Member.Id, ctx.Member.Username)).Level;
 
-            if(!profile.Job.Equals("None"))
-            {
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} you already have a job, use the resign command to resign");
-                return;
-            }
-            else if(level < job.minLvlNeeded)
+            if (level < job.minLvlNeeded)
             {
                 await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} the min level needed for the job is {job.minLvlNeeded}, you're level is {level}");
                 return;
             }
-
-            bool completed = await service.ChangeJob(ctx.Member.Id, job.Name);
-
-            if (!completed)
-            {
-                await ctx.Channel.SendMessageAsync("You need a profile to run this command, if you have one something must have gone wrong.").ConfigureAwait(false);
-                return;
-            }
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = ctx.Member.AvatarUrl,
-                Width = ThumbnailSize,
-                Height = ThumbnailSize
-            };
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Cogratulations",
                 Description = $"{ctx.Member.Mention} you have been hired. \nUse the work command to earn some money.",
                 Color = Color,
-                Thumbnail = thumbnail
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -515,88 +494,36 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Resign")]
         [Description("Resign from a job")]
+        [RequireProfile, RequireJob]
         public async Task Resign(CommandContext ctx)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
             var prevJob = profile.Job;
 
-            if (profile == null)
-                await ctx.Channel.SendMessageAsync("You need a profile to run this command");
-
-            if (profile.Job.Equals("None"))
-            {
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} you're not employed");
-                return;
-            }
-
-            bool completed = await service.ChangeJob(ctx.Member.Id, "None");
-
-            if (!completed)
-            {
-                await ctx.Channel.SendMessageAsync("Something went wrong").ConfigureAwait(false);
-                return;
-            }
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = ctx.Member.AvatarUrl,
-                Width = ThumbnailSize,
-                Height = ThumbnailSize
-            };
+            await service.ChangeJob(ctx.Member.Id, "None");
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Resigned",
                 Description = $"{ctx.Member.Mention} has resigned from being a {prevJob}",
                 Color = Color,
-                Thumbnail = thumbnail
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            await service.ChangePreviousWorkData(ctx.Member.Id, DateTime.Now);
         }
 
         Func<int, int, int> GenerateRandom = (int min, int max) => new Random().Next(min, max);
 
         [Command("Work")]
         [Description("Want to make some money?")]
+        [RequireProfile, RequireJob, CheckWorkDate]
         public async Task Work(CommandContext ctx)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
-            if (profile.Job.Equals("None"))
-            {
-                await ctx.Channel.SendMessageAsync("You don't have a job, use the joblist command to list them");
-                return;
-            }
-
             var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Height = ThumbnailSize,
-                Width = ThumbnailSize,
-                Url = ctx.Member.AvatarUrl
-            };
-
-            var steps = await job.GetWork(Color, thumbnail);
-
-            if (DateTime.TryParse(profile.PrevWorkDate, out var x))
-            {
-                var prevDate = DateTime.Parse(profile.PrevWorkDate);
-
-                var timeSpan = DateTime.Now - prevDate;
-                if (timeSpan.TotalHours < job.CoolDown)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Title = "Chill out",
-                        Description = $"Its only been {timeSpan} since your last shift, {job.CoolDown} hours is the minimum time.",
-                        Thumbnail = thumbnail,
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-            }
+            var steps = await job.GetWork(Color, BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize));     
 
             DialogueHandlerConfig config = new DialogueHandlerConfig
             {
@@ -616,11 +543,11 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = completed ? "Good Job" : "Time Out",
                 Description = completed ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
                 Color = Color,
-                Thumbnail = thumbnail
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             };
 
             await service.ChangeCoins(ctx.Member.Id, money);
-            await service.ChangeLogDate(ctx.Member.Id, 3, DateTime.Now);
+            await service.ChangePreviousWorkData(ctx.Member.Id, DateTime.Now);
 
             await ctx.Channel.SendMessageAsync(embed: completedEmbed).ConfigureAwait(false);
         }
@@ -690,6 +617,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Buy")]
         [Description("Buy an item")]
+        [RequireProfile]
         public async Task BuyItem(CommandContext ctx, int quantity, [RemainingText]string itemName)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
@@ -723,6 +651,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Sell")]
         [Description("Sell an item")]
+        [RequireProfile]
         public async Task Sell(CommandContext ctx, int quantity, [RemainingText] string itemName)
         {
             var result = Shop.GetItem(itemName);
@@ -758,6 +687,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Gift")]
         [Description("Gift items to other members")]
+        [RequireProfile]
         public async Task Gift(CommandContext ctx, DiscordMember member, int number, [RemainingText]string itemName)
         {
             var other = service.GetProfile(member.Id, member.Username, false);
@@ -785,12 +715,10 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Inventory")]
         [Description("Shows your inventory")]
-        public async Task ShowInventory(CommandContext ctx, DiscordMember member = null)
+        [RequireProfile]
+        public async Task ShowInventory(CommandContext ctx)
         {
-            member = member == null ? ctx.Member : member;
-
-            var items = await service.GetItems(member.Id);
-
+            var items = await service.GetItems(ctx.Member.Id);
             string descripton = string.Empty;
 
             int index = 1;
@@ -800,26 +728,60 @@ namespace KunalsDiscordBot.Modules.Currency
                 index++;
             }
 
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+            var embed = new DiscordEmbedBuilder
             {
-                Height = ThumbnailSize,
-                Width = ThumbnailSize,
-                Url = member.AvatarUrl
+                Title = $"{ctx.Member.Username}'s Inventory",
+                Description = descripton,
+                Color = Color,
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             };
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("Inventory")]
+        public async Task ShowOtherInventory(CommandContext ctx, DiscordMember member = null)
+        {
+            var profile = await service.GetProfile(member.Id, member.Username, false);
+
+            if (profile == null)
+            {
+                var nullEmbed = new DiscordEmbedBuilder
+                {
+                    Title = member.Username,
+                    Description = "Does not have an account",
+                    Color = Color
+                };
+
+                await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
+
+                return;
+            }
+
+            var items = await service.GetItems(member.Id);
+            string descripton = string.Empty;
+
+            int index = 1;
+            foreach (var item in items)
+            {
+                descripton += $"{index}. {item.Name}\n  Quantity: {item.Count}\n\n";
+                index++;
+            }
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"{member.Username}'s Inventory",
                 Description = descripton,
                 Color = Color,
-                Thumbnail = thumbnail
+                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("Use")]
-        [Description("Shows your inventory")]
+        [Description("Use an item")]
+        [RequireProfile]
         public async Task Use(CommandContext ctx, [RemainingText] string itemName)
         {
             var item = Shop.GetItem(itemName);
@@ -862,7 +824,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Meme")]
         [Description("The currency meme command")]
-        [PresenceItem(Shops.Items.PresenceData.PresenceCommand.Meme)]
+        [RequireProfile, PresenceItem(Shops.Items.PresenceData.PresenceCommand.Meme)]
         public async Task Meme(CommandContext ctx)
         {
             var itemNeed = Shop.GetPresneceItem(ctx);

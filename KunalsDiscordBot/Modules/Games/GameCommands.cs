@@ -14,6 +14,7 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Modules.Games.Simple;
 using KunalsDiscordBot.Modules.Games.Complex;
 using KunalsDiscordBot.Services.Images;
+using System.Linq;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -39,8 +40,6 @@ namespace KunalsDiscordBot.Modules.Games
             }
 
             ConnectFour connect = new ConnectFour(ctx, ctx.User, other, numberOfCells);
-
-            await ctx.Channel.SendMessageAsync("").ConfigureAwait(false);
         }
 
         [Command("TicTacToe")]
@@ -59,8 +58,6 @@ namespace KunalsDiscordBot.Modules.Games
             }
 
             TicTacToe tictactoe = new TicTacToe(ctx, ctx.User, other, numberOfCells);
-
-            await ctx.Channel.SendMessageAsync("").ConfigureAwait(false);
         }
 
         [Command("BattleShip")]
@@ -85,7 +82,7 @@ namespace KunalsDiscordBot.Modules.Games
 
             BattleShip battleShip = new BattleShip(ctx.Member, other, ctx.Client);
 
-            var message = await ctx.Channel.SendMessageAsync("Started").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync("Started").ConfigureAwait(false);
         }
 
         //AI
@@ -105,8 +102,6 @@ namespace KunalsDiscordBot.Modules.Games
             }
 
             RockPaperScissor rockPaperScissor = new RockPaperScissor(optionToInt, ctx);
-
-            await ctx.Channel.SendMessageAsync("").ConfigureAwait(false);
         }
 
         //1v1 Multiplayer
@@ -151,12 +146,28 @@ namespace KunalsDiscordBot.Modules.Games
         }
 
         [Command("UNO")]
+        [Description("Play UNO with server members!")]
         public async Task UNO(CommandContext ctx)
         {
-            UNOGame game = new UNOGame(new List<DiscordMember>
+            var message = await ctx.Channel.SendMessageAsync($"Who wants to join in for a game of UNO? React with :arrow_up: on this message to join. Reactions are collected for 1 minute");
+            var emoji = DiscordEmoji.FromName(ctx.Client, ":arrow_up:");
+            await message.CreateReactionAsync(emoji);
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            var interactivity = ctx.Client.GetInteractivity();
+
+            var result = await interactivity.CollectReactionsAsync(message, TimeSpan.FromSeconds(10));
+            await ctx.Channel.SendMessageAsync("Time Up");
+            if (result.Count < 2)
             {
-                ctx.Member
-            }, ctx.Client);
+                await ctx.Channel.SendMessageAsync("Well not enough ppl joined so ba bai");
+                return;
+            }
+
+            var players = result.Where(x => x.Emoji == emoji).Select(x => x.Users.ElementAt(0)).ToList();
+            Console.WriteLine(players.Count);
+
+            UNOGame game = new UNOGame(players.Cast<DiscordMember>().ToList(), ctx.Client);
         }
 
         [Command("Spectate")]
@@ -174,7 +185,7 @@ namespace KunalsDiscordBot.Modules.Games
             switch(type)
             {
                 case var t when t == typeof(BattleShip):
-                    var match = BattleShip.currentGames.Find(x => x.players.Find(x => x.member.Id == ctx.Member.Id) != null);
+                    var match = BattleShip.currentGames.Find(x => x.players.Find(x => x.member.Id == user.Id) != null);
 
                     if (match == null)
                         await ctx.Channel.SendMessageAsync("Player isn't playing the specified game").ConfigureAwait(false);

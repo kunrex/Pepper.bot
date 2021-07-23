@@ -22,6 +22,20 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         protected override string GetFileName() => $"{cardColor}{cardNumber}.png";
         protected override string GetCardName() => $"{cardColor} {cardNumber}";
 
-        public override bool Stack(Card card) => base.Stack(card);
+        public override bool Stack(Card card)
+        {
+            if (!base.Stack(card))
+                return false;
+
+            return ((NumberCard)card).cardNumber == cardNumber;
+        }
+
+        public override bool ValidNextCardCheck(Card card)
+        {
+            if (!(card is NumberCard))
+                return false;
+
+            return cardNumber == ((NumberCard)card).cardNumber || card.cardColor == cardColor;
+        }
     }
 }

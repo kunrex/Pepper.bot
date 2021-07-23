@@ -18,10 +18,7 @@ namespace DiscordBotDataBase.Dal.Models.Profile
 
         public string Job { get; set; }
         public string PrevWorkDate { get; set; }
-
-        public string PrevLogDate { get; set; }
-        public string PrevWeeklyLogDate { get; set; }
-        public string PrevMonthlyLogDate { get; set; }
+        public int Level { get; set; } 
 
         public List<ItemDBData> Items { get; set; } = new List<ItemDBData>();
         public List<BoostData> Boosts { get; set; } = new List<BoostData>();

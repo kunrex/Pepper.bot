@@ -9,5 +9,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         }
 
         public override CardType stackables => CardType.Reverse;
+        public override bool ValidNextCardCheck(Card card) => card.cardType == CardType.Reverse || card.cardColor == cardColor;
     }
 }

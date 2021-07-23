@@ -37,11 +37,11 @@ namespace KunalsDiscordBot.Services.Currency
             }
         }
 
-        public async Task<Profile> GetProfile(ulong id, string name, bool sameMember = true)
+        public async Task<Profile> GetProfile(ulong id, string name, bool defaultCreate = false)
         {
             var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
 
-            if (profile == null && sameMember)
+            if (profile == null && defaultCreate)
                 profile = await CreateProfile(id, name);
 
             return profile;
@@ -58,11 +58,9 @@ namespace KunalsDiscordBot.Services.Currency
                 CoinsBank = 0,
                 CoinsBankMax = 100,
                 Job = "None",
-                PrevLogDate = "None",
-                PrevWeeklyLogDate = "None",
-                PrevMonthlyLogDate = "None",
                 PrevWorkDate = "None",
-                SafeMode = 0
+                SafeMode = 0,
+                Level = 1
             };
 
             var entityEntry = await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
@@ -153,6 +151,9 @@ namespace KunalsDiscordBot.Services.Currency
         public async Task<List<ItemDBData>> GetItems(ulong id)
         {
             var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+            if (profile == null)
+                return null;
+
             var items = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
 
             return items;
@@ -264,47 +265,6 @@ namespace KunalsDiscordBot.Services.Currency
             return boosts;
         }
 
-        public int GetLevel(Profile profile) => (int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
-
-        public async Task<int> GetLevel(ulong id)
-        {
-            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
-
-            if (profile == null)
-                return -1;
-
-            return (int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
-        }
-
-        public async Task<bool> ChangeLogDate(ulong id, int index, DateTime date)
-        {
-            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
-
-            if (profile == null)
-                return false;
-            switch(index)
-            {
-                case 0:
-                    profile.PrevLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
-                    break;
-                case 1:
-                    profile.PrevWeeklyLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
-                    break;
-                case 2:
-                    profile.PrevMonthlyLogDate = date.ToString("MM/dd/yyyy HH:mm:ss");
-                    break;
-                case 3:
-                    profile.PrevWorkDate = date.ToString("MM/dd/yyyy HH:mm:ss");
-                    break;
-            }
-
-            var updateEntry = context.UserProfiles.Update(profile);
-
-            await context.SaveChangesAsync();
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
         public async Task<bool> ToggleSafeMode(ulong id)
         {
             var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
@@ -318,6 +278,21 @@ namespace KunalsDiscordBot.Services.Currency
 
             updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
+            return true;
+        }
+
+        public async Task<bool> ChangePreviousWorkData(ulong id, DateTime date)
+        {
+            var profile = await context.UserProfiles.FirstOrDefaultAsync(x => x.DiscordUserID == (long)id);
+
+            if (profile == null)
+                return false;
+
+            profile.PrevWorkDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+            var updateEntry = context.UserProfiles.Update(profile);
+
+            await context.SaveChangesAsync();
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             return true;
         }
     }

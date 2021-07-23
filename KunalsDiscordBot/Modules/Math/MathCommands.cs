@@ -2,6 +2,7 @@
 using System;
 using System.Net;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 //D# name spaces
@@ -34,14 +35,39 @@ namespace KunalsDiscordBot.Modules.Math
         }
 
         [Command("Graph")]
-        [Description("Graph an equation. API used: https://denzven.pythonanywhere.com/")]
-        public async Task Graph(CommandContext ctx, [RemainingText] string equation) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        [Description("Graph an equation. Don't use spaces for the equations but spread out different attributes with spaces. API used: https://denzven.pythonanywhere.com/")]
+        public async Task Graph(CommandContext ctx, string equation, params string[] attributes)
         {
-            Title = "Graph",
-            ImageUrl = $"http://denzven.pythonanywhere.com/DenzGraphingApi/v1/flat_graph/test/plot?formula={Uri.EscapeDataString(equation)}",
-            Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName} (If theres no image, then an error occured. Check the formula and don't include spaces.)"),
-            Color = Color
-        });
+            string url = $"http://denzven.pythonanywhere.com/DenzGraphingApi/v1/flat_graph/test/plot?formula={Uri.EscapeDataString(equation)}";
+
+            foreach (var attribute in attributes)
+                url += $"&{attribute}";
+
+            using (WebClient wc = new WebClient())
+            {
+                var json = wc.DownloadString(url);
+
+                if (json[0] == '{')//error
+                {
+                    var jsonData = JsonSerializer.Deserialize<JsonData>(json);
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Title = "Graph",
+                        Color = Color
+                    }.AddField("Error", jsonData.error)
+                     .AddField("Error Id", jsonData.error_id)
+                     .AddField("Fix", jsonData.fix)).ConfigureAwait(false);
+                }
+                else
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Title = "Graph",
+                        ImageUrl = url,
+                        Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName}"),
+                        Color = Color
+                    });
+            }
+        }
 
         [Command("add")]
         [Description("Adds the given 2 numbers")]

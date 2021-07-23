@@ -8,11 +8,11 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO
 {
     public enum CardColor
     {
+        none,
         red,
         green,
         blue,
-        yellow,
-        none
+        yellow
     }
 
     [Flags]
@@ -43,6 +43,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO
 
         protected abstract string GetFileName();
         protected abstract string GetCardName();
+        public abstract bool ValidNextCardCheck(Card card);
 
         public virtual bool Stack(Card card) => (card.cardType & stackables) == card.cardType;
     }
