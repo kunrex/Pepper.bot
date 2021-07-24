@@ -58,7 +58,7 @@ $ git clone https://github.com/kunrex/Pepper.bot
 
 #### Creating the Config File
 5. Come back to the project on your system and find the folder called `KunalsDiscordBot` and create a new json file called `Config.json` exactly. You can change this name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
-```
+```json
 {
   "token": "paste your client token here from the developer portal here",
   "prefixes": [ "Assign the prefix' of your bot here" ],
@@ -101,7 +101,7 @@ We need 2 things from here, your `client app id` (The set of characters under `p
 #### Create the RedditConfig File
 5. After you have all 3 of this we can create the RedditConfig file. Find the folder `KunalsDiscordBot/Reddit/` and create a new json file called `RedditConfig.json` exactly. You can change the name later if needed. This is the config for your Reddit app which is used by Pepper. 
 Copy Paste the following lines into the json file and fill in the appropriate details wherever nececarry.
-```
+```json
 {
   "appId": "paste your app id here",
   "appSecret": "paste your app secret here",
