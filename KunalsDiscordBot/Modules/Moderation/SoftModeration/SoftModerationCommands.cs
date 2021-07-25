@@ -64,6 +64,38 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 }
             }
 
+            var checkMute = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckMuteRoleAttribute) != null;
+            if(checkMute)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+                var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
+
+                if (role == null)
+                {
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Description = $"There is no muted role stored for server: {ctx.Guild.Name}. Use the `soft moderation setmuterole` command to do so",
+                        Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+
+                var botMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+                if(botMember.GetHighest() < role.Position)
+                {
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
+                        Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+            }
+
             await base.BeforeExecutionAsync(ctx);
         }
 
@@ -408,130 +440,67 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         }
 
         [Command("Mute")]
-        [ModeratorNeeded]
         [Description("Mutes a member")]
+        [ModeratorNeeded, CheckMuteRole]
         public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "Unspecified")
         {
-            try
+            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+            var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
+
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
             {
-                var profile = await serverService.GetServerProfile(ctx.Guild.Id);
-                var mutedRoleId = (ulong)profile.MutedRoleId;
-                var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
+                await ctx.Channel.SendMessageAsync("Member is already muted");
+                return;
+            }
 
-                if (role == null)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Description = $"There is no muted role stored for server: {ctx.Guild.Name}. Use the `SetMuteRole` command to do so",
-                        Footer = new DiscordEmbedBuilder.EmbedFooter
-                        {
-                            Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                        },
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-
+            await member.GrantRoleAsync(role).ConfigureAwait(false);
+            int id = await modService.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+            BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
+            {
                 if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
-                {
-                    await ctx.Channel.SendMessageAsync("Member is already muted");
-                    return;
-                }
+                    Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
+            }).Execute();
 
-                await member.GrantRoleAsync(role).ConfigureAwait(false);
-                int id = await modService.AddMute(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
-                BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
-                {
-                    if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
-                        Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
-                }).Execute();
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Muted Member {member.DisplayName} [Id: {id}]",
-                    Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Reason: ", reason);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
-            }
-            catch
+            var embed = new DiscordEmbedBuilder
             {
-                await ctx.Channel.SendMessageAsync($"Cannot mute member, this is because the mute role is higher than the highest role I have").ConfigureAwait(false);
-            }
+                Title = $"Muted Member {member.DisplayName}",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+            };
+
+            embed.AddField("Reason: ", reason);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("Unmute")]
         [Description("Unmutes a member")]
-        [ModeratorNeeded]
+        [ModeratorNeeded, CheckMuteRole]
         public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unspecified")
         {
-            try
+            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+            var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
+
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) == null)
             {
-                var profile = await serverService.GetServerProfile(ctx.Guild.Id);
-                var mutedRoleId = (ulong)profile.MutedRoleId;
-
-                var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == mutedRoleId).Value;
-
-                if (role == null)
-                {
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-                    {
-                        Description = $"There is no muted role stored for server: {ctx.Guild.Name}. Use the `SetMuteRole` command to do so",
-                        Footer = new DiscordEmbedBuilder.EmbedFooter
-                        {
-                            Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                        },
-                        Color = Color
-                    }).ConfigureAwait(false);
-
-                    return;
-                }
-
-                if (member.Roles.FirstOrDefault(x => x.Id == role.Id) == null)
-                {
-                    await ctx.Channel.SendMessageAsync("Member isn't muted?");
-                    return;
-                }
-
-                await member.RevokeRoleAsync(role).ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Unmuted Member {member.DisplayName}",
-                    Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Reason: ", reason);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync("Member isn't muted?");
+                return;
             }
-            catch
+
+            await member.RevokeRoleAsync(role).ConfigureAwait(false);
+
+            var embed = new DiscordEmbedBuilder
             {
-                await ctx.Channel.SendMessageAsync($"Cannot unmute member, this is because the mute role is higher than the highest role I have").ConfigureAwait(false);
-            }
+                Title = $"Unmuted Member {member.DisplayName}",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+            };
+
+            embed.AddField("Reason: ", reason);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("GetMute")]

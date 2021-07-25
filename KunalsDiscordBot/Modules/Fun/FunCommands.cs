@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 //D# name spaces
 using DSharpPlus.CommandsNext;
@@ -220,7 +221,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [Command("LetMeGoogleThatForYou")]
         [Description("For those who can't google things for themselves")]
         [Aliases("Google")]
-        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("https://www.google.com/search?q=" + search).ConfigureAwait(false);
+        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("https://www.google.com/search?q=" + search.Replace(" ","+")).ConfigureAwait(false);
 
         [Command("Guess")]
         [Description("Guess a random number")]
@@ -351,7 +352,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [Description("Make the bot come alive!")]
         public async Task Ghost(CommandContext ctx, DiscordChannel channel = null)
         {
-            if(GhostPresence.presences.Find(x => x.guildId == ctx.Guild.Id || x.userID == ctx.Member.Id) != null)
+            if(GhostPresence.presences.FirstOrDefault(x => x.guildId == ctx.Guild.Id || x.userID == ctx.Member.Id) != null)
             {
                 await ctx.Channel.SendMessageAsync("There already is a ghost presence in this server or you have another presence in another server so point being you can't have 2").ConfigureAwait(false);
                 return;

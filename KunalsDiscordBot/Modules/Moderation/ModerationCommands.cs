@@ -44,41 +44,36 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task AddRole(CommandContext ctx, DiscordRole role, DiscordMember member)
         {
-            try
+            var botMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            if (botMember.GetHighest() < role.Position)
             {
-                if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
-                    await ctx.Channel.SendMessageAsync("Member already has the specified role");
-                    return;
-                }
+                    Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
+                    Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
+                    Color = Color
+                }).ConfigureAwait(false);
 
-                await member.GrantRoleAsync(role).ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Added Role",
-                    Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Role: ", role.Mention);
-                embed.AddField("From: ", member.Mention);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                return;
             }
-            catch
+
+            if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
             {
-                await ctx.Channel.SendMessageAsync($"Cannot add the specifed role from specified member.\nThis is because the the highest role I have is not higher than the given role").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync("Member already has the specified role");
+                return;
             }
+
+            await member.GrantRoleAsync(role).ConfigureAwait(false);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Added Role",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+            }.AddField("Role: ", role.Mention).AddField("From: ", member.Mention);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("RemoveRole")]
@@ -87,42 +82,36 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveRole(CommandContext ctx, DiscordRole role, DiscordMember member)
         {
-            try
+            var botMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            if (botMember.GetHighest() < role.Position)
             {
-
-                if (member.Roles.First(x => x.Id == role.Id) == null)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
-                    await ctx.RespondAsync("Member does not have the specified role");
-                    return;
-                }
+                    Description = $"The role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
+                    Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
+                    Color = Color
+                }).ConfigureAwait(false);
 
-                await member.RevokeRoleAsync(role).ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Removed role",
-                    Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Role: ", role.Mention);
-                embed.AddField("To: ", member.Mention);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                return;
             }
-            catch
+
+            if (member.Roles.First(x => x.Id == role.Id) == null)
             {
-                await ctx.Channel.SendMessageAsync($"Cannot remove the specifed role from specified member.\nThis is because the the highest role I have is not higher than the given role").ConfigureAwait(false);
+                await ctx.RespondAsync("Member does not have the specified role");
+                return;
             }
+
+            await member.RevokeRoleAsync(role).ConfigureAwait(false);
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"Removed Role",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+            }.AddField("Role: ", role.Mention).AddField("To: ", member.Mention);
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("Ban")]
