@@ -31,11 +31,7 @@ namespace KunalsDiscordBot.Services.Images
             return ((WithFileAttribute)attribute).fileName;
         }
 
-        public void GetImages(string filePath, out Image image, out Image saveImage)
-        {
-            image = Bitmap.FromFile(filePath);
-            saveImage = Bitmap.FromFile(filePath);
-        }
+        public void GetImages(string filePath, out Image image) => image = Bitmap.FromFile(filePath);
 
         public string[] GetSentences(string sentence, int num)
         {

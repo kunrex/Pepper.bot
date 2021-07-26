@@ -13,6 +13,8 @@ using KunalsDiscordBot.Attributes;
 
 using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
+using System.Drawing.Imaging;
+using System;
 
 namespace KunalsDiscordBot.Modules.Images
 {
@@ -35,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -46,18 +48,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("violence")]
@@ -71,7 +70,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -82,18 +81,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("billy")]
@@ -107,7 +103,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -118,18 +114,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("Right")]
@@ -143,7 +136,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -154,18 +147,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("Brother")]
@@ -184,7 +174,7 @@ namespace KunalsDiscordBot.Modules.Images
                 {other.AvatarUrl, 1 }
             });
 
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -195,18 +185,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawImage(service.ResizeImage(images[i], editData.size[i], editData.size[i]), editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("Yesno")]
@@ -220,7 +207,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -231,18 +218,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
 
         [Command("YesnoPewds")]
@@ -256,7 +240,7 @@ namespace KunalsDiscordBot.Modules.Images
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image, out Image saveImage);
+            service.GetImages(filePath, out Image image);
 
             Graphics graphics = Graphics.FromImage(image);
 
@@ -267,18 +251,15 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
             }
 
-            image.Save(filePath);
-
-            using (var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            using (var ms = new MemoryStream())
             {
-                var msg = await new DiscordMessageBuilder()
-                        .WithFiles(new Dictionary<string, Stream>() { { fileName, fs } })
-                        .SendAsync(ctx.Channel);
+                image.Save(ms, ImageFormat.Png);
+                ms.Position = 0;
 
-                fs.Close();
+                await new DiscordMessageBuilder()
+                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                         .SendAsync(ctx.Channel);
             }
-
-            saveImage.Save(filePath);
         }
     }
 }

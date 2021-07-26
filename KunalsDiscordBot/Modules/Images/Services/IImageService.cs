@@ -13,7 +13,7 @@ namespace KunalsDiscordBot.Services.Images
     public interface IImageService
     {
         public Image ResizeImage(Image image, int width, int height);
-        public void GetImages(string filePath, out Image image, out Image saveImage);
+        public void GetImages(string filePath, out Image image);
 
         public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, out Font font, out SolidBrush brush);
 
