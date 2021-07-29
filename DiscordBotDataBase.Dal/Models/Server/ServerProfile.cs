@@ -16,7 +16,7 @@ namespace DiscordBotDataBase.Dal.Models.Servers
         public int RestrictPermissionsToAdmin { get; set; } = 1;
         public int LogErrors { get; set; } = 1;
         public int LogNewMembers { get; set; } = 1;
-        public long LogChannel { get; set; } = 1;
+        public long LogChannel { get; set; } = 0;
 
         public int AllowNSFW { get; set; } = 0;
 

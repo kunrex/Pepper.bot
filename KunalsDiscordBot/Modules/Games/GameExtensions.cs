@@ -42,15 +42,5 @@ namespace KunalsDiscordBot.Modules.Games
         }
 
         public static bool HasDuplicates<T>(this IList<T> list) => list.Count != list.Distinct().ToList().Count;
-
-        public static StackType AsStackType(this CardType type)
-        {
-            if (type == CardType.Skip)
-                return StackType.skip;
-            else if (type == CardType.plus2 || type == CardType.plus2)
-                return StackType.cards;
-            else
-                return StackType.none;
-        }
     }
 }

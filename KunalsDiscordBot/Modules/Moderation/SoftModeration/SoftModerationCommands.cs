@@ -47,23 +47,6 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var moderatorNeeded = ctx.Command.CustomAttributes.FirstOrDefault(x => x is ModeratorNeededAttribute) != null;
-            if(moderatorNeeded)
-            {
-                if ((ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
-                {
-                    var profile = await serverService.GetServerProfile(ctx.Guild.Id);
-
-                    if (profile.ModeratorRoleId == 0)
-                    {
-                        await ctx.RespondAsync("This server does not have a registered Moderator role, use the `general`").ConfigureAwait(false);
-                        throw new CustomCommandException();
-                    }
-                    else if (ctx.Member.Roles.FirstOrDefault(x => x.Id == (ulong)profile.ModeratorRoleId) == null)
-                        throw new ChecksFailedException(ctx.Command, ctx, new List<CheckBaseAttribute> { });
-                }
-            }
-
             var checkMute = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckMuteRoleAttribute) != null;
             if(checkMute)
             {
@@ -121,6 +104,21 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.MutedRole)]
         public async Task SetMuteRole(CommandContext ctx, DiscordRole role)
         {
+            var botMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
+            if(botMember.GetHighest() < role.Position)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"{role.Mention} as it is higher than my highest role in this server. I will not be able to add or remove it. Please assign a role lower than my highest role or give me a higher role",
+                    Footer = new DiscordEmbedBuilder.EmbedFooter
+                    {
+                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
+                    },
+                    Color = Color
+                }).ConfigureAwait(false);
+                return;
+            }
+
             await serverService.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -466,7 +464,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 Title = $"Muted Member {member.DisplayName}",
                 Color = Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
             };
 
             embed.AddField("Reason: ", reason);
@@ -495,7 +493,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 Title = $"Unmuted Member {member.DisplayName}",
                 Color = Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
             };
 
             embed.AddField("Reason: ", reason);

@@ -12,6 +12,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         public override CardType stackables => CardType.plus4;
         public CardColor colorToChange { get; set; }
 
-        public override bool ValidNextCardCheck(Card card) => card.cardColor == colorToChange;
+        public override bool ValidNextCardCheck(Card card) => card.cardType == CardType.Wild || card.cardType == CardType.plus4 || card.cardColor == colorToChange;
     }
 }

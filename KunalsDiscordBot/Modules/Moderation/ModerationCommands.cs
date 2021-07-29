@@ -125,31 +125,46 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await member.BanAsync(5, reason).ConfigureAwait(false);
                 int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
 
-                var embed = new DiscordEmbedBuilder
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = $"Banned member {member.Username} [Id: {id}]",
                     Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
-                embed.AddField("Reason: ", reason);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                    Footer =BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                    Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
+                }.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds")
+                 .AddField("Reason: ", reason)).ConfigureAwait(false);
             }
             catch
             {
                 await ctx.Channel.SendMessageAsync($"Cannot ban specified member.\nThis may be because the member is a moderator or administrator").ConfigureAwait(false);
             }
+        }
+
+        [Command("Unban")]
+        [Description("Unbans a member")]
+        [RequireBotPermissions(Permissions.BanMembers)]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task UnBanMember(CommandContext ctx, DiscordUser user,[RemainingText] string reason = "Unspecified")
+        {
+            if(await ctx.Guild.GetMemberAsync(user.Id) != null)
+            {
+                await ctx.RespondAsync("Member is in in the server?");
+                return;
+            }
+            if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == user.Id) == null)
+            {
+                await ctx.RespondAsync("Member isn't banned?");
+                return;
+            }
+
+            await ctx.Guild.UnbanMemberAsync(user, reason).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = $"Unbanned user {user.Username} #{user.Discriminator}",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
+                Thumbnail = BotService.GetEmbedThumbnail(user, ThumbnailSize)
+            }).ConfigureAwait(false);
         }
 
         [Command("Kick")]

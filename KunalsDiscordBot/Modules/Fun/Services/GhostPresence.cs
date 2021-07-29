@@ -33,7 +33,7 @@ namespace KunalsDiscordBot.Services.Fun
 
         public async void BegineGhostPresence()
         {
-            await dmChannel.SendMessageAsync("Ghost presence started, ending in 5 minutes").ConfigureAwait(false);
+            await dmChannel.SendMessageAsync("Ghost presence started, ending in 5 minutes. enter `cancel` to stop the presence").ConfigureAwait(false);
 
             var input = AwaitExportInput();
             var presence = ContinuePresence();

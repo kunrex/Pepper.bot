@@ -23,8 +23,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
     public class UNOGame : ComplexBoardGame<UNOPlayer>
     {
-        public static readonly List<CardColor> colors = Enum.GetValues(typeof(CardColor)).Cast<CardColor>().ToList();
-        public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4;
+        public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4, unoMissPenalty = 4;
 
         public DiscordClient client { get; private set; }
         private bool gameOver { get; set; }
@@ -32,12 +31,12 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         private List<UNOPlayer> playersWhoFinished { get; set; }
         private List<DiscordChannel> dmChannels { get; set; }
         private List<Card> cards { get; set; } = GetDeck().Shuffle().ToList();
-        private Card currenctCard { get; set; }
+        private Card currentCard { get; set; }
 
         public Dictionary<string, DiscordEmoji> controls { get; private set; }
         public PaginationEmojis emojis { get; private set; }
 
-        private StackData? currentStackData { get; set; } = null;
+        private int? cardStacks { get; set; } = null;
         private GameDirection direction = GameDirection.forward;
 
         public static List<Card> GetDeck()
@@ -51,6 +50,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             for (int i = 0; i < 4; i++)
                 cards.Add(new Plus4Card(CardColor.none, CardType.plus4));
 
+            var colors = Enum.GetValues(typeof(CardColor)).Cast<CardColor>().ToList();
             foreach (var color in colors.Where(x => x != CardColor.none).ToList())
             {
                 //add number cards
@@ -98,32 +98,36 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             SetUp();
         }
 
+        protected async override void SetUp()
+        {
+            await DistributeCards();
+
+            await SendMessageToAllPlayers("All players ready, Starting Game!", new DiscordEmbedBuilder
+            {
+                Title = "UNO!"
+            }.AddField("Host:", "Me", true)
+             .AddField("Number of cards given:", startCardNumber.ToString(), true)
+             .AddField("Players: ", string.Join(", ", players.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length + 1, "`")))));
+
+            PlayGame();
+        }
+
         protected async override void PlayGame()
         {
-            foreach(var player in players.Where(x => x.member.Id != currentPlayer.member.Id).ToList())
-                player.PrintCards();
-
             while (!gameOver)
             {
-                await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
-                {
-                    Title = $"{currentPlayer.member.Username}'s Turn",
-                    ImageUrl = Card.GetLink(currenctCard.fileName).link + ".png"
-                }.AddField("Current Card:", "** **"));
-
-                currentPlayer.PrintCards();
-                await Task.Delay(TimeSpan.FromSeconds(1));
-
-                var result = await currentPlayer.GetInput(client, currenctCard);
+                await PrintBoard();
+                var result = await currentPlayer.GetInput(client, currentCard);
 
                 if (!result.wasCompleted)
                 {
                     await SendMessageToAllPlayers($"{currentPlayer.member.Username} {(result.type == InputResult.Type.end ? "has left the game" : "has gone afk")}").ConfigureAwait(false);
-                    players.Remove(currentPlayer);
+                    var end = await RemovePlayer();
 
-                    if (players.Count == 1)
+                    if (end)
                     {
                         await SendMessageToAllPlayers("There are now too less players left to play the game").ConfigureAwait(false);
+                        await SendEndMessage("Anyway..").ConfigureAwait(false);
                         break;
                     }
                 }
@@ -131,125 +135,94 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 {
                     await AddcardsToPlayer(1);
 
-                    var checkResult = await currentPlayer.TryPlay(currenctCard, client);
+                    var checkResult = await currentPlayer.TryPlay(currentCard, client);
                     if (checkResult.wasCompleted)
                         result = checkResult;
                 }
 
-                cards.AddRange(result.cards.Shuffle());//cycle cards
-                await Task.Run(async() => await SendPaginatedMessageToAllPlayers(GetPages($"{currentPlayer.member.Username}' plays:", result.cards.Select(x => Card.GetLink(x.fileName).link + ".png").ToList()), emojis));
-                await CheckAfterTurnStacks(result.cards);
+                if (result.cards != null && result.cards.Count > 0)
+                {
+                    cards.AddRange(result.cards.Shuffle());//cycle cards, if any were played
+                    await Task.Run(async () => await SendPaginatedMessageToAllPlayers(GetCardPages($"{currentPlayer.member.Username}' plays:", result.cards.Select(x => Card.GetLink(x.fileName).link + ".png").ToList()), emojis));
+                    await ProcessTurn(result.cards);
+                }
+                else
+                    await NextPlayer(currentCard);
+
+                if (players.Count == 1)//only one player left
+                {
+                    await SendMessageToAllPlayers("Theres only 1 player left now").ConfigureAwait(false);
+                    await SendEndMessage("The game is over", true).ConfigureAwait(false);
+                    break;
+                }
+
+                List<Task> tasks = new List<Task>();
+                foreach (var player in players)
+                    tasks.Add(player.Ready("Are you ready to proceed to the next round? I will auto-ready after 1 minute", TimeSpan.FromMinutes(1), client));
+                await Task.WhenAll(tasks);
+
+                await SendMessageToAllPlayers("All players ready");
             }
         }
 
-        private async Task CheckAfterTurnStacks(List<Card> cardsPlayed)
+        private async Task ProcessTurn(List<Card> cardsPlayed)
         {
-            if (cardsPlayed.Count == 0 || cards == null)
-                return;
-
-            if (cardsPlayed[0].cardType.AsStackType() == StackType.none && currentStackData == null)
-                return;
-
-            if (currentStackData != null)
-            {
-                if (cardsPlayed[0].cardType.AsStackType() == currentStackData.Value.stackType)
-                {
-                    currentStackData = new StackData
-                    {
-                        stackType = currentStackData.Value.stackType,
-                        stack = currentStackData.Value.stack + cardsPlayed.Count
-                    };
-
-                    await NextPlayer();
-                }
-                else
-                {
-                    switch (currentStackData.Value.stackType)
-                    {
-                        case StackType.cards:
-                            await AddcardsToPlayer(currentStackData.Value.stack);
-                            await NextPlayer();
-                            break;
-                    }
-                }
-            }
-            else
+            if (cardStacks == null)
             {
                 switch (cardsPlayed[0].cardType)
                 {
-                    case CardType.Reverse:
-                        if (cardsPlayed.Count % 2 == 1)
-                            direction = direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward;
-
-                        await NextPlayer();
-                        return;
                     case CardType.Skip:
-                        currentStackData = new StackData
-                        {
-                            stackType = StackType.skip,
-                            stack = cardsPlayed.Count
-                        };
+                        int newIndex = players.IndexOf(currentPlayer);
+                        newIndex += (direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count) + 1;
 
-                        await NextPlayer();
-                        return;
-                    case CardType.plus2:
-                        int val = 0;
+                        newIndex %= players.Count;
+                        currentPlayer = players[newIndex];
+                        currentCard = cardsPlayed[cardsPlayed.Count - 1];
+
+                        await SendMessageToAllPlayers($"{cardsPlayed} players skipped lol");
+                        break;
+                    case CardType.Reverse:
+                        direction = cardsPlayed.Count % 2 == 0 ? direction : (direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward);
+                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
+                        break;
+                    case var x when x == CardType.plus2 || x == CardType.plus4:
+                        int cardCount = 0;
                         foreach (var card in cardsPlayed)
-                            val += card is Plus2Card ? 2 : 4;
-
-                        currentStackData = new StackData
-                        {
-                            stackType = StackType.cards,
-                            stack = val
-                        };
-                        int index = (players.IndexOf(currentPlayer) + (direction == GameDirection.forward ? currentStackData.Value.stack : -currentStackData.Value.stack)) % players.Count;
-                        currentPlayer = players[index];
-                        return;
-                    case CardType.plus4:
-                        currentStackData = new StackData
-                        {
-                            stackType = StackType.cards,
-                            stack = cardsPlayed.Count * 4
-                        };
-
-                        await NextPlayer();
-                        return;
+                            if (card is Plus2Card)
+                                cardCount += 2;
+                            else
+                                cardCount += 4;
+                        cardStacks = cardCount;
+                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
+                        break;
+                    case var x when x == CardType.number || x== CardType.Wild:
+                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
+                        break;
                 }
-            }           
-        }
+            }
+            else if (cardsPlayed[0].cardType == CardType.plus2 || cardsPlayed[0].cardType == CardType.plus4)//adding
+            {
+                int cardCount = 0;
+                foreach (var card in cardsPlayed)
+                    if (card is Plus2Card)
+                        cardCount += 2;
+                    else
+                        cardCount += 4;
+                cardStacks += cardCount;
 
-        private async Task AddcardsToPlayer(int num)
-        {
-            var cardsToAdd = cards.Take(num).ToList();
-            cards.RemoveRange(0, num);
-
-            await currentPlayer.AddCards(cardsToAdd);
-        }
-
-        private Task NextPlayer()
-        {
-            int index = players.IndexOf(currentPlayer);
-
-            index += direction == GameDirection.forward ? 1 : -1;
-            if (direction == GameDirection.forward && index == players.Count)
-                index = 0;
+                await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
+            }
             else
-                if (index == -1)
-                    index = players.Count - 1;
+            {
+                await AddcardsToPlayer(cardStacks.Value);
+                await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
 
-            currentPlayer = players[index];
-            return Task.CompletedTask;
+                cardStacks = null;
+            }
         }
 
-        protected async override Task PrintBoard()
+        private async Task DistributeCards()
         {
-           
-        }
-
-        protected async override void SetUp()
-        {
-            Console.WriteLine("here");
-
             dmChannels = new List<DiscordChannel>();
             foreach (var player in players)
             {
@@ -259,26 +232,109 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 cards.RemoveRange(0, startCardNumber);
             }
 
-            Console.WriteLine("here");
-            List <Task<bool>> awaitReady = new List<Task<bool>>();
+            List<Task<bool>> awaitReady = new List<Task<bool>>();
             for (int i = 0; i < players.Count; i++)
-                awaitReady.Add(players[i].Ready(dmChannels[i]));
+            {
+                await dmChannels[i].SendMessageAsync("Waiting for players to get ready...");
+                awaitReady.Add(players[i].Ready(dmChannels[i], client));
+            }
 
-            Console.WriteLine("here");
             var task = Task.WhenAll(awaitReady);
             await task;
-            currenctCard = cards[0];
+            await SendMessageToAllPlayers("All players ready");
 
-            Console.WriteLine("here");
-            await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
+            currentCard = cards.First(x => x is NumberCard);
+        }
+
+        private async Task<bool> RemovePlayer(bool won = false)
+        {
+            players.Remove(currentPlayer);
+
+            if (players.Count == 1)
             {
-                Title = "UNO!"
-            }.AddField("Host:", "Me", true)
-             .AddField("Starting Cards Number:", startCardNumber.ToString(), true)
-             .AddField("Players: ", string.Join(',', players)));
-            await SendMessageToAllPlayers("Starting Game!").ConfigureAwait(false);
+                await SendMessageToAllPlayers("There are now too less players left to play the game").ConfigureAwait(false);
+                return true;
+            }
 
-            PlayGame();
+            if (won)
+                playersWhoFinished.Add(currentPlayer);
+
+            return false;
+        }
+
+        private async Task AddcardsToPlayer(int num)
+        {
+            var cardsToAdd = cards.Take(num).ToList();
+            cards.RemoveRange(0, num);
+
+            await currentPlayer.AddCards(cardsToAdd);
+            await SendMessageToAllPlayers($"{currentPlayer.member.Username} has drawed {num} card(s)");
+        }
+
+        private async Task NextPlayer(Card newCard)
+        {
+            if (currentPlayer.cards.Count <= 1)//UNO time
+            {
+                if (!await currentPlayer.UNOTime(client))
+                {
+                    await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
+                    {
+                        Description = $"{currentPlayer.member.Username} forgot to say UNO lmao"
+                    }).ConfigureAwait(false);
+                    await AddcardsToPlayer(unoMissPenalty);
+                }
+                else
+                {
+                    await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
+                    {
+                        Description = $"{currentPlayer.member.Username} {(currentPlayer.cards.Count == 0 ? "has no more cards left" : "has 1 card left")} and they said UNO \\:("
+                    }).ConfigureAwait(false);
+                }
+            }
+
+            int index = players.IndexOf(currentPlayer);
+            var prevPlayer = currentPlayer;
+
+            index += direction == GameDirection.forward ? 1 : -1;
+            index %= players.Count;
+
+            currentPlayer = players[index];
+            currentCard = newCard;
+
+            if (prevPlayer.cards.Count == 0)
+                await RemovePlayer(true);
+        }
+
+        protected async override Task PrintBoard()
+        {
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{currentPlayer.member.Username}'s Turn",
+                ImageUrl = Card.GetLink(currentCard.fileName).link + ".png"
+            };
+
+            embed.AddField("Direction:", direction.ToString());
+            if(currentCard is IChangeColorCard)
+                embed.AddField("Current Color:", ((IChangeColorCard)currentCard).colorToChange.ToString());
+            else if (cardStacks != null)
+                embed.AddField("Number of cards that be drawed:", cardStacks.Value.ToString());
+
+            embed.AddField("Current Card:", "** **");
+            await SendMessageToAllPlayers(null, embed);
+
+            currentPlayer.PrintAllCards();
+            await Task.Delay(TimeSpan.FromSeconds(1));
+        }
+
+        private async Task SendEndMessage(string message = null, bool completed = false)
+        {
+            var players = string.Join(", ", playersWhoFinished.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length - 1, "`")));
+
+            await SendMessageToAllPlayers(message, new DiscordEmbedBuilder
+            {
+                Title = "Here are the results!",
+            }.AddField("Winner!", completed ? playersWhoFinished[0].member.Username : "No one")
+             .AddField("Players who finished", string.IsNullOrWhiteSpace(players) ? "No one" : players));
         }
 
         private async Task SendMessageToAllPlayers(string message = null, DiscordEmbedBuilder embed = null)
@@ -302,20 +358,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             return Task.CompletedTask;
         }
 
-        private async Task SendMessageToSpecificPlayer(int index, string message = null, DiscordEmbedBuilder embed = null)
-        {
-            var channel = dmChannels[index];
-            var messageBuild = new DiscordMessageBuilder();
-
-            if (message != null)
-                messageBuild.WithContent(message);
-            if (embed != null)
-                messageBuild.WithEmbed(embed);
-
-            await messageBuild.SendAsync(channel);
-        }
-
-        private List<Page> GetPages(string title, List<string> urls)
+        private List<Page> GetCardPages(string title, List<string> urls)
         {
             List<Page> pages = new List<Page>();
             int i = 1;
@@ -325,7 +368,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 {
                     Embed = new DiscordEmbedBuilder
                     {
-                        Title = title,
+                        Title = i == urls.Count - 1 ? "Current Card" : title,
                         ImageUrl = url,
                         Footer = BotService.GetEmbedFooter($"Card {i++}/{urls.Count}")
                     }

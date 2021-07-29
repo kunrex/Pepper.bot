@@ -19,17 +19,12 @@ namespace KunalsDiscordBot.Modules.Games.Players
 {
     public class UNOPlayer : DiscordPlayer
     {
-        public static int maxImagesPerRow = 6;
-        public static int widthInPixel = 168;
-        public static int heightInPixel = 259;
-        public static int gapInPxiels = 10;
-
         public DiscordChannel dmChannel { get; private set; }
 
         private PaginationEmojis emojis;
 
         private Regex validInputRegex = new Regex("([1-9][,]?)+");
-        private List<Card> cards { get; set; }
+        public List<Card> cards { get; private set; }
 
         public UNOPlayer(DiscordMember _member) : base(_member)
         {
@@ -42,20 +37,29 @@ namespace KunalsDiscordBot.Modules.Games.Players
             emojis = allEmojis;
         }
 
-        public async override Task<bool> Ready(DiscordChannel channel)
+        public override Task<bool> Ready(DiscordChannel channel) => throw new Exception("Wrong method called");
+
+        public async Task<bool> Ready(DiscordChannel channel, DiscordClient client)
         {
             dmChannel = channel;
-
             await dmChannel.SendMessageAsync("Cards recieved").ConfigureAwait(false);
+            PrintAllCards();
+
+            await dmChannel.SendMessageAsync("Are you ready to play the game? Enter anything to start. The game will auto start in 1 minute").ConfigureAwait(false);
+            await client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, TimeSpan.FromMinutes(1));
+
             return true;
         }
 
-        public async void SendPaginatedMessage(List<Page> pages, PaginationEmojis emojis)
+        public async Task Ready(string messsage, TimeSpan span, DiscordClient client)
         {
-            await dmChannel.SendPaginatedMessageAsync(member, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2));
+            await dmChannel.SendMessageAsync(messsage).ConfigureAwait(false);
+            await client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, span);
         }
 
-        public void PrintCards()
+        public async void SendPaginatedMessage(List<Page> pages, PaginationEmojis emojis) => await dmChannel.SendPaginatedMessageAsync(member, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2));
+
+        public void PrintAllCards()
         {
             var pages = new List<Page>();
             int index = 1;
@@ -71,6 +75,25 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
                 pages.Add(new Page(null, embed));
                 index++;
+            }
+
+            SendPaginatedMessage(pages, emojis);
+        }
+
+        public void PrintCards(int start, int number)
+        {
+            var pages = new List<Page>();
+
+            for(int i = start;i < start + number; i++)
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Drawed Cards",
+                    ImageUrl = Card.GetLink(cards[i].fileName).link + ".png",
+                    Footer = BotService.GetEmbedFooter($"{i}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
+                }.AddField("Card", cards[i].cardName);
+
+                pages.Add(new Page(null, embed));
             }
 
             SendPaginatedMessage(pages, emojis);
@@ -94,7 +117,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             while(!comepleted)
             {
                 await dmChannel.SendMessageAsync("Which Card would you like to play?.\nEnter the index number of the card to play it " +
-                    "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game");
+                    "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game. Enter `draw` to draw a card");
 
                 var message = await interactivity.WaitForMessageAsync(x => x.Channel.Id == dmChannel.Id && x.Author.Id == member.Id, TimeSpan.FromMinutes(UNOGame.timeLimit));
 
@@ -104,22 +127,32 @@ namespace KunalsDiscordBot.Modules.Games.Players
                         wasCompleted = false,
                         type = InputResult.Type.afk
                     };
-                else if(message.Result.Content.ToLower().Equals("leave"))
+                else if (message.Result.Content.ToLower().Equals("leave"))
                     return new InputResult
                     {
                         wasCompleted = false,
                         type = InputResult.Type.end
                     };
+                else if (message.Result.Content.ToLower().Equals("draw"))
+                {
+                    await dmChannel.SendMessageAsync("Drawing card").ConfigureAwait(false);
+
+                    return new InputResult
+                    {
+                        wasCompleted = true,
+                        type = InputResult.Type.inValid
+                    };
+                }
                 else
                 {
-                    if(!MatchRegex(message.Result.Content))
+                    if (!MatchRegex(message.Result.Content))
                     {
-                        await dmChannel.SendMessageAsync("Use the appropriate input format");
+                        await dmChannel.SendMessageAsync("Please use the appropriate input format");
                         continue;
                     }
 
                     var indexs = GetIndexes(message.Result.Content);
-                    if(indexs == null)
+                    if (indexs == null)
                     {
                         await dmChannel.SendMessageAsync($"Thats not valid input. Check the index' you're entering and you can't play more than {UNOGame.maxCardsInATurn} card(s) per turn.");
                         continue;
@@ -213,6 +246,16 @@ namespace KunalsDiscordBot.Modules.Games.Players
             }
         }
 
+        public async Task<bool> UNOTime(DiscordClient client)
+        {
+            var interactivity = client.GetInteractivity();
+
+            var message = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id && x.Content.ToLower().Equals("uno"))
+                .ConfigureAwait(false);
+
+            return message.TimedOut;
+        }
+
         private Task<bool> CheckToDraw(Card currenctCard)
         {
             foreach (var card in cards)
@@ -222,11 +265,14 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return Task.FromResult(true);
         }
 
-        public async Task AddCards(List<Card> newCrads)
+        public Task AddCards(List<Card> newCards)
         {
-            cards.AddRange(newCrads);
+            int index = cards.Count - 1;
+            cards.AddRange(newCards);
 
-            await dmChannel.SendMessageAsync($"Drawed {newCrads.Count} cards");
+            PrintCards(index, newCards.Count);
+
+            return Task.CompletedTask;
         }
 
         private async Task<CardColor> GetCardColor(InteractivityExtension interactivity)

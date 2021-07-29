@@ -149,14 +149,19 @@ namespace KunalsDiscordBot.Modules.Games
         [Description("Play UNO with server members!")]
         public async Task UNO(CommandContext ctx)
         {
-            var message = await ctx.Channel.SendMessageAsync($"Who wants to join in for a game of UNO? React with :arrow_up: on this message to join. Reactions are collected for 1 minute");
+            var message = await ctx.Channel.SendMessageAsync($"Who wants to join in for a game of UNO? React with :arrow_up: on this message when the timer starts to join. Reactions are collected for 1 minute");
             var emoji = DiscordEmoji.FromName(ctx.Client, ":arrow_up:");
             await message.CreateReactionAsync(emoji);
 
             await Task.Delay(TimeSpan.FromSeconds(1));
             var interactivity = ctx.Client.GetInteractivity();
 
-            var result = await interactivity.CollectReactionsAsync(message, TimeSpan.FromSeconds(10));
+            var print = Task.Run(() =>ctx.Channel.SendMessageAsync("Timer started!"));
+            var collection = Task.Run(() => interactivity.CollectReactionsAsync(message, TimeSpan.FromSeconds(10)));
+
+            await print;
+            var result = await collection;
+
             await ctx.Channel.SendMessageAsync("Time Up");
             if (result.Count < 2)
             {

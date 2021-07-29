@@ -32,10 +32,10 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
 
         public override bool ValidNextCardCheck(Card card)
         {
-            if (!(card is NumberCard))
-                return false;
+            if (card.cardType == CardType.plus4 || card.cardType == CardType.Wild)
+                return true;
 
-            return cardNumber == ((NumberCard)card).cardNumber || card.cardColor == cardColor;
+            return card.cardColor == cardColor || (card is NumberCard && (((NumberCard)card).cardNumber == cardNumber));
         }
     }
 }
