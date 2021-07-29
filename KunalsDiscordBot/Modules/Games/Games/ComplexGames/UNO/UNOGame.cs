@@ -24,6 +24,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
     public class UNOGame : ComplexBoardGame<UNOPlayer>
     {
         public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4, unoMissPenalty = 4;
+        public static DiscordColor UNOColor = DiscordColor.Red;
 
         public DiscordClient client { get; private set; }
         private bool gameOver { get; set; }
@@ -104,7 +105,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
             await SendMessageToAllPlayers("All players ready, Starting Game!", new DiscordEmbedBuilder
             {
-                Title = "UNO!"
+                Title = "UNO!",
+                Color = UNOColor
             }.AddField("Host:", "Me", true)
              .AddField("Number of cards given:", startCardNumber.ToString(), true)
              .AddField("Players: ", string.Join(", ", players.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length + 1, "`")))));
@@ -280,7 +282,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 {
                     await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
                     {
-                        Description = $"{currentPlayer.member.Username} forgot to say UNO lmao"
+                        Description = $"{currentPlayer.member.Username} forgot to say UNO lmao",
+                        Color = UNOColor
                     }).ConfigureAwait(false);
                     await AddcardsToPlayer(unoMissPenalty);
                 }
@@ -288,7 +291,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 {
                     await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
                     {
-                        Description = $"{currentPlayer.member.Username} {(currentPlayer.cards.Count == 0 ? "has no more cards left" : "has 1 card left")} and they said UNO \\:("
+                        Description = $"{currentPlayer.member.Username} {(currentPlayer.cards.Count == 0 ? "has no more cards left" : "has 1 card left")} and they said UNO \\:(",
+                        Color = UNOColor
                     }).ConfigureAwait(false);
                 }
             }
@@ -315,7 +319,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"{currentPlayer.member.Username}'s Turn",
-                ImageUrl = Card.GetLink(currentCard.fileName).link + ".png"
+                ImageUrl = Card.GetLink(currentCard.fileName).link + ".png",
+                Color = UNOColor
             };
 
             embed.AddField("Direction:", direction.ToString());
@@ -338,6 +343,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             await SendMessageToAllPlayers(message, new DiscordEmbedBuilder
             {
                 Title = "Here are the results!",
+                Color = UNOColor
             }.AddField("Winner!", completed ? playersWhoFinished[0].member.Username : "No one")
              .AddField("Players who finished", players == null ? "No one" : players));
         }
@@ -375,7 +381,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                     {
                         Title = title,
                         ImageUrl = url,
-                        Footer = BotService.GetEmbedFooter($"Card {i++}/{urls.Count}")
+                        Footer = BotService.GetEmbedFooter($"Card {i++}/{urls.Count}"),
+                        Color = UNOColor
                     }
                 }); 
 

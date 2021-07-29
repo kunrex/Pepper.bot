@@ -70,7 +70,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 {
                     Title = "Your Cards",
                     ImageUrl = Card.GetLink(card.fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
+                    Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
+                    Color = UNOGame.UNOColor
                 }.AddField("Card", card.cardName);
 
                 pages.Add(new Page(null, embed));
@@ -90,7 +91,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 {
                     Title = "Drawed Cards",
                     ImageUrl = Card.GetLink(cards[i].fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{i + 1}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
+                    Footer = BotService.GetEmbedFooter($"{i + 1}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
+                    Color = UNOGame.UNOColor
                 }.AddField("Card", cards[i].cardName);
 
                 pages.Add(new Page(null, embed));
@@ -191,11 +193,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
                     if (inputCards[inputCards.Count - 1] is IChangeColorCard)
                         ((IChangeColorCard)inputCards[inputCards.Count - 1]).colorToChange = await GetCardColor(interactivity);
 
-                    foreach (var index in indexs)
-                    {
-                        Console.WriteLine(index);
-                        cards.RemoveAt(index);
-                    }
+                    foreach (var card in inputCards)
+                        cards.Remove(card);
 
                     return new InputResult
                     {
