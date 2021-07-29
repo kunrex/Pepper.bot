@@ -20,6 +20,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
         protected override string GetCardName() => $"{(cardColor == CardColor.none ? "" : cardColor.ToString())} {cardType.ToString().Replace("plus", "+")}";
 
         public abstract override bool ValidNextCardCheck(Card card);
-        public override bool Stack(Card card) => base.Stack(card);
+        public override bool Stack(Card card) => (card.cardType & stackables) == card.cardType;
     }
 }

@@ -45,7 +45,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO
         protected abstract string GetCardName();
         public abstract bool ValidNextCardCheck(Card card);
 
-        public virtual bool Stack(Card card) => (card.cardType & stackables) == card.cardType;
+        public abstract bool Stack(Card card);
     }
 
     public class CardLinks

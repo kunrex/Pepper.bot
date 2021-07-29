@@ -84,13 +84,13 @@ namespace KunalsDiscordBot.Modules.Games.Players
         {
             var pages = new List<Page>();
 
-            for(int i = start;i < start + number; i++)
+            for(int i = start; i < start + number; i++)
             {
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = "Drawed Cards",
                     ImageUrl = Card.GetLink(cards[i].fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{i}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
+                    Footer = BotService.GetEmbedFooter($"{i + 1}/{cards.Count}. (You can view your cards using this message for 2 minutes)")
                 }.AddField("Card", cards[i].cardName);
 
                 pages.Add(new Page(null, embed));
@@ -172,6 +172,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
                         if (casted.colorToChange != inputCards[0].cardColor && inputCards[0].cardColor != CardColor.none)
                         {
                             await dmChannel.SendMessageAsync($"The current color is {casted.colorToChange}, you can't play cards of a different color").ConfigureAwait(false);
+                            continue;
                         }
                     }
 
@@ -191,7 +192,10 @@ namespace KunalsDiscordBot.Modules.Games.Players
                         ((IChangeColorCard)inputCards[inputCards.Count - 1]).colorToChange = await GetCardColor(interactivity);
 
                     foreach (var index in indexs)
+                    {
+                        Console.WriteLine(index);
                         cards.RemoveAt(index);
+                    }
 
                     return new InputResult
                     {
@@ -267,7 +271,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         public Task AddCards(List<Card> newCards)
         {
-            int index = cards.Count - 1;
+            int index = cards.Count;
             cards.AddRange(newCards);
 
             PrintCards(index, newCards.Count);
@@ -341,14 +345,18 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 else
                     val += c;
             }
-            indexs.Add(int.Parse(val) - 1);
+            i = int.Parse(val) - 1;
+            if (i < 0 || i >= cards.Count)
+                return null;
+
+            indexs.Add(i);
 
             return indexs;
         }
 
         private bool CheckStacking(List<Card> cards)
         {
-            for (int i = 0; i < cards.Count - 2; i++)
+            for (int i = 0; i < cards.Count - 1; i++)
                 if (!cards[i].Stack(cards[i + 1]))
                     return false;
 

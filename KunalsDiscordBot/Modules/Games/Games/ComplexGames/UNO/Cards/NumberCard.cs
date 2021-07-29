@@ -24,7 +24,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
 
         public override bool Stack(Card card)
         {
-            if (!base.Stack(card))
+            if ((card.cardType & stackables) != card.cardType)
                 return false;
 
             return ((NumberCard)card).cardNumber == cardNumber;

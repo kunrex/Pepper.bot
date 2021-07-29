@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         public DiscordClient client { get; private set; }
         private bool gameOver { get; set; }
 
-        private List<UNOPlayer> playersWhoFinished { get; set; }
+        private List<UNOPlayer> playersWhoFinished { get; set; } = new List<UNOPlayer>();
         private List<DiscordChannel> dmChannels { get; set; }
         private List<Card> cards { get; set; } = GetDeck().Shuffle().ToList();
         private Card currentCard { get; set; }
@@ -126,7 +126,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
                     if (end)
                     {
-                        await SendMessageToAllPlayers("There are now too less players left to play the game").ConfigureAwait(false);
                         await SendEndMessage("Anyway..").ConfigureAwait(false);
                         break;
                     }
@@ -142,9 +141,9 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
                 if (result.cards != null && result.cards.Count > 0)
                 {
-                    cards.AddRange(result.cards.Shuffle());//cycle cards, if any were played
                     await Task.Run(async () => await SendPaginatedMessageToAllPlayers(GetCardPages($"{currentPlayer.member.Username}' plays:", result.cards.Select(x => Card.GetLink(x.fileName).link + ".png").ToList()), emojis));
                     await ProcessTurn(result.cards);
+                    cards.AddRange(result.cards.Shuffle());//cycle cards
                 }
                 else
                     await NextPlayer(currentCard);
@@ -155,6 +154,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                     await SendEndMessage("The game is over", true).ConfigureAwait(false);
                     break;
                 }
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
 
                 List<Task> tasks = new List<Task>();
                 foreach (var player in players)
@@ -172,14 +173,14 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 switch (cardsPlayed[0].cardType)
                 {
                     case CardType.Skip:
-                        int newIndex = players.IndexOf(currentPlayer);
-                        newIndex += (direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count) + 1;
+                        int newIndex = players.IndexOf(currentPlayer) + 1;
+                        newIndex += (direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count);
 
                         newIndex %= players.Count;
                         currentPlayer = players[newIndex];
                         currentCard = cardsPlayed[cardsPlayed.Count - 1];
 
-                        await SendMessageToAllPlayers($"{cardsPlayed} players skipped lol");
+                        await SendMessageToAllPlayers($"{cardsPlayed.Count} players skipped lol");
                         break;
                     case CardType.Reverse:
                         direction = cardsPlayed.Count % 2 == 0 ? direction : (direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward);
@@ -267,8 +268,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             var cardsToAdd = cards.Take(num).ToList();
             cards.RemoveRange(0, num);
 
-            await currentPlayer.AddCards(cardsToAdd);
             await SendMessageToAllPlayers($"{currentPlayer.member.Username} has drawed {num} card(s)");
+            await currentPlayer.AddCards(cardsToAdd);
         }
 
         private async Task NextPlayer(Card newCard)
@@ -295,8 +296,12 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             int index = players.IndexOf(currentPlayer);
             var prevPlayer = currentPlayer;
 
+            Console.WriteLine(index);
+
             index += direction == GameDirection.forward ? 1 : -1;
             index %= players.Count;
+
+            index = System.Math.Abs(index);
 
             currentPlayer = players[index];
             currentCard = newCard;
@@ -328,13 +333,13 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         private async Task SendEndMessage(string message = null, bool completed = false)
         {
-            var players = string.Join(", ", playersWhoFinished.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length - 1, "`")));
+            var players = playersWhoFinished.Count == 0 ? null : string.Join(", ", playersWhoFinished.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length - 1, "`")));
 
             await SendMessageToAllPlayers(message, new DiscordEmbedBuilder
             {
                 Title = "Here are the results!",
             }.AddField("Winner!", completed ? playersWhoFinished[0].member.Username : "No one")
-             .AddField("Players who finished", string.IsNullOrWhiteSpace(players) ? "No one" : players));
+             .AddField("Players who finished", players == null ? "No one" : players));
         }
 
         private async Task SendMessageToAllPlayers(string message = null, DiscordEmbedBuilder embed = null)
@@ -368,7 +373,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 {
                     Embed = new DiscordEmbedBuilder
                     {
-                        Title = i == urls.Count - 1 ? "Current Card" : title,
+                        Title = title,
                         ImageUrl = url,
                         Footer = BotService.GetEmbedFooter($"Card {i++}/{urls.Count}")
                     }

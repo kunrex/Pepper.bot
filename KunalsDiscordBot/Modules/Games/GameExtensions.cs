@@ -34,9 +34,8 @@ namespace KunalsDiscordBot.Modules.Games
         {
             var newList = new List<T>();
 
-            for (int i = 0; i < list.Count; i++)
-                if (indexs.Contains(i))
-                    newList.Add(list[i]);
+            for (int i = 0; i < indexs.Length; i++)
+                newList.Add(list[indexs[i]]);
 
             return newList;
         }
