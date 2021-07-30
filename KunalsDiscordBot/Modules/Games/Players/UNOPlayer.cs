@@ -22,6 +22,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
         public DiscordChannel dmChannel { get; private set; }
 
         private PaginationEmojis emojis;
+        private bool autoReady { get; set; } = false;
 
         private Regex validInputRegex = new Regex("([1-9][,]?)+");
         public List<Card> cards { get; private set; }
@@ -45,6 +46,14 @@ namespace KunalsDiscordBot.Modules.Games.Players
             await dmChannel.SendMessageAsync("Cards recieved").ConfigureAwait(false);
             PrintAllCards();
 
+            await dmChannel.SendMessageAsync("Do you want me to auto-ready on your part after each turn? Type `y` or `yes` for yes. Anything else will be taken as no. Time: 10 seconds").ConfigureAwait(false);
+            var interactivity = client.GetInteractivity();
+
+            var auto = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, TimeSpan.FromSeconds(10));
+            if (!auto.TimedOut && (auto.Result.Content.ToLower() != "y" || auto.Result.Content.ToLower() != "yes"))
+                autoReady = true;
+            await dmChannel.SendMessageAsync($"Auto-Ready set to {autoReady}");
+
             await dmChannel.SendMessageAsync("Are you ready to play the game? Enter anything to start. The game will auto start in 1 minute").ConfigureAwait(false);
             await client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, TimeSpan.FromMinutes(1));
 
@@ -53,6 +62,12 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         public async Task Ready(string messsage, TimeSpan span, DiscordClient client)
         {
+            if (autoReady)
+            {
+                await dmChannel.SendMessageAsync("Autoreadied");
+                return;
+            }
+
             await dmChannel.SendMessageAsync(messsage).ConfigureAwait(false);
             await client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, span);
         }
@@ -257,7 +272,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             var message = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id && x.Content.ToLower().Equals("uno"), TimeSpan.FromSeconds(5))
                 .ConfigureAwait(false);
 
-            return message.TimedOut;
+            return !message.TimedOut;
         }
 
         private Task<bool> CheckToDraw(Card currenctCard)

@@ -168,6 +168,11 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync("Well not enough ppl joined so ba bai");
                 return;
             }
+            else if(result.Count > 10)
+            {
+                await ctx.Channel.SendMessageAsync("Too many ppl are joining, the maximum is 10 players per game");
+                return;
+            }
 
             var players = result.Where(x => x.Emoji == emoji).Select(x => x.Users.ElementAt(0)).ToList();
             Console.WriteLine(players.Count);

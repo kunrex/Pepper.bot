@@ -58,7 +58,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 cards.Add(new NumberCard(color, 0));
                 for (int i = 1; i <= 2; i++)
                     for (int k = 1;k <= 9; k++)
-                        cards.Add(new NumberCard(color,  i));
+                        cards.Add(new NumberCard(color,  k));
 
                 //add reverse, skip and +2
                 for (int k = 1; k <= 2; k++)
