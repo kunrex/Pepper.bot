@@ -252,8 +252,9 @@ namespace KunalsDiscordBot.Modules.Games.Players
         public async Task<bool> UNOTime(DiscordClient client)
         {
             var interactivity = client.GetInteractivity();
+            await dmChannel.SendMessageAsync("*\\*cough\\** you forgetting something?").ConfigureAwait(false);
 
-            var message = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id && x.Content.ToLower().Equals("uno"))
+            var message = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id && x.Content.ToLower().Equals("uno"), TimeSpan.FromSeconds(5))
                 .ConfigureAwait(false);
 
             return message.TimedOut;

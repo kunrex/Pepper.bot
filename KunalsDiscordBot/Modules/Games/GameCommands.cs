@@ -156,7 +156,7 @@ namespace KunalsDiscordBot.Modules.Games
             await Task.Delay(TimeSpan.FromSeconds(1));
             var interactivity = ctx.Client.GetInteractivity();
 
-            var print = Task.Run(() =>ctx.Channel.SendMessageAsync("Timer started!"));
+            var print = Task.Run(() => ctx.Channel.SendMessageAsync("Timer started!"));
             var collection = Task.Run(() => interactivity.CollectReactionsAsync(message, TimeSpan.FromMinutes(1)));
 
             await print;

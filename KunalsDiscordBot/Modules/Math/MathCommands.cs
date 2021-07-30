@@ -1,5 +1,7 @@
 ﻿//System name spaces
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text.Json;
@@ -14,6 +16,7 @@ using DSharpPlus.Entities;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.Math;
+using Newtonsoft.Json;
 
 namespace KunalsDiscordBot.Modules.Math
 {
@@ -49,7 +52,7 @@ namespace KunalsDiscordBot.Modules.Math
 
                 if (json[0] == '{')//error
                 {
-                    var jsonData = JsonSerializer.Deserialize<JsonData>(json);
+                    var jsonData = System.Text.Json.JsonSerializer.Deserialize<JsonData>(json);
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Graph",
@@ -67,6 +70,27 @@ namespace KunalsDiscordBot.Modules.Math
                         Color = Color
                     });
             }
+        }
+
+        [Command("GraphAttributes")]
+        [Aliases("Attributes", "atrrs")]
+        [Description("Shows a lite of attributes for the graph command")]
+        public async Task Attributes(CommandContext ctx)
+        {
+            Dictionary<string, string> attributes = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine("Modules", "Math", "Attributes.json")));
+
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = "Graph Attributes",
+                Description = "All the attributes you can use in the graph command\n",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")
+            };
+
+            foreach (var val in attributes)
+                embed.Description += $"• `{val.Key}`: {val.Value}\n";
+
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
 
         [Command("add")]

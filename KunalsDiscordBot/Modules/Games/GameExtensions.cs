@@ -12,7 +12,7 @@ namespace KunalsDiscordBot.Modules.Games
     {
         public static IList<T> Shuffle<T>(this IList<T> list)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var random = new Random();
 

@@ -303,9 +303,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             Console.WriteLine(index);
 
             index += direction == GameDirection.forward ? 1 : -1;
-            index %= players.Count;
-
-            index = System.Math.Abs(index);
+            index = (index + (players.Count)) % players.Count;
 
             currentPlayer = players[index];
             currentCard = newCard;

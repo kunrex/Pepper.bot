@@ -1,0 +1,17 @@
+﻿{
+  "axfacecolor=<hex>": "Applies color to foreground",
+  "figfacecolor=<hex>": "Applies color to background",
+  "grid=<1|2|3>": "Adds grids to the graph",
+  "grid_lines_major=<hex>": "Applies color to major girds",
+  "grid_lines_minor=<hex>": "Applies color to minor girds",
+  "line_style=<hex>": "Change the color of the plot line",
+  "plot_style=<0-25>": "Determines the plot_style (boring)",
+  "spine_bottom=<hex>": "Bottom-spine color",
+  "spine_left=<hex>": "Left-spine color",
+  "spine_right=<hex>": "Right-spine color",
+  "spine_top=<hex>": "Top-spine color",
+  "tick_colors=<hex>": "Applies color to ticks",
+  "title_text=<any text>": "Sets title",
+  "x_coord=<any>": "Fixes the value of the x_coord",
+  "y_coord=<any>": "Fixes the value of the y_coord"
+}
