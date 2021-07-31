@@ -23,6 +23,8 @@ using KunalsDiscordBot.Core.Attributes;
 using System.Net.Http;
 using System.Drawing;
 using KunalsDiscordBot.Events;
+using System.Net;
+using System.IO;
 
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
@@ -394,17 +396,30 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireBotPermissions(Permissions.ManageEmojis)]
         public async Task AddEmoji(CommandContext ctx, string name, string url)
         {
-            await ctx.Channel.SendMessageAsync("This might take a second").ConfigureAwait(false);
-
-            await using var stream = await new HttpClient().GetStreamAsync(url);
-            var emoji = await ctx.Guild.CreateEmojiAsync(name, stream);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            if(ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name.ToLower() == url) != null)
             {
-                Title = $"Emoji Adeed! :{emoji.Name}:",
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
-                Color = Color
-            }).ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync("emoji with this name already exists").ConfigureAwait(false);
+                return;
+            }    
+
+            await ctx.Channel.SendMessageAsync("This might take a second").ConfigureAwait(false);
+            using (WebClient webClient = new WebClient())
+            {
+                byte[] data = webClient.DownloadData(url);
+
+                using (MemoryStream stream = new MemoryStream(data))
+                {
+                    stream.Position = 0;
+                    var emoji = await ctx.Guild.CreateEmojiAsync(name, stream);
+
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    {
+                        Title = $"Emoji Adeed! <:{emoji.Name}:{emoji.Id}>",
+                        Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
+                        Color = Color
+                    }).ConfigureAwait(false);
+                }
+            }       
         }
 
         [Command("RemoveEmoji")]

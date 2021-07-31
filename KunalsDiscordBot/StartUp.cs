@@ -42,7 +42,7 @@ namespace KunalsDiscordBot
             Console.WriteLine("InBuildService");
             var serviceProvider = services.BuildServiceProvider();
 
-            var bot = new Bot(serviceProvider);
+            var bot = new PepperBot(serviceProvider);
             services.AddSingleton(bot);
         }
 

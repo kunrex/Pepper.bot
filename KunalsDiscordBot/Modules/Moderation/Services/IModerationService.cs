@@ -35,5 +35,7 @@ namespace KunalsDiscordBot.Services.Moderation
 
         public Task<bool> ClearInfractions(ulong id, ulong guildId);
         public Task<bool> ClearEndorsements(ulong id, ulong guildId);
+
+        public Task<bool> ClearAllServerModerationData(ulong serverId);
     }
 }

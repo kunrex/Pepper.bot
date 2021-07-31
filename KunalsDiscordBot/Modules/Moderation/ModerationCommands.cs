@@ -281,63 +281,44 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveAllRoles(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
-            try
+            int botHighest = (await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).GetHighest();
+            foreach (var role in member.Roles)
             {
-
-
-                foreach (var role in member.Roles)
-                    await member.RevokeRoleAsync(role).ConfigureAwait(false);
-
-                var embed = new DiscordEmbedBuilder
+                if (role.Position >= botHighest)
                 {
-                    Title = $"Removed all roles",
-                    Color = Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    }
+                    await ctx.Channel.SendMessageAsync($"Cannot remove the role {role.Mention}, as its higher than my highest role");
+                    continue;
+                }
 
-                };
-
-                embed.AddField("From: ", member.Mention);
-                embed.AddField("Reason: ", reason);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                await member.RevokeRoleAsync(role).ConfigureAwait(false);
             }
-            catch
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
-                await ctx.Channel.SendMessageAsync($"Cannot remove a role from member, this is because one of roles on this memeber is higher than the highest role I have").ConfigureAwait(false);
-            }
+                Title = $"Removed all roles (that I can)",
+                Color = Color,
+                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
+            }.AddField("From: ", member.Mention)
+             .AddField("Reason: ", reason)).ConfigureAwait(false);
         }
 
         [Command("MemberInfo")]
         [Description("Gets moderation info about the member")]
-        public async Task MemberInfo(CommandContext ctx, DiscordMember member)
+        public async Task MemberInfo(CommandContext ctx, DiscordMember member = null)
         {
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = member.AvatarUrl,
-                Height = ThumbnailSize,
-                Width = ThumbnailSize
-            };
+            member = member == null ? ctx.Member : member;
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
-                Thumbnail = thumbnail,
+                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize),
                 Color = Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Member info: {member.Username} #{member.Discriminator}"
-                }
-            };
-
-            embed.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true);
-            embed.AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true);
-            embed.AddField("Bans: ", (await modService.GetBans(member.Id, ctx.Guild.Id)).Count.ToString());
-            embed.AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true);
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                Footer = BotService.GetEmbedFooter($"Member info: {member.Username} #{member.Discriminator}")
+            }.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true)
+             .AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true)
+             .AddField("** **", "** **")
+             .AddField("Bans: ", (await modService.GetBans(member.Id, ctx.Guild.Id)).Count.ToString(), true)
+             .AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true)).ConfigureAwait(false);
         }
 
         [Command("AddRule")]

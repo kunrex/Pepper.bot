@@ -156,7 +156,7 @@ namespace KunalsDiscordBot.Modules.Games.Simple
             }
             catch (Exception e)
             {
-                await ctx.Channel.SendMessageAsync($"Unkown error -  {e.Message}  occured, <@{Bot.KunalsID}>").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Unkown error -  {e.Message}  occured, <@{PepperBot.KunalsID}>").ConfigureAwait(false);
                 gameOver = true;
                 return;
             }

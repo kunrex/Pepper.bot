@@ -35,7 +35,7 @@ using KunalsDiscordBot.Core.Exceptions;
 
 namespace KunalsDiscordBot
 {
-    public class Bot
+    public class PepperBot
     {
         public DiscordClient client { get; private set; }
         public CommandsNextExtension commands { get; private set; }
@@ -45,7 +45,7 @@ namespace KunalsDiscordBot
 
         public static readonly string KunalsID = System.Text.Json.JsonSerializer.Deserialize<ConfigData>(File.ReadAllText("Config.json")).KunalsID;
 
-        public Bot (IServiceProvider _services)
+        public PepperBot (IServiceProvider _services)
         {
             string fileData = File.ReadAllText("Config.json");
             var configData = System.Text.Json.JsonSerializer.Deserialize<ConfigData>(fileData);
@@ -257,16 +257,19 @@ namespace KunalsDiscordBot
             _ = Task.Run(async () =>
             {
                 var serverService = (IServerService)services.GetService(typeof(IServerService));
-                var profile = await serverService.GetServerProfile(e.Guild.Id);
+                var modService = (IModerationService)services.GetService(typeof(IModerationService));
 
+                var profile = await serverService.GetServerProfile(e.Guild.Id);
+          
                 var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
                 if (channel == null)
                     channel = e.Guild.GetDefaultChannel();
 
-                if (channel == null)
-                    return;
+                if (channel != null)
+                    await channel.SendMessageAsync(BotService.GetLeaveEmbed().WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30))
+                    .ConfigureAwait(false);
 
-                await channel.SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
+                await modService.ClearAllServerModerationData(e.Guild.Id);
                 await serverService.RemoveServerProfile(e.Guild.Id);
             });
 

@@ -77,6 +77,13 @@ namespace KunalsDiscordBot.Services
             return embed;
         }
 
+        public static DiscordEmbedBuilder GetLeaveEmbed() => new DiscordEmbedBuilder
+        {
+            Title = "Had a great time here ppl!",
+            Description = "Note: The config for this server will be deleted, in case I'm ever readded it would be a fresh new one",
+            Footer = GetEmbedFooter($"Left server at {DateTime.Now}")
+        };
+
         public static DiscordEmbedBuilder.EmbedThumbnail GetEmbedThumbnail(DiscordUser user, int thumbnailSize) => new DiscordEmbedBuilder.EmbedThumbnail
         {
             Url = user.AvatarUrl,

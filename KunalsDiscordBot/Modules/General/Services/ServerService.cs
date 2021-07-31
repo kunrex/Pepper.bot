@@ -19,7 +19,7 @@ namespace KunalsDiscordBot.Services.General
             if (index < 0)
                 return null;
 
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)guildId).ConfigureAwait(false);
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)guildId);
             if (profile == null)
                 return null;
 
@@ -30,7 +30,7 @@ namespace KunalsDiscordBot.Services.General
 
         public async Task<bool> SetMuteRoleId(ulong id, ulong roleId)
         {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
             if (profile == null)
                 return false;
 
@@ -54,7 +54,7 @@ namespace KunalsDiscordBot.Services.General
 
         public async Task<bool> AddOrRemoveRule(ulong id, string ruleContent, bool add)
         {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
             if (profile == null)
                 return false;
 
@@ -81,12 +81,12 @@ namespace KunalsDiscordBot.Services.General
             return true;
         }
 
-        private async Task<bool> CheckIfRuleExists(ulong id, string ruleContent)
+        private Task<bool> CheckIfRuleExists(ulong id, string ruleContent)
         {
-            var profile = await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id);
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id);
             var rules = context.ServerRules.AsQueryable().Where(x => x.ServerProfileId == profile.Id).ToList();
 
-            return rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null;
+            return Task.FromResult(rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null);
         }
 
         public async Task<ServerProfile> GetServerProfile(ulong id)
@@ -147,7 +147,7 @@ namespace KunalsDiscordBot.Services.General
             return true;
         }
 
-        public async Task<ulong> GetDJRole(ulong id) => (ulong)(await context.ServerProfiles.FirstOrDefaultAsync(x => x.GuildId == (long)id)).DJRoleId;
+        public Task<ulong> GetDJRole(ulong id) => Task.FromResult((ulong)(context.ServerProfiles.FirstOrDefault(x => x.GuildId == (long)id)).DJRoleId);
 
         public async Task<bool> TogglePermissions(ulong id, bool toToggle)
         {
