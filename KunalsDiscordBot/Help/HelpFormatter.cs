@@ -30,6 +30,11 @@ namespace KunalsDiscordBot.Help
         private FieldData Module { get; set; }
         private FieldData Overloads { get; set; }
 
+        private FieldData Cooldown { get; set; }
+        private FieldData BotPerms { get; set; }
+        private FieldData UserPerms { get; set; }
+        private FieldData ExecutionRequirements { get; set; }
+
         private bool IsCommand { get; set; } = false;
         private bool IsModule { get; set; } = false;
         private bool IsGeneralHelp { get; set; } = false;
@@ -60,10 +65,16 @@ namespace KunalsDiscordBot.Help
             {
                 Embed.AddField(Aliases.name, Aliases.value, false);
                 Embed.AddField(Module.name, Module.value, false);
+
+                Embed.AddField(BotPerms.name, BotPerms.value, true);
+                Embed.AddField(UserPerms.name, UserPerms.value, true);
             }
 
-            if(IsCommand && !IsModule)
+            if (IsCommand && !IsModule)
+            {
+                Embed.AddField(Cooldown.name, Cooldown.value, false);
                 Embed.AddField(Overloads.name, Overloads.value, false);
+            }
 
             return new CommandHelpMessage(embed: Embed);
         }
@@ -92,6 +103,19 @@ namespace KunalsDiscordBot.Help
             for (int i = 0; i < command.Overloads.Count; i++)
                 overloads += $"🗕 __Overload {i + 1}__:\n{GetOverload(command.Overloads[i])}\n";
             Overloads = new FieldData { name = "__Overloads (Same command with different parameters)__", value = overloads == string.Empty ? "None" : overloads, inline = false };
+
+            var userPerm = (RequireUserPermissionsAttribute)command.ExecutionChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute);
+            var botPerm = (RequireBotPermissionsAttribute)command.ExecutionChecks.FirstOrDefault(x => x is RequireBotPermissionsAttribute);
+
+            UserPerms = new FieldData { name = "__User Permissions__", value = $"{(userPerm == null ? "None" : userPerm.Permissions.ToString())}" };
+            BotPerms = new FieldData { name = "__Bot Permissions__", value = $"{(botPerm == null ? "None" : botPerm.Permissions.ToString())}" };
+
+            var cooldown = (CooldownAttribute)command.ExecutionChecks.FirstOrDefault(x => x is CooldownAttribute);
+            Cooldown = new FieldData
+            {
+                name = "__Cool down__",
+                value = $"{(cooldown == null ? "None" : $"{cooldown.Reset.Days} Days, {cooldown.Reset.Hours} Hours, {cooldown.Reset.Minutes} Minutes")}"
+            };
 
             return this;
         }
@@ -125,8 +149,13 @@ namespace KunalsDiscordBot.Help
                     aliases = "None";
 
                 Aliases = new FieldData { name = "__Aliases__", value = aliases, inline = false};
-
                 Module = new FieldData { name = "__Module__", value = "None", inline = false};
+
+                var userPerm = (RequireUserPermissionsAttribute)parent.ExecutionChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute);
+                var botPerm = (RequireBotPermissionsAttribute)parent.ExecutionChecks.FirstOrDefault(x => x is RequireBotPermissionsAttribute);
+
+                UserPerms = new FieldData { name = "__User Permissions__", value = $"{(userPerm == null ? "None" : userPerm.Permissions.ToString())}" };
+                BotPerms = new FieldData { name = "__Bot Permissions__", value = $"{(botPerm == null ? "None" : botPerm.Permissions.ToString())}" };
             }
             else
             {

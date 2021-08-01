@@ -396,7 +396,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireBotPermissions(Permissions.ManageEmojis)]
         public async Task AddEmoji(CommandContext ctx, string name, string url)
         {
-            if(ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name.ToLower() == url) != null)
+            if(ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name.ToLower() == name) != null)
             {
                 await ctx.Channel.SendMessageAsync("emoji with this name already exists").ConfigureAwait(false);
                 return;
