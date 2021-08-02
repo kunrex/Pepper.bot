@@ -2,9 +2,9 @@
 using System.Linq;
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.Modules.Moderation
+namespace KunalsDiscordBot.Extensions
 {
-    public static class ModerationCommandExtensions
+    public static partial class PepperBotExtensions
     {
         public static int GetHighest(this DiscordMember member) => member.Roles.ToList().Select(x => x.Position ).Max();
     }

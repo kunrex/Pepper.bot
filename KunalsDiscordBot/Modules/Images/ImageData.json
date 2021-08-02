@@ -4,30 +4,40 @@
       "fileName": "abandon.png",
       "x": [ 32 ],
       "y": [ 424 ],
+      "length": [ 302 ],
+      "breadth": [ 94 ],
       "size": [ 17 ]
     },
     {
       "fileName": "right.png",
       "x": [ 42, 682, 682 ],
       "y": [ 558, 558, 1195 ],
+      "length": [ 548, 548, 548 ],
+      "breadth": [ 52, 52, 52 ],
       "size": [ 23, 23, 23 ]
     },
     {
       "fileName": "violence.png",
       "x": [ 362 ],
       "y": [ 16 ],
+      "length": [ 243 ],
+      "breadth": [ 103 ],
       "size": [ 23 ]
     },
     {
       "fileName": "yesno.png",
       "x": [ 358, 358 ],
       "y": [ 12, 295 ],
+      "length": [ 324, 324 ],
+      "breadth": [ 243, 243 ],
       "size": [ 30, 30 ]
     },
     {
       "fileName": "yesnoPewds.png",
       "x": [ 613, 613 ],
       "y": [ 22, 515 ],
+      "length": [ 560, 560 ],
+      "breadth": [ 420, 420 ],
       "size": [ 30, 30 ]
     },
     {
@@ -40,6 +50,8 @@
       "fileName": "billy.png",
       "x": [ 30 ],
       "y": [ 351 ],
+      "length": [ 220 ],
+      "breadth": [ 70 ],
       "size": [ 20 ]
     }
   ]

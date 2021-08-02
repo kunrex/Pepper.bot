@@ -14,12 +14,12 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using System.Drawing.Imaging;
-using System;
+using KunalsDiscordBot.Extensions;
 
 namespace KunalsDiscordBot.Modules.Images
 {
     [Group("Image")]
-    [DecorAttribute("Chartreuse", ":camera:")]
+    [Decor("Chartreuse", ":camera:")]
     public class ImageCommands : BaseCommandModule
     {
         private readonly IImageService service;
@@ -31,31 +31,32 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("abandon.png")]
         public async Task Abandon(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 1);
+            string[] sentences = new[] { message };
 
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    //have to change this to load using the config
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -64,31 +65,31 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("violence.png")]
         public async Task Violence(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 1);
+            string[] sentences = new[] { message };
 
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -97,31 +98,30 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("billy.png")]
         public async Task Billy(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 1);
-
+            string[] sentences = new[] { message };
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -130,31 +130,33 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("right.png")]
         public async Task Right(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 3);    
+            string[] sentences = message.Split(',');
+            if (sentences.Length < 3)
+                sentences = new[] { "Im going to use this command", "You're gonna split the 3 sentences with ,'s right?", "You will split them right?" };
 
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -174,25 +176,24 @@ namespace KunalsDiscordBot.Modules.Images
                 {other.AvatarUrl, 1 }
             });
 
-            service.GetImages(filePath, out Image image);
-
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < images.Count; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                RectangleF srcRect = new RectangleF(0, 0, images[i].Width, images[i].Width);
+                for (int i = 0; i < images.Count; i++)
+                {
+                    RectangleF srcRect = new RectangleF(0, 0, images[i].Width, images[i].Width);
 
-                graphics.DrawImage(service.ResizeImage(images[i], editData.size[i], editData.size[i]), editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
-            }
+                    await graphicalImage.DrawImage(images[i], editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -201,31 +202,33 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("yesno.png")]
         public async Task YesNo(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 2);
+            string[] sentences = message.Split(',');
+            if (sentences.Length < 2)
+                sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
 
@@ -234,31 +237,33 @@ namespace KunalsDiscordBot.Modules.Images
         [WithFile("yesnoPewds.png")]
         public async Task YesNoPewds(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = service.GetSentences(message, 2);
+            string[] sentences = message.Split(',');
+            if (sentences.Length < 2)
+                sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
             string fileName = service.GetFileByCommand(ctx);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
-            service.GetImages(filePath, out Image image);
 
-            Graphics graphics = Graphics.FromImage(image);
-
-            for (int i = 0; i < sentences.Length; i++)
+            using (var graphicalImage = new ImageGraphic(filePath)) 
             {
-                service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                graphics.DrawString(sentences[i], drawFont, drawBrush, new PointF(editData.x[i], editData.y[i]));
-            }
+                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                image.Save(ms, ImageFormat.Png);
-                ms.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    graphicalImage.image.Save(ms, ImageFormat.Png);
+                    ms.Position = 0;
 
-                await new DiscordMessageBuilder()
-                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                         .SendAsync(ctx.Channel);
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                             .SendAsync(ctx.Channel);
+                }
             }
         }
     }

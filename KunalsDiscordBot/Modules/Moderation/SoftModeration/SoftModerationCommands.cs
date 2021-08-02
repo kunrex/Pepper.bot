@@ -12,16 +12,14 @@ using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Attributes;
 using System;
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Exceptions;
-using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Net.Models;
 using KunalsDiscordBot.Core.Attributes;
-using System.Net.Http;
-using System.Drawing;
 using KunalsDiscordBot.Events;
 using System.Net;
 using System.IO;
