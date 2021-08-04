@@ -21,6 +21,6 @@ namespace KunalsDiscordBot.Services.Images
         public string[] GetSentences(string sentence, int num);
 
         public string GetFileByCommand(in CommandContext ctx);
-        public List<Image> GetImages(Dictionary<string, int> urls);
+        public List<ImageGraphic> GetImages(Dictionary<string, int> urls);
     }
 }

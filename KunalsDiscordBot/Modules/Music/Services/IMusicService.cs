@@ -14,7 +14,7 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> ConnnectPlayer(VCPlayer player, DiscordChannel _channel, DiscordChannel _boundChannel);
         public Task<string> DisconnectPlayer(ulong id);
 
-        public Task<string> Play(ulong id, string search, string member);
+        public Task<string> Play(ulong id, string search, string member, ulong memberId);
 
         public Task<string> Pause(ulong id);
         public Task<string> Resume(ulong id);
@@ -31,6 +31,7 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> ClearQueue(ulong id);
         public Task<string> Seek(ulong id, TimeSpan span, bool relative = false);
         public Task<string> Skip(ulong id);
+        public Task<string> Clean(ulong id);
 
         public Task<bool> CheckDJRole(CommandContext ctx);
     }

@@ -377,7 +377,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Daily")]
         [Description("Log in daily to collect some coins")]
-        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.Global)]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Daily(CommandContext ctx)
         {
             var coins = new Random().Next(dailyMin, dailyMax);
@@ -394,7 +394,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Weekly")]
         [Description("Log in weekly to collect some coins")]
-        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day * 7, CooldownBucketType.Global)]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Weekly(CommandContext ctx)
         {
             var coins = new Random().Next(weeklyMin, weeklyMax);
@@ -411,7 +411,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Monthly")]
         [Description("Log in monthly to collect some coins, for simplcity a month is averegaed to 30 days")]
-        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day * 30, CooldownBucketType.Global)]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Monthly(CommandContext ctx)
         {
             var coins = new Random().Next(monthlyMin, monthlyMax);

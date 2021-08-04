@@ -94,17 +94,18 @@ namespace KunalsDiscordBot.Services.Images
             return newImage;
         }
 
-        public List<Image> GetImages(Dictionary<string, int> urls)
+        public List<ImageGraphic> GetImages(Dictionary<string, int> urls)
         {
-            List<Image> images = new List<Image>();
-            var client = new WebClient();
-
-            foreach(var url in urls)
+            List<ImageGraphic> images = new List<ImageGraphic>();
+            using (var client = new WebClient())
             {
-                var image = Image.FromStream(new MemoryStream(client.DownloadData(url.Key)));
+                foreach (var url in urls)
+                {
+                    var image = new ImageGraphic(new MemoryStream(client.DownloadData(url.Key)));
 
-                for (int i = 0; i < url.Value; i++)
-                    images.Add(image);
+                    for (int i = 0; i < url.Value; i++)
+                        images.Add(image);
+                }
             }
 
             return images;

@@ -15,6 +15,8 @@ using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using System.Drawing.Imaging;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Modules.Currency;
+using System.Linq;
 
 namespace KunalsDiscordBot.Modules.Images
 {
@@ -29,6 +31,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("abandon")]
         [Description("Abandon meme")]
         [WithFile("abandon.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Abandon(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = new[] { message };
@@ -63,6 +66,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("violence")]
         [Description("Violence meme")]
         [WithFile("violence.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Violence(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = new[] { message };
@@ -96,6 +100,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("billy")]
         [Description("Billy what have you done meme")]
         [WithFile("billy.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Billy(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = new[] { message };
@@ -128,6 +133,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("Right")]
         [Description("For the better right? use `,` to seperate the sentences")]
         [WithFile("right.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Right(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = message.Split(',');
@@ -163,6 +169,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("Brother")]
         [Description("Why do you hate me brother?")]
         [WithFile("brother.jpeg")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Brother(CommandContext ctx, DiscordMember other)
         {
             string fileName = service.GetFileByCommand(ctx);
@@ -170,7 +177,7 @@ namespace KunalsDiscordBot.Modules.Images
 
             EditData editData = service.GetEditData(fileName);
 
-            List<Image> images = service.GetImages(new Dictionary<string, int>
+            List<ImageGraphic> images = service.GetImages(new Dictionary<string, int>
             {
                 {ctx.Member.AvatarUrl, 3 },
                 {other.AvatarUrl, 1 }
@@ -180,8 +187,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < images.Count; i++)
                 {
-                    RectangleF srcRect = new RectangleF(0, 0, images[i].Width, images[i].Width);
-
+                    await images[i].Resize(editData.size[i], editData.size[i]);
+ 
+                    RectangleF srcRect = new RectangleF(0, 0, editData.size[i], editData.size[i]);                  
                     await graphicalImage.DrawImage(images[i], editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
                 }
 
@@ -194,12 +202,16 @@ namespace KunalsDiscordBot.Modules.Images
                              .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
                              .SendAsync(ctx.Channel);
                 }
+
+                foreach (var image in images)
+                    image.Dispose();
             }
         }
 
         [Command("Yesno")]
         [Description("Yes, no")]
         [WithFile("yesno.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task YesNo(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = message.Split(',');
@@ -235,6 +247,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("YesnoPewds")]
         [Description("Yes, no but pewdipie style")]
         [WithFile("yesnoPewds.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task YesNoPewds(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = message.Split(',');
@@ -263,6 +276,27 @@ namespace KunalsDiscordBot.Modules.Images
                     await new DiscordMessageBuilder()
                              .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
                              .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Invert")]
+        [Description("Inverts a user avatur url")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Invert(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            using (var clieant = new WebClient())
+            {
+                using (var graphicalImage = new ImageGraphic(new MemoryStream(clieant.DownloadData(member.AvatarUrl))))
+                {
+                    graphicalImage.Invert();
+
+                    using (var ms = graphicalImage.ToMemoryStream())
+                        await new DiscordMessageBuilder()
+                                  .WithFiles(new Dictionary<string, Stream>() { { $"{string.Concat(ctx.Member.DisplayName.Reverse())}.png", ms } })
+                                  .SendAsync(ctx.Channel);
                 }
             }
         }

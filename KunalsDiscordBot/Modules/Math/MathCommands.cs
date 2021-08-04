@@ -16,7 +16,6 @@ using DSharpPlus.Entities;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.Math;
-using Newtonsoft.Json;
 
 namespace KunalsDiscordBot.Modules.Math
 {
@@ -38,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Math
         }
 
         [Command("Graph")]
-        [Description("Graph an equation. Don't use spaces for the equations but spread out different attributes with spaces. API used: https://denzven.pythonanywhere.com/")]
+        [Description("Graph an equation. Don't use spaces in the equation but spread out different attributes with spaces. API used: https://denzven.pythonanywhere.com/")]
         public async Task Graph(CommandContext ctx, string equation, params string[] attributes)
         {
             string url = $"http://denzven.pythonanywhere.com/DenzGraphingApi/v1/flat_graph/test/plot?formula={Uri.EscapeDataString(equation)}";
@@ -52,7 +51,7 @@ namespace KunalsDiscordBot.Modules.Math
 
                 if (json[0] == '{')//error
                 {
-                    var jsonData = System.Text.Json.JsonSerializer.Deserialize<JsonData>(json);
+                    var jsonData = JsonSerializer.Deserialize<JsonData>(json);
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Graph",
@@ -74,10 +73,10 @@ namespace KunalsDiscordBot.Modules.Math
 
         [Command("GraphAttributes")]
         [Aliases("Attributes", "atrrs")]
-        [Description("Shows a lite of attributes for the graph command")]
+        [Description("Shows a list of attributes you can use for the graph command")]
         public async Task Attributes(CommandContext ctx)
         {
-            Dictionary<string, string> attributes = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine("Modules", "Math", "Attributes.json")));
+            Dictionary<string, string> attributes = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(Path.Combine("Modules", "Math", "Attributes.json")));
 
             var embed = new DiscordEmbedBuilder
             {

@@ -106,7 +106,7 @@ namespace KunalsDiscordBot.Modules.Music
         [UserVCNeeded, BotVCNeeded]
         public async Task Play(CommandContext ctx, [RemainingText]string search)
         {           
-            var message = await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName);
+            var message = await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName, ctx.Member.Id);
 
             if(message.Equals("Playing..."))
                 await ctx.Channel.SendMessageAsync(await service.NowPlaying(ctx.Guild.Id)).ConfigureAwait(false);
@@ -242,6 +242,15 @@ namespace KunalsDiscordBot.Modules.Music
         public async Task Rewind(CommandContext ctx, TimeSpan span)
         {
             var message = await service.Seek(ctx.Guild.Id, span.Negate(), true);
+            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
+        }
+
+        [Command("Clean")]
+        [Description("Cleans the queue. If a track is in the queue and the user who requested is not in the channel, the track is removed")]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
+        public async Task Clean(CommandContext ctx)
+        {
+            var message = await service.Clean(ctx.Guild.Id);
             await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
         }
     }

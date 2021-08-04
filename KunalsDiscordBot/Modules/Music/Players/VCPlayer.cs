@@ -13,6 +13,7 @@ using KunalsDiscordBot.Services;
 using DSharpPlus;
 using System.Threading;
 using DSharpPlus.Lavalink.EventArgs;
+using KunalsDiscordBot.Modules.Music.Players;
 
 namespace KunalsDiscordBot.Services.Music
 {
@@ -22,8 +23,7 @@ namespace KunalsDiscordBot.Services.Music
         private static readonly int Width = 75;
 
         public ulong guildID { get; private set; }
-        public Queue<string> queue { get; private set; }
-        private Queue<string> memberswhoRequested { get; set; }
+        public Queue<QueueData> queue { get; private set; }
         public LavalinkGuildConnection connection { get; private set; }
         public LavalinkExtension lava { get; private set; }
         public LavalinkNodeConnection node { get; private set; }
@@ -41,8 +41,7 @@ namespace KunalsDiscordBot.Services.Music
         public VCPlayer(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension)
         {
             guildID = id;
-            queue = new Queue<string>();
-            memberswhoRequested = new Queue<string>();
+            queue = new Queue<QueueData>();
 
             node = nodeConnection;
             lava = extension;
@@ -82,7 +81,7 @@ namespace KunalsDiscordBot.Services.Music
 
         private async Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args) => await PlayNext();
 
-        public async Task<string> StartPlaying(string search, string member)
+        public async Task<string> StartPlaying(string search, string member, ulong id)
         {
             if (connection == null)
                 return "LavaLink is not connected.";
@@ -103,9 +102,8 @@ namespace KunalsDiscordBot.Services.Music
             }
             else
             {
-                queue.Enqueue(search);
-                memberswhoRequested.Enqueue(member);
-                return $"Added {search} to queue";
+                queue.Enqueue(new QueueData { name = member , id = id, search = search});
+                return $"Added `{search}` to queue";
             }
         }
 
@@ -131,9 +129,9 @@ namespace KunalsDiscordBot.Services.Music
             currentTrack = null;
 
             var search = queue.Dequeue();
-            memberWhoRequested = memberswhoRequested.Dequeue();
+            memberWhoRequested = queue.Dequeue().name;
 
-            var loadResult = await node.Rest.GetTracksAsync(search);
+            var loadResult = await node.Rest.GetTracksAsync(search.search);
 
             if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
             {
@@ -147,10 +145,7 @@ namespace KunalsDiscordBot.Services.Music
             await connection.PlayAsync(currentTrack);
 
             if (queueLoop)//re add the search
-            {
                 queue.Enqueue(search);
-                memberswhoRequested.Enqueue(memberWhoRequested);
-            }
 
             var embed = await NowPlaying();
             await boundChannel.SendMessageAsync(embed: embed);
@@ -190,7 +185,7 @@ namespace KunalsDiscordBot.Services.Music
 
                 queueToList.RemoveAt(index - 1);
 
-                var newQueue = new Queue<string>();
+                var newQueue = new Queue<QueueData>();
 
                 foreach (var value in queueToList)
                     newQueue.Enqueue(value);
@@ -226,7 +221,7 @@ namespace KunalsDiscordBot.Services.Music
             if (queue.Count > 0)
             {
                 int index = 1;
-                var members = memberswhoRequested.ToArray();
+                var members = queue.Select(x => x.name).ToArray();
 
                 foreach (var search in queue)
                 {
@@ -282,7 +277,7 @@ namespace KunalsDiscordBot.Services.Music
 
             embed.AddField("`Requested By:` ", memberWhoRequested);
             embed.AddField("`Position`",  $"{connection.CurrentState.PlaybackPosition:mm\\:ss}");
-            embed.AddField("`Next Search:` ", queue.TryPeek(out string result) ? queue.Peek() : "Nothing", true);
+            embed.AddField("`Next Search:` ", queue.TryPeek(out QueueData result) ? queue.Peek().search : "Nothing", true);
             embed.AddField("`Paused`", isPaused.ToString(), true);
             embed.AddField("`Looping`", isLooping.ToString(), true);
             embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
@@ -292,7 +287,7 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> Move(int trackToMove, int newIndex)
         {
-            List<string> tracks = queue.ToList();
+            List<QueueData> tracks = queue.ToList();
 
             if(queue.Count <= 1)
                 return "Queue is either empty or has only 1 search";
@@ -304,7 +299,7 @@ namespace KunalsDiscordBot.Services.Music
 
             tracks.Insert(newIndex - 1, track);
 
-            Queue<string> newQueue = new Queue<string>();
+            Queue<QueueData> newQueue = new Queue<QueueData>();
             foreach (var _track in tracks)
                 newQueue.Enqueue(_track);
 
@@ -348,7 +343,7 @@ namespace KunalsDiscordBot.Services.Music
             if (queue.Count == 0)
                 return "Queue is already empty";
 
-            queue = new Queue<string>();
+            queue = new Queue<QueueData>();
             await Task.CompletedTask;
 
             return "Queue cleared";
@@ -368,6 +363,27 @@ namespace KunalsDiscordBot.Services.Music
                 await connection.SeekAsync(newSpan);
 
             return $"Playing from {newSpan:mm\\:ss}";
+        }
+
+        public Task<string> Clean()
+        {
+            var queueToList = queue.ToList();
+            int removed = 0;
+
+            foreach (var value in queueToList)
+                if(connection.Channel.Users.FirstOrDefault(x => x.Id == value.id) == null)
+                {
+                    queueToList.Remove(value);
+                    removed++;
+                }
+
+            var newQueue = new Queue<QueueData>();
+
+            foreach (var value in queueToList)
+                newQueue.Enqueue(value);
+
+            queue = newQueue;
+            return Task.FromResult($"Removed {removed} track(s)");
         }
     }
 }

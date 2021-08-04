@@ -215,7 +215,7 @@ namespace KunalsDiscordBot.Services.Music
             return await player.Seek(span, relative);
         }
 
-        public async Task<string> Play(ulong id, string search, string member)
+        public async Task<string> Play(ulong id, string search, string member, ulong memberId)
         {
             if (!players.ContainsKey(id))
                 return "I'm not in a voice channel?";
@@ -225,7 +225,7 @@ namespace KunalsDiscordBot.Services.Music
             if (player.connection == null)
                 return "LavaLink not connected";
 
-            return await player.StartPlaying(search, member);
+            return await player.StartPlaying(search, member, memberId);
         }
 
         public async Task<string> Skip(ulong id)
@@ -266,6 +266,21 @@ namespace KunalsDiscordBot.Services.Music
                 return true;
 
             return ctx.Member.Roles.FirstOrDefault(x => x.Id == (ulong)profile.DJRoleId) != null;
+        }
+
+        public async Task<string> Clean(ulong id)
+        {
+            if (!players.ContainsKey(id))
+                return "I'm not in a voice channel?";
+
+            var player = players[id];
+
+            if (player.connection == null)
+                return "LavaLink not connected";
+            if (player.connection.CurrentState.CurrentTrack == null)
+                return "There are no tracks currently loaded";
+
+            return await player.Clean();
         }
     }
 }
