@@ -175,10 +175,10 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 switch (cardsPlayed[0].cardType)
                 {
                     case CardType.Skip:
-                        int newIndex = players.IndexOf(currentPlayer) + 1;
-                        newIndex += (direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count);
+                        int newIndex = players.IndexOf(currentPlayer);
+                        newIndex += direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count;
+                        newIndex = (newIndex + (players.Count)) % players.Count;
 
-                        newIndex %= players.Count;
                         currentPlayer = players[newIndex];
                         currentCard = cardsPlayed[cardsPlayed.Count - 1];
 
@@ -330,7 +330,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             embed.AddField("Current Card:", "** **");
             await SendMessageToAllPlayers(null, embed);
 
-            currentPlayer.PrintAllCards();
+            await currentPlayer.PrintAllCards();
             await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
@@ -364,7 +364,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             foreach (var player in players)
                 player.SendPaginatedMessage(pages, emojis);
 
-            return Task.CompletedTask;
+            return Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         private List<Page> GetCardPages(string title, List<string> urls)

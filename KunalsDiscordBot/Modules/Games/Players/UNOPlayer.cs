@@ -44,7 +44,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
         {
             dmChannel = channel;
             await dmChannel.SendMessageAsync("Cards recieved").ConfigureAwait(false);
-            PrintAllCards();
+            await PrintAllCards();
 
             await dmChannel.SendMessageAsync("Do you want me to auto-ready on your part after each turn? Type `y` or `yes` for yes. Anything else will be taken as no. Time: 10 seconds").ConfigureAwait(false);
             var interactivity = client.GetInteractivity();
@@ -72,48 +72,63 @@ namespace KunalsDiscordBot.Modules.Games.Players
             await client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == dmChannel.Id, span);
         }
 
-        public async void SendPaginatedMessage(List<Page> pages, PaginationEmojis emojis) => await dmChannel.SendPaginatedMessageAsync(member, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2));
-
-        public void PrintAllCards()
+        public Task SendPaginatedMessage(List<Page> pages, PaginationEmojis emojis)
         {
-            var pages = new List<Page>();
-            int index = 1;
+            _ = Task.Run(() =>dmChannel.SendPaginatedMessageAsync(member, pages, emojis, DSharpPlus.Interactivity.Enums.PaginationBehaviour.WrapAround, DSharpPlus.Interactivity.Enums.PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(2)));
 
-            foreach(var card in cards)
-            {
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = "Your Cards",
-                    ImageUrl = Card.GetLink(card.fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
-                    Color = UNOGame.UNOColor
-                }.AddField("Card", card.cardName);
-
-                pages.Add(new Page(null, embed));
-                index++;
-            }
-
-            SendPaginatedMessage(pages, emojis);
+            return Task.CompletedTask;
         }
 
-        public void PrintCards(int start, int number)
+        public Task PrintAllCards()
         {
-            var pages = new List<Page>();
-
-            for(int i = start; i < start + number; i++)
+            _ = Task.Run(() =>
             {
-                var embed = new DiscordEmbedBuilder
+                var pages = new List<Page>();
+                int index = 1;
+
+                foreach (var card in cards)
                 {
-                    Title = "Drawed Cards",
-                    ImageUrl = Card.GetLink(cards[i].fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{i + 1}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
-                    Color = UNOGame.UNOColor
-                }.AddField("Card", cards[i].cardName);
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Your Cards",
+                        ImageUrl = Card.GetLink(card.fileName).link + ".png",
+                        Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
+                        Color = UNOGame.UNOColor
+                    }.AddField("Card", card.cardName);
 
-                pages.Add(new Page(null, embed));
-            }
+                    pages.Add(new Page(null, embed));
+                    index++;
+                }
 
-            SendPaginatedMessage(pages, emojis);
+                SendPaginatedMessage(pages, emojis);
+            });
+
+            return Task.CompletedTask;
+        }
+
+        public Task PrintCards(int start, int number)
+        {
+            _ = Task.Run(() =>
+            {
+                var pages = new List<Page>();
+
+                for (int i = start; i < start + number; i++)
+                {
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = "Drawed Cards",
+                        ImageUrl = Card.GetLink(cards[i].fileName).link + ".png",
+                        Footer = BotService.GetEmbedFooter($"{i + 1}/{cards.Count}. (You can view your cards using this message for 2 minutes)"),
+                        Color = UNOGame.UNOColor
+                    }.AddField("Card", cards[i].cardName);
+
+                    pages.Add(new Page(null, embed));
+                }
+
+                SendPaginatedMessage(pages, emojis);
+            });
+
+            return Task.CompletedTask;
         }
 
         public async Task<InputResult> GetInput(DiscordClient client, Card currentCard)

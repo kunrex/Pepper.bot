@@ -33,15 +33,14 @@ namespace KunalsDiscordBot.Modules.Images
         {
             image = Bitmap.FromStream(stream);
 
-            if(image.IsIndexed())
-                using (var ms = new MemoryStream())
+            if (image.IsIndexed())
+                using (var tempBitmap = new Bitmap(image.Width, image.Height))
                 {
-                    Console.WriteLine(image.RawFormat);
-                    image.Save(ms, ImageFormat.Png);
-                    image = Bitmap.FromStream(ms);
+                    using (Graphics g = Graphics.FromImage(tempBitmap))
+                        g.DrawImage(image, 0, 0);
 
+                    image = new Bitmap(tempBitmap);
                     graphics = Graphics.FromImage(image);
-                    Console.WriteLine(image.RawFormat);
                 }
             else
                 graphics = Graphics.FromImage(image);

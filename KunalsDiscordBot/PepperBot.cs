@@ -27,6 +27,7 @@ using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.General;
 using DSharpPlus.CommandsNext.Exceptions;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Core.Reddit;
 
 //Look into turret bot on github
 //Create an error to throw when a check fails
@@ -108,6 +109,7 @@ namespace KunalsDiscordBot
 
             commands.RegisterConverter(new BoolArgumentConverter());
             commands.RegisterConverter(new TimeSpanArgumentConverter());
+            commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
 
             ConnectAsync(client, lavaLink, lavaLinkConfig);
         }

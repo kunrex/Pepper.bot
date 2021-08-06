@@ -15,7 +15,7 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.DialogueHandlers;
 using KunalsDiscordBot.DialogueHandlers.Steps;
-using KunalsDiscordBot.Reddit;
+using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.General;
 using System.Reflection;
@@ -264,22 +264,6 @@ namespace KunalsDiscordBot.Modules.Fun
             }).ConfigureAwait(false);
         }
 
-        [Command("animals")]
-        [Description("Animal pics form r/Animals :dog::cat:")]
-        public async Task Animals(CommandContext ctx)
-        {
-            var post = redditApp.GetAnimals();
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = post.Title,
-                ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink,
-                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
-                Color = Color
-            }).ConfigureAwait(false);
-        }
-
         [Command("awww")]
         [Description("Cutee pics form r/aww :dog::cat:")]
         public async Task Awww(CommandContext ctx)
@@ -298,8 +282,8 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("post")]
         [Description("Get a random post from any subredddit")]
-        public async Task Post(CommandContext ctx, string subRedditname, string filter = "New", bool useImage = false)
-        {
+        public async Task Post(CommandContext ctx, string subRedditname, RedditPostFilter filter = RedditPostFilter.New, bool useImage = false)
+        { 
             var subReddit = redditApp.GetSubReddit(subRedditname);
             if(subReddit == null)
             {
@@ -315,14 +299,12 @@ namespace KunalsDiscordBot.Modules.Fun
                 return;
             }
 
-            var filterToString = filter.Replace(filter[0], char.ToUpper(filter[0]));
-            if (!Enum.TryParse(typeof(RedditPostFilter), filterToString, out var x))
+            var post = redditApp.GetRandomPost(subReddit, new RedditFilter
             {
-                await ctx.RespondAsync("Thats not a valid filter type").ConfigureAwait(false);
-                return;
-            }
-
-            var post = redditApp.GetRandomPost(subReddit, serverProfile.AllowNSFW == 1, useImage, (RedditPostFilter)Enum.Parse(typeof(RedditPostFilter), filterToString));
+                allowNSFW = serverProfile.AllowNSFW == 1,
+                imagesOnly = useImage,
+                filter = filter,
+            });
 
             if (post == null)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder

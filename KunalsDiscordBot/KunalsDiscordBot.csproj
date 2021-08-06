@@ -38,7 +38,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
-    <Folder Include="Core\Attributes\" />
     <Folder Include="Modules\Music\" />
     <Folder Include="Modules\Fun\" />
     <Folder Include="Modules\General\" />
@@ -47,10 +46,8 @@
     <Folder Include="Modules\Games\Players\" />
     <Folder Include="Help\" />
     <Folder Include="Modules\Fun\Services\" />
-    <Folder Include="Modules\Math\LinearEquation\" />
     <Folder Include="Services\" />
     <Folder Include="Modules\Music\Players\" />
-    <Folder Include="Modules\Fun\memes\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Moderation\SoftModeration\" />
     <Folder Include="Modules\Currency\" />
@@ -71,21 +68,29 @@
     <Folder Include="DialogueHandler\Steps\" />
     <Folder Include="ArgumentConverters\" />
     <Folder Include="Modules\Images\Services\" />
-    <Folder Include="Core\Attributes\ImageCommands\" />
-    <Folder Include="Core\Exceptions\" />
-    <Folder Include="Core\Exceptions\ImageCommands\" />
-    <Folder Include="Core\Attributes\CurrencyCommands\" />
-    <Folder Include="Core\Exceptions\CurrencyCommands\" />
     <Folder Include="Events\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\" />
     <Folder Include="Modules\General\Services\" />
     <Folder Include="Modules\Music\Services\" />
-    <Folder Include="Core\Attributes\MusicCommands\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\" />
-    <Folder Include="Core\Attributes\ModerationCommands\" />
-    <Folder Include="Core\Attributes\GeneralCommands\" />
-    <Folder Include="Reddit\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
+    <Folder Include="Core\Modules\" />
+    <Folder Include="Core\Modules\CurrencyCommands\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Attributes\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Exceptions\" />
+    <Folder Include="Core\Modules\ImageCommands\" />
+    <Folder Include="Core\Modules\ImageCommands\Attributes\" />
+    <Folder Include="Core\Modules\ImageCommands\Exceptions\" />
+    <Folder Include="Core\Modules\MusicCommands\" />
+    <Folder Include="Core\Modules\MusicCommands\Attributes\" />
+    <Folder Include="Core\Modules\Moderation_SoftModerationCommands\" />
+    <Folder Include="Core\Modules\Moderation_SoftModerationCommands\Attributes\" />
+    <Folder Include="Core\Modules\GameCommands\" />
+    <Folder Include="Core\Modules\FunCommands\" />
+    <Folder Include="Core\Modules\MathCommands\" />
+    <Folder Include="Core\Configurations\" />
+    <Folder Include="Core\Configurations\Modules\" />
+    <Folder Include="Core\Reddit\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -97,7 +102,6 @@
     <None Remove="DSharpPlus.CommandsNext" />
     <None Remove="DSharpPlus.Interactivity" />
     <None Remove="Modules\Music\AccessoryClasses\" />
-    <None Remove="Modules\Fun\memes\" />
     <None Remove="System.Drawing.Common" />
     <None Remove="runtime.osx.10.10-x64.CoreCompat.System.Drawing" />
     <None Remove="Microsoft.EntityFrameworkCore.Sqlite" />
@@ -122,23 +126,33 @@
     <None Remove="Reddit" />
     <None Remove="BoolArgumentConverter\" />
     <None Remove="Modules\Images\Services\" />
-    <None Remove="Core\Attributes\ImageCommands\" />
     <None Remove="Core\Exeptions\" />
-    <None Remove="Core\Exceptions\ImageCommands\" />
     <None Remove="Microsoft.CSharp" />
-    <None Remove="Core\Attributes\CurrencyCommands\" />
-    <None Remove="Core\Exceptions\CurrencyCommands\" />
     <None Remove="Events\" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\" />
     <None Remove="Modules\General\Services\" />
     <None Remove="Modules\Music\Services\" />
     <None Remove="Core\Attributes\Music\" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\" />
-    <None Remove="Core\Attributes\ModerationCommands\" />
-    <None Remove="Core\Attributes\GeneralCommands\" />
-    <None Remove="Reddit\" />
     <None Remove="Imgur.API" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
+    <None Remove="Core\Modules\" />
+    <None Remove="Core\Modules\CurrencyCommands\" />
+    <None Remove="Core\Modules\CurrencyCommands\Attributes\" />
+    <None Remove="Core\Modules\CurrencyCommands\Exceptions\" />
+    <None Remove="Core\Modules\ImageCommands\" />
+    <None Remove="Core\Modules\ImageCommands\Attributes\" />
+    <None Remove="Core\Modules\ImageCommands\Exceptions\" />
+    <None Remove="Core\Modules\MusicCommands\" />
+    <None Remove="Core\Modules\MusicCommands\Attributes\" />
+    <None Remove="Core\Modules\Moderation_SoftModerationCommands\" />
+    <None Remove="Core\Modules\Moderation_SoftModerationCommands\Attributes\" />
+    <None Remove="Core\Modules\GameCommands\" />
+    <None Remove="Core\Modules\FunCommands\" />
+    <None Remove="Core\Modules\MathCommands\" />
+    <None Remove="Core\Configurations\" />
+    <None Remove="Core\Configurations\Modules\" />
+    <None Remove="Core\Reddit\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">
