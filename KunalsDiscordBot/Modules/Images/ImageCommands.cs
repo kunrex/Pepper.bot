@@ -14,8 +14,6 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using System.Drawing.Imaging;
-using KunalsDiscordBot.Extensions;
-using KunalsDiscordBot.Modules.Currency;
 using System.Linq;
 
 namespace KunalsDiscordBot.Modules.Images
@@ -291,9 +289,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 using (var graphicalImage = new ImageGraphic(new MemoryStream(clieant.DownloadData(member.AvatarUrl))))
                 {
-                    graphicalImage.Invert();
+                    await graphicalImage.Invert();
 
-                    using (var ms = graphicalImage.ToMemoryStream())
+                    using (var ms = await graphicalImage.ToMemoryStream())
                         await new DiscordMessageBuilder()
                                   .WithFiles(new Dictionary<string, Stream>() { { $"{string.Concat(ctx.Member.DisplayName.Reverse())}.png", ms } })
                                   .SendAsync(ctx.Channel);

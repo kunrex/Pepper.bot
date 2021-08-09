@@ -91,9 +91,14 @@ namespace KunalsDiscordBot.Modules.Images
             return newImage;
         }
 
-        public void RotateFlip(RotateFlipType rotateFlipType) => image.RotateFlip(rotateFlipType);
+        public Task RotateFlip(RotateFlipType rotateFlipType)
+        {
+            image.RotateFlip(rotateFlipType);
 
-        public void Invert()
+            return Task.CompletedTask;
+        }
+
+        public Task Invert()
         {
             Bitmap bmap = (Bitmap)image;
             Color c;
@@ -107,15 +112,17 @@ namespace KunalsDiscordBot.Modules.Images
 
             image =  new Bitmap(bmap);
             bmap.Dispose();
+
+            return Task.CompletedTask;
         }
 
-        public MemoryStream ToMemoryStream()
+        public Task<MemoryStream> ToMemoryStream()
         {
             var ms = new MemoryStream();
             image.Save(ms, ImageFormat.Png);
             ms.Position = 0;
 
-            return ms;
+            return Task.FromResult(ms);
         }
 
         ~ImageGraphic()

@@ -23,11 +23,12 @@ namespace KunalsDiscordBot.Core.Reddit
         private readonly RedditAppConfig configuration;
 
         private RedditPostCollection memes { get; set; } 
-        private RedditPostCollection awww { get; set; } 
+        private RedditPostCollection aww { get; set; }
+        private RedditPostCollection animals { get; set; }
 
         public RedditApp(PepperConfigurationManager configManager)
         {
-            configuration = configManager.redditAppConfig;
+            configuration = configManager.botConfig.redditConfig;
             client = new RedditClient(appId: configuration.appId, appSecret: configuration.appSecret, refreshToken: configuration.refreshToken);
 
             SetUpCollections();
@@ -36,7 +37,8 @@ namespace KunalsDiscordBot.Core.Reddit
         private async void SetUpCollections()
         {
             memes = await new RedditPostCollection("memes").Start(client, configuration);
-            awww = await new RedditPostCollection("aww").Start(client, configuration);
+            aww = await new RedditPostCollection("aww").Start(client, configuration);
+            animals = await new RedditPostCollection("Animals").Start(client, configuration);
 
             Console.WriteLine("Reddit app online");
         }
@@ -62,6 +64,7 @@ namespace KunalsDiscordBot.Core.Reddit
         }
 
         public Post GetMeme(bool allowNSFW = false) => allowNSFW ? memes[new Random().Next(0, memes.count)]  : memes[new Random().Next(0, memes.count)];
-        public Post GetAww() => awww[new Random().Next(0, awww.count)];
+        public Post GetAww() => aww[new Random().Next(0, aww.count)];
+        public Post GetAnimals() => animals[new Random().Next(0, aww.count)];
     }
 }

@@ -22,6 +22,8 @@ using KunalsDiscordBot.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.Configurations.Modules;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -39,25 +41,16 @@ namespace KunalsDiscordBot.Modules.Currency
     [Description("A currency system!")]
     public partial class CurrencyCommands : BaseCommandModule
     {
-        private readonly IProfileService service;
-        private const string coinsEmoji = ":coin:";
-
         private static readonly DiscordColor Color = typeof(CurrencyCommands).GetCustomAttribute<DecorAttribute>().color;
-        private static readonly int ThumbnailSize = 30;
 
-        private static readonly string tick = ":white_check_mark:";
-        private static readonly string cross = ":x:";
+        private readonly IProfileService service;
+        private readonly CurrencyData data;
 
-        private static readonly int dailyMin = 200;
-        private static readonly int dailyMax = 800;
-
-        private static readonly int weeklyMin = 500;
-        private static readonly int weeklyMax = 1200;
-
-        private static readonly int monthlyMin = 1000;
-        private static readonly int monthlyMax = 2500;
-
-        public CurrencyCommands(IProfileService _service) => service = _service;
+        public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager)
+        {
+            service = _service;
+            data = configurationManager.currenyConfig;
+        }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
@@ -124,7 +117,7 @@ namespace KunalsDiscordBot.Modules.Currency
                         {
                             Title = "Chill out",
                             Description = profile.Job == "None" ? $"You just resigned and its only been {timeSpan}, gotta wait {Job.resignTimeSpan} hours before you can apply again" : $"Its only been {timeSpan} since your last shift, {job.CoolDown} hours is the minimum time.",
-                            Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                            Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                             Color = Color
                         }).ConfigureAwait(false);
 
@@ -159,11 +152,11 @@ namespace KunalsDiscordBot.Modules.Currency
             var embed = new DiscordEmbedBuilder
             {
                 Title = profile.Name,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Color = DiscordColor.Gold
             }.AddField("ID: ", profile.DiscordUserID.ToString())
-             .AddField("Coins: ", $"{profile.Coins} {coinsEmoji}")
-             .AddField("Bank: ", $"{profile.CoinsBank} {coinsEmoji} (max: {profile.CoinsBankMax})");
+             .AddField("Coins: ", $"{profile.Coins} {data.coinsEmoji}")
+             .AddField("Bank: ", $"{profile.CoinsBank} {data.coinsEmoji} (max: {profile.CoinsBankMax})");
 
             embed.AddField("Level: ", $"{profile.Level}");
             embed.AddField("Job: ", profile.Job);
@@ -203,11 +196,11 @@ namespace KunalsDiscordBot.Modules.Currency
             var embed = new DiscordEmbedBuilder
             {
                 Title = profile.Name,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Color = DiscordColor.Gold
             }.AddField("ID: ", profile.DiscordUserID.ToString())
-             .AddField("Coins: ", $"{profile.Coins} {coinsEmoji}")
-             .AddField("Bank: ", $"{profile.CoinsBank} {coinsEmoji} (max: {profile.CoinsBankMax})");
+             .AddField("Coins: ", $"{profile.Coins} {data.coinsEmoji}")
+             .AddField("Bank: ", $"{profile.CoinsBank} {data.coinsEmoji} (max: {profile.CoinsBankMax})");
 
             embed.AddField("Level: ", $"{profile.Level}");
             embed.AddField("Job: ", profile.Job);
@@ -251,7 +244,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoinsBank(ctx.Member.Id, toDep);
                 await service.ChangeCoins(ctx.Member.Id, -toDep);
 
-                await ctx.Channel.SendMessageAsync($"Desposited max({toDep} {coinsEmoji})");
+                await ctx.Channel.SendMessageAsync($"Desposited max({toDep} {data.coinsEmoji})");
             }
             else if (int.TryParse(amount, out int x))
             {
@@ -266,7 +259,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoinsBank(ctx.Member.Id, toDep);
                 await service.ChangeCoins(ctx.Member.Id, -toDep);
 
-                await ctx.Channel.SendMessageAsync($"Deposited {toDep} {coinsEmoji}");
+                await ctx.Channel.SendMessageAsync($"Deposited {toDep} {data.coinsEmoji}");
             }
             else
                 await ctx.Channel.SendMessageAsync("Your amount wasn't even a number?");
@@ -291,7 +284,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoinsBank(ctx.Member.Id, -profile.CoinsBank);
                 await service.ChangeCoins(ctx.Member.Id, profile.CoinsBank);
 
-                await ctx.Channel.SendMessageAsync($"Withdrawed max({profile.CoinsBank} {coinsEmoji})");
+                await ctx.Channel.SendMessageAsync($"Withdrawed max({profile.CoinsBank} {data.coinsEmoji})");
             }
             else if (int.TryParse(amount, out int x))
             {
@@ -306,7 +299,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoinsBank(ctx.Member.Id, -toWith);
                 await service.ChangeCoins(ctx.Member.Id, toWith);
 
-                await ctx.Channel.SendMessageAsync($"Withdrawed {toWith} {coinsEmoji}");
+                await ctx.Channel.SendMessageAsync($"Withdrawed {toWith} {data.coinsEmoji}");
             }
             else
                 await ctx.Channel.SendMessageAsync("Don't try to break the bot");
@@ -344,7 +337,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoins(ctx.Member.Id, -coins);
                 await service.ChangeCoins(member.Id, coins);
 
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} lended {coins} {coinsEmoji} to {member.Mention}").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} lended {coins} {data.coinsEmoji} to {member.Mention}").ConfigureAwait(false);
             }
             else if (int.TryParse(amount, out int x))
             {
@@ -366,7 +359,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ChangeCoins(ctx.Member.Id, -coins);
                 await service.ChangeCoins(member.Id, coins);
 
-                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} lended {coins} {coinsEmoji} to {member.Mention}").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"{ctx.Member.Mention} lended {coins} {data.coinsEmoji} to {member.Mention}").ConfigureAwait(false);
             }
             else
             {
@@ -380,15 +373,15 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Daily(CommandContext ctx)
         {
-            var coins = new Random().Next(dailyMin, dailyMax);
+            var coins = new Random().Next(data.dailyMin, data.dailyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Daily Coins",
-                Description = $"{coins} {coinsEmoji}, Here are your coins for the day.",
+                Description = $"{coins} {data.coinsEmoji}, Here are your coins for the day.",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             }).ConfigureAwait(false);
         }
 
@@ -397,15 +390,15 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Weekly(CommandContext ctx)
         {
-            var coins = new Random().Next(weeklyMin, weeklyMax);
+            var coins = new Random().Next(data.weeklyMin, data.weeklyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Weekly Coins",
-                Description = $"{coins} {coinsEmoji}, Here are your coins for the week.",
+                Description = $"{coins} {data.coinsEmoji}, Here are your coins for the week.",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
             }).ConfigureAwait(false);
         }
 
@@ -414,15 +407,15 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
         public async Task Monthly(CommandContext ctx)
         {
-            var coins = new Random().Next(monthlyMin, monthlyMax);
+            var coins = new Random().Next(data.monthlyMin, data.monthlyMax);
             await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); ;
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Monthly Coins",
-                Description = $"{coins} {coinsEmoji}, Here are your coins for the monthly.",
+                Description = $"{coins} {data.coinsEmoji}, Here are your coins for the monthly.",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
             }).ConfigureAwait(false);
         }
 
@@ -450,7 +443,7 @@ namespace KunalsDiscordBot.Modules.Currency
             for (int i = 0; i < jobs.Length; i++)
             {
                 var job = jobs[i];
-                description += $"{i + 1}. {(level < job.minLvlNeeded ? cross : tick)} **{job.Name}** {job.Emoji}\n `Min Level:` {job.minLvlNeeded}\n `Avg wage:` {((job.SucceedMax + job.SucceedMin) / 2)}\n\n";
+                description += $"{i + 1}. {(level < job.minLvlNeeded ? data.cross : data.tick)} **{job.Name}** {job.Emoji}\n `Min Level:` {job.minLvlNeeded}\n `Avg wage:` {((job.SucceedMax + job.SucceedMin) / 2)}\n\n";
             }
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -458,7 +451,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = "Job List",
                 Description = description,
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Footer = BotService.GetEmbedFooter("Use the \"currency hire\" command to get a job")
             }).ConfigureAwait(false);
         }
@@ -486,7 +479,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = "Cogratulations",
                 Description = $"{ctx.Member.Mention} you have been hired. \nUse the work command to earn some money.",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -507,7 +500,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = "Resigned",
                 Description = $"{ctx.Member.Mention} has resigned from being a {prevJob}",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -523,9 +516,9 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
             var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
-            var steps = await job.GetWork(Color, BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize));     
+            var steps = await job.GetWork(Color, BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize));     
 
-            DialogueHandlerConfig config = new DialogueHandlerConfig
+            DialogueHandlerConfig dialogueConfig = new DialogueHandlerConfig
             {
                 Channel = ctx.Channel,
                 Member = ctx.Member,
@@ -533,7 +526,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 UseEmbed = true
             };
 
-            DialogueHandler handler = new DialogueHandler(config, steps); 
+            DialogueHandler handler = new DialogueHandler(dialogueConfig, steps); 
             var completed = await handler.ProcessDialogue();
 
             int money = completed?  GenerateRandom(job.SucceedMin, job.SucceedMax) : GenerateRandom(job.FailMin, job.FailMax);
@@ -543,7 +536,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = completed ? "Good Job" : "Time Out",
                 Description = completed ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
             await service.ChangeCoins(ctx.Member.Id, money);
@@ -560,8 +553,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
             var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
-                Width = ThumbnailSize,
-                Height = ThumbnailSize,
+                Width = data.thumbnailSize,
+                Height = data.thumbnailSize,
                 Url = ctx.Member.AvatarUrl
             };
 
@@ -596,8 +589,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
             var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
             {
-                Width = ThumbnailSize,
-                Height = ThumbnailSize,
+                Width = data.thumbnailSize,
+                Height = data.thumbnailSize,
                 Url = emoji.Url
             };
 
@@ -632,8 +625,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                 {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
+                    Height = data.thumbnailSize,
+                    Width = data.thumbnailSize,
                     Url = ctx.Member.AvatarUrl
                 };
 
@@ -668,8 +661,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
                 var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                 {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
+                    Height = data.thumbnailSize,
+                    Width = data.thumbnailSize,
                     Url = ctx.Member.AvatarUrl
                 };
 
@@ -733,7 +726,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = $"{ctx.Member.Username}'s Inventory",
                 Description = descripton,
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -773,7 +766,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = $"{member.Username}'s Inventory",
                 Description = descripton,
                 Color = Color,
-                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
+                Thumbnail = BotService.GetEmbedThumbnail(member, data.thumbnailSize)
             };
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -816,8 +809,8 @@ namespace KunalsDiscordBot.Modules.Currency
                 Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
                 {
                     Url = ctx.Member.AvatarUrl,
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize
+                    Height = data.thumbnailSize,
+                    Width = data.thumbnailSize
                 }
             }).ConfigureAwait(false);
         }
@@ -858,7 +851,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Memes",
                 Description = descripion,
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize),
+                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.Username}"),
                 Color = Color
             }).ConfigureAwait(false);

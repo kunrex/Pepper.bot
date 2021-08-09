@@ -58,10 +58,8 @@ namespace KunalsDiscordBot.Help
                 Embed.AddField(Commands.name, Commands.value, false);
 
             if (IsGeneralHelp)
-            {
                 foreach (var field in Fields)
                     Embed.AddField(field.name, field.value, field.inline);
-            }
             else
             {
                 Embed.AddField(Aliases.name, Aliases.value, false);

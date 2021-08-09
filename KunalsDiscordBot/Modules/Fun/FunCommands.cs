@@ -19,21 +19,25 @@ using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.General;
 using System.Reflection;
+using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.Modules.FunCommands;
+using System.Text.RegularExpressions;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
     [Group("Fun")]
-    [DecorAttribute("Lilac", ":game_die:")]
+    [Decor("Lilac", ":game_die:")]
     public class FunCommands : BaseCommandModule
     {
-        private static readonly FunData data = System.Text.Json.JsonSerializer.Deserialize<FunData>(File.ReadAllText(Path.Combine("Modules", "Fun", "FunData.json")));
+        private readonly FunData data;
         private static readonly DiscordColor Color = typeof(FunCommands).GetCustomAttribute<DecorAttribute>().color;
 
         private readonly RedditApp redditApp;
         private readonly IServerService serverService;
 
-        public FunCommands(RedditApp reddit, IServerService _serverService)
+        public FunCommands(PepperConfigurationManager configManager, RedditApp reddit, IServerService _serverService)
         {
+            data = configManager.funData;
             redditApp = reddit;
             serverService = _serverService;
         }
@@ -120,12 +124,12 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("BeatBox")]
         [Description("beatboxes")]
-        public async Task Rap(CommandContext ctx)
+        public async Task BeatBox(CommandContext ctx)
         {
             Random random = new Random();
-            int number = random.Next(0, data.BatBox1.Length);
+            int number = random.Next(0, data.BeatBox1.Length);
 
-            string message = $"{data.BatBox1[number]} and {data.BatBox2[number]} and ";
+            string message = $"{data.BeatBox1[number]} and {data.BeatBox2[number]} and ";
 
             for (int i = 0; i < 10; i++)
             {
@@ -133,7 +137,7 @@ namespace KunalsDiscordBot.Modules.Fun
                 await Task.Delay(TimeSpan.FromSeconds(0.5f));
             }
 
-            await ctx.Channel.SendMessageAsync(data.BatBox1[number]);
+            await ctx.Channel.SendMessageAsync(data.BeatBox1[number]);
         }
 
         [Command("RewriteSentence")]
@@ -161,22 +165,17 @@ namespace KunalsDiscordBot.Modules.Fun
         {
             other = other == null ? ctx.Member : other;
 
-            var random = new Random().Next(0, 15);
             var pp = "8";
-
-            for (int i = 0; i < random; i++)
+            for (int i = 0; i < new Random().Next(0, 15); i++)
                 pp += "=";
-
             pp += "D";
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Only The Truth",
                 Description = $"{other.Username}: {pp}",
                 Color = Color
-            };
-
-            await ctx.Channel.SendMessageAsync(embed: embed);
+            }).ConfigureAwait(false);
         }
 
         [Command("Shuffle")]
@@ -213,15 +212,10 @@ namespace KunalsDiscordBot.Modules.Fun
             }
         }
 
-        Func<int, int, int> Generate = delegate (int min, int max)
-        {
-            return new Random().Next(min, max);
-        };
-
         [Command("LetMeGoogleThatForYou")]
         [Description("For those who can't google things for themselves")]
         [Aliases("Google")]
-        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("https://www.google.com/search?q=" + search.Replace(" ","+")).ConfigureAwait(false);
+        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("http://lmgtfy.com/?q=" + new Regex("[ ]{1,}", RegexOptions.None).Replace(search, "+")).ConfigureAwait(false);
 
         [Command("Guess")]
         [Description("Guess a random number")]
@@ -244,11 +238,11 @@ namespace KunalsDiscordBot.Modules.Fun
                 });
 
             var completed = await handler.ProcessDialogue().ConfigureAwait(false);
-            await ctx.Channel.SendMessageAsync($"{(completed ? "Good job that was the number I'm thinking off" : $"Oops, wll I was thinking off {num}")}").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{(completed ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {num}")}").ConfigureAwait(false);
         }
 
         [Command("meme")]
-        [Description("Juicy memes staright from r/memes")]
+        [Description("Juicy memes straight from r/memes")]
         public async Task Meme(CommandContext ctx)
         {
             var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
@@ -264,11 +258,27 @@ namespace KunalsDiscordBot.Modules.Fun
             }).ConfigureAwait(false);
         }
 
-        [Command("awww")]
-        [Description("Cutee pics form r/aww :dog::cat:")]
+        [Command("aww")]
+        [Description("Posts that make you go CUTE!, from r/aww")]
         public async Task Awww(CommandContext ctx)
         {
             var post = redditApp.GetAww();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                ImageUrl = post.Listing.URL,
+                Url = "https://www.reddit.com" + post.Permalink,
+                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("animals")]
+        [Description("Animal posts from r/Animals, :dog: :cat:")]
+        public async Task Animals(CommandContext ctx)
+        {
+            var post = redditApp.GetAnimals();
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -293,9 +303,14 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var serverProfile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
 
-            if(subReddit.Over18.Value == true && serverProfile.AllowNSFW == 0 && !ctx.Channel.IsNSFW)
+            if(serverProfile.AllowNSFW == 0 && subReddit.Over18.Value)
             {
-                await ctx.RespondAsync("Given subreddit has NSFW content, this server does not allow NSFW posts or this channel does not allow NSFW content").ConfigureAwait(false);
+                await ctx.RespondAsync("Given subreddit has NSFW content, this server does not allow NSFW posts").ConfigureAwait(false);
+                return;
+            }
+            if(serverProfile.AllowNSFW == 1 && subReddit.Over18.Value && !ctx.Channel.IsNSFW)
+            {
+                await ctx.RespondAsync("Given subreddit has NSFW content, this channel does not allow NSFW content").ConfigureAwait(false);
                 return;
             }
 
@@ -331,12 +346,12 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("GhostPresence")]
         [Aliases("ghost")]
-        [Description("Make the bot come alive!")]
+        [Description("Control the bot temporarily")]
         public async Task Ghost(CommandContext ctx, DiscordChannel channel = null)
         {
             if(GhostPresence.presences.FirstOrDefault(x => x.guildId == ctx.Guild.Id || x.userID == ctx.Member.Id) != null)
             {
-                await ctx.Channel.SendMessageAsync("There already is a ghost presence in this server or you have another presence in another server so point being you can't have 2").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync("There already is a ghost presence in this server or you have another presence in another server, so point being there can't be 2").ConfigureAwait(false);
                 return;
             }
 
@@ -353,15 +368,6 @@ namespace KunalsDiscordBot.Modules.Fun
             }
 
             presence.BegineGhostPresence();
-        }
-
-        private class FunData
-        {
-            public string[] BatBox1 { get; set; }
-            public string[] BatBox2 { get; set; }
-
-            public string[] Sentences { get; set; }
-            public string[] MemesPath { get; set; }
         }
     }
 }

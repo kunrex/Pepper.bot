@@ -1,0 +1,12 @@
+﻿{
+  "coinsEmoji": ":coin:",
+  "thumbnailSize": 30,
+  "tick": ":white_check_mark:",
+  "cross": ":x:",
+  "dailyMin": 200,
+  "dailyMax": 800,
+  "weeklyMin": 500,
+  "weeklyMax": 1200,
+  "monthlyMin": 1000,
+  "monthlyMax" : 2500
+}

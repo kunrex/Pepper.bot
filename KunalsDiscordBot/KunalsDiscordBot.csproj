@@ -44,15 +44,12 @@
     <Folder Include="Modules\Games\" />
     <Folder Include="Modules\Math\" />
     <Folder Include="Modules\Games\Players\" />
-    <Folder Include="Help\" />
     <Folder Include="Modules\Fun\Services\" />
     <Folder Include="Services\" />
     <Folder Include="Modules\Music\Players\" />
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Moderation\SoftModeration\" />
     <Folder Include="Modules\Currency\" />
-    <Folder Include="Modules\Currency\Services\" />
-    <Folder Include="Modules\Currency\Services\ProfileServices\" />
     <Folder Include="Modules\Currency\AccessoryClasses\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Jobs\" />
@@ -63,15 +60,8 @@
     <Folder Include="Modules\Games\Games\ComplexGames\BattleShip\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
-    <Folder Include="Modules\Moderation\Services\" />
-    <Folder Include="DialogueHandler\" />
-    <Folder Include="DialogueHandler\Steps\" />
-    <Folder Include="ArgumentConverters\" />
-    <Folder Include="Modules\Images\Services\" />
-    <Folder Include="Events\" />
+    <Folder Include="Core\DialogueHandler\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\" />
-    <Folder Include="Modules\General\Services\" />
-    <Folder Include="Modules\Music\Services\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\" />
     <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
     <Folder Include="Core\Modules\" />
@@ -91,6 +81,11 @@
     <Folder Include="Core\Configurations\" />
     <Folder Include="Core\Configurations\Modules\" />
     <Folder Include="Core\Reddit\" />
+    <Folder Include="Core\Events\" />
+    <Folder Include="Core\Help\" />
+    <Folder Include="Core\ArgumentConverters\" />
+    <Folder Include="Services\Interfaces\" />
+    <Folder Include="Services\Implementations\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -108,8 +103,6 @@
     <None Remove="Modules\Moderation\" />
     <None Remove="Modules\Moderation\SoftModeration\" />
     <None Remove="Modules\CurrencyCommands\" />
-    <None Remove="Modules\Currency\Services\" />
-    <None Remove="Modules\Currency\Services\ProfileServices\" />
     <None Remove="Modules\Currency\AccessoryClasses\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\" />
     <None Remove="Modules\Currency\AccessoryClasses\Jobs\" />
@@ -120,18 +113,12 @@
     <None Remove="Modules\Games\Games\ComplexGames\BattleShip\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
-    <None Remove="Modules\Moderation\Services\" />
     <None Remove="DialogueHandler\" />
-    <None Remove="DialogueHandler\Steps\" />
     <None Remove="Reddit" />
     <None Remove="BoolArgumentConverter\" />
-    <None Remove="Modules\Images\Services\" />
     <None Remove="Core\Exeptions\" />
     <None Remove="Microsoft.CSharp" />
-    <None Remove="Events\" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\" />
-    <None Remove="Modules\General\Services\" />
-    <None Remove="Modules\Music\Services\" />
     <None Remove="Core\Attributes\Music\" />
     <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\" />
     <None Remove="Imgur.API" />
@@ -153,6 +140,11 @@
     <None Remove="Core\Configurations\" />
     <None Remove="Core\Configurations\Modules\" />
     <None Remove="Core\Reddit\" />
+    <None Remove="Core\Events\" />
+    <None Remove="Core\Help\" />
+    <None Remove="Core\ArgumentConverters\" />
+    <None Remove="Services\Interfaces\" />
+    <None Remove="Services\Implementations\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

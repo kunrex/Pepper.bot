@@ -96,7 +96,7 @@ namespace KunalsDiscordBot.Extensions
             var overloadArguments = overload.Arguments.ToList();
             var toString = string.Empty;
 
-            for (int i = 1; i < overloadArguments.Count; i++)
+            for (int i = 0; i < overloadArguments.Count; i++)
                 toString += $"•`{overloadArguments[i].Type.Name} {overloadArguments[i].Name}`, Description: `{(overloadArguments[i].Description == string.Empty || overloadArguments[i].Description == null ? "None" : overloadArguments[i].Description)}`\n";
 
             return toString == string.Empty ? "No Parameters" : toString;

@@ -8,7 +8,7 @@ using DSharpPlus.Interactivity.Extensions;
 
 namespace KunalsDiscordBot.Services.Fun
 {
-    public class GhostPresence
+    public sealed class GhostPresence
     {
         private static int presenceTime = 5;
         public static List<GhostData> presences = new List<GhostData>();

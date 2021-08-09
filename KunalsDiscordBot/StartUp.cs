@@ -28,13 +28,12 @@ namespace KunalsDiscordBot
 
             services.AddSingleton<PepperConfigurationManager>();
 
-            services.AddSingleton<RedditApp>();
-
-            services.AddScoped<IProfileService, ProfileService>();
-            services.AddScoped<IModerationService, ModerationService>();
-            services.AddScoped<IImageService, ImageService>();
-            services.AddScoped<IServerService, ServerService>();
-            services.AddScoped<IMusicService, MusicService>();
+            services.AddSingleton<RedditApp>()
+                .AddScoped<IProfileService, ProfileService>()
+                .AddScoped<IModerationService, ModerationService>()
+                .AddScoped<IImageService, ImageService>()
+                .AddScoped<IServerService, ServerService>()
+                .AddScoped<IMusicService, MusicService>();
 
             BuildService(services);
         }
@@ -44,8 +43,8 @@ namespace KunalsDiscordBot
             Console.WriteLine("InBuildService");
             var serviceProvider = services.BuildServiceProvider();
 
-            var bot = new PepperBot(serviceProvider);
-            services.AddSingleton(bot);
+            var botManager = new PepperBotClientManager(serviceProvider);
+            services.AddSingleton(botManager);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment) => Console.WriteLine("InConfigure");

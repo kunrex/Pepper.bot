@@ -13,9 +13,9 @@ namespace KunalsDiscordBot.Services
 {
     public abstract class BotService
     {
-        public static readonly IReadOnlyList<ConfigDataSet> Configdata = GetConigData();
+        public static readonly IReadOnlyList<ConfigDataSet> Configdata = GetConfigData();
 
-        private static List<ConfigDataSet> GetConigData()
+        private static List<ConfigDataSet> GetConfigData()
         {
             var modules = Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule))).ToList();
             List<ConfigDataSet> dataSet = new List<ConfigDataSet>();
@@ -57,7 +57,8 @@ namespace KunalsDiscordBot.Services
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Hi! I'm Pepper",
-                Description = "**About Me:** I'm a girl and I love sleeping and eating.\n",
+                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {client.Guilds.Count} server(s) and have {client.ShardCount} shard(s)." +
+                $"The shard ID for this server is {client.ShardId}.",
                 Color = DiscordColor.Blurple,
                 Footer = GetEmbedFooter(member == null ? "Pepper" : $"User: {member.DisplayName} #{member.Discriminator}"),
                 Thumbnail = GetEmbedThumbnail(client.CurrentUser, thumbnailSize)
@@ -146,7 +147,7 @@ namespace KunalsDiscordBot.Services
               + $"\n**Edit Command**: {GetEditCommand(ConfigData.DJRole)}", true);
 
             embed.AddField("__Fun__", "** **")
-                 .AddField($"• Allow NSFW: `{(profile.AllowNSFW == 1)}`", "When set to true the bot can post NSFW posts from NSFW subreddits"
+                 .AddField($"• Allow NSFW: `{profile.AllowNSFW == 1}`", "When set to true the bot can post NSFW posts from NSFW subreddits"
                  + $"\n**Edit Command**: {GetEditCommand(ConfigData.AllowNSFW)}"); 
 
             return embed;
