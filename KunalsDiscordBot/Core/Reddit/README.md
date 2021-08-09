@@ -57,46 +57,20 @@ events which are called when a new meme is uploaded on the subreddit.
 When the meme command is executed, all it does is get a random meme from the already stored ones and sends it on discord.
 
 #### Subscribing To More Subreddits
-For the purposes of this tutorial, I'll be subscribing to r/showerthoughts.
-First we can create a List for all the posts
+For the purposes of this tutorial, I'll be subscribing to `r/showerthoughts`.
+First we can create a `RedditPostCollection` which is a custom wrapper
 ```cs
-List<Post> showerThoughts = new List<Post>();
+private RedditPostCollection showerThoughts { get; set; }
 ```
 
-We can then use the `SubRedditSetUp` method. It takes in a `string` for the subreddit name and the `EventHandler<PostsUpdateEventArgs> action` for when a 
-new post is added and returns a `List<Post>`
+Next in the `SetUpCollections` collections method, we initialise the post collection, passing in the name of the subreddit itself.
+We can now call the `Start` method of the post collection. This deals with adding all the posts as well as subscriving to events.
 ```cs
-showerThoughts = SubRedditSetUp("showerthoughts", (s, e) => {
-  if(showerThoughts == null)
-    return;
-
-  foreach (var post in e.Added)//all the new posts
-    if (post.Listing.URL.EndsWith(".png") || post.Listing.URL.EndsWith(".jpeg") || post.Listing.URL.EndsWith(".gif"))//if its a valid discord posts
-    {
-      memes.RemoveAt(0);//cycle the posts
-      memes.Add(post);
-    }
-});
+showerThoughts = new RedditPostCollection("showerthoughts");//create a new post collection
+await showerThoughts.Start(client, configuration);//collect the posts
 ```
-You can wrap the event handler in a method to make things cleaner
-```cs
-showerThoughts = SubRedditSetUp("showerthoughts", (s, e) => OnShowerThoughsAdded(s, e));
-
-private void OnShowerThoughsAdded(object sender, PostsUpdateEventArgs e)
-{
-  if(showerThoughts == null)
-    return;
-
-  foreach (var post in e.Added)//all the new posts
-    if (post.IsValidDiscordPost())//if its a valid discord posts, ie: is an image or a gif
-    {
-      memes.RemoveAt(0);//cycle the posts
-      memes.Add(post);
-    }
-}
-```
-Now when the bot starts. It will collect 50 (since thats the `postLimit` in the config file by default) posts from  r/showerthoughts. You can now create
-a method to get a random posts
+Now when the bot starts. It will collect a total of 150 (since the `postLimit` is 50 ad theres 3 sorting criteria (50 x 3)) posts from  r/showerthoughts. 
+You can now create a method to get a random post
 ```cs
 public Post GetShowerThought() => showerThoughts[new Random().Next(0, showerThoughts.Count)];
 ```
