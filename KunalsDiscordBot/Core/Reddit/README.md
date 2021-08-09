@@ -3,7 +3,7 @@ As Mentioned in the primary Readme, Pepper uses <a href="https://github.com/sirk
 
 ### The Reddit Client
 ```cs
- public RedditClient client { get; private set; }
+public RedditClient client { get; private set; }
 ```
 The Reddit client is the client we use to access anything from Reddit. Its directly linked to our Reddit app.
 #### Basic Reddit related things 
@@ -45,31 +45,31 @@ var filtered = hot.Where(x => !x.NSFW).ToList();
 ```
 
 ### "Subscribing" To subreddits
-The previous method access' a subreddit during runtime and gathers a post. While it works its also slow. At times it can take upto 10 seconds 
+The previous method access' a subreddit during runtime and gathers a post. While it works, its also slow. At times it can take upto 5 seconds
 or even more which is understandable.
 
-However for some commands, we don't want that. Pepper "subscribes" to specific subreddits.
+However for some commands, we don't want that, instead we can make Pepper "subscribe" to specific subreddits.
 
-For Example, Pepper has a built it `meme` command in the `FunModule`. For this command specifically, the RedditApp subscribes to `r/memes`. Which just means
-that when the application starts, the app collects 50 memes from each of the sorting criteria (Hot, New and Top) from `r/memes`. It also subscribes to the
-events which are called when a new meme is uploaded on the subreddit. 
+For Example, Pepper has a `meme` command in the `FunModule`. For this command specifically, the RedditApp subscribes to `r/memes`. 
 
-When the meme command is executed, all it does is get a random meme from the already stored ones and sends it on discord.
+Which just means that when the application starts, the app collects 50 memes from each of the sorting criteria (`Hot`, `New` and `Top`) from `r/memes`. It also subscribes to the events which are called when a new meme is uploaded on the subreddit. 
+
+When the meme command is executed, all the command does is get a random meme from the already stored ones and sends it as an embed on discord.
 
 #### Subscribing To More Subreddits
-For the purposes of this tutorial, I'll be subscribing to `r/showerthoughts`.
-First we can create a `RedditPostCollection` which is a custom wrapper
+For the purposes of this demo, I'll be subscribing to `r/showerthoughts`.
+First we can create a `RedditPostCollection` in the `RedditApp.cs` which is a custom wrapper
 ```cs
 private RedditPostCollection showerThoughts { get; set; }
 ```
 
 Next in the `SetUpCollections` collections method, we initialise the post collection, passing in the name of the subreddit itself.
-We can now call the `Start` method of the post collection. This deals with adding all the posts as well as subscriving to events.
+We can now call the `Start` method of the post collection. This deals with adding all the posts as well as subscribing to events.
 ```cs
 showerThoughts = new RedditPostCollection("showerthoughts");//create a new post collection
 await showerThoughts.Start(client, configuration);//collect the posts
 ```
-Now when the bot starts. It will collect a total of 150 (since the `postLimit` is 50 ad theres 3 sorting criteria (50 x 3)) posts from  r/showerthoughts. 
+Now when the bot starts. It will collect a total of 150 (since the `postLimit` is 50 ad there are 3 sorting criteria (50 x 3)) posts from `r/showerthoughts`. 
 You can now create a method to get a random post
 ```cs
 public Post GetShowerThought() => showerThoughts[new Random().Next(0, showerThoughts.Count)];
@@ -79,6 +79,9 @@ and call this from a command
 [Group("Fun")]
 public class FunModule : BaseCommandModule
 {
+  private readonly RedditApp redditApp;
+  public FunModule(RedditApp _redditApp) => redditApp = _redditApp;//injected through DI
+
   //more commands
   
   [Command]
