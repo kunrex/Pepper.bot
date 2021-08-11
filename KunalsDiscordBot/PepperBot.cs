@@ -100,7 +100,7 @@ namespace KunalsDiscordBot
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = _services,
-                DmHelp = false,            
+                DmHelp = false,
             };
 
             commands = client.UseCommandsNext(commandsConfig);
@@ -185,7 +185,7 @@ namespace KunalsDiscordBot
                     Title = "The given command wasn't found",
                     Description = $"Did you mispell something? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("Well that wasn't supposed to happen", configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", configuration.discordConfig.errorLink);
             }
             else if (exception is InvalidOverloadException && log)
             {
@@ -194,23 +194,28 @@ namespace KunalsDiscordBot
                     Title = "No version of the command uses has these parameters",
                     Description = $"Did you miss a parameter? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("Well that wasn't supposed to happen", configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", configuration.discordConfig.errorLink);
             }
             else if (exception is CustomCommandException)//ignore
             { }
             else if (exception is ChecksFailedException cfe)
             {
                 string title = string.Empty, description = string.Empty;
+                string footer = "That wasn't supposed to happen";
 
                 if (cfe.FailedChecks.FirstOrDefault(x => x is RequireBotPermissionsAttribute) != null)
                 {
                     title = "Permission denied";
                     description = $"The bot lacks the permissions necessary to run this command.";
+
+                    footer = "Permissions be all";
                 }
                 else if(cfe.FailedChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute) != null)
                 {
                     title = "Permission denied";
                     description = $"You lack the permissions necessary to run this command.";
+
+                    footer = "Permissions be all";
                 }
                 else if(cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute) != null)
                 {
@@ -218,6 +223,7 @@ namespace KunalsDiscordBot
                     var casted = (CooldownAttribute)cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute);
 
                     description = $"You just used this command and can use it after this much time:\n{casted.GetRemainingCooldown(e.Context)}";
+                    footer = "Spam ain't cool";
                 }
 
                 embed = new DiscordEmbedBuilder
@@ -225,7 +231,7 @@ namespace KunalsDiscordBot
                     Title = title,
                     Description = description,
                     Color = DiscordColor.Red
-                }.WithFooter("Well that wasn't supposed to happen", configuration.discordConfig.errorLink);
+                }.WithFooter(footer, configuration.discordConfig.errorLink);
             }
             else if(log)
             {

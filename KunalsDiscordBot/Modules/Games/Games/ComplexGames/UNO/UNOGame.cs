@@ -12,6 +12,7 @@ using DSharpPlus.Interactivity;
 using KunalsDiscordBot.Services;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.Enums;
+using KunalsDiscordBot.Modules.Games.Communicators;
 
 namespace KunalsDiscordBot.Modules.Games.Complex
 {
@@ -21,7 +22,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         reverse
     }
 
-    public class UNOGame : ComplexBoardGame<UNOPlayer>
+    public class UNOGame : ComplexBoardGame<UNOPlayer, UNOCommunicator>
     {
         public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4, unoMissPenalty = 4;
         public static DiscordColor UNOColor = DiscordColor.Red;
@@ -362,7 +363,7 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         private Task SendPaginatedMessageToAllPlayers(List<Page> pages, PaginationEmojis emojis)
         {
             foreach (var player in players)
-                player.SendPaginatedMessage(pages, emojis);
+                player.SendMessage(pages, emojis);
 
             return Task.Delay(TimeSpan.FromSeconds(1));
         }

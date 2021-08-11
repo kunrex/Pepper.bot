@@ -10,23 +10,21 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus;
 using KunalsDiscordBot.Modules.Games.Complex;
 using KunalsDiscordBot.Modules.Games.Complex.Battleship;
-using KunalsDiscordBot.Modules.Games;
+using KunalsDiscordBot.Modules.Games.Communicators;
+using System.Text.RegularExpressions;
+
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {
-    public class BattleShipPlayer : DiscordPlayer
+    public class BattleShipPlayer : DiscordPlayer<BattleShipCommunicator>
     {
         public BattleShipPlayer(DiscordMember _member) : base(_member)
         {
-            member = _member;
-
             ships = new Ship[BattleShip.numOfShips];
         }
 
         public Ship[] ships { get; private set; }
         private int[,] board;
-
-        private DiscordChannel dmChannel { get; set; }
 
         public async Task<int[,]> GetBoard()
         {
@@ -36,8 +34,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         public async override Task<bool> Ready(DiscordChannel channel)
         {
+            communicator = new BattleShipCommunicator(new Regex("([a-l,A-L]) ([1-9]|1[012])"), TimeSpan.FromSeconds(BattleShip.time), channel, new Regex("([a-l,A-L]) ([1-9]|1[012]) ([hsSH])"));
             board = new int[BattleShip.BoardSize, BattleShip.BoardSize];
-            dmChannel = channel;
 
             await Task.CompletedTask;
             return true;
@@ -52,7 +50,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 Description = await GetBoardToPrint(true)
             };
 
-            var setUpMessage = await dmChannel.SendMessageAsync($"This is your Board. \n Every time a ship is entered, it will be edited to show your placement", embed: Embed).ConfigureAwait(false);
+            var setUpMessage = await communicator.SendMessage($"This is your Board. \n Every time a ship is entered, it will be edited to show your placement", embed: Embed).ConfigureAwait(false);
             int[] numOfBlocks = BattleShip.shipSizes;
 
             for (int i = 0; i < BattleShip.numOfShips; i++)
@@ -61,30 +59,42 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
                 while (!isCompleted)
                 {
-                    await dmChannel.SendMessageAsync($"Enter the position for a {numOfBlocks[i] * 2 + 1} unit ship.\n Format -> <Column> <Row> <Placement>. Ex: a 3 h.\n \"h\" for a horzintally placed ship, \"s\" for a vertical one").ConfigureAwait(false);
+                    var result = await communicator.ShipInput(interactivity, $"Enter the position for a {numOfBlocks[i] * 2 + 1} unit ship.\n Format -> <Column> <Row> <Placement>. Ex: a 3 h.\n \"h\" for a horzintally placed ship, \"s\" for a vertical one"
+                        , new InputData
+                        {
+                            conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                            leaveMessage = "end",
+                            span = TimeSpan.FromSeconds(BattleShip.time),
+                            regexMatchFailExpression = "Please use the appropriate input format"
+                        });
 
-                    var message = await interactivity.WaitForMessageAsync(x => x.Channel == dmChannel && x.Author == member, TimeSpan.FromSeconds(BattleShip.time)).ConfigureAwait(false);
-
-                    if (message.TimedOut)
+                    if (result.Equals(DiscordCommunicator.afkInputvalue))
                         return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
-                    else if (message.Result.Content.ToLower().Equals("end"))
+                    if (result.Equals(DiscordCommunicator.quitInputvalue))
                         return new InputResult { wasCompleted = false, type = InputResult.Type.end };
-                    else if (TryParseAndAdd(message.Result.Content, numOfBlocks[i], i))
-                        isCompleted = true;
+                    if (result.Equals(DiscordCommunicator.inputFormatNotFollow))
+                        continue;
                     else
-                        await dmChannel.SendMessageAsync("Invalid position, enter again").ConfigureAwait(false);
-                
-                    DiscordEmbed embed = new DiscordEmbedBuilder
+                    {
+                       if(!TryParseAndAdd(result, numOfBlocks[i], i))
+                       {
+                            await communicator.SendMessage("Invalid position, enter again");
+
+                            continue;
+                       }
+
+                        isCompleted = true;
+                    }
+
+                    await communicator.EditMessage(setUpMessage, new DiscordEmbedBuilder
                     {
                         Title = "Your Board",
                         Description = await GetBoardToPrint(true)
-                    };
-
-                    await setUpMessage.ModifyAsync(embed: embed).ConfigureAwait(false);
+                    });
                 }
             }
 
-            await dmChannel.SendMessageAsync("All Ship Positions Recorded").ConfigureAwait(false);
+            await communicator.SendMessage("All Ship Positions Recorded").ConfigureAwait(false);
 
             return new InputResult
             {
@@ -102,17 +112,24 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             while (!isCompleted)
             {
-                await dmChannel.SendMessageAsync("Its your turn type the position in which you want to attack.\n Format -> <Column> <Row>, Ex: a 6");
-                var message = await interactivity.WaitForMessageAsync(x => x.Channel == dmChannel && x.Author == member, TimeSpan.FromSeconds(BattleShip.time)).ConfigureAwait(false);
+                var result = await communicator.Input(interactivity, "Its your turn type the position in which you want to attack.\n Format -> <Column> <Row>, Ex: a 6", new InputData
+                {
+                    conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                    span = TimeSpan.FromSeconds(BattleShip.time),
+                    leaveMessage = "end",
+                     regexMatchFailExpression = "Please use the appropriate input format"
+                });
 
-                if (message.TimedOut)
+                if (result.Equals(DiscordCommunicator.afkInputvalue))
                     return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
-                else if (message.Result.Content.ToLower().Equals("end"))
+                if (result.Equals(DiscordCommunicator.quitInputvalue))
                     return new InputResult { wasCompleted = false, type = InputResult.Type.end };
-                else if (TryParseAndAdd(message.Result.Content, out ordinate) && await IsValidAttackplacement(ordinate, other))
+                else if (result.Equals(DiscordCommunicator.inputFormatNotFollow))
+                    continue;
+                else if (TryParseAndAdd(result, out ordinate) && await IsValidAttackplacement(ordinate, other))
                     isCompleted = true;
                 else
-                    await dmChannel.SendMessageAsync("Invalid Position");
+                    await communicator.SendMessage("Invalid Position");
             }
 
             return new InputResult
@@ -125,7 +142,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
         {
-            if (IsFormatted(message, out Coordinate position, out bool isVertical))
+            if (TryExtractValues(message, out Coordinate position, out bool isVertical))
                 return IsValidShipPosition(position, isVertical, numberOfBlocks, shipIndex);
             else
                 return false;
@@ -189,96 +206,33 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return true;
         }
 
-        private bool TryParseAndAdd(string message, out Coordinate ordinate) => IsFormatted(message, out ordinate) && IsValid(ordinate);
+        private bool TryParseAndAdd(string message, out Coordinate ordinate) => ExtractCoordinate(message, out ordinate) && IsValid(ordinate);
 
-        private bool IsFormatted(string message, out Coordinate position, out bool isVertical)
+        private bool TryExtractValues(string message, out Coordinate position, out bool isVertical)
         {
             isVertical = false;
             position = new Coordinate();
 
-            if (message.Length < 5 || message.Length > 6)
+            position.x = char.ToLower(message[0]) - 97;
+            if (position.x < 0 || position.x >= BattleShip.BoardSize)
                 return false;
 
-            //gets the column
-            if (!char.IsLetter(message[0]))
+            position.y = int.Parse(message.Substring(2, message.Length - 3)) - 1;
+            if (position.y < 0 || position.y >= BattleShip.BoardSize)
                 return false;
 
-            int index = message[0] - 97;
-            if (index < 0 || index > 12)
-                return false;
-
-            position.x = index;
-
-            //get the row
-            string rowToString = string.Empty;
-
-            for (int i = 2; i < message.Length; i++)
-            {
-                if (char.IsWhiteSpace(message[i]))
-                    break;
-
-                rowToString += message[i];
-            }
-
-            if (!int.TryParse(rowToString, out int x))
-                return false;
-
-            int row = int.Parse(rowToString) - 1;
-
-            if (row < 0 || row >= BattleShip.BoardSize)
-                return false;
-
-            position.y = row;
-
-            //get if straight
-            char c = message[message.Length - 1];
-
-            if (!char.IsLetter(c))
-                return false;
-
-            isVertical = c.ToString().ToUpper().Equals("S");
+            isVertical = message[message.Length - 1].ToString().ToUpper().Equals("S");
 
             return true;
-
         }
 
-        private bool IsFormatted(string message, out Coordinate ordinate)
+        private bool ExtractCoordinate(string message, out Coordinate ordinate)
         {
-            ordinate = new Coordinate();
-
-            if (message.Length < 2 || message.Length > 4)
-                return false;
-
-            //gets the column
-            if (!char.IsLetter(message[0]))
-                return false;
-
-            int index = message[0] - 97;
-            if (index < 0 || index >= BattleShip.BoardSize)
-                return false;
-
-            ordinate.x = index;
-
-            //get the row
-            string rowToString = string.Empty;
-
-            for (int i = 2; i < message.Length; i++)
+            ordinate = new Coordinate
             {
-                if (char.IsWhiteSpace(message[i]))
-                    break;
-
-                rowToString += message[i];
-            }
-
-            if (!int.TryParse(rowToString, out int x))
-                return false;
-
-            int row = int.Parse(rowToString) - 1;
-
-            if (row < 0 || row >= BattleShip.BoardSize)
-                return false;
-
-            ordinate.y = row;
+                x = char.ToLower(message[0]) - 97,
+                y = int.Parse(message.Substring(2, message.Length - 2)) - 1
+            };
 
             return true;
         }
@@ -350,7 +304,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return (false, false);
         }
 
-        public async Task SendMessage(string message) => await dmChannel.SendMessageAsync(message);
+        public async Task SendMessage(string message) => await communicator.SendMessage(message);
 
         public async Task<bool> CheckIfLost()
         {

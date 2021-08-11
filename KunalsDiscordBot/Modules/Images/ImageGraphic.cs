@@ -46,9 +46,16 @@ namespace KunalsDiscordBot.Modules.Images
                 graphics = Graphics.FromImage(image);
         }
 
-        public Task DrawString(string message, EditData data, int index, Font font, Brush brush)
+        public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush)
         {
-            graphics.DrawString(message, font, brush, new RectangleF(data.x[index], data.y[index], data.length[index], data.breadth[index]));
+            graphics.DrawString(message, font, brush, new RectangleF(x, y, length, breadth));
+
+            return Task.CompletedTask;
+        }
+
+        public Task DrawString(string message, int x, int y, Font font, Brush brush)
+        {
+            graphics.DrawString(message, font, brush, new PointF(x, y));
 
             return Task.CompletedTask;
         }

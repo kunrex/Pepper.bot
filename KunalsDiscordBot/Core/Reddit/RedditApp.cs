@@ -1,12 +1,8 @@
 ﻿using System;
-using System.IO;
-using System.Threading.Tasks;
 using Reddit;
-using System.Linq;
 using Reddit.Controllers;
-using System.Collections.Generic;
-using Reddit.Controllers.EventArgs;
 using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Extensions;
 
 namespace KunalsDiscordBot.Core.Reddit
 {
@@ -65,6 +61,6 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public Post GetMeme(bool allowNSFW = false) => allowNSFW ? memes[new Random().Next(0, memes.count)]  : memes[new Random().Next(0, memes.count)];
         public Post GetAww() => aww[new Random().Next(0, aww.count)];
-        public Post GetAnimals() => animals[new Random().Next(0, aww.count)];
+        public Post GetAnimals() => animals[new Random().Next(0, animals.count)];
     }
 }

@@ -6,6 +6,7 @@ using KunalsDiscordBot.Core.Configurations;
 using Reddit;
 using Reddit.Controllers;
 using Reddit.Controllers.EventArgs;
+using KunalsDiscordBot.Extensions;
 
 namespace KunalsDiscordBot.Core.Reddit
 {
@@ -58,7 +59,7 @@ namespace KunalsDiscordBot.Core.Reddit
             return Task.CompletedTask;
         }
 
-        public void OnPostAdded(object sender, PostsUpdateEventArgs e)
+        public void OnPostAdded(object sender, PostsUpdateEventArgs e) => Task.Run(() =>
         {
             foreach (var post in e.Added)
                 if (post.IsValidDiscordPost())
@@ -66,6 +67,6 @@ namespace KunalsDiscordBot.Core.Reddit
                     posts.RemoveAt(0);//cycle
                     posts.Add(post);
                 }
-        }
+        });
     }
 }

@@ -3,11 +3,12 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
+using KunalsDiscordBot.Modules.Games.Communicators;
 using KunalsDiscordBot.Modules.Games.Complex;
 
 namespace KunalsDiscordBot.Modules.Games.Players.Spectators
 {
-    public class DiscordSpectator : DiscordPlayer
+    public class DiscordSpectator : DiscordPlayer<DiscordCommunicator>
     {
         public DiscordSpectator(DiscordMember _member, DiscordClient _client, BattleShip game) : base(_member)
         {

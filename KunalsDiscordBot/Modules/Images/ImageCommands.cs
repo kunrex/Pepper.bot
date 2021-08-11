@@ -46,18 +46,13 @@ namespace KunalsDiscordBot.Modules.Images
                     //have to change this to load using the config
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -80,18 +75,13 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -113,18 +103,13 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -149,18 +134,13 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -191,15 +171,10 @@ namespace KunalsDiscordBot.Modules.Images
                     await graphicalImage.DrawImage(images[i], editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
 
                 foreach (var image in images)
                     image.Dispose();
@@ -227,18 +202,13 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -263,18 +233,13 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData, i, drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
                 }
 
-                using (var ms = new MemoryStream())
-                {
-                    graphicalImage.image.Save(ms, ImageFormat.Png);
-                    ms.Position = 0;
-
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                             .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
-                             .SendAsync(ctx.Channel);
-                }
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .SendAsync(ctx.Channel);
             }
         }
 
@@ -285,9 +250,9 @@ namespace KunalsDiscordBot.Modules.Images
         {
             member = member == null ? ctx.Member : member;
 
-            using (var clieant = new WebClient())
+            using (var client = new WebClient())
             {
-                using (var graphicalImage = new ImageGraphic(new MemoryStream(clieant.DownloadData(member.AvatarUrl))))
+                using (var graphicalImage = new ImageGraphic(new MemoryStream(client.DownloadData(member.AvatarUrl))))
                 {
                     await graphicalImage.Invert();
 

@@ -9,20 +9,14 @@ using DSharpPlus;
 
 using KunalsDiscordBot.Modules.Games.Players;
 using KunalsDiscordBot.Modules.Games.Players.Spectators;
+using KunalsDiscordBot.Modules.Games.Communicators;
 
 namespace KunalsDiscordBot.Modules.Games.Complex
 {
-    public sealed class BattleShip : ComplexBoardGame<BattleShipPlayer>
+    public sealed class BattleShip : ComplexBoardGame<BattleShipPlayer, BattleShipCommunicator>
     {
         public static List<BattleShip> currentGames { get; private set; } = new List<BattleShip>();
         public static readonly int BoardSize = 10;
-
-        public DiscordDmChannel ctx1 { get; private set; }
-        public DiscordDmChannel ctx2 { get; private set; }
-
-        public DiscordClient client;
-
-        private bool gameOver { get; set; }
 
         public static readonly string WATER = ":blue_circle:";
         public static readonly string HIT = ":white_circle:";
@@ -36,6 +30,10 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         public static readonly string[] letters = { ":regional_indicator_a:", ":regional_indicator_b:", ":regional_indicator_c:", ":regional_indicator_d:", ":regional_indicator_e:", ":regional_indicator_f:", ":regional_indicator_g:", ":regional_indicator_h:", ":regional_indicator_i:", ":regional_indicator_j:" };
         public static readonly string[] number = { ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:" };
         public static readonly int[] shipSizes = { 1, 1, 2, 2, 3 };
+
+        public DiscordClient client;
+
+        private bool gameOver { get; set; }
 
         private List<DiscordSpectator> spectators = new List<DiscordSpectator>();
 
@@ -60,13 +58,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         protected override async void SetUp()
         {
-            //create dms
-            ctx1 = await players[0].member.CreateDmChannelAsync().ConfigureAwait(false);
-            ctx2 = await players[1].member.CreateDmChannelAsync().ConfigureAwait(false);
-
-            //ready
-            await players[0].Ready(ctx1);
-            await players[1].Ready(ctx2);
+            await players[0].Ready(await players[0].member.CreateDmChannelAsync().ConfigureAwait(false));
+            await players[1].Ready(await players[1].member.CreateDmChannelAsync().ConfigureAwait(false));
 
             await SendMessageToAllSpectators("Both players ready to play, starting ship position placement...");
 
@@ -103,18 +96,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             await SendMessageToAllSpectators("Both players ready, starting game");
 
             PlayGame();
-        }
-
-        private async Task RemovePlayers()
-        {
-            currentGames.Remove(this);
-
-            foreach (var spectator in spectators)
-                spectator.End();
-
-            spectators = null;
-
-            await Task.CompletedTask;
         }
 
         protected override async void PlayGame()
@@ -214,10 +195,22 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             await boardForPlayer2;
         }
 
+        private async Task RemovePlayers()
+        {
+            currentGames.Remove(this);
+
+            foreach (var spectator in spectators)
+                spectator.End();
+
+            spectators = null;
+
+            await Task.CompletedTask;
+        }
+
         private async Task SendMessageToBoth(object message)
         {
-            await ctx1.SendMessageAsync($"{message}").ConfigureAwait(false);
-            await ctx2.SendMessageAsync($"{message}").ConfigureAwait(false);
+            foreach (var player in players)
+                await player.SendMessage($"{message}").ConfigureAwait(false);
         }
 
         private async Task<bool> PrintBoardForPlayer(BattleShipPlayer currentPlayer, BattleShipPlayer otherPlayer)
@@ -237,13 +230,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 Description = otherPlayerBoard
             };
 
-            var userChannel = currentPlayer == players[0] ? ctx1 : ctx2;
-
-            if (userChannel.Equals(null))
-                return false;
-
-            await userChannel.SendMessageAsync("Your Board -", embed: BoardEmbed).ConfigureAwait(false);
-            await userChannel.SendMessageAsync("Your Attacks -", embed: AttackEmbed).ConfigureAwait(false);
+            await currentPlayer.communicator.SendMessage("Your Board -", BoardEmbed).ConfigureAwait(false);
+            await currentPlayer.communicator.SendMessage("Your Attacks -", embed: AttackEmbed).ConfigureAwait(false);
 
             return true;
         }

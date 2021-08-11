@@ -26,10 +26,10 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.7" />
-    <PackageReference Include="DSharpPlus" Version="4.0.1" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.1" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.1" />
-    <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.1" />
+    <PackageReference Include="DSharpPlus" Version="4.1.0" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.1.0" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.1.0" />
+    <PackageReference Include="DSharpPlus.Lavalink" Version="4.1.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.2" />
     <PackageReference Include="runtime.osx.10.10-x64.CoreCompat.System.Drawing" Version="5.8.64" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
@@ -86,6 +86,7 @@
     <Folder Include="Core\ArgumentConverters\" />
     <Folder Include="Services\Interfaces\" />
     <Folder Include="Services\Implementations\" />
+    <Folder Include="Modules\Games\Communicators\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -145,6 +146,7 @@
     <None Remove="Core\ArgumentConverters\" />
     <None Remove="Services\Interfaces\" />
     <None Remove="Services\Implementations\" />
+    <None Remove="Modules\Games\Communicators\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">
