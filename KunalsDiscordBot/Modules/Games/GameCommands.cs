@@ -11,8 +11,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Attributes;
-using KunalsDiscordBot.Modules.Games.Simple;
-using KunalsDiscordBot.Modules.Games.Complex;
 using KunalsDiscordBot.Services.Images;
 using System.Linq;
 
@@ -39,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Games
                 return;
             }
 
-            ConnectFour connect = new ConnectFour(ctx, ctx.User, other, numberOfCells);
+            ConnectFour connect = new ConnectFour(ctx.Channel, ctx.Client, ctx.Member, other, numberOfCells);
         }
 
         [Command("TicTacToe")]
@@ -57,7 +55,7 @@ namespace KunalsDiscordBot.Modules.Games
                 return;
             }
 
-            TicTacToe tictactoe = new TicTacToe(ctx, ctx.User, other, numberOfCells);
+            TicTacToe tictactoe = new TicTacToe(ctx.Channel, ctx.Member, other, ctx.Client, numberOfCells);
         }
 
         [Command("BattleShip")]

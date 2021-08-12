@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
-using KunalsDiscordBot.Modules.Games.Complex.Battleship;
 
 namespace KunalsDiscordBot.Modules.Games.Communicators
 {

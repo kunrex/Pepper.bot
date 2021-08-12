@@ -8,11 +8,9 @@ using System.Linq;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus;
-using KunalsDiscordBot.Modules.Games.Complex;
-using KunalsDiscordBot.Modules.Games.Complex.Battleship;
 using KunalsDiscordBot.Modules.Games.Communicators;
 using System.Text.RegularExpressions;
-
+using KunalsDiscordBot.Modules.Games.Battleship;
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {

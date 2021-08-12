@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace KunalsDiscordBot.Modules.Images
 {
-    public class GraphicDisposable : IAsyncDisposable, IDisposable
+    public class CustomDisposable : IAsyncDisposable, IDisposable
     {
         protected bool disposed { get; set; } = false;
         private Component component { get; set; } = new Component();
 
-        public GraphicDisposable() { }
+        public CustomDisposable() { }
 
         public void Dispose() => Dispose(true);
 
@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Modules.Images
             }
         }
 
-        ~GraphicDisposable() => Dispose(disposing: false);
+        ~CustomDisposable() => Dispose(disposing: false);
 
         public ValueTask DisposeAsync()
         {

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using KunalsDiscordBot.Modules.Games.Complex.UNO.Cards;
 
-namespace KunalsDiscordBot.Modules.Games.Complex.UNO
+namespace KunalsDiscordBot.Modules.Games.UNO.Cards
 {
     public enum CardColor
     {

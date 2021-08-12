@@ -11,9 +11,9 @@ using KunalsDiscordBot.Modules.Games.Players;
 using KunalsDiscordBot.Modules.Games.Players.Spectators;
 using KunalsDiscordBot.Modules.Games.Communicators;
 
-namespace KunalsDiscordBot.Modules.Games.Complex
+namespace KunalsDiscordBot.Modules.Games
 {
-    public sealed class BattleShip : ComplexBoardGame<BattleShipPlayer, BattleShipCommunicator>
+    public sealed class BattleShip : DiscordGame<BattleShipPlayer, BattleShipCommunicator>
     {
         public static List<BattleShip> currentGames { get; private set; } = new List<BattleShip>();
         public static readonly int BoardSize = 10;

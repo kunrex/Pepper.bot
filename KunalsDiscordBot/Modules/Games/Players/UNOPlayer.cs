@@ -1,49 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
 using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
-using KunalsDiscordBot.Modules.Games.Complex;
 using KunalsDiscordBot.Modules.Games.Communicators;
-using KunalsDiscordBot.Modules.Games.Complex.UNO;
-using KunalsDiscordBot.Services;
 using DSharpPlus.Interactivity.Enums;
 using System.Text.RegularExpressions;
 using System.Linq;
-using KunalsDiscordBot.Modules.Games.Complex.UNO.Cards;
+using KunalsDiscordBot.Modules.Games.UNO.Cards;
 
 namespace KunalsDiscordBot.Modules.Games.Players
 {
     public class UNOPlayer : DiscordPlayer<UNOCommunicator>
     {
-        private PaginationEmojis emojis;
         private bool autoReady { get; set; } = false;
 
         public List<Card> cards { get; private set; }
+        private PaginationEmojis emojis { get; set; }
 
-        public UNOPlayer(DiscordMember _member) : base(_member)
+        public UNOPlayer(DiscordMember _member, PaginationEmojis allEmojis) : base(_member)
         {
-            member = _member;
-        }
-
-        public void InitialisePlayer(List<Card> _cards, PaginationEmojis allEmojis)
-        {
-            cards = _cards;
             emojis = allEmojis;
         }
+
+        public void AssignCards(List<Card> _cards) => cards = _cards;
 
         public override Task<bool> Ready(DiscordChannel channel) => Task.FromResult(false);
 
         public async Task<bool> Ready(DiscordChannel channel, DiscordClient client)
         {
             communicator = new UNOCommunicator(new Regex("([1-9][,]?)+"), TimeSpan.FromMinutes(UNOGame.timeLimit), channel);
+            await communicator.SendMessage("Waiting for players to get ready...");
 
             await communicator.SendMessage("Cards recieved").ConfigureAwait(false);
             await PrintAllCards();
+            await Task.Delay(TimeSpan.FromSeconds(1));//gap
 
             await CheckAutoContinue(client); 
 
@@ -65,7 +58,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 extraInputValues = new Dictionary<string, (string, string)>
                 {
                     { "no",  ("", "no")},
-                    { "no",  ("y", yesReturn)}
+                    { "yes",  ("y", yesReturn)}
                 },
                 conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
                 span = TimeSpan.FromSeconds(10)
@@ -120,6 +113,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
             return Task.CompletedTask;
         }
+
+        public async Task SendMessage(DiscordMessageBuilder message) => await message.SendAsync(communicator.channel);
 
         public async Task<InputResult> GetInput(DiscordClient client, Card currentCard)
         {
@@ -221,7 +216,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
                             {
                                 {"time out", "Time out, I'm just gonna choose red" },
                                 {"invalid", "Thats not even a valid color, I'm gonna go ahead with red" }
-                            }
+                            },
+                            span = TimeSpan.FromSeconds(10)
                         });
 
                     foreach (var card in inputCards)
@@ -317,7 +313,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         private List<int> GetIndexes(string input)
         {
-            int[] indexs = Array.ConvertAll(input.Split(','), x => int.Parse(x));
+            int[] indexs = Array.ConvertAll(input.Split(','), x => int.Parse(x) - 1);
 
             if (indexs.Length >= UNOGame.maxCardsInATurn)
                 return null;

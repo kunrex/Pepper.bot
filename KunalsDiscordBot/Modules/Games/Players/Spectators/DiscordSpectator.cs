@@ -4,7 +4,6 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Modules.Games.Communicators;
-using KunalsDiscordBot.Modules.Games.Complex;
 
 namespace KunalsDiscordBot.Modules.Games.Players.Spectators
 {

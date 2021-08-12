@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using KunalsDiscordBot.Modules.Games.Players;
-using KunalsDiscordBot.Modules.Games.Complex.UNO.Cards;
-using KunalsDiscordBot.Modules.Games.Complex.UNO;
+using KunalsDiscordBot.Modules.Games.UNO.Cards;
+using KunalsDiscordBot.Modules.Games.UNO;
 using KunalsDiscordBot.Services.Images;
 using DSharpPlus.Interactivity;
 using KunalsDiscordBot.Services;
@@ -14,7 +14,7 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.Enums;
 using KunalsDiscordBot.Modules.Games.Communicators;
 
-namespace KunalsDiscordBot.Modules.Games.Complex
+namespace KunalsDiscordBot.Modules.Games
 {
     internal enum GameDirection
     {
@@ -22,20 +22,19 @@ namespace KunalsDiscordBot.Modules.Games.Complex
         reverse
     }
 
-    public class UNOGame : ComplexBoardGame<UNOPlayer, UNOCommunicator>
+    public class UNOGame : DiscordGame<UNOPlayer, UNOCommunicator>
     {
         public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4, unoMissPenalty = 4;
         public static DiscordColor UNOColor = DiscordColor.Red;
+        public static readonly string playing = "Playing...";
 
         public DiscordClient client { get; private set; }
-        private bool gameOver { get; set; }
 
         private List<UNOPlayer> playersWhoFinished { get; set; } = new List<UNOPlayer>();
-        private List<DiscordChannel> dmChannels { get; set; }
-        private List<Card> cards { get; set; } = GetDeck().Shuffle().ToList();
+
+        private List<Card> cardsInDeck { get; set; } = GetDeck().Shuffle().ToList();
         private Card currentCard { get; set; }
 
-        public Dictionary<string, DiscordEmoji> controls { get; private set; }
         public PaginationEmojis emojis { get; private set; }
 
         private int? cardStacks { get; set; } = null;
@@ -75,27 +74,19 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
         public UNOGame(List<DiscordMember> members, DiscordClient _client)
         {
-            var _players = new List<UNOPlayer>();
-            foreach (var member in members)
-                _players.Add(new UNOPlayer(member));
-
             client = _client;
-            players = _players;
-
-            currentPlayer = players[0];
-            gameOver = false;
-
-            controls = new Dictionary<string, DiscordEmoji>()
-            {
-                {"Left",  DiscordEmoji.FromName(client, ":arrow_backward:")},
-                {"Right",  DiscordEmoji.FromName(client, ":arrow_forward:")},
-            };
             emojis = new PaginationEmojis()
             {
-                Left = controls["Left"],
-                Right = controls["Right"],
+                Left = DiscordEmoji.FromName(client, ":arrow_backward:"),
+                Right = DiscordEmoji.FromName(client, ":arrow_forward:"),
                 Stop = null
             };
+
+            players = new List<UNOPlayer>(); 
+            foreach (var member in members)
+                players.Add(new UNOPlayer(member, emojis));
+
+            currentPlayer = players[0];
 
             SetUp();
         }
@@ -115,9 +106,26 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             PlayGame();
         }
 
+        private async Task DistributeCards()
+        {
+            foreach (var player in players)
+            {
+                player.AssignCards(cardsInDeck.Take(startCardNumber).ToList());
+                cardsInDeck.RemoveRange(0, startCardNumber);
+            }
+
+            List<Task<bool>> awaitReady = new List<Task<bool>>();
+            foreach(var player in players)
+                awaitReady.Add(player.Ready(await player.member.CreateDmChannelAsync(), client));
+            await Task.WhenAll(awaitReady);
+
+            currentCard = cardsInDeck.First(x => x is NumberCard);
+            cardsInDeck.Remove(currentCard);
+        }
+
         protected async override void PlayGame()
         {
-            while (!gameOver)
+            while (true)
             {
                 await PrintBoard();
                 var result = await currentPlayer.GetInput(client, currentCard);
@@ -144,9 +152,9 @@ namespace KunalsDiscordBot.Modules.Games.Complex
 
                 if (result.cards != null && result.cards.Count > 0)
                 {
-                    await Task.Run(async () => await SendPaginatedMessageToAllPlayers(GetCardPages($"{currentPlayer.member.Username}' plays:", result.cards.Select(x => Card.GetLink(x.fileName).link + ".png").ToList()), emojis));
+                    await Task.Run(async () => await SendDeckToAllPlayers(result.cards, $"{currentPlayer.member.Username} Plays"));
                     await ProcessTurn(result.cards);
-                    cards.AddRange(result.cards.Shuffle());//cycle cards
+                    cardsInDeck.AddRange(result.cards.Shuffle());//cycle cards
                 }
                 else
                     await NextPlayer(currentCard);
@@ -154,19 +162,39 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 if (players.Count == 1)//only one player left
                 {
                     await SendMessageToAllPlayers("Theres only 1 player left now").ConfigureAwait(false);
-                    await SendEndMessage("The game is over", true).ConfigureAwait(false);
+                    await SendEndMessage("Game Over!", true).ConfigureAwait(false);
                     break;
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
-                List<Task> tasks = new List<Task>();
-                foreach (var player in players)
-                    tasks.Add(player.Ready("Are you ready to proceed to the next round? I will auto-ready after 1 minute", TimeSpan.FromMinutes(1), client));
+                List<Task> tasks = players.Select(x => Task.Run(() => x.Ready("Are you ready to proceed to the next round? I will auto-ready after 1 minute", TimeSpan.FromMinutes(timeLimit), client))).ToList();
                 await Task.WhenAll(tasks);
 
                 await SendMessageToAllPlayers("All players ready");
             }
+        }
+
+        protected async override Task PrintBoard()
+        {
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{currentPlayer.member.Username}'s Turn",
+                ImageUrl = Card.GetLink(currentCard.fileName).link + ".png",
+                Color = UNOColor
+            };
+
+            embed.AddField("Direction:", direction.ToString());
+            if (currentCard is IChangeColorCard)
+                embed.AddField("Current Color:", ((IChangeColorCard)currentCard).colorToChange.ToString());
+            else if (cardStacks != null)
+                embed.AddField("Number of cards that will be drawed:", cardStacks.Value.ToString());
+
+            embed.AddField("Current Card:", "** **");
+            await SendMessageToAllPlayers(null, embed);
+
+            await currentPlayer.PrintAllCards();
+            await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
         private async Task ProcessTurn(List<Card> cardsPlayed)
@@ -178,12 +206,12 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                     case CardType.Skip:
                         int newIndex = players.IndexOf(currentPlayer);
                         newIndex += direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count;
-                        newIndex = (newIndex + (players.Count)) % players.Count;
+                        newIndex = (newIndex + players.Count) % players.Count;
 
                         currentPlayer = players[newIndex];
                         currentCard = cardsPlayed[cardsPlayed.Count - 1];
 
-                        await SendMessageToAllPlayers($"{cardsPlayed.Count} players skipped lol");
+                        await SendMessageToAllPlayers($"{cardsPlayed.Count} player(s) skipped lol");
                         break;
                     case CardType.Reverse:
                         direction = cardsPlayed.Count % 2 == 0 ? direction : (direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward);
@@ -225,34 +253,15 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             }
         }
 
-        private async Task DistributeCards()
-        {
-            dmChannels = new List<DiscordChannel>();
-            foreach (var player in players)
-            {
-                dmChannels.Add(await player.member.CreateDmChannelAsync());
-                player.InitialisePlayer(cards.Take(startCardNumber).ToList(), emojis);
-
-                cards.RemoveRange(0, startCardNumber);
-            }
-
-            List<Task<bool>> awaitReady = new List<Task<bool>>();
-            for (int i = 0; i < players.Count; i++)
-            {
-                await dmChannels[i].SendMessageAsync("Waiting for players to get ready...");
-                awaitReady.Add(players[i].Ready(dmChannels[i], client));
-            }
-
-            var task = Task.WhenAll(awaitReady);
-            await task;
-            await SendMessageToAllPlayers("All players ready");
-
-            currentCard = cards.First(x => x is NumberCard);
-        }
-
         private async Task<bool> RemovePlayer(bool won = false)
         {
             players.Remove(currentPlayer);
+
+            if (won)
+            {
+                playersWhoFinished.Add(currentPlayer);
+                await SendMessageToAllPlayers($"{currentPlayer} has no more cards left comes in position {playersWhoFinished.Count}!");
+            }
 
             if (players.Count == 1)
             {
@@ -260,16 +269,13 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 return true;
             }
 
-            if (won)
-                playersWhoFinished.Add(currentPlayer);
-
             return false;
         }
 
         private async Task AddcardsToPlayer(int num)
         {
-            var cardsToAdd = cards.Take(num).ToList();
-            cards.RemoveRange(0, num);
+            var cardsToAdd = cardsInDeck.Take(num).ToList();
+            cardsInDeck.RemoveRange(0, num);
 
             await SendMessageToAllPlayers($"{currentPlayer.member.Username} has drawed {num} card(s)");
             await currentPlayer.AddCards(cardsToAdd);
@@ -313,28 +319,6 @@ namespace KunalsDiscordBot.Modules.Games.Complex
                 await RemovePlayer(true);
         }
 
-        protected async override Task PrintBoard()
-        {
-            var embed = new DiscordEmbedBuilder
-            {
-                Title = $"{currentPlayer.member.Username}'s Turn",
-                ImageUrl = Card.GetLink(currentCard.fileName).link + ".png",
-                Color = UNOColor
-            };
-
-            embed.AddField("Direction:", direction.ToString());
-            if(currentCard is IChangeColorCard)
-                embed.AddField("Current Color:", ((IChangeColorCard)currentCard).colorToChange.ToString());
-            else if (cardStacks != null)
-                embed.AddField("Number of cards that be drawed:", cardStacks.Value.ToString());
-
-            embed.AddField("Current Card:", "** **");
-            await SendMessageToAllPlayers(null, embed);
-
-            await currentPlayer.PrintAllCards();
-            await Task.Delay(TimeSpan.FromSeconds(1));
-        }
-
         private async Task SendEndMessage(string message = null, bool completed = false)
         {
             var players = playersWhoFinished.Count == 0 ? null : string.Join(", ", playersWhoFinished.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length - 1, "`")));
@@ -342,7 +326,8 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             await SendMessageToAllPlayers(message, new DiscordEmbedBuilder
             {
                 Title = "Here are the results!",
-                Color = UNOColor
+                Color = UNOColor,
+                Footer = BotService.GetEmbedFooter("Hope you ppl had a good time")
             }.AddField("Winner!", completed ? playersWhoFinished[0].member.Username : "No one")
              .AddField("Players who finished", players == null ? "No one" : players));
         }
@@ -356,36 +341,15 @@ namespace KunalsDiscordBot.Modules.Games.Complex
             if (embed != null)
                 messageBuild.WithEmbed(embed);
 
-            foreach (var channel in dmChannels)
-                await messageBuild.SendAsync(channel);
+            await Task.WhenAll(players.Select(x => x.SendMessage(messageBuild)));
         }
 
-        private Task SendPaginatedMessageToAllPlayers(List<Page> pages, PaginationEmojis emojis)
+        private Task SendDeckToAllPlayers(List<Card> cards, string title)
         {
             foreach (var player in players)
-                player.SendMessage(pages, emojis);
+                player.PrintCards(cards, title);
 
-            return Task.Delay(TimeSpan.FromSeconds(1));
-        }
-
-        private List<Page> GetCardPages(string title, List<string> urls)
-        {
-            List<Page> pages = new List<Page>();
-            int i = 1;
-
-            foreach (var url in urls)
-                pages.Add(new Page
-                {
-                    Embed = new DiscordEmbedBuilder
-                    {
-                        Title = title,
-                        ImageUrl = url,
-                        Footer = BotService.GetEmbedFooter($"Card {i++}/{urls.Count}"),
-                        Color = UNOColor
-                    }
-                }); 
-
-            return pages;
+            return Task.CompletedTask;
         }
     }
 }

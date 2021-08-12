@@ -7,7 +7,7 @@ using KunalsDiscordBot.Modules.Games.Communicators;
 
 namespace KunalsDiscordBot.Modules.Games
 {
-    public abstract class ComplexBoardGame<Player, Communicator> : Game where Communicator : DiscordCommunicator
+    public abstract class DiscordGame<Player, Communicator> : Game where Communicator : DiscordCommunicator
         where Player : DiscordPlayer<Communicator> 
     {
         public List<Player> players { get; protected set; }

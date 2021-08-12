@@ -2,7 +2,7 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.Modules.Games.Simple
+namespace KunalsDiscordBot.Modules.Games
 {
     public class RockPaperScissor : Game
     {

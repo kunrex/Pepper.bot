@@ -8,7 +8,7 @@ using KunalsDiscordBot.Extensions;
 
 namespace KunalsDiscordBot.Modules.Images
 {
-    public class ImageGraphic : GraphicDisposable
+    public class ImageGraphic : CustomDisposable
     {
         public Image image { get; private set; }
         public Graphics graphics { get; private set; }

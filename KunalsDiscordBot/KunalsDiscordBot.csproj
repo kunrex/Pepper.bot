@@ -53,17 +53,11 @@
     <Folder Include="Modules\Currency\AccessoryClasses\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Jobs\" />
-    <Folder Include="Modules\Games\Games\SimpleGames\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\" />
     <Folder Include="Modules\Games\Players\Spectators\" />
     <Folder Include="Core\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\BattleShip\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
     <Folder Include="Core\DialogueHandler\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\UNO\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\" />
-    <Folder Include="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
     <Folder Include="Core\Modules\" />
     <Folder Include="Core\Modules\CurrencyCommands\" />
     <Folder Include="Core\Modules\CurrencyCommands\Attributes\" />
@@ -87,6 +81,8 @@
     <Folder Include="Services\Interfaces\" />
     <Folder Include="Services\Implementations\" />
     <Folder Include="Modules\Games\Communicators\" />
+    <Folder Include="Modules\Games\Games\BattleShip\" />
+    <Folder Include="Modules\Games\Games\UNO\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -107,11 +103,8 @@
     <None Remove="Modules\Currency\AccessoryClasses\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\" />
     <None Remove="Modules\Currency\AccessoryClasses\Jobs\" />
-    <None Remove="Modules\Games\Games\SimpleGames\" />
-    <None Remove="Modules\Games\Games\ComplexGames\" />
     <None Remove="Modules\Games\Players\Spectators\" />
     <None Remove="Core\" />
-    <None Remove="Modules\Games\Games\ComplexGames\BattleShip\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
     <None Remove="DialogueHandler\" />
@@ -119,11 +112,8 @@
     <None Remove="BoolArgumentConverter\" />
     <None Remove="Core\Exeptions\" />
     <None Remove="Microsoft.CSharp" />
-    <None Remove="Modules\Games\Games\ComplexGames\UNO\" />
     <None Remove="Core\Attributes\Music\" />
-    <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\" />
     <None Remove="Imgur.API" />
-    <None Remove="Modules\Games\Games\ComplexGames\UNO\Cards\Interfaces\" />
     <None Remove="Core\Modules\" />
     <None Remove="Core\Modules\CurrencyCommands\" />
     <None Remove="Core\Modules\CurrencyCommands\Attributes\" />
@@ -147,6 +137,8 @@
     <None Remove="Services\Interfaces\" />
     <None Remove="Services\Implementations\" />
     <None Remove="Modules\Games\Communicators\" />
+    <None Remove="Modules\Games\Games\BattleShip\" />
+    <None Remove="Modules\Games\Games\UNO\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

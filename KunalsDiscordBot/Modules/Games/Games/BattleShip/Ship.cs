@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace KunalsDiscordBot.Modules.Games.Complex.Battleship
+namespace KunalsDiscordBot.Modules.Games.Battleship
 {
     public class Ship
     {

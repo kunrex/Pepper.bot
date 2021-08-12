@@ -1,5 +1,5 @@
 ﻿using System;
-namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
+namespace KunalsDiscordBot.Modules.Games.UNO.Cards
 {
     public class SkipCard : PowerCard
     {

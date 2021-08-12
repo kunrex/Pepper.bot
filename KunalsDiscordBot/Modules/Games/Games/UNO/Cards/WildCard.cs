@@ -1,7 +1,6 @@
 ﻿using System;
-using KunalsDiscordBot.Modules.Games.Complex.UNO;
 
-namespace KunalsDiscordBot.Modules.Games.Complex.UNO.Cards
+namespace KunalsDiscordBot.Modules.Games.UNO.Cards
 {
     public class WildCard : PowerCard, IChangeColorCard
     {

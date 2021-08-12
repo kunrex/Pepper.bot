@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using KunalsDiscordBot.Modules.Games.Complex.UNO;
+using KunalsDiscordBot.Modules.Games.UNO.Cards;
 
 namespace KunalsDiscordBot.Modules.Games
 {

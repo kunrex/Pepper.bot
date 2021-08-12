@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
-using KunalsDiscordBot.Modules.Games.Complex;
-using KunalsDiscordBot.Modules.Games.Complex.UNO;
+using KunalsDiscordBot.Modules.Games.UNO;
+using KunalsDiscordBot.Modules.Games.UNO.Cards;
 using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot.Modules.Games.Communicators
