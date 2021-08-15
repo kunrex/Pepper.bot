@@ -36,7 +36,7 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.RuleChannel, (id) => (ulong)serverService.GetServerProfile(id).GetAwaiter().GetResult().RulesChannelId},
                  { ConfigValue.ModRole, (id) => (ulong)serverService.GetModerationData(id).GetAwaiter().GetResult().ModeratorRoleId},
                  { ConfigValue.MutedRole, (id) => (ulong)serverService.GetModerationData(id).GetAwaiter().GetResult().MutedRoleId},
-                 { ConfigValue.RuleCount, (id) => (ulong)serverService.GetAllRules(id).GetAwaiter().GetResult().Count },
+                 { ConfigValue.RuleCount, (id) => serverService.GetAllRules(id).GetAwaiter().GetResult().Count },
                  { ConfigValue.DJEnfore, (id) => serverService.GetMusicData(id).GetAwaiter().GetResult().UseDJRoleEnforcement == 1},
                  { ConfigValue.DJRole, (id) => (ulong)serverService.GetMusicData(id).GetAwaiter().GetResult().DJRoleId},
                  { ConfigValue.AllowNSFW, (id) => serverService.GetFunData(id).GetAwaiter().GetResult().AllowNSFW == 1},
@@ -52,18 +52,18 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.EnforcePermissions, (s) => $"`{(bool)s}`"},
             { ConfigValue.LogErrors, (s) => $"`{(bool)s}`"},
             { ConfigValue.LogMembers, (s) => $"`{(bool)s}`"},
-            { ConfigValue.WelcomeChannel, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
-            { ConfigValue.RuleChannel, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
-            { ConfigValue.ModRole, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
-            { ConfigValue.MutedRole, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
+            { ConfigValue.WelcomeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.RuleChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.ModRole, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
+            { ConfigValue.MutedRole, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
             { ConfigValue.RuleCount, (s) => $"`{(int)s}`"},
             { ConfigValue.DJEnfore, (s) => $"`{(bool)s}`"},
-            { ConfigValue.DJRole, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
+            { ConfigValue.DJRole, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<@&{(ulong)s}>")}"},
             { ConfigValue.AllowNSFW, (s) => $"`{(bool)s}`"},
             { ConfigValue.AllowSpamCommand, (s) => $"`{(bool)s}`"},
             { ConfigValue.AllowGhostCommand, (s) => $"`{(bool)s}`"},
-            { ConfigValue.Connect4Channel, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
-            { ConfigValue.TicTacToeChannel, (s) => $"`{((ulong)s == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.Connect4Channel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.TicTacToeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
         };
 
         public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms) => new List<DiscordEmbedBuilder>()
@@ -79,7 +79,7 @@ namespace KunalsDiscordBot.Services.Configuration
         {
             var embed = new DiscordEmbedBuilder().WithTitle("__Fun__");
 
-            foreach(var value in configData.Values[ConfigValueSet.Fun])
+            foreach(var value in configData.ServerConfigValues[ConfigValueSet.Fun])
                 embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
 
             return Task.FromResult(embed);
@@ -89,18 +89,17 @@ namespace KunalsDiscordBot.Services.Configuration
         {
             var embed = new DiscordEmbedBuilder().WithTitle("__Games__");
 
-            foreach (var value in configData.Values[ConfigValueSet.Games])
+            foreach (var value in configData.ServerConfigValues[ConfigValueSet.Games])
                 embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
 
             return Task.FromResult(embed);
         }
 
-
         public Task<DiscordEmbedBuilder> GetGeneralConfigPage(ulong id)
         {
             var embed = new DiscordEmbedBuilder().WithTitle("__General__");
 
-            foreach (var value in configData.Values[ConfigValueSet.General])
+            foreach (var value in configData.ServerConfigValues[ConfigValueSet.General])
                 embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
 
             return Task.FromResult(embed);
@@ -116,7 +115,7 @@ namespace KunalsDiscordBot.Services.Configuration
 
             if (hasMod)
             {
-                foreach (var value in configData.Values[ConfigValueSet.Moderation])
+                foreach (var value in configData.ServerConfigValues[ConfigValueSet.Moderation])
                     embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
             }
 
@@ -127,7 +126,7 @@ namespace KunalsDiscordBot.Services.Configuration
         {
             var embed = new DiscordEmbedBuilder().WithTitle("__Music__");
 
-            foreach (var value in configData.Values[ConfigValueSet.Music])
+            foreach (var value in configData.ServerConfigValues[ConfigValueSet.Music])
                 embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
 
             return Task.FromResult(embed);

@@ -11,7 +11,7 @@ namespace KunalsDiscordBot.Core.Configurations
 {
     public class ServerConfigData
     {
-        public Dictionary<ConfigValueSet, List<ConfigDataSet>> Values { get; set; }
+        public Dictionary<ConfigValueSet, List<ConfigDataSet>> ServerConfigValues { get; set; }
 
         public void GatherEditCommands()
         {
@@ -22,14 +22,14 @@ namespace KunalsDiscordBot.Core.Configurations
                     continue;
 
                 var name = module.GetCustomAttribute<GroupAttribute>().Name;
-                var values = Values[attribute.set];
+                var values = ServerConfigValues[attribute.set];
                 foreach(var command in module.GetMethods())
                 {
                     attribute = command.GetCustomAttribute<ConfigDataAttribute>();
                     if (attribute == null)
                         continue;
 
-                    var commandName = $"{name} {command.GetCustomAttribute<CommandAttribute>().Name}";
+                    var commandName = $"pep {name} {command.GetCustomAttribute<CommandAttribute>().Name}".ToLower();
 
                     for(int i = 0;i<values.Count;i++)
                         if(values[i].ConfigData == attribute.data)

@@ -302,7 +302,23 @@ namespace KunalsDiscordBot.Modules.General
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Edited Configuration",
-                Description = $"Saved {channel.Mention} as the log channel for guild: `{ctx.Guild.Name}`",
+                Description = $"Saved {channel.Mention} as the welcome channel for guild: `{ctx.Guild.Name}`",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("RuleChannel")]
+        [Description("Assigns the log channel for a server")]
+        [CheckConfigPerms, ConfigData(ConfigValue.RuleChannel)]
+        public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the rule channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);
