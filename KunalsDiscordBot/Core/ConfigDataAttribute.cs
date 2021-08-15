@@ -1,25 +1,40 @@
 ﻿using System;
 namespace KunalsDiscordBot.Core.Attributes
 {
-    public enum ConfigData
+    public enum ConfigValue
     {
         EnforcePermissions,
         LogErrors,
         LogMembers,
-        LogChannel,
+        WelcomeChannel,
+        RuleChannel,
         ModRole,
         MutedRole,
-        RuleChannel,
         RuleCount,
         DJEnfore,
         DJRole,
         AllowNSFW,
+        AllowSpamCommand,
+        AllowGhostCommand,
+        Connect4Channel,
+        TicTacToeChannel
+    }
+
+    public enum ConfigValueSet
+    {
+        General,
+        Moderation,
+        Music,
+        Fun,
+        Games
     }
 
     public class ConfigDataAttribute : Attribute
     {
-        public ConfigData data { get; set; }
+        public ConfigValue data { get; set; }
+        public ConfigValueSet set { get; set; }
 
-        public ConfigDataAttribute(ConfigData _data) => data = _data;
+        public ConfigDataAttribute(ConfigValue _data) => data = _data;
+        public ConfigDataAttribute(ConfigValueSet _set) => set = _set;
     }
 }

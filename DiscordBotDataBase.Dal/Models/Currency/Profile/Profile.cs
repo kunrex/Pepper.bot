@@ -5,7 +5,7 @@ using DiscordBotDataBase.Dal.Models.Profile.Boosts;
 
 namespace DiscordBotDataBase.Dal.Models.Profile
 {
-    public class Profile : Entity
+    public class Profile : Entity<int>
     {
         public long DiscordUserID { get; set; }
         public int XP { get; set; }

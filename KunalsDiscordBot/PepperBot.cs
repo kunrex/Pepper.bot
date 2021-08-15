@@ -29,6 +29,7 @@ using DSharpPlus.CommandsNext.Exceptions;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot
 {
@@ -114,6 +115,7 @@ namespace KunalsDiscordBot
             commands.RegisterConverter(new BoolArgumentConverter());
             commands.RegisterConverter(new TimeSpanArgumentConverter());
             commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
+            commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
         }
 
         public async Task ConnectAsync()
@@ -151,11 +153,10 @@ namespace KunalsDiscordBot
                 foreach(var mute in await modService.GetMutes(guild.Value.Id))
                 {
                     var span = DateTime.Now - DateTime.Parse(mute.StartTime);
-                    ulong id = (ulong)(await serverService.GetServerProfile(guild.Value.Id)).MutedRoleId;
+                    ulong id = (ulong)(await serverService.GetModerationData(guild.Value.Id)).MutedRoleId;
 
                     var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
-                    var profile = await modService.GetModerationProfile(mute.ModerationProfileId);
-                    var member = guild.Value.Members.FirstOrDefault(x => x.Value.Id == (ulong)profile.DiscordId).Value;
+                    var member = guild.Value.Members.FirstOrDefault(x => x.Value.Id == (ulong)mute.UserId).Value;
 
                     if (!TimeSpan.TryParse(mute.Time, out var x) || span > TimeSpan.Parse(mute.Time))
                         await member.RevokeRoleAsync(role).ConfigureAwait(false);
@@ -271,7 +272,7 @@ namespace KunalsDiscordBot
 
                 var profile = await serverService.GetServerProfile(e.Guild.Id);
           
-                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
                 if (channel == null)
                     channel = e.Guild.GetDefaultChannel();
 
@@ -296,7 +297,7 @@ namespace KunalsDiscordBot
                 if (profile.LogNewMembers == 0)
                     return;
 
-                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
                 if (channel == null)
                     channel = e.Guild.GetDefaultChannel();
 
@@ -326,7 +327,7 @@ namespace KunalsDiscordBot
                 if (profile.LogNewMembers == 0)
                     return;
 
-                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.LogChannel)).Value;
+                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
                 if (channel == null)
                     channel = e.Guild.GetDefaultChannel();
 

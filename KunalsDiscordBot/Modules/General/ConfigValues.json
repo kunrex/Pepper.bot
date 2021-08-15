@@ -1,0 +1,103 @@
+﻿{
+  "ServerConfigValues": [
+    {
+      "0": [
+        {
+          "ConfigData": 0,
+          "FieldName": "Restrict Edit Permissions",
+          "Description": "When set to true only admins can edit the configuration"
+        },
+        {
+          "ConfigData": 1,
+          "FieldName": "Log Errors",
+          "Description": "When set to true, a message is sent if an error happens during command execution"
+        },
+        {
+          "ConfigData": 2,
+          "FieldName": "Log Members",
+          "Description": "When set to true, a message is sent if a new member joins or a member leaves the server"
+        },
+        {
+          "ConfigData": 3,
+          "FieldName": "Welcome Channel",
+          "Description": "The channel in which welcome messages are sent. If null, this defaults to the general channel of the server (if any)"
+        },
+        {
+          "ConfigData": 4,
+          "FieldName": "Rule Channel",
+          "Description": "The rule channel of the server. If not null, it is displayed in the welcome message"
+        }
+      ]
+    },
+
+    {
+      "1": [
+        {
+          "ConfigData": 5,
+          "FieldName": "Moderation Role",
+          "Description": "The moeration role of the server"
+        },
+        {
+          "ConfigData": 6,
+          "FieldName": "Mute Role",
+          "Description": "The role assigned when a member is muted"
+        },
+        {
+          "ConfigData": 7,
+          "FieldName": "Rule Count",
+          "Description": "The number of rules in the server"
+        }
+      ]
+    },
+
+    {
+      "2": [
+        {
+          "ConfigData": 8,
+          "FieldName": "Enfore DJ Permissions",
+          "Description": "When set to true, members require the DJ role to run certain music commands"
+        },
+        {
+          "ConfigData": 9,
+          "FieldName": "DJ Role",
+          "Description": "The role used for DJ Enforcement"
+        }
+      ]
+    },
+
+    {
+      "3": [
+        {
+          "ConfigData": 10,
+          "FieldName": "Allow NSFW",
+          "Description": "When set to true, the bot can post NSFW posts from NSFW subreddits"
+        },
+        {
+          "ConfigData": 11,
+          "FieldName": "Allow Spam",
+          "Description": "When set to true, members can run the `fun spam` command"
+        },
+        {
+          "ConfigData": 12,
+          "FieldName": "Allow Ghost",
+          "Description": "The number of rules in the server"
+        }
+      ]
+    },
+
+    {
+      "4": [
+        {
+          "ConfigData": 13,
+          "FieldName": "Connect4 Channel",
+          "Description": "The channel in which Connect4 matches are hosted"
+        },
+        {
+          "ConfigData": 14,
+          "FieldName": "TicTacToe Channel",
+          "Description": "The channel in which TicTacToe matches are hosted"
+        }
+      ]
+    }
+  ]
+}

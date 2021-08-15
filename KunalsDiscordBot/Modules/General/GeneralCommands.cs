@@ -19,12 +19,14 @@ using KunalsDiscordBot.Core.Attributes.GeneralCommands;
 using KunalsDiscordBot.Core.Exceptions;
 using DSharpPlus.Interactivity;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.Configuration;
+using KunalsDiscordBot.Extensions;
 
 namespace KunalsDiscordBot.Modules.General
 {
     [Group("General")]
-    [DecorAttribute("Blurple", ":tools:")]
-    [ModuleLifespan(ModuleLifespan.Transient)]
+    [Decor("Blurple", ":tools:")]
+    [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.General)]
     public class GeneralCommands : BaseCommandModule
     {
         private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<DecorAttribute>().color;
@@ -32,8 +34,13 @@ namespace KunalsDiscordBot.Modules.General
         private const int Width = 75;
 
         private readonly IServerService serverService;
+        private readonly IConfigurationService configService;
 
-        public GeneralCommands(IServerService service) => serverService = service;
+        public GeneralCommands(IServerService service, IConfigurationService _configService)
+        {
+            serverService = service;
+            configService = _configService;
+        }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
@@ -208,19 +215,10 @@ namespace KunalsDiscordBot.Modules.General
         [Command("Config")]
         public async Task Config(CommandContext ctx)
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
             var footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}. Message will collect reactions for 2 minutes");
             var thumbnail = BotService.GetEmbedThumbnail(ctx.Client.CurrentUser, 30);
 
-            var isMod = ((await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) == DSharpPlus.Permissions.Administrator; 
-            var ruleCount = isMod ? (await serverService.GetAllRules(ctx.Guild.Id)).Count : 0;
-
-            var embeds = new List<DiscordEmbedBuilder>()
-            {
-                BotService.GetGeneralConfig(profile),
-                BotService.GetModConfig(profile, isMod, ruleCount),
-                BotService.GetMusicAndFunConfig(profile)
-            };
+            var embeds = await configService.GetConfigPages(ctx.Guild.Id, ctx.Member.PermissionsIn(ctx.Channel));
 
             var pages = new Page[embeds.Count];
             for (int i = 0; i < embeds.Count; i++)
@@ -248,7 +246,7 @@ namespace KunalsDiscordBot.Modules.General
         [Aliases("ConfigPerms", "Perms")]
         [Description("Changes if only an administrator can change the config data of the bot per server. This command can only be run by an Administrator")]
         [RequireUserPermissions(DSharpPlus.Permissions.Administrator)]
-        [ConfigData(ConfigData.EnforcePermissions)]
+        [ConfigData(ConfigValue.EnforcePermissions)]
         public async Task ToggleAdminPermission(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -262,66 +260,9 @@ namespace KunalsDiscordBot.Modules.General
             }).ConfigureAwait(false);
         }
 
-        [Command("ToggleNSFW")]
-        [Aliases("NSFW")]
-        [Description("Changes wether or not NSFW content is allowed in the server")]
-        [CheckConfigPerms, ConfigData(ConfigData.AllowNSFW)]
-        public async Task ToggleNSFW(CommandContext ctx, bool toChange)
-        {
-            await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Edited Configuration",
-                Description = $"Changed `Allow NSFW` to {toChange}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
-            }).ConfigureAwait(false);
-        }
-
-        [Command("ToggleDJ")]
-        [Aliases("DJ")]
-        [Description("Changes wether or not the DJ role should be enforced for music commands")]
-        [CheckConfigPerms, ConfigData(ConfigData.DJEnfore)]
-        public async Task ToggeDJ(CommandContext ctx, bool toChange)
-        {
-            await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Edited Configuration",
-                Description = $"Changed `Enforce DJ Role` to {toChange}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
-            }).ConfigureAwait(false);
-        }
-
-        [Command("DJRole")]
-        [Description("Assigns the DJ role for a server")]
-        [CheckConfigPerms, ConfigData(ConfigData.DJRole)]
-        public async Task DJRole(CommandContext ctx, DiscordRole role)
-        {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
-            if(profile.UseDJRoleEnforcement == 0)
-            {
-                await ctx.RespondAsync("`Enforce DJ Role` must be set to true to use this command, you can do so using the `general ToggleDJ` command").ConfigureAwait(false);
-                return;
-            }
-
-            await serverService.SetDJRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Edited Configuration",
-                Description = $"Changed `Enforce DJ Role` to {role.Mention}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
-            }).ConfigureAwait(false);
-        }
-
         [Command("LogErrors")]
         [Description("If true, a message is sent if an error happens during command execution")]
-        [CheckConfigPerms, ConfigData(ConfigData.LogErrors)]
+        [CheckConfigPerms, ConfigData(ConfigValue.LogErrors)]
         public async Task LogErrors(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleLogErrors(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -337,7 +278,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogNewMembers")]
         [Description("If true, a message is sent if a new member joins or or a member leaves the server")]
-        [CheckConfigPerms, ConfigData(ConfigData.LogMembers)]
+        [CheckConfigPerms, ConfigData(ConfigValue.LogMembers)]
         public async Task LogNewMembers(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleNewMemberLog(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -351,17 +292,17 @@ namespace KunalsDiscordBot.Modules.General
             }).ConfigureAwait(false);
         }
 
-        [Command("LogChannel")]
+        [Command("WelcomeChannel")]
         [Description("Assigns the log channel for a server")]
-        [CheckConfigPerms, ConfigData(ConfigData.LogChannel)]
-        public async Task LogChannel(CommandContext ctx, DiscordChannel channel)
+        [CheckConfigPerms, ConfigData(ConfigValue.WelcomeChannel)]
+        public async Task WelcomeChannel(CommandContext ctx, DiscordChannel channel)
         {
-            await serverService.SetLogChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+            await serverService.SetWelcomeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Edited Configuration",
-                Description = $"Saved {channel.Mention} as the log channel for guild: {ctx.Guild.Name}",
+                Description = $"Saved {channel.Mention} as the log channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = Color
             }).ConfigureAwait(false);

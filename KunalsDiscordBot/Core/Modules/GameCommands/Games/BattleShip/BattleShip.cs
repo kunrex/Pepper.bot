@@ -125,7 +125,7 @@ namespace KunalsDiscordBot.Modules.Games
 
                         await RemovePlayers();
 
-                        return;
+                        continue;
                     }
 
                     var message = $"Position entered by {currentPlayer.member.Username} => {(char)(result.ordinate.x + 97)} {result.ordinate.y + 1}";
@@ -165,7 +165,7 @@ namespace KunalsDiscordBot.Modules.Games
                         await RemovePlayers();
 
                         gameOver = true;
-                        return;
+                        continue;
                     }
 
                     await PrintBoard();
@@ -217,21 +217,22 @@ namespace KunalsDiscordBot.Modules.Games
         {
             var currentPlayerBoard = await currentPlayer.GetBoardToPrint(true);
             var otherPlayerBoard = await otherPlayer.GetBoardToPrint(false);
+            var vs = $"{currentPlayer.member.Username} vs {otherPlayer.member.Username}";
 
             var BoardEmbed = new DiscordEmbedBuilder
             {
-                Title = $"{currentPlayer.member.Username} vs {otherPlayer.member.Username}",
+                Title = vs,
                 Description = currentPlayerBoard
             };
 
             var AttackEmbed = new DiscordEmbedBuilder
             {
-                Title = $"{currentPlayer.member.Username} vs {otherPlayer.member.Username}",
+                Title = vs,
                 Description = otherPlayerBoard
             };
 
-            await currentPlayer.communicator.SendMessage("Your Board -", BoardEmbed).ConfigureAwait(false);
-            await currentPlayer.communicator.SendMessage("Your Attacks -", embed: AttackEmbed).ConfigureAwait(false);
+            await currentPlayer.SendMessage("Your Board", BoardEmbed).ConfigureAwait(false);
+            await currentPlayer.SendMessage("Your Attacks", AttackEmbed).ConfigureAwait(false);
 
             return true;
         }

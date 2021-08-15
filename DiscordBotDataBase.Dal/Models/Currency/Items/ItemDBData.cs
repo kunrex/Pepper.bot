@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiscordBotDataBase.Dal.Models.Items
 {
-    public class ItemDBData : Entity
+    public class ItemDBData : Entity<int>
     {
         public string Name { get; set; }
         public int Count { get; set; }

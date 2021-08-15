@@ -23,7 +23,7 @@ namespace KunalsDiscordBot.Core.Attributes.ModerationCommands
             if ((ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
             {
                 var serverService = (IServerService)ctx.Services.GetService(typeof(IServerService));
-                var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+                var profile = await serverService.GetModerationData(ctx.Guild.Id);
 
                 if (profile.ModeratorRoleId == 0)
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder

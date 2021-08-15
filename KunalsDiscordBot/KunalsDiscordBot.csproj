@@ -43,7 +43,6 @@
     <Folder Include="Modules\General\" />
     <Folder Include="Modules\Games\" />
     <Folder Include="Modules\Math\" />
-    <Folder Include="Modules\Games\Players\" />
     <Folder Include="Modules\Fun\Services\" />
     <Folder Include="Services\" />
     <Folder Include="Modules\Music\Players\" />
@@ -53,7 +52,6 @@
     <Folder Include="Modules\Currency\AccessoryClasses\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Jobs\" />
-    <Folder Include="Modules\Games\Players\Spectators\" />
     <Folder Include="Core\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <Folder Include="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
@@ -80,9 +78,12 @@
     <Folder Include="Core\ArgumentConverters\" />
     <Folder Include="Services\Interfaces\" />
     <Folder Include="Services\Implementations\" />
-    <Folder Include="Modules\Games\Communicators\" />
-    <Folder Include="Modules\Games\Games\BattleShip\" />
-    <Folder Include="Modules\Games\Games\UNO\" />
+    <Folder Include="Core\Modules\GameCommands\Communicators\" />
+    <Folder Include="Core\Modules\GameCommands\Games\" />
+    <Folder Include="Core\Modules\GameCommands\Players\" />
+    <Folder Include="Core\Configurations\ServerConfigurations\" />
+    <Folder Include="Core\Modules\GeneralCommands\" />
+    <Folder Include="Core\Configurations\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -103,7 +104,6 @@
     <None Remove="Modules\Currency\AccessoryClasses\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\" />
     <None Remove="Modules\Currency\AccessoryClasses\Jobs\" />
-    <None Remove="Modules\Games\Players\Spectators\" />
     <None Remove="Core\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\" />
     <None Remove="Modules\Currency\AccessoryClasses\Shop\Items\ItemData\" />
@@ -136,9 +136,12 @@
     <None Remove="Core\ArgumentConverters\" />
     <None Remove="Services\Interfaces\" />
     <None Remove="Services\Implementations\" />
-    <None Remove="Modules\Games\Communicators\" />
-    <None Remove="Modules\Games\Games\BattleShip\" />
-    <None Remove="Modules\Games\Games\UNO\" />
+    <None Remove="Core\Modules\GameCommands\Communicators\" />
+    <None Remove="Core\Modules\GameCommands\Games\" />
+    <None Remove="Core\Modules\GameCommands\Players\" />
+    <None Remove="Core\Configurations\ServerConfigurations\" />
+    <None Remove="Core\Modules\GeneralCommands\" />
+    <None Remove="Core\Configurations\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

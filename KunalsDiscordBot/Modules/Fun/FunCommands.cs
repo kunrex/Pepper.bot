@@ -22,11 +22,15 @@ using System.Reflection;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using System.Text.RegularExpressions;
+using DSharpPlus;
+using KunalsDiscordBot.Core.Attributes.GeneralCommands;
+using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Exceptions;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
     [Group("Fun")]
-    [Decor("Lilac", ":game_die:")]
+    [Decor("Lilac", ":game_die:"), ConfigData(ConfigValueSet.Fun)]
     public class FunCommands : BaseCommandModule
     {
         private readonly FunData data;
@@ -40,6 +44,73 @@ namespace KunalsDiscordBot.Modules.Fun
             data = configManager.funData;
             redditApp = reddit;
             serverService = _serverService;
+        }
+
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+
+            if (configPermsCheck)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                {
+                    await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
+            await base.BeforeExecutionAsync(ctx);
+        }
+
+        [Command("ToggleNSFW")]
+        [Aliases("NSFW")]
+        [Description("Changes wether or not NSFW content is allowed in the server")]
+        [CheckConfigPerms, ConfigData(ConfigValue.AllowNSFW)]
+        public async Task ToggleNSFW(CommandContext ctx, bool toChange)
+        {
+            await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Allow NSFW` to {toChange}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("AllowSpam")]
+        [Description("If true, members of the server will be able to run the spam command (don't recommend for large servers)")]
+        [CheckConfigPerms, ConfigData(ConfigValue.AllowSpamCommand)]
+        public async Task AllowSpam(CommandContext ctx, bool toSet)
+        {
+            await serverService.ToggleSpamCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Allow Spam` to {toSet}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("AllowGhost")]
+        [Description("If true, members of the server will be able to run the ghost command (don't recommend for large servers)")]
+        [CheckConfigPerms, ConfigData(ConfigValue.AllowGhostCommand)]
+        public async Task AllowGhost(CommandContext ctx, bool toSet)
+        {
+            await serverService.ToggleGhostCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Allow Ghost` to {toSet}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
         }
 
         List<Spammer> currentSpammers = new List<Spammer>();
@@ -245,7 +316,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [Description("Juicy memes straight from r/memes")]
         public async Task Meme(CommandContext ctx)
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+            var profile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
             var post = redditApp.GetMeme(profile.AllowNSFW == 1);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -301,7 +372,7 @@ namespace KunalsDiscordBot.Modules.Fun
                 return;
             }
 
-            var serverProfile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+            var serverProfile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
 
             if(serverProfile.AllowNSFW == 0 && subReddit.Over18.Value)
             {

@@ -30,7 +30,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
     [Aliases("softmod", "sm")]
     [Decor("Blurple", ":scales:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
-    [RequireBotPermissions(Permissions.Administrator)]
+    [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class SoftModerationCommands : BaseCommandModule
     {
         private readonly IModerationService modService;
@@ -50,7 +50,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var checkMute = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckMuteRoleAttribute) != null;
             if(checkMute)
             {
-                var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+                var profile = await serverService.GetModerationData(ctx.Guild.Id);
                 var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
 
                 if (role == null)
@@ -84,7 +84,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("SetModRole")]
         [Description("Assigns the moderator role for the server. This command can only be ran by an administrator")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.ModRole)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.ModRole)]
         public async Task SetModRole(CommandContext ctx, DiscordRole role)
         {
             await serverService.SetModeratorRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
@@ -101,7 +101,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
         [Command("SetMuteRole")]
         [Description("Sets the mute role of a server")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.MutedRole)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.MutedRole)]
         public async Task SetMuteRole(CommandContext ctx, DiscordRole role)
         {
             var botMember = await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id);
@@ -254,9 +254,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await modService.GetModerationProfile(endorsement.ModerationProfileId);
-
-            if((ulong)profile.GuildId != ctx.Guild.Id)
+            if((ulong)endorsement.GuildID != ctx.Guild.Id)
             {
                 await ctx.Channel.SendMessageAsync("Endorsement with this Id doesn't exist exist in this server");
                 return;
@@ -265,7 +263,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Endorsement {endorsement.Id}",
-                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {endorsement.Reason}",
+                Description = $"User: <@{(ulong)endorsement.UserId}>\nReason: {endorsement.Reason}",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -289,9 +287,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await modService.GetModerationProfile(infraction.ModerationProfileId);
-
-            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            if ((ulong)infraction.GuildID != ctx.Guild.Id)
             {
                 await ctx.Channel.SendMessageAsync("Infraction with this Id doesn't exist exist in this server");
                 return;
@@ -300,7 +296,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Infraction {infraction.Id}",
-                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {infraction.Reason}",
+                Description = $"User: <@{(ulong)infraction.UserId}>\nReason: {infraction.Reason}",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -455,7 +451,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [ModeratorNeeded, CheckMuteRole]
         public async Task Mute(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "Unspecified")
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+            var profile = await serverService.GetModerationData(ctx.Guild.Id);
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
 
             if (member.Roles.FirstOrDefault(x => x.Id == role.Id) != null)
@@ -490,7 +486,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [ModeratorNeeded, CheckMuteRole]
         public async Task UnMute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unspecified")
         {
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
+            var profile = await serverService.GetModerationData(ctx.Guild.Id);
             var role = ctx.Guild.Roles.FirstOrDefault(x => x.Value.Id == (ulong)profile.MutedRoleId).Value;
 
             if (member.Roles.FirstOrDefault(x => x.Id == role.Id) == null)
@@ -526,9 +522,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var profile = await modService.GetModerationProfile(mute.ModerationProfileId);
-
-            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            if ((ulong)mute.GuildID != ctx.Guild.Id)
             {
                 await ctx.Channel.SendMessageAsync("Mute with this Id doesn't exist exist in this server");
                 return;
@@ -537,7 +531,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Mute {mute.Id}",
-                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {mute.Reason}",
+                Description = $"User: <@{(ulong)mute.UserId}>\nReason: {mute.Reason}",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {

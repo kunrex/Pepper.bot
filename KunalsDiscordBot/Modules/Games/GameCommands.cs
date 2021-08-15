@@ -13,15 +13,75 @@ using DSharpPlus.Interactivity.Extensions;
 using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Images;
 using System.Linq;
+using KunalsDiscordBot.Core.Attributes.GeneralCommands;
+using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Modules.Games
 {
     [Group("Games")]
     [Decor("IndianRed", ":video_game:")]
     [Description("A set of commands to play popular games with other server members")]
-    [ModuleLifespan(ModuleLifespan.Transient)]
+    [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.Games)]
     public class GameCommands : BaseCommandModule
     {
+        public static readonly DiscordColor Color = typeof(GameCommands).GetCustomAttribute<DecorAttribute>().color;
+
+        private readonly IServerService serverService;
+        public GameCommands(IServerService service) => serverService = service;
+
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+
+            if (configPermsCheck)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                {
+                    await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
+            await base.BeforeExecutionAsync(ctx);
+        }
+
+        [Command("Connect4Channel")]
+        [Description("Assigns the connect4 channel for a server")]
+        [CheckConfigPerms, ConfigData(ConfigValue.Connect4Channel)]
+        public async Task Connect4Channel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetConnect4Channel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the Connect4 channel for guild: `{ctx.Guild.Name}`",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("TicTacToeChannel")]
+        [Description("Assigns the connect4 channel for a server")]
+        [CheckConfigPerms, ConfigData(ConfigValue.TicTacToeChannel)]
+        public async Task TicTacToeChannel(CommandContext ctx, DiscordChannel channel)
+        {
+            await serverService.SetTicTacToeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Saved {channel.Mention} as the TicTacToe channel for guild: `{ctx.Guild.Name}`",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
         [Command("Connect4")]
         [Description("The Connect 4 game, play with a friend")]
         public async Task Connect(CommandContext ctx, DiscordMember other, int numberOfCells = 5)

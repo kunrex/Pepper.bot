@@ -5,7 +5,10 @@ namespace KunalsDiscordBot.Services
 {
     public struct ConfigDataSet
     {
-        public string editCommand { get; set; }
-        public ConfigData data { get; set; }
+        public ConfigValue ConfigData { get; set; }
+        public string FieldName { get; set; }
+        public string Description { get; set; }
+
+        public string EditCommand { get; set; }
     }
 }

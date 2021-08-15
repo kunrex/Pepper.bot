@@ -14,20 +14,46 @@ using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Core.Attributes.MusicCommands;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.General;
+using System.Reflection;
+using DSharpPlus.Entities;
+using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Attributes.GeneralCommands;
+using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Modules.Music
 {
     [Group("Music")]
-    [DecorAttribute("Aquamarine", ":musical_note:")]
-    [Description("Set of music commands offered by Pepper")]
+    [Decor("Aquamarine", ":musical_note:")]
+    [Description("Set of music commands offered by Pepper"), ConfigData(ConfigValueSet.Music)]
     public sealed class MusicCommands : BaseCommandModule
     {
-        private readonly IMusicService service;
+        public static DiscordColor Color = typeof(MusicCommands).GetCustomAttribute<DecorAttribute>().color;
 
-        public MusicCommands(IMusicService _service) => service = _service;
+        private readonly IMusicService service;
+        private readonly IServerService serverService;
+
+        public MusicCommands(IMusicService _service, IServerService _serverService)
+        {
+            service = _service;
+            serverService = _serverService;
+        }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+
+            if (configPermsCheck)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                {
+                    await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
             var botVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is BotVCNeededAttribute) != null;
             var channel = await service.GetPlayerChannel(ctx.Guild.Id);
             if (botVCCheck && channel == null)
@@ -57,14 +83,59 @@ namespace KunalsDiscordBot.Modules.Music
                 }
             }
 
-            var DJCheck = await service.CheckDJRole(ctx);
-            if(!DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
+            var DJCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) != null;
+            if(DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
             {
-                await ctx.RespondAsync(":x: You need the DJ role to run this command");
-                throw new CustomCommandException();
+                var id = await service.GetDJRoleIDForServer(ctx.Guild.Id);
+
+                if (ctx.Member.Roles.FirstOrDefault(x => x.Id == id) == null)
+                {
+                    await ctx.RespondAsync(":x: You need the DJ role to run this command");
+                    throw new CustomCommandException();
+                }
             }
 
             await base.BeforeExecutionAsync(ctx);
+        }
+
+        [Command("ToggleDJ")]
+        [Aliases("DJ")]
+        [Description("Changes wether or not the DJ role should be enforced for music commands")]
+        [CheckConfigPerms, ConfigData(ConfigValue.DJEnfore)]
+        public async Task ToggeDJ(CommandContext ctx, bool toChange)
+        {
+            await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Enforce DJ Role` to {toChange}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
+        }
+
+        [Command("DJRole")]
+        [Description("Assigns the DJ role for a server")]
+        [CheckConfigPerms, ConfigData(ConfigValue.DJRole)]
+        public async Task DJRole(CommandContext ctx, DiscordRole role)
+        {
+            var profile = await serverService.GetMusicData(ctx.Guild.Id).ConfigureAwait(false);
+            if (profile.UseDJRoleEnforcement == 0)
+            {
+                await ctx.RespondAsync("`Enforce DJ Role` must be set to true to use this command, you can do so using the `general ToggleDJ` command").ConfigureAwait(false);
+                return;
+            }
+
+            await serverService.SetDJRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Enforce DJ Role` to {role.Mention}",
+                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
+                Color = Color
+            }).ConfigureAwait(false);
         }
 
         [Command("Join")]

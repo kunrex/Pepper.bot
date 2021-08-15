@@ -138,14 +138,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
             };
         }
 
-        private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
-        {
-            if (TryExtractValues(message, out Coordinate position, out bool isVertical))
-                return IsValidShipPosition(position, isVertical, numberOfBlocks, shipIndex);
-            else
-                return false;
-        }
-
         private bool IsValidShipPosition(Coordinate position, bool isVertical, int numOfBlocks, int shipIndex)
         {
             if (board[position.y, position.x] != 0)
@@ -206,6 +198,14 @@ namespace KunalsDiscordBot.Modules.Games.Players
 
         private bool TryParseAndAdd(string message, out Coordinate ordinate) => ExtractCoordinate(message, out ordinate) && IsValid(ordinate);
 
+        private bool TryParseAndAdd(string message, int numberOfBlocks, int shipIndex)
+        {
+            if (TryExtractValues(message, out Coordinate position, out bool isVertical))
+                return IsValidShipPosition(position, isVertical, numberOfBlocks, shipIndex);
+            else
+                return false;
+        }
+
         private bool TryExtractValues(string message, out Coordinate position, out bool isVertical)
         {
             isVertical = false;
@@ -243,7 +243,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return other[ordinate.y, ordinate.x] != 1 && other[ordinate.y, ordinate.x] != 3;
         }
 
-        public async Task<string> GetBoardToPrint(bool ourPlayer = true)
+        public Task<string> GetBoardToPrint(bool ourPlayer = true)
         {
             string boardToString = $"{BattleShip.BLANK}{BattleShip.BLANK}{BattleShip.letters.Aggregate((i, j) => i + j)}\n\n";//im using BLANK here cause its basically a black square acting as a blank space, apparently embeds don't allow spaces
 
@@ -277,8 +277,7 @@ namespace KunalsDiscordBot.Modules.Games.Players
                 boardToString += "\n";
             }
 
-            await Task.CompletedTask;
-            return boardToString;
+            return Task.FromResult(boardToString);
         }
 
         public async Task<(bool, bool)> SetAttackPos(Coordinate ordinate)
@@ -302,8 +301,6 @@ namespace KunalsDiscordBot.Modules.Games.Players
             return (false, false);
         }
 
-        public async Task SendMessage(string message) => await communicator.SendMessage(message);
-
         public async Task<bool> CheckIfLost()
         {
             foreach (var ship in ships)
@@ -315,5 +312,8 @@ namespace KunalsDiscordBot.Modules.Games.Players
             await Task.CompletedTask;
             return true;
         }
+
+        public async Task SendMessage(string message) => await communicator.SendMessage(message);
+        public async Task SendMessage(string message, DiscordEmbedBuilder embed) => await communicator.SendMessage(message, embed);
     }
 }

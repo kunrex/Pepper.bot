@@ -1,19 +1,14 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DiscordBotDataBase.Dal.Models.Moderation;
-using DiscordBotDataBase.Dal.Models.Moderation.SubData;
 
 using System.Collections.Generic;
 using DiscordBotDataBase.Dal.Models.Servers;
+using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
 
 namespace KunalsDiscordBot.Services.Moderation
 {
     public interface IModerationService
     {
-        public Task<ModerationProfile> GetModerationProfile(ulong id, ulong guildId);
-        public Task<ModerationProfile> GetModerationProfile(int id);
-        public Task<ModerationProfile> CreateModerationProfile(ulong id, ulong guildId);
-
         public Task<int> AddInfraction(ulong id, ulong guildId, ulong moderatorID, string reason);
         public Task<int> AddEndorsement(ulong id, ulong guildId, ulong moderatorID, string reason);
         public Task<int> AddBan(ulong id, ulong guildId, ulong moderatorID, string reason, string time);

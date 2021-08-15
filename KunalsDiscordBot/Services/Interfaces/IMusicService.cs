@@ -33,6 +33,6 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> Skip(ulong id);
         public Task<string> Clean(ulong id);
 
-        public Task<bool> CheckDJRole(CommandContext ctx);
+        public Task<ulong> GetDJRoleIDForServer(ulong guildId);
     }
 }

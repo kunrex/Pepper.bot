@@ -253,21 +253,6 @@ namespace KunalsDiscordBot.Services.Music
             return players[id].connection.Channel;
         }
 
-        public async Task<bool> CheckDJRole(CommandContext ctx)
-        {
-            if (ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) == null)
-                return true;
-
-            var profile = await serverService.GetServerProfile(ctx.Guild.Id);
-            if (profile.UseDJRoleEnforcement == 0)
-                return true;
-
-            if (profile.DJRoleId == 0)//allowed but no role assigned
-                return true;
-
-            return ctx.Member.Roles.FirstOrDefault(x => x.Id == (ulong)profile.DJRoleId) != null;
-        }
-
         public async Task<string> Clean(ulong id)
         {
             if (!players.ContainsKey(id))
@@ -282,5 +267,7 @@ namespace KunalsDiscordBot.Services.Music
 
             return await player.Clean();
         }
+
+        public async Task<ulong> GetDJRoleIDForServer(ulong guildId) => (ulong)(await serverService.GetMusicData(guildId)).DJRoleId;
     }
 }

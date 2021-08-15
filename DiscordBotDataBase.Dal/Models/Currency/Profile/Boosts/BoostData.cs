@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DiscordBotDataBase.Dal.Models.Profile.Boosts
 {
-    public class BoostData : Entity
+    public class BoostData : Entity<int>
     {
         public string BoosteName { get; set; }
         public int BoostValue { get; set; }

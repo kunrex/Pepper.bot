@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Modules.Moderation
     [Aliases("Mod")]
     [Decor("Blurple", ":scales:")]
     [Description("The user and the bot requires administration roles to run commands in this module")]
-    [RequireBotPermissions(Permissions.Administrator)]
+    [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class ModerationCommands : BaseCommandModule
     {
         private readonly IModerationService modService;
@@ -217,9 +217,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await modService.GetModerationProfile(kick.ModerationProfileId);
-
-            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            if ((ulong)kick.GuildID != ctx.Guild.Id)
             {
                 await ctx.Channel.SendMessageAsync("Kick with this Id doesn't exist exist in this server");
                 return;
@@ -228,7 +226,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Kick {kick.Id}",
-                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {kick.Reason}",
+                Description = $"User: <@{(ulong)kick.UserId}>\nReason: {kick.Reason}",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -251,9 +249,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var profile = await modService.GetModerationProfile(ban.ModerationProfileId);
-
-            if ((ulong)profile.GuildId != ctx.Guild.Id)
+            if ((ulong)ban.GuildID != ctx.Guild.Id)
             {
                 await ctx.Channel.SendMessageAsync("Ban with this Id doesn't exist exist in this server");
                 return;
@@ -262,7 +258,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Ban {ban.Id}",
-                Description = $"User: <@{(ulong)profile.DiscordId}>\nReason: {ban.Reason}",
+                Description = $"User: <@{(ulong)ban.UserId}>\nReason: {ban.Reason}",
                 Color = Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
@@ -324,7 +320,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("AddRule")]
         [Description("Add a rule in the server")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleCount)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task AddRule(CommandContext ctx, [RemainingText] string rule)
         {
             var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
@@ -358,7 +354,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RemoveRule")]
         [Description("Add a rule in the server")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleCount)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task RemoveRule(CommandContext ctx, int index)
         {
             var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
@@ -394,7 +390,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RuleChannel")]
         [Description("Assigns the rule channel for a server")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigData.RuleChannel)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleChannel)]
         public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
