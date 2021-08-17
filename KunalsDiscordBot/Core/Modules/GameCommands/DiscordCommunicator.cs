@@ -19,6 +19,11 @@ namespace KunalsDiscordBot.Modules.Games.Communicators
         public Regex inputExpression { get; set; }
         public TimeSpan timeSpan { get; set; }
 
+        public DiscordCommunicator()
+        {
+
+        }
+
         public DiscordCommunicator(Regex expression, TimeSpan span)
         {
             inputExpression = expression;

@@ -12,10 +12,7 @@ namespace KunalsDiscordBot.Services.Music
 {
     public class MusicService : IMusicService
     {
-        private readonly IServerService serverService;
-        public MusicService(IServerService service) => serverService = service;
-
-        public Dictionary<ulong, VCPlayer> players = new Dictionary<ulong, VCPlayer>();
+        public static Dictionary<ulong, VCPlayer> players = new Dictionary<ulong, VCPlayer>();
 
         public async Task<string> ClearQueue(ulong id)
         {
@@ -267,7 +264,5 @@ namespace KunalsDiscordBot.Services.Music
 
             return await player.Clean();
         }
-
-        public async Task<ulong> GetDJRoleIDForServer(ulong guildId) => (ulong)(await serverService.GetMusicData(guildId)).DJRoleId;
     }
 }

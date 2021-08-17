@@ -13,6 +13,7 @@ using KunalsDiscordBot.Services;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.Enums;
 using KunalsDiscordBot.Modules.Games.Communicators;
+using KunalsDiscordBot.Modules.Games.Players.Spectators;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -22,13 +23,11 @@ namespace KunalsDiscordBot.Modules.Games
         reverse
     }
 
-    public class UNOGame : DiscordGame<UNOPlayer, UNOCommunicator>
+    public class UNOGame : DiscordGame<UNOPlayer, UNOCommunicator>, ISpectatorGame
     {
         public static int maxPlayers = 5, startCardNumber = 8, timeLimit = 1, maxCardsInATurn = 4, unoMissPenalty = 4;
         public static DiscordColor UNOColor = DiscordColor.Red;
         public static readonly string playing = "Playing...";
-
-        public DiscordClient client { get; private set; }
 
         private List<UNOPlayer> playersWhoFinished { get; set; } = new List<UNOPlayer>();
 
@@ -38,6 +37,8 @@ namespace KunalsDiscordBot.Modules.Games
         public PaginationEmojis emojis { get; private set; }
 
         private int? cardStacks { get; set; } = null;
+        public List<DiscordSpectator> spectators { get ; set ; }
+
         private GameDirection direction = GameDirection.forward;
 
         public static List<Card> GetDeck()
@@ -72,7 +73,7 @@ namespace KunalsDiscordBot.Modules.Games
             return cards;
         }
 
-        public UNOGame(List<DiscordMember> members, DiscordClient _client)
+        public UNOGame(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
             client = _client;
             emojis = new PaginationEmojis()
@@ -82,10 +83,7 @@ namespace KunalsDiscordBot.Modules.Games
                 Stop = null
             };
 
-            players = new List<UNOPlayer>(); 
-            foreach (var member in members)
-                players.Add(new UNOPlayer(member, emojis));
-
+            players = _players.Select(x => new UNOPlayer(x, emojis)).ToList();
             currentPlayer = players[0];
 
             SetUp();
@@ -342,14 +340,27 @@ namespace KunalsDiscordBot.Modules.Games
                 messageBuild.WithEmbed(embed);
 
             await Task.WhenAll(players.Select(x => x.SendMessage(messageBuild)));
+            await Task.WhenAll(spectators.Select(x => x.SendMessage(messageBuild)));
         }
 
-        private Task SendDeckToAllPlayers(List<Card> cards, string title)
+        private async Task SendDeckToAllPlayers(List<Card> cards, string title)
         {
-            foreach (var player in players)
-                player.PrintCards(cards, title);
+            await Task.WhenAll(players.Select(x => Task.Run(() => x.PrintCards(cards, title))));
+            await Task.WhenAll(spectators.Select(x => Task.Run(async () => x.SendMessage(await currentPlayer.communicator.GetPrintableDeck(cards, title), emojis))));
+        }
 
-            return Task.CompletedTask;
+        public async Task<bool> AddSpectator(DiscordMember _member)
+        {
+            if (spectators.Count == maxSpectators)
+                return false;
+
+            var spectator = new DiscordSpectator(_member, client, this);
+
+            spectators.Add(spectator);
+            var channel = await _member.CreateDmChannelAsync();
+
+            await spectator.Ready(channel);
+            return true;
         }
     }
 }

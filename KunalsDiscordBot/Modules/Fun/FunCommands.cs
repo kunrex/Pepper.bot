@@ -24,6 +24,7 @@ using KunalsDiscordBot.Core.Modules.FunCommands;
 using System.Text.RegularExpressions;
 using DSharpPlus;
 using KunalsDiscordBot.Core.Attributes.GeneralCommands;
+using KunalsDiscordBot.Core.Attributes.FunCommands;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 
@@ -57,6 +58,30 @@ namespace KunalsDiscordBot.Modules.Fun
                 if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
                 {
                     await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
+            var allowGhostCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckAllowGhostAttribute) != null;
+            if (allowGhostCheck)
+            {
+                var profile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.AllowGhostCommand == 0)
+                {
+                    await ctx.RespondAsync(":x: This server doesn't allow ghost command execution").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
+            var allowSpamCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckAllowSpamAttribute) != null;
+            if (allowSpamCheck)
+            {
+                var profile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.AllowSpamCommand == 0)
+                {
+                    await ctx.RespondAsync(":x: This server doesn't allow spam command execution").ConfigureAwait(false);
                     throw new CustomCommandException();
                 }
             }
@@ -117,6 +142,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("Spam")]
         [Description("It Spams a word for \"x\" seconds, you can not start more than 1 spam in 1 channel")]
+        [CheckAllowSpam]
         public async Task Spam(CommandContext ctx, int timeInterval, [RemainingText] string message)
         {
             Spammer spamer = currentSpammers.Find(x => x.ctx.Channel == ctx.Channel);
@@ -133,6 +159,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("StopSpam")]
         [Description("Stops a spam going on in a channel")]
+        [CheckAllowSpam]
         public async Task StopSpam(CommandContext ctx)
         {
             Spammer spammer = currentSpammers.Find(x => x.ctx.Channel == ctx.Channel);
@@ -417,7 +444,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("GhostPresence")]
         [Aliases("ghost")]
-        [Description("Control the bot temporarily")]
+        [Description("Control the bot temporarily"), CheckAllowGhost]
         public async Task Ghost(CommandContext ctx, DiscordChannel channel = null)
         {
             if(GhostPresence.presences.FirstOrDefault(x => x.guildId == ctx.Guild.Id || x.userID == ctx.Member.Id) != null)

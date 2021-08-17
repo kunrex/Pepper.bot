@@ -84,6 +84,8 @@
     <Folder Include="Core\Configurations\ServerConfigurations\" />
     <Folder Include="Core\Modules\GeneralCommands\" />
     <Folder Include="Core\Configurations\Attributes\" />
+    <Folder Include="Core\Modules\FunCommands\Attributes\" />
+    <Folder Include="Core\Modules\GameCommands\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -142,6 +144,8 @@
     <None Remove="Core\Configurations\ServerConfigurations\" />
     <None Remove="Core\Modules\GeneralCommands\" />
     <None Remove="Core\Configurations\Attributes\" />
+    <None Remove="Core\Modules\FunCommands\Attributes\" />
+    <None Remove="Core\Modules\GameCommands\Attributes\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

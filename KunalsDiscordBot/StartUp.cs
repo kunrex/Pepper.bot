@@ -12,6 +12,7 @@ using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Configuration;
+using KunalsDiscordBot.Services.Games;
 
 namespace KunalsDiscordBot
 {
@@ -34,8 +35,9 @@ namespace KunalsDiscordBot
                 .AddScoped<IModerationService, ModerationService>()
                 .AddScoped<IImageService, ImageService>()
                 .AddScoped<IServerService, ServerService>()
-                .AddScoped<IMusicService, MusicService>()
-                .AddScoped<IConfigurationService, ConfigurationService>();
+                .AddScoped<IConfigurationService, ConfigurationService>()
+                .AddSingleton<IMusicService, MusicService>()
+                .AddSingleton<IGameService, GameService>();
 
             BuildService(services);
         }

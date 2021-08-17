@@ -27,25 +27,17 @@ namespace KunalsDiscordBot.Modules.Games
 
         private int[,] board { get; set; }
         private readonly DiscordChannel channel;
-        private readonly DiscordClient client;
         private bool gameOver { get; set; }
 
-        public TicTacToe(DiscordChannel _channel, DiscordMember member1, DiscordMember member2, DiscordClient _client, int _numberOfCells)
+        public TicTacToe(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel, int _numberOfCells) : base(_client, _players)
         {
             channel = _channel;
             client = _client;
 
-            players = new List<TicTacToePlayer>()
-            {
-                new TicTacToePlayer(member1),
-                new TicTacToePlayer(member2)
-            };
-
+            players = _players.Select(x => new TicTacToePlayer(x)).ToList();
             currentPlayer = players[0];
             
-            numberOfCells = _numberOfCells;
-            numberOfCells = System.Math.Clamp(numberOfCells, 3, 5);
-
+            numberOfCells = System.Math.Clamp(_numberOfCells, 3, 5);
             board = new int[numberOfCells, numberOfCells];
 
             SetUp();

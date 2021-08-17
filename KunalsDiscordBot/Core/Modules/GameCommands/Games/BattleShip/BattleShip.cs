@@ -10,12 +10,12 @@ using DSharpPlus;
 using KunalsDiscordBot.Modules.Games.Players;
 using KunalsDiscordBot.Modules.Games.Players.Spectators;
 using KunalsDiscordBot.Modules.Games.Communicators;
+using System.Linq;
 
 namespace KunalsDiscordBot.Modules.Games
 {
-    public sealed class BattleShip : DiscordGame<BattleShipPlayer, BattleShipCommunicator>
+    public sealed class BattleShip : DiscordGame<BattleShipPlayer, BattleShipCommunicator>, ISpectatorGame
     {
-        public static List<BattleShip> currentGames { get; private set; } = new List<BattleShip>();
         public static readonly int BoardSize = 10;
 
         public static readonly string WATER = ":blue_circle:";
@@ -31,26 +31,14 @@ namespace KunalsDiscordBot.Modules.Games
         public static readonly string[] number = { ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:" };
         public static readonly int[] shipSizes = { 1, 1, 2, 2, 3 };
 
-        public DiscordClient client;
-
         private bool gameOver { get; set; }
+        public List<DiscordSpectator> spectators { get; set; }
 
-        private List<DiscordSpectator> spectators = new List<DiscordSpectator>();
-
-        public BattleShip(DiscordMember user1, DiscordMember user2, DiscordClient _client)
+        public BattleShip(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
-            players = new List<BattleShipPlayer>();
-
-            var player1 = new BattleShipPlayer(user1);
-            var player2 = new BattleShipPlayer(user2);
-
-            players.Add(player1);
-            players.Add(player2);
-
-            currentGames.Add(this);
+            players = _players.Select(x => new BattleShipPlayer(x)).ToList();
 
             client = _client;
-
             gameOver = false;
 
             SetUp();
@@ -197,8 +185,6 @@ namespace KunalsDiscordBot.Modules.Games
 
         private async Task RemovePlayers()
         {
-            currentGames.Remove(this);
-
             foreach (var spectator in spectators)
                 spectator.End();
 
@@ -273,20 +259,18 @@ namespace KunalsDiscordBot.Modules.Games
                 await task;
         }
 
-        public async Task AddSpectator(DiscordMember _member)
+        public async Task<bool> AddSpectator(DiscordMember _member)
         {
+            if (spectators.Count == maxSpectators)
+                return false;
+
             var spectator = new DiscordSpectator(_member, client, this);
 
             spectators.Add(spectator);
             var channel = await _member.CreateDmChannelAsync();
 
             await spectator.Ready(channel);
-        }
-
-        public async Task RemoveSpectator(DiscordSpectator spectator)
-        {
-            spectators.Remove(spectators.Find(x => x.member.Id == spectator.member.Id));
-            await Task.CompletedTask;
+            return true;
         }
     }
 }

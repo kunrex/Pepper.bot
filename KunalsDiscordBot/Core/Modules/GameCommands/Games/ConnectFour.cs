@@ -29,25 +29,18 @@ namespace KunalsDiscordBot.Modules.Games
         private const string SPACE = "   ";
 
         private readonly DiscordChannel channel;
-        private readonly DiscordClient client;
 
-        public ConnectFour(DiscordChannel _channel, DiscordClient _client, DiscordMember user1, DiscordMember user2, int _numberOfCells)
+        public ConnectFour(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel, int _numberOfCells) : base(_client, _players)
         {
             client = _client;
             channel = _channel;
 
-            players = new List<Connect4Player>()
-            {
-                new Connect4Player(user1),
-                new Connect4Player(user2)
-            };
+            players = _players.Select(x => new Connect4Player(x)).ToList();
+            currentPlayer = players[0];
 
-            numberOfCells = _numberOfCells;
-            numberOfCells = System.Math.Clamp(numberOfCells, 5, 8);
-
+            numberOfCells = System.Math.Clamp(_numberOfCells, 5, 8);
             board = new int[numberOfCells, numberOfCells];
 
-            currentPlayer = players[0];
             SetUp();
         }
 

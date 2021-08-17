@@ -86,7 +86,7 @@ namespace KunalsDiscordBot.Modules.Music
             var DJCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) != null;
             if(DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
             {
-                var id = await service.GetDJRoleIDForServer(ctx.Guild.Id);
+                var id = (ulong)(await serverService.GetMusicData(ctx.Guild.Id)).DJRoleId;
 
                 if (ctx.Member.Roles.FirstOrDefault(x => x.Id == id) == null)
                 {
