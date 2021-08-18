@@ -140,7 +140,7 @@ namespace KunalsDiscordBot.Modules.Games
                 {
                     Description = $"Failed to start match, If a game already is going on in the server then wait for it to finish.",
                     Color = Color
-                }.WithFooter($"Member: {ctx.Member.Id}, at {DateTime.Now}"));
+                }.WithFooter($"Member: {ctx.Member.Username}, at {DateTime.Now}"));
         }
 
         [Command("TicTacToe")]
@@ -171,7 +171,7 @@ namespace KunalsDiscordBot.Modules.Games
                 {
                     Description = $"Failed to start match, If a game already is going on in the server then wait for it to finish.",
                     Color = Color
-                }.WithFooter($"Member: {ctx.Member.Id}, at {DateTime.Now}"));
+                }.WithFooter($"Member: {ctx.Member.Username}, at {DateTime.Now}"));
         }
 
         [Command("BattleShip")]
@@ -233,12 +233,13 @@ namespace KunalsDiscordBot.Modules.Games
         [Description("Play UNO with server members!")]
         public async Task UNO(CommandContext ctx)
         {
-            var message = await ctx.Channel.SendMessageAsync($"Who wants to join in for a game of UNO? React with :arrow_up: on this message when the timer starts to join. React with `:arrow_double_up:` to force start. Reactions are collected for 1 minute");
+            var message = await ctx.Channel.SendMessageAsync($"Who wants to join in for a game of UNO? React with :arrow_up: on this message when the timer starts to join. React with :arrow_double_up: to force start. Reactions are collected for 1 minute");
             var emoji = DiscordEmoji.FromName(ctx.Client, ":arrow_up:");
             var forceEmoji = DiscordEmoji.FromName(ctx.Client, ":arrow_double_up:");
             List<DiscordMember> players = new List<DiscordMember>();
 
             await message.CreateReactionAsync(emoji);
+            await message.CreateReactionAsync(forceEmoji);
 
             await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -247,6 +248,7 @@ namespace KunalsDiscordBot.Modules.Games
 
             var time = DateTime.Now;
             var timeSpan = TimeSpan.FromMinutes(1);
+            await ctx.Channel.SendMessageAsync("Timer started!");
 
             while (!force)
             {
@@ -279,6 +281,12 @@ namespace KunalsDiscordBot.Modules.Games
                         await ctx.Channel.SendMessageAsync($"Max limit ({UNOGame.maxPlayers}) reached");
                     }
                 }
+            }
+
+            if(players.Count < 2)
+            {
+                await ctx.Channel.SendMessageAsync("Too less players joined so I ain't starting a match");
+                return;
             }
 
             var game = gameService.StartGame<UNOGame>(ctx.Guild.Id, players, ctx.Client);

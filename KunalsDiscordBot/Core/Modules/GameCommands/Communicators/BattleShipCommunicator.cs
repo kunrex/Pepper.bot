@@ -49,7 +49,7 @@ namespace KunalsDiscordBot.Modules.Games.Communicators
             if (message.TimedOut)
                 return afkInputvalue;
             else if (message.Result.Content.ToLower().Equals(data.leaveMessage))
-                return data.leaveMessage;
+                return quitInputvalue;
             else if (!battleShipInputExpression.IsMatch(message.Result.Content))
             {
                 await SendMessage(data.regexMatchFailExpression);

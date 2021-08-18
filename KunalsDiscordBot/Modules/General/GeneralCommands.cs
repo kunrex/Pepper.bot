@@ -63,18 +63,11 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("date")]
         [Description("Tells you the date")]
-        public async Task Date(CommandContext ctx)
-        {
-            await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("dddd, dd MMMM yyyy")).ConfigureAwait(false);
-        }
-
+        public async Task Date(CommandContext ctx) => await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("dddd, dd MMMM yyyy")).ConfigureAwait(false);
 
         [Command("time")]
         [Description("Tells you the time")]
-        public async Task Time(CommandContext ctx)
-        {
-            await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("hh:mm tt")).ConfigureAwait(false);
-        }
+        public async Task Time(CommandContext ctx) => await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("hh:mm tt")).ConfigureAwait(false);
 
         [Command("poll")]
         [Description("Conducts a poll **DEMOCRACY**")]
@@ -202,12 +195,21 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("Ping")]
         [Description("Current ping of the client")]
-        public async Task Ping(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        public async Task Ping(CommandContext ctx)
         {
-            Title = "Pong! :ping_pong:",
-            Description = $"Current latency is about {ctx.Client.Ping}ms",
-            Color = Color
-        }).ConfigureAwait(false);
+            var time = DateTime.Now;
+            var messsage = await ctx.Channel.SendMessageAsync("Collecting").ConfigureAwait(false);
+
+            var difference = DateTime.Now - time;
+            await messsage.DeleteAsync();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Pong! :ping_pong:",
+                Description = $"Current `API latency` is about {ctx.Client.Ping}ms and current `client latency` is about {difference.Milliseconds}ms",
+                Color = Color
+            }).ConfigureAwait(false);
+        }
 
         [Command("AboutMe")]
         [Description("Allow me to intorduce myself :D")]
@@ -250,7 +252,7 @@ namespace KunalsDiscordBot.Modules.General
         [ConfigData(ConfigValue.EnforcePermissions)]
         public async Task ToggleAdminPermission(CommandContext ctx, bool toChange)
         {
-            await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
+            await serverService.TogglePermissions(ctx.Guild.Id, toChange).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

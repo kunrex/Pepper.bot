@@ -11,7 +11,16 @@ namespace KunalsDiscordBot.Core.Configurations
 {
     public class ServerConfigData
     {
-        public Dictionary<ConfigValueSet, List<ConfigDataSet>> ServerConfigValues { get; set; }
+        private Dictionary<ConfigValueSet, List<ConfigDataSet>> serverConfigValues;
+        public Dictionary<ConfigValueSet, List<ConfigDataSet>> ServerConfigValues
+        {
+            get => serverConfigValues;
+            set
+            {
+                serverConfigValues = value;
+                GatherEditCommands();
+            }
+        }
 
         public void GatherEditCommands()
         {

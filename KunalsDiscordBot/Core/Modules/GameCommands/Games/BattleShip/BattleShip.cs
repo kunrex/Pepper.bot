@@ -31,15 +31,12 @@ namespace KunalsDiscordBot.Modules.Games
         public static readonly string[] number = { ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:" };
         public static readonly int[] shipSizes = { 1, 1, 2, 2, 3 };
 
-        private bool gameOver { get; set; }
-        public List<DiscordSpectator> spectators { get; set; }
+        public List<DiscordSpectator> spectators { get; set; } = new List<DiscordSpectator>();
 
         public BattleShip(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
             players = _players.Select(x => new BattleShipPlayer(x)).ToList();
-
             client = _client;
-            gameOver = false;
 
             SetUp();
         }
@@ -96,7 +93,7 @@ namespace KunalsDiscordBot.Modules.Games
 
             try
             {
-                while (!gameOver)
+                while (!GameOver)
                 {
                     var otherPlayer = currentPlayer == players[0] ? players[1] : players[0];
 
@@ -109,7 +106,7 @@ namespace KunalsDiscordBot.Modules.Games
                         await SendMessageToBoth(endMessage);
                         await SendMessageToAllSpectators(endMessage);
 
-                        gameOver = true;
+                        GameOver = true;
 
                         await RemovePlayers();
 
@@ -152,7 +149,7 @@ namespace KunalsDiscordBot.Modules.Games
 
                         await RemovePlayers();
 
-                        gameOver = true;
+                        GameOver = true;
                         continue;
                     }
 
@@ -165,13 +162,14 @@ namespace KunalsDiscordBot.Modules.Games
             catch(Exception e)
             {
                 await SendMessageToAllSpectators("Unknown error occured ending spectation");
-                await SendMessageToBoth($"Unkown error -  {e.Message}  occured, tell Kunal").ConfigureAwait(false);
+                await SendMessageToBoth($"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
 
-                gameOver = true;
+                GameOver = true;
                 await RemovePlayers();
-
-                return;
             }
+
+            if (OnGameOver != null)
+                OnGameOver();
         }
 
         protected override async Task PrintBoard()
@@ -261,7 +259,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
-            if (spectators.Count == maxSpectators)
+            if (spectators.Count == maxSpectators || players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
 
             var spectator = new DiscordSpectator(_member, client, this);

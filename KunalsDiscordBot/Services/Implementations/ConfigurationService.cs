@@ -26,7 +26,6 @@ namespace KunalsDiscordBot.Services.Configuration
             serverService = service;
             configData = configurationManager.ServerConfigData;
 
-            configData.GatherEditCommands();
             Functions = new Dictionary<ConfigValue, Func<ulong, object>>()
             {
                  { ConfigValue.EnforcePermissions, (id) => serverService.GetServerProfile(id).GetAwaiter().GetResult().RestrictPermissionsToAdmin == 1},

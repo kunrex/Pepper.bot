@@ -18,10 +18,14 @@ namespace KunalsDiscordBot.Modules.Games
             client = _client;
         }
 
+        public delegate void Event();
+        public Event OnGameOver { get; set; }
+
         public DiscordClient client { get; protected set; }
 
         public List<Player> players { get; protected set; }
         protected Player currentPlayer { get; set; }
+        public bool GameOver { get; protected set; } = false;
 
         protected abstract void SetUp();
         protected abstract void PlayGame();

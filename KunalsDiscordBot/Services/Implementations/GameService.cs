@@ -28,12 +28,16 @@ namespace KunalsDiscordBot.Services.Games
             {
                 case var x when x == typeof(BattleShip):
                     var battleShipMatch = new BattleShip(client, players);
+
                     BattleShipMatches.Add(battleShipMatch);
+                    battleShipMatch.OnGameOver += () => BattleShipMatches.Remove(battleShipMatch);
 
                     return Task.FromResult((Game)battleShipMatch);
                 case var x when x == typeof(UNOGame):
                     var unoMatch = new UNOGame(client, players);
+
                     UNOMatches.Add(unoMatch);
+                    unoMatch.OnGameOver += () => UNOMatches.Remove(unoMatch);
 
                     return Task.FromResult((Game)unoMatch);
                 default:
@@ -50,7 +54,9 @@ namespace KunalsDiscordBot.Services.Games
                         return null;
 
                     var connect = new ConnectFour(client, players, channel, cellCount);
+
                     Connect4Matches.Add(guildid, connect);
+                    connect.OnGameOver += () => Connect4Matches.Remove(guildid);
                     return connect;
 
                 case var x when x == typeof(TicTacToe):
@@ -58,8 +64,9 @@ namespace KunalsDiscordBot.Services.Games
                         return null;
 
                     var tictactoe = new TicTacToe(client, players, channel, cellCount);
-                    TicTacToeMatches.Add(guildid, tictactoe);
 
+                    TicTacToeMatches.Add(guildid, tictactoe);
+                    tictactoe.OnGameOver += () => TicTacToeMatches.Remove(guildid);
                     return tictactoe;
                 default:
                     return null;

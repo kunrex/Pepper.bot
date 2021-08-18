@@ -27,7 +27,7 @@ namespace KunalsDiscordBot.Modules.Games.UNO.Cards
 
     public abstract class Card : IStackable
     {
-        public static readonly CardLinks cardLinks = System.Text.Json.JsonSerializer.Deserialize<CardLinks>(System.IO.File.ReadAllText(System.IO.Path.Combine("Modules", "Games", "Games", "ComplexGames", "UNO", "Cards.json")));
+        public static readonly CardLinks cardLinks = System.Text.Json.JsonSerializer.Deserialize<CardLinks>(System.IO.File.ReadAllText(System.IO.Path.Combine("Core", "Modules", "GameCommands", "Games", "UNO", "Cards.json")));
 
         public CardColor cardColor { get; protected set; }
         public CardType cardType { get; protected set; }

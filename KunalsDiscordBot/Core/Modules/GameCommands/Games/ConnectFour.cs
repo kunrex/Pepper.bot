@@ -19,7 +19,6 @@ namespace KunalsDiscordBot.Modules.Games
     {
         public static readonly float timeLimit = 1;
 
-        private bool gameOver { get; set; }
         private int[,] board { get; set; }
         public int numberOfCells { get; private set; }
 
@@ -84,7 +83,7 @@ namespace KunalsDiscordBot.Modules.Games
         {
             try
             {
-                while (!gameOver)
+                while (!GameOver)
                 {
                     await PrintBoard();
 
@@ -93,17 +92,21 @@ namespace KunalsDiscordBot.Modules.Games
                     if (!completed.wasCompleted)
                     {
                         await currentPlayer.SendMessage($"{(completed.type == InputResult.Type.end ? $"{currentPlayer.member.Mention} has ended the game. noob" : $"{currentPlayer.member.Mention} has gone AFK")}").ConfigureAwait(false);
-                        break;
+
+                        GameOver = true;
+                        continue;
                     }
 
                     board[completed.ordinate.y, completed.ordinate.x] = currentPlayer == players[0] ? 1 : 2;
                     await CheckForWinner();
 
-                    if(gameOver)
+                    if(GameOver)
                     {
                         await currentPlayer.SendMessage($"{currentPlayer.member.Mention} Wins!").ConfigureAwait(false);
                         await PrintBoard();
-                        return;
+
+                        GameOver = true;
+                        continue;
                     }
 
                     bool draw = await CheckDraw();
@@ -112,7 +115,9 @@ namespace KunalsDiscordBot.Modules.Games
                     {
                         await currentPlayer.SendMessage($"{players[0].member.Username} and {players[1].member.Username} ends in a draw").ConfigureAwait(false);
                         await PrintBoard();
-                        return;
+
+                        GameOver = true;
+                        continue;
                     }
 
                     currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
@@ -121,9 +126,11 @@ namespace KunalsDiscordBot.Modules.Games
             catch (Exception e)
             {
                 await currentPlayer.SendMessage($"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
-                gameOver = true;
-                return;
+                GameOver = true;
             }
+
+            if (OnGameOver != null)
+                OnGameOver();
         }
 
         private Task<bool> CheckDraw()
@@ -168,9 +175,9 @@ namespace KunalsDiscordBot.Modules.Games
 
         private async Task<bool> Evaluate(Coordinate ordinate, int indent = 1, int direction = 0)
         {
-            if (indent == 4)//player one
+            if (indent == 4)//player won
             {
-                gameOver = true;
+                GameOver = true;
                 return true;
             }
 

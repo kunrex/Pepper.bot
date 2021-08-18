@@ -37,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Games
         public PaginationEmojis emojis { get; private set; }
 
         private int? cardStacks { get; set; } = null;
-        public List<DiscordSpectator> spectators { get ; set ; }
+        public List<DiscordSpectator> spectators { get; set; } = new List<DiscordSpectator>();
 
         private GameDirection direction = GameDirection.forward;
 
@@ -123,7 +123,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         protected async override void PlayGame()
         {
-            while (true)
+            while (!GameOver)
             {
                 await PrintBoard();
                 var result = await currentPlayer.GetInput(client, currentCard);
@@ -136,7 +136,9 @@ namespace KunalsDiscordBot.Modules.Games
                     if (end)
                     {
                         await SendEndMessage("Anyway..").ConfigureAwait(false);
-                        break;
+
+                        GameOver = true;
+                        continue;
                     }
                 }
                 else if (result.type == InputResult.Type.inValid)
@@ -161,7 +163,9 @@ namespace KunalsDiscordBot.Modules.Games
                 {
                     await SendMessageToAllPlayers("Theres only 1 player left now").ConfigureAwait(false);
                     await SendEndMessage("Game Over!", true).ConfigureAwait(false);
-                    break;
+
+                    GameOver = true;
+                    continue;
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(1));
@@ -171,6 +175,9 @@ namespace KunalsDiscordBot.Modules.Games
 
                 await SendMessageToAllPlayers("All players ready");
             }
+
+            if (OnGameOver != null)
+                OnGameOver();
         }
 
         protected async override Task PrintBoard()
@@ -351,7 +358,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
-            if (spectators.Count == maxSpectators)
+            if (spectators.Count == maxSpectators || players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
 
             var spectator = new DiscordSpectator(_member, client, this);
