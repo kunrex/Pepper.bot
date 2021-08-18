@@ -40,6 +40,8 @@ Does not have seperate prefix', Im not planning on adding it anytime soon either
 * <a href="https://github.com/sirkris/Reddit.NET" target="_blank">Reddit.NET</a>
 * <a href="https://denzven.pythonanywhere.com/" target="_blacnk">Denzven Graphing API</a>
 
+(I honestly don't know what goes here so I just put everything)
+
 ## Setting Up
 
 ### • Cloning The Repository
@@ -141,8 +143,8 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 3. `refreshToken`: The refresh token of your reddit app
 4. `postLimit` : The maximum amount of posts the bot collects from each of the filter types (Top, Hot and New) from registered subreddits (r/memes, r/animals and r/aww). These posts are stored when the bot starts and accessed when a command is executed. 
 
-### • Setting up the Database for Currency Commands
-The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo locally if you want currency commands to work.
+### • Setting up the Database
+The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo as its used in the currency system and for general server configurations..
 
 #### Prerequisites
 Copy the path of the folder called `KunalsDiscordBot` and open a cmd prompt or terminal instance at this path.
