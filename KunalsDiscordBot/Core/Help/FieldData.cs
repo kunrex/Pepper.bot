@@ -1,5 +1,4 @@
-﻿using System;
-namespace KunalsDiscordBot.Help
+﻿namespace KunalsDiscordBot.Core.Help
 {
     public struct FieldData
     {

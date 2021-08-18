@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace KunalsDiscordBot.Events
+namespace KunalsDiscordBot.Core.Events
 {
-    public class BotEvent
+    public class BotEvent : CustomDisposable
     {
         private event EventHandler<BotEventArgs> Event;
         private TimeSpan spanToWait;
@@ -26,6 +26,8 @@ namespace KunalsDiscordBot.Events
 
             await Task.Delay(spanToWait);
             Event.Invoke(this, new BotEventArgs { time = spanToWait });
+
+            Dispose();
         }
     }
 }

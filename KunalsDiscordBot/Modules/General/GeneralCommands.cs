@@ -1,27 +1,22 @@
-﻿//System name spaces
-using System;
+﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.IO;
 
-//D# name spaces
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
+
 using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 
-using KunalsDiscordBot.Attributes;
 using KunalsDiscordBot.Services;
-using System.Reflection;
-using KunalsDiscordBot.Services.General;
-using KunalsDiscordBot.Core.Attributes.GeneralCommands;
-using KunalsDiscordBot.Core.Exceptions;
-using DSharpPlus.Interactivity;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Configuration;
-using KunalsDiscordBot.Extensions;
-using KunalsDiscordBot.Services.Games;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -31,8 +26,8 @@ namespace KunalsDiscordBot.Modules.General
     public class GeneralCommands : BaseCommandModule
     {
         private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<DecorAttribute>().color;
-        private const int Height = 50;
-        private const int Width = 75;
+        private const int Height = 15;
+        private const int Width = 20;
 
         private readonly IServerService serverService;
         private readonly IConfigurationService configService;
@@ -45,7 +40,7 @@ namespace KunalsDiscordBot.Modules.General
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
 
             if (configPermsCheck)
             {
@@ -265,7 +260,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogErrors")]
         [Description("If true, a message is sent if an error happens during command execution")]
-        [CheckConfigPerms, ConfigData(ConfigValue.LogErrors)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.LogErrors)]
         public async Task LogErrors(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleLogErrors(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -281,7 +276,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("LogNewMembers")]
         [Description("If true, a message is sent if a new member joins or or a member leaves the server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.LogMembers)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.LogMembers)]
         public async Task LogNewMembers(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleNewMemberLog(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -297,7 +292,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("WelcomeChannel")]
         [Description("Assigns the log channel for a server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.WelcomeChannel)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.WelcomeChannel)]
         public async Task WelcomeChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetWelcomeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
@@ -313,7 +308,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("RuleChannel")]
         [Description("Assigns the log channel for a server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.RuleChannel)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.RuleChannel)]
         public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);

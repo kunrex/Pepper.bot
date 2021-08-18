@@ -1,20 +1,18 @@
-﻿//System name spaces
+﻿using System.IO;
+using System.Linq;
+using System.Net;
+using System.Drawing;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
-using System.Drawing;
-using System.Net;
 
-//D# name spaces
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
-using KunalsDiscordBot.Attributes;
 
+using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Images;
+using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
-using System.Drawing.Imaging;
-using System.Linq;
 
 namespace KunalsDiscordBot.Modules.Images
 {

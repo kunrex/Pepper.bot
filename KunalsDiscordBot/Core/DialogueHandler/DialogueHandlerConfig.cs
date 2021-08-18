@@ -1,8 +1,7 @@
-﻿using System;
-using DSharpPlus;
+﻿using DSharpPlus;
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.DialogueHandlers
+namespace KunalsDiscordBot.Core.DialogueHandlers
 {
     public class DialogueHandlerConfig
     {

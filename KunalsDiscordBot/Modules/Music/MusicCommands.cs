@@ -1,25 +1,24 @@
 ﻿//System name spaces
 using System;
-using System.Threading.Tasks;
 using System.Linq;
-using System.Collections.Generic;
+using System.Reflection;
+using System.Threading.Tasks;
 
 //D# name spaces
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus;
 using DSharpPlus.Lavalink;
+using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 
-using KunalsDiscordBot.Attributes;
+using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Services.Music;
-using KunalsDiscordBot.Core.Attributes.MusicCommands;
+using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
-using System.Reflection;
-using DSharpPlus.Entities;
-using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Core.Attributes.GeneralCommands;
-using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Attributes.MusicCommands;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Music
 {
@@ -41,7 +40,7 @@ namespace KunalsDiscordBot.Modules.Music
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
 
             if (configPermsCheck)
             {
@@ -101,7 +100,7 @@ namespace KunalsDiscordBot.Modules.Music
         [Command("ToggleDJ")]
         [Aliases("DJ")]
         [Description("Changes wether or not the DJ role should be enforced for music commands")]
-        [CheckConfigPerms, ConfigData(ConfigValue.DJEnfore)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.DJEnfore)]
         public async Task ToggeDJ(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -117,7 +116,7 @@ namespace KunalsDiscordBot.Modules.Music
 
         [Command("DJRole")]
         [Description("Assigns the DJ role for a server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.DJRole)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.DJRole)]
         public async Task DJRole(CommandContext ctx, DiscordRole role)
         {
             var profile = await serverService.GetMusicData(ctx.Guild.Id).ConfigureAwait(false);

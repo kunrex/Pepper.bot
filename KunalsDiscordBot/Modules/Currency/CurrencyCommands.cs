@@ -1,41 +1,26 @@
-﻿//System name spaces
-using System;
-using System.Threading.Tasks;
-using System.Collections.Generic;
+﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
-//D# name spaces
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Extensions;
 
-//Custom name spaces
-using KunalsDiscordBot.Attributes;
-using KunalsDiscordBot.Services.Currency;
-using KunalsDiscordBot.Modules.Currency.Jobs;
-using KunalsDiscordBot.Modules.Currency.Shops;
-using KunalsDiscordBot.DialogueHandlers;
-using KunalsDiscordBot.DialogueHandlers.Steps;
-
-using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
+using KunalsDiscordBot.Core;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.DialogueHandlers;
+using KunalsDiscordBot.Modules.Currency.Jobs;
+using KunalsDiscordBot.Modules.Currency.Shops;
 using KunalsDiscordBot.Core.Configurations.Modules;
+using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
-    enum TimeSpanEnum
-    {
-        Minute = 60,
-        Hour = 3600,
-        Day = 86400
-    }
-
-    //(int)(MathF.Floor(25 + MathF.Sqrt(625 + 100 * profile.XP)) / 50);
-
     [Group("Currency")]
     [Decor("Gold", ":coin:")]
     [Description("A currency system!")]

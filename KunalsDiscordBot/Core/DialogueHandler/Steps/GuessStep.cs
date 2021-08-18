@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
-namespace KunalsDiscordBot.DialogueHandlers.Steps
+namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
     public class GuessStep : Step
     {

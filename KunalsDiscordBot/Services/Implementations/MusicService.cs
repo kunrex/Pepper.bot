@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
-using KunalsDiscordBot.Services.General;
-using System.Linq;
-using DSharpPlus.CommandsNext;
-using KunalsDiscordBot.Core.Attributes.MusicCommands;
+
+using KunalsDiscordBot.Core.Modules.MusicCommands;
 
 namespace KunalsDiscordBot.Services.Music
 {

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace KunalsDiscordBot.Events
+namespace KunalsDiscordBot.Core.Events
 {
     public static class BotEventFactory
     {

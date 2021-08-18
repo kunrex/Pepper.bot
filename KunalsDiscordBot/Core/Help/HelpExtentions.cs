@@ -1,12 +1,13 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Linq;
+
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using KunalsDiscordBot.Attributes;
+
+using KunalsDiscordBot.Core.Help;
+using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
-using KunalsDiscordBot.Help;
 
 namespace KunalsDiscordBot.Extensions
 {

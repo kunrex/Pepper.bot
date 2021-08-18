@@ -1,21 +1,20 @@
 ﻿//System name spaces
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text.Json;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-//D# name spaces
-using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
 
-//Custom name spcaes
-using KunalsDiscordBot.Attributes;
+using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
+
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Services.Math;
+using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Modules.MathCommands;
 
 namespace KunalsDiscordBot.Modules.Math
 {

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity;
 
-namespace KunalsDiscordBot.DialogueHandlers.Steps
+namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
     public abstract class Step
     {

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
+
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
+
+using KunalsDiscordBot.Core.Modules.MusicCommands;
 
 namespace KunalsDiscordBot.Services.Music
 {

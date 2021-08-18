@@ -1,9 +1,10 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
-using KunalsDiscordBot.Modules.Games;
+
+using KunalsDiscordBot.Core.Modules.GameCommands;
 
 namespace KunalsDiscordBot.Services.Games
 {

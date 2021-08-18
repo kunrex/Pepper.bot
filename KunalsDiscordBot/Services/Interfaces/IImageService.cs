@@ -1,12 +1,9 @@
-﻿using System;
+﻿using System.Drawing;
 using System.Collections.Generic;
-using System.Drawing;
-using System.IO;
-using System.Threading.Tasks;
-using DSharpPlus.CommandsNext;
-using KunalsDiscordBot.Modules.Images;
 
-using Image = System.Drawing.Image;
+using DSharpPlus.CommandsNext;
+
+using KunalsDiscordBot.Core.Modules.ImageCommands;
 
 namespace KunalsDiscordBot.Services.Images
 {

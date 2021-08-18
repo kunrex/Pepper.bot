@@ -1,10 +1,8 @@
-﻿using System;
-using System.Text;
+﻿using System.IO;
 using System.Text.Json;
-using System.IO;
+
 using KunalsDiscordBot.Core.Modules.FunCommands;
-using System.Collections.Generic;
-using KunalsDiscordBot.Modules.Images;
+using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Configurations.Modules;
 
 namespace KunalsDiscordBot.Core.Configurations

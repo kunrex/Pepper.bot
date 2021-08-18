@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
+
 using DSharpPlus.Interactivity.Extensions;
 
-namespace KunalsDiscordBot.DialogueHandlers.Steps
+namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
     public class TextStep : Step
     {

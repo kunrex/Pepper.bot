@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.DialogueHandlers.Steps
+namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
     public class DisplayStep : Step
     {

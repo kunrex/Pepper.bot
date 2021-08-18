@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
+
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.ArgumentConverters
+namespace KunalsDiscordBot.Core.ArgumentConverters
 {
     public class TimeSpanArgumentConverter : IArgumentConverter<TimeSpan>
     {
-        string regexString = "([0-9])+([A-z])\\w";
+        const string regexString = "([0-9])+([A-z])\\w";
 
         public Task<Optional<TimeSpan>> ConvertAsync(string value, CommandContext ctx)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using KunalsDiscordBot.Core.Attributes;
+﻿using KunalsDiscordBot.Core.Configurations.Enums;
 
 namespace KunalsDiscordBot.Services
 {

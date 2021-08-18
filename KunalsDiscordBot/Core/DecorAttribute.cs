@@ -3,7 +3,7 @@ using DSharpPlus.Entities;
 
 using System.Reflection;
 
-namespace KunalsDiscordBot.Attributes
+namespace KunalsDiscordBot.Core.Attributes
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
     public class DecorAttribute : Attribute 

@@ -1,32 +1,28 @@
-﻿//System name spaces
-using System;
+﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Text.RegularExpressions;
 
-//D# name spaces
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
-using KunalsDiscordBot.Attributes;
-using KunalsDiscordBot.Services.Fun;
-using KunalsDiscordBot.DialogueHandlers;
-using KunalsDiscordBot.DialogueHandlers.Steps;
-using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Services.General;
-using System.Reflection;
-using KunalsDiscordBot.Core.Configurations;
-using KunalsDiscordBot.Core.Modules.FunCommands;
-using System.Text.RegularExpressions;
-using DSharpPlus;
-using KunalsDiscordBot.Core.Attributes.GeneralCommands;
-using KunalsDiscordBot.Core.Attributes.FunCommands;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Reddit;
+using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.DialogueHandlers;
+using KunalsDiscordBot.Core.Modules.FunCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
+using KunalsDiscordBot.Core.Attributes.FunCommands;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
@@ -49,7 +45,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
 
             if (configPermsCheck)
             {
@@ -92,7 +88,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [Command("ToggleNSFW")]
         [Aliases("NSFW")]
         [Description("Changes wether or not NSFW content is allowed in the server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.AllowNSFW)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowNSFW)]
         public async Task ToggleNSFW(CommandContext ctx, bool toChange)
         {
             await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
@@ -108,7 +104,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("AllowSpam")]
         [Description("If true, members of the server will be able to run the spam command (don't recommend for large servers)")]
-        [CheckConfigPerms, ConfigData(ConfigValue.AllowSpamCommand)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowSpamCommand)]
         public async Task AllowSpam(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleSpamCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);
@@ -124,7 +120,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("AllowGhost")]
         [Description("If true, members of the server will be able to run the ghost command (don't recommend for large servers)")]
-        [CheckConfigPerms, ConfigData(ConfigValue.AllowGhostCommand)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowGhostCommand)]
         public async Task AllowGhost(CommandContext ctx, bool toSet)
         {
             await serverService.ToggleGhostCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);

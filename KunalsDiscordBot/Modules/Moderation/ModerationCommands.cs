@@ -1,30 +1,27 @@
-﻿//System name spaces
-using System.Threading.Tasks;
+﻿using System;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
-//D# name spaces
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus;
 using DSharpPlus.Entities;
 
-using KunalsDiscordBot.Attributes;
-using KunalsDiscordBot.Events;
-using System;
-
-using System.Reflection;
-using KunalsDiscordBot.Services.Moderation;
-using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services.Moderation;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Moderation
 {
     [Group("Moderation")]
     [Aliases("Mod")]
     [Decor("Blurple", ":scales:")]
-    [Description("The user and the bot requires administration roles to run commands in this module")]
+    [Description("Moderation Commands")]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class ModerationCommands : BaseCommandModule
     {

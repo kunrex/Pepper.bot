@@ -1,22 +1,17 @@
-﻿//System name spaces
+﻿using System;
 using System.Linq;
+using System.Collections.Generic;
 
-//D# name spaces
-using DSharpPlus.CommandsNext;
 using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.CommandsNext.Entities;
-using System.Collections.Generic;
-using DSharpPlus.CommandsNext.Attributes;
 
-//Custom name spaces
-using KunalsDiscordBot.Attributes;
-using System.Reflection;
-using System;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Attributes;
 
-namespace KunalsDiscordBot.Help
+namespace KunalsDiscordBot.Core.Help
 {
     public class HelpFormatter : BaseHelpFormatter
     {

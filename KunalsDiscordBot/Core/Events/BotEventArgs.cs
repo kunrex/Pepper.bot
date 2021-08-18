@@ -1,5 +1,5 @@
 ﻿using System;
-namespace KunalsDiscordBot.Events
+namespace KunalsDiscordBot.Core.Events
 {
     public class BotEventArgs : EventArgs
     {

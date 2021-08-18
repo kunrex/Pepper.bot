@@ -1,25 +1,23 @@
-﻿//System name spaces
-using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
 using System.Reflection;
-using System;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
-//D# name spaces
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
-using KunalsDiscordBot.Attributes;
-using KunalsDiscordBot.Services.Images;
-using System.Linq;
-using KunalsDiscordBot.Core.Attributes.GeneralCommands;
-using KunalsDiscordBot.Core.Exceptions;
-using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Core.Attributes;
-using KunalsDiscordBot.Core.Attributes.GameCommands;
 using KunalsDiscordBot.Services.Games;
+using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.Modules.GameCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Attributes.GameCommands;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -42,7 +40,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigPermsAttribute) != null;
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
 
             if (configPermsCheck)
             {
@@ -84,7 +82,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         [Command("Connect4Channel")]
         [Description("Assigns the connect4 channel for a server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.Connect4Channel)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.Connect4Channel)]
         public async Task Connect4Channel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetConnect4Channel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
@@ -100,7 +98,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         [Command("TicTacToeChannel")]
         [Description("Assigns the tictactoe channel for a server")]
-        [CheckConfigPerms, ConfigData(ConfigValue.TicTacToeChannel)]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.TicTacToeChannel)]
         public async Task TicTacToeChannel(CommandContext ctx, DiscordChannel channel)
         {
             await serverService.SetTicTacToeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using DSharpPlus.Entities;
-using KunalsDiscordBot.DialogueHandlers.Steps;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 
 namespace KunalsDiscordBot.Modules.Currency.Jobs
 {

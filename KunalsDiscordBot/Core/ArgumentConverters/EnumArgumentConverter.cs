@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.Entities;
-using KunalsDiscordBot.Core.Reddit;
 
-namespace KunalsDiscordBot.ArgumentConverters
+namespace KunalsDiscordBot.Core.ArgumentConverters
 {
     public class EnumArgumentConverter<T> : IArgumentConverter<T> where T : Enum
     {

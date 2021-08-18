@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
-using DiscordBotDataBase.Dal;
-
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
 
-using KunalsDiscordBot.Events;
-using DSharpPlus.Entities;
-using DiscordBotDataBase.Dal.Models.Servers;
+using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
 
 namespace KunalsDiscordBot.Services.Moderation

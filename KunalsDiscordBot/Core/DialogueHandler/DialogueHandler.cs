@@ -1,11 +1,12 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+
 using DSharpPlus;
 using DSharpPlus.Entities;
-using KunalsDiscordBot.DialogueHandlers.Steps;
 
-namespace KunalsDiscordBot.DialogueHandlers
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
+
+namespace KunalsDiscordBot.Core.DialogueHandlers
 {
     public class DialogueHandler
     {
