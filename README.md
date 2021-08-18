@@ -179,8 +179,7 @@ You can look into the <a href="https://docs.microsoft.com/en-us/ef/core/get-star
 
 ## Plans for the future
 
-I'm not quite done with the bot. Right now my goal is to finish the currency system linked to the database and the UNO game
-I can add more games, images and modules. After all this is just to learn. Am also looking to add special prefix' for each server which includes a custom command handler. 
+I'm not quite done with the bot. Right now my goal is to finish the currency system. I can add more games, images and modules. After all this is just to learn.
 
 For More info you can contact me on Discord
 
