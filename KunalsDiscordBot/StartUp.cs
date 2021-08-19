@@ -30,9 +30,10 @@ namespace KunalsDiscordBot
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             });
 
-            services.AddSingleton<PepperConfigurationManager>();
+            var configManager = new PepperConfigurationManager();
 
-            services.AddSingleton<RedditApp>()
+            services.AddSingleton(configManager)
+                .AddSingleton(new RedditApp(configManager))
                 .AddSingleton<ModuleService>()
                 .AddScoped<IProfileService, ProfileService>()
                 .AddScoped<IModerationService, ModerationService>()

@@ -59,7 +59,7 @@ namespace KunalsDiscordBot.Modules.General
             await base.BeforeExecutionAsync(ctx);
         }
 
-        [Command("Githhub")]
+        [Command("Github")]
         [Description("Source Code for Pepper.bot")]
         public async Task GitHub(CommandContext ctx) => await ctx.Channel.SendMessageAsync("Heres my source code! https://github.com/kunrex/Pepper.bot");
 
@@ -209,7 +209,9 @@ namespace KunalsDiscordBot.Modules.General
         [Description("Allow me to intorduce myself :D")]
         public async Task AboutMe(CommandContext ctx) => await ctx.Channel.SendMessageAsync(BotService.GetBotInfo(ctx.Client, ctx.Member, 30)).ConfigureAwait(false);
 
-        [Command("Config")]
+        [Command("Configuration")]
+        [Aliases("Config")]
+        [Description("Shows the configuration for the sever")]
         public async Task Config(CommandContext ctx)
         {
             var footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}. Message will collect reactions for 2 minutes");

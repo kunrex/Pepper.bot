@@ -22,7 +22,7 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public RedditPostCollection(string subReddit) => subRedditName = subReddit;
 
-        public async Task<RedditPostCollection> Start(RedditClient client, RedditAppConfig config)
+        public async Task<RedditPostCollection> Collect(RedditClient client, RedditAppConfig config)
         {
             await SetUp(client, config, OnPostAdded);
 

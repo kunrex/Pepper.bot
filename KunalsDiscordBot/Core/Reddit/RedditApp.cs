@@ -35,9 +35,9 @@ namespace KunalsDiscordBot.Core.Reddit
 
         private async Task SetUpCollections()
         {
-            memes = await new RedditPostCollection("memes").Start(client, configuration);
-            aww = await new RedditPostCollection("aww").Start(client, configuration);
-            animals = await new RedditPostCollection("Animals").Start(client, configuration);
+            memes = await new RedditPostCollection("memes").Collect(client, configuration);
+            aww = await new RedditPostCollection("aww").Collect(client, configuration);
+            animals = await new RedditPostCollection("Animals").Collect(client, configuration);
 
             Online = true;
             Console.WriteLine("Reddit app online");
