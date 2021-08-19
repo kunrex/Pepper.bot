@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Configurations.Enums;
@@ -16,11 +17,13 @@ namespace KunalsDiscordBot.Services.Configuration
         public readonly Dictionary<ConfigValue, Func<ulong, object>> Functions;
         public readonly IServerService serverService;
         public readonly ServerConfigData configData;
+        public readonly ModuleService moduleService;
 
-        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service)
+        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service, ModuleService _moduleService)
         {
             serverService = service;
             configData = configurationManager.ServerConfigData;
+            moduleService = _moduleService;
 
             Functions = new Dictionary<ConfigValue, Func<ulong, object>>()
             {
@@ -61,70 +64,30 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.TicTacToeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
         };
 
-        public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms) => new List<DiscordEmbedBuilder>()
+        public Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms)
         {
-            await GetGeneralConfigPage(guildId),
-            await GetModerationConfigPage(guildId, (perms & Permissions.Administrator) == Permissions.Administrator),
-            await GetMusicConfigPage(guildId),
-            await GetFunConfigPage(guildId),
-            await GetGamesConfigPage(guildId)
-        };
+            var valueSets = Enum.GetValues(typeof(ConfigValueSet));
+            List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
 
-        public Task<DiscordEmbedBuilder> GetFunConfigPage(ulong id)
-        {
-            var embed = new DiscordEmbedBuilder().WithTitle("__Fun__");
-
-            foreach(var value in configData.ServerConfigValues[ConfigValueSet.Fun])
-                embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
-
-            return Task.FromResult(embed);
-        }
-
-        public Task<DiscordEmbedBuilder> GetGamesConfigPage(ulong id)
-        {
-            var embed = new DiscordEmbedBuilder().WithTitle("__Games__");
-
-            foreach (var value in configData.ServerConfigValues[ConfigValueSet.Games])
-                embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
-
-            return Task.FromResult(embed);
-        }
-
-        public Task<DiscordEmbedBuilder> GetGeneralConfigPage(ulong id)
-        {
-            var embed = new DiscordEmbedBuilder().WithTitle("__General__");
-
-            foreach (var value in configData.ServerConfigValues[ConfigValueSet.General])
-                embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
-
-            return Task.FromResult(embed);
-        }
-
-        public Task<DiscordEmbedBuilder> GetModerationConfigPage(ulong id, bool hasMod)
-        {
-            var embed = new DiscordEmbedBuilder
+            foreach(var set in valueSets)
             {
-                Title = "__Moderation and Soft Moderation__",
-            }.AddField($"• Enabled:", $"`{hasMod}`\nWether or not the moderation and soft moderation modules are enabled in thi server"
-                + $"{(hasMod ? "" : "\n**Enabling**: Give Pepper the `Administrator` permission")}");
+                var permissions = moduleService.ModuleInfo[(ConfigValueSet)set].Permissions;
+                bool enabled = (perms & permissions) == permissions;
 
-            if (hasMod)
-            {
-                foreach (var value in configData.ServerConfigValues[ConfigValueSet.Moderation])
-                    embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
+                var embed = new DiscordEmbedBuilder().WithTitle($"__{(ConfigValueSet)set}__");
+
+                if((ConfigValueSet)set != ConfigValueSet.General)
+                    embed.AddField($"• Enabled:", $"`{enabled}`\nWether or not the module(s) is(are) enabled in this server"
+                        + $"{(enabled ? "" : $"\n**Enabling**: Give Pepper the {permissions.FormatePermissions()} permission(s)")}");
+
+                if(enabled && configData.ServerConfigValues.ContainsKey((ConfigValueSet)set))
+                    foreach (var value in configData.ServerConfigValues[(ConfigValueSet)set])
+                        embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(guildId))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
+
+                embeds.Add(embed);
             }
 
-            return Task.FromResult(embed);
-        }
-
-        public Task<DiscordEmbedBuilder> GetMusicConfigPage(ulong id)
-        {
-            var embed = new DiscordEmbedBuilder().WithTitle("__Music__");
-
-            foreach (var value in configData.ServerConfigValues[ConfigValueSet.Music])
-                embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(Functions[value.ConfigData].Invoke(id))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
-
-            return Task.FromResult(embed);
+            return Task.FromResult(embeds);
         }
     }
 }

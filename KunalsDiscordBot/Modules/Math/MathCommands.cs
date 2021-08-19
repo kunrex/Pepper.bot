@@ -15,13 +15,15 @@ using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.MathCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
     [Decor("MidnightBlue", ":1234:")]
     [ModuleLifespan(ModuleLifespan.Transient), Description("Simple math commands! Solve and graph equations and more!")]
-    [RequireBotPermissions(Permissions.SendMessages |  Permissions.EmbedLinks)]
+    [RequireBotPermissions(Permissions.SendMessages |  Permissions.EmbedLinks), ConfigData(ConfigValueSet.Math)]
     public class MathCommands : PepperCommandModule
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
@@ -31,7 +33,7 @@ namespace KunalsDiscordBot.Modules.Math
         public MathCommands(PepperConfigurationManager configManager, ModuleService moduleService)
         {
             attributes = configManager.graphAttributes;
-            ModuleInfo = moduleService.ModuleInfo[typeof(MathCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Math];
         }
 
         [Command("Solve")]

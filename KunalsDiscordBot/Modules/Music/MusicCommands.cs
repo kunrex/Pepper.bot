@@ -29,8 +29,6 @@ namespace KunalsDiscordBot.Modules.Music
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
-        public static DiscordColor Color = typeof(MusicCommands).GetCustomAttribute<DecorAttribute>().color;
-
         private readonly IMusicService service;
         private readonly IServerService serverService;
 
@@ -38,7 +36,7 @@ namespace KunalsDiscordBot.Modules.Music
         {
             service = _service;
             serverService = _serverService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(MusicCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Music];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -113,7 +111,7 @@ namespace KunalsDiscordBot.Modules.Music
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce DJ Role` to {toChange}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -136,7 +134,7 @@ namespace KunalsDiscordBot.Modules.Music
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce DJ Role` to {role.Mention}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 

@@ -132,8 +132,7 @@ namespace KunalsDiscordBot.Core.Help
                 IsGeneralHelp = true;
 
                 Title = "Help";
-                Description = "**Description**: All the modules offered by Pepper \n";
-                Description += $"**Help Usage**: pep help <module/command name>\n";
+                Description = "**Description**: Modules enabled in this server\n **Help Usage**: pep help <module/command name>";
 
                 Color = DiscordColor.Blurple;
 

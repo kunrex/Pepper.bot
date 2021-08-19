@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 
@@ -18,7 +17,6 @@ using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
-using DSharpPlus;
 
 namespace KunalsDiscordBot.Modules.General
 {
@@ -40,7 +38,7 @@ namespace KunalsDiscordBot.Modules.General
         {
             serverService = service;
             configService = _configService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(GeneralCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.General];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)

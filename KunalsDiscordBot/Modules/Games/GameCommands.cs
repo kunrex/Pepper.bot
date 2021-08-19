@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -19,7 +19,6 @@ using KunalsDiscordBot.Core.Modules.GameCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.GameCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
-using DSharpPlus;
 
 namespace KunalsDiscordBot.Modules.Games
 {
@@ -39,7 +38,7 @@ namespace KunalsDiscordBot.Modules.Games
         {
             serverService = service;
             gameService = _gameService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(GameCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Games];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)

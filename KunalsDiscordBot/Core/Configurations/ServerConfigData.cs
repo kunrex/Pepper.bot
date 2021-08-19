@@ -26,10 +26,10 @@ namespace KunalsDiscordBot.Core.Configurations
 
         public void GatherEditCommands()
         {
-            foreach(var module in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule))))
+            foreach(var module in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
             {
                 var attribute = module.GetCustomAttribute<ConfigDataAttribute>();
-                if (attribute == null)
+                if (!ServerConfigValues.ContainsKey(attribute.set))
                     continue;
 
                 var name = module.GetCustomAttribute<GroupAttribute>().Name;

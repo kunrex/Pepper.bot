@@ -27,7 +27,6 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
     [Group("SoftModeration")]
     [Aliases("softmod", "sm")]
-    [Decor("Blurple", ":scales:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class SoftModerationCommands : PepperCommandModule
@@ -41,11 +40,10 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         {
             modService = moderationService;
             serverService = _serverService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(SoftModerationCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Moderation];
         }
 
-        private static readonly DiscordColor Color = typeof(SoftModerationCommands).GetCustomAttribute<DecorAttribute>().color;
-        private static readonly int ThumbnailSize = 30;
+        private static readonly int ThumbnailSize = 20;
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
@@ -61,7 +59,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     {
                         Description = $"There is no muted role stored for server: {ctx.Guild.Name}. Use the `soft moderation setmuterole` command to do so",
                         Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
 
                     throw new CustomCommandException();
@@ -74,7 +72,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     {
                         Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
                         Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
 
                     throw new CustomCommandException();
@@ -96,7 +94,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 Title = "Edited Configuration",
                 Description = $"Saved {role.Mention} as the moderator role for the server",
                 Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -116,7 +114,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     {
                         Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                     },
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
                 return;
             }
@@ -131,7 +129,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 {
                     Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                 },
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -205,7 +203,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     Width = ThumbnailSize,
                     Url = member.AvatarUrl
                 },
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
@@ -233,7 +231,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     Width = ThumbnailSize,
                     Url = member.AvatarUrl
                 },
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
@@ -266,7 +264,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Endorsement {endorsement.Id}",
                 Description = $"User: <@{(ulong)endorsement.UserId}>\nReason: {endorsement.Reason}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)endorsement.ModeratorID).ConfigureAwait(false)).Nickname}"
@@ -299,7 +297,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Infraction {infraction.Id}",
                 Description = $"User: <@{(ulong)infraction.UserId}>\nReason: {infraction.Reason}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator:{(await ctx.Guild.GetMemberAsync((ulong)infraction.ModeratorID).ConfigureAwait(false)).Nickname}"
@@ -323,7 +321,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 {
                     Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                 },
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -359,7 +357,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Description = $"{(seconds == 0 ? $"Disabled slow mode for {ctx.Channel.Mention}": "$Set Slow Mode for {ctx.Channel.Mention} to {seconds} seconds")}",
                 Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -382,7 +380,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Description = $"{ctx.Channel.Mention} {(toSet ? "is now NSFW" : "is not NSFW anymore")}",
                 Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -412,7 +410,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     {
                         Title = $"Emoji Added! <:{emoji.Name}:{emoji.Id}>",
                         Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
                 }
             }       
@@ -432,7 +430,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = "Emoji not found",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -444,7 +442,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Removed Emoji {name}",
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -473,7 +471,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Muted Member {member.DisplayName}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                 Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
             };
@@ -502,7 +500,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Unmuted Member {member.DisplayName}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                 Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
             };
@@ -534,7 +532,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Mute {mute.Id}",
                 Description = $"User: <@{(ulong)mute.UserId}>\nReason: {mute.Reason}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)mute.ModeratorID).ConfigureAwait(false)).Nickname}"

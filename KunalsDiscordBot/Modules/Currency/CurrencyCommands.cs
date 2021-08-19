@@ -15,7 +15,9 @@ using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
+using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
@@ -25,8 +27,8 @@ namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
     [Decor("Gold", ":coin:")]
-    [Description("A currency system!")]
-    [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels))]
+    [Description("A currency system!"), ConfigData(ConfigValueSet.Currency)]
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels)]
     public sealed partial class CurrencyCommands : PepperCommandModule
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
@@ -38,7 +40,7 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             service = _service;
             data = configurationManager.currenyConfig;
-            ModuleInfo = moduleService.ModuleInfo[typeof(CurrencyCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Currency];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)

@@ -6,7 +6,10 @@ namespace KunalsDiscordBot.Core.Configurations.Enums
         General,
         Moderation,
         Music,
+        Images,
         Fun,
-        Games
+        Math,
+        Games,
+        Currency
     }
 }

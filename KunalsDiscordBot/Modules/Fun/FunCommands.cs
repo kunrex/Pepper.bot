@@ -47,7 +47,7 @@ namespace KunalsDiscordBot.Modules.Fun
             redditApp = reddit;
             serverService = _serverService;
             funService = _funService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(FunCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Fun];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)

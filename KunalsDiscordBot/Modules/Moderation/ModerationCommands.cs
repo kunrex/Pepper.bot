@@ -37,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         {
             modService = moderationService;
             serverService = _serverService;
-            ModuleInfo = moduleService.ModuleInfo[typeof(ModerationCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Moderation];
         }
 
         [Command("AddRole")]

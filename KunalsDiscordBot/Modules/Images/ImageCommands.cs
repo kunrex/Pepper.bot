@@ -14,15 +14,17 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Images;
+using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
+using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Images
 {
     [Group("Image")]
     [Decor("Chartreuse", ":camera:")]
     [ModuleLifespan(ModuleLifespan.Transient), Description("Image Manipulation! Make memes with pre-built and more!")]
-    [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks)]
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks),ConfigData(ConfigValueSet.Images)]
     public class ImageCommands : PepperCommandModule
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
@@ -32,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Images
         public ImageCommands(IImageService _service, ModuleService moduleService)
         {
             service = _service;
-            ModuleInfo = moduleService.ModuleInfo[typeof(ImageCommands)];
+            ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Images];
         }
 
         [Command("abandon")]

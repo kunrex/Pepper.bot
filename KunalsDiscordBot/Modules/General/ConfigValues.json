@@ -59,7 +59,7 @@
       }
     ],
 
-    "3": [
+    "4": [
       {
         "ConfigData": 10,
         "FieldName": "Allow NSFW",
@@ -77,7 +77,7 @@
       }
     ],
 
-    "4": [
+    "6": [
       {
         "ConfigData": 13,
         "FieldName": "Connect4 Channel",
