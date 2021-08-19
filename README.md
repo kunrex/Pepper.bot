@@ -1,7 +1,7 @@
 # Pepper.bot
 
-Pepper is a discord bot I made a while back to learn. Its written in C#.
-It's not a public bot ~~yet~~, but has shards implemented.
+Pepper is a discord bot I made a while back to learn. Its written in C#. It's not a public bot ~~yet~~, but has shards implemented.
+
 <img src="Images/Logo.jpg" width=200>
 
 ## Table Of Contents
