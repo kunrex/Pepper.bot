@@ -59,6 +59,10 @@ namespace KunalsDiscordBot.Modules.General
             await base.BeforeExecutionAsync(ctx);
         }
 
+        [Command("Githhub")]
+        [Description("Source Code for Pepper.bot")]
+        public async Task GitHub(CommandContext ctx) => await ctx.Channel.SendMessageAsync("Heres my source code! https://github.com/kunrex/Pepper.bot");
+
         [Command("poll")]
         [Description("Conducts a poll **DEMOCRACY**")]
         public async Task Poll(CommandContext ctx, TimeSpan duration, params DiscordEmoji[] reactions)
