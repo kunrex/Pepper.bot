@@ -1,38 +1,46 @@
-﻿//System name spaces
-using System;
-using System.IO;
+﻿using System;
 using System.Net;
 using System.Text.Json;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
-
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.MathCommands;
 
 namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
     [Decor("MidnightBlue", ":1234:")]
-    [ModuleLifespan(ModuleLifespan.Transient)]
-    public class MathCommands : BaseCommandModule
+    [ModuleLifespan(ModuleLifespan.Transient), Description("Simple math commands! Solve and graph equations and more!")]
+    [RequireBotPermissions(Permissions.SendMessages |  Permissions.EmbedLinks)]
+    public class MathCommands : PepperCommandModule
     {
-        private static readonly DiscordColor Color = typeof(MathCommands).GetCustomAttribute<DecorAttribute>().color;
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
+
+        private readonly Dictionary<string, string> attributes;
+
+        public MathCommands(PepperConfigurationManager configManager, ModuleService moduleService)
+        {
+            attributes = configManager.graphAttributes;
+            ModuleInfo = moduleService.ModuleInfo[typeof(MathCommands)];
+        }
 
         [Command("Solve")]
         [Description("Solves an equation")]
         public async Task Solve(CommandContext ctx, [RemainingText] string equation)
         {
-            var solver = new LinearEquationSolver(equation);
+            var solver = new LinearEquationSolver($"{equation} .");
 
-            string answer = solver.Solve(solver.GetPolynomials(equation));
-            await ctx.RespondAsync(answer).ConfigureAwait(false);
+            await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
         }
 
         [Command("Graph")]
@@ -54,7 +62,7 @@ namespace KunalsDiscordBot.Modules.Math
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = "Graph",
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }.AddField("Error", jsonData.error)
                      .AddField("Error Id", jsonData.error_id)
                      .AddField("Fix", jsonData.fix)).ConfigureAwait(false);
@@ -65,7 +73,7 @@ namespace KunalsDiscordBot.Modules.Math
                         Title = "Graph",
                         ImageUrl = url,
                         Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName}"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     });
             }
         }
@@ -75,13 +83,11 @@ namespace KunalsDiscordBot.Modules.Math
         [Description("Shows a list of attributes you can use for the graph command")]
         public async Task Attributes(CommandContext ctx)
         {
-            Dictionary<string, string> attributes = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(Path.Combine("Modules", "Math", "Attributes.json")));
-
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Graph Attributes",
                 Description = "All the attributes you can use in the graph command\n",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")
             };
 
@@ -158,12 +164,5 @@ namespace KunalsDiscordBot.Modules.Math
         [Command("log")]
         [Description("Returns the base 10 logarithm of a number")]
         public async Task Log(CommandContext ctx, float number) => await ctx.RespondAsync((System.Math.Log10(number)).ToString()).ConfigureAwait(false);
-
-        private class JsonData
-        {
-            public string error { get; set; }
-            public string error_id { get; set; }
-            public string fix { get; set; }
-        }
     }
 }

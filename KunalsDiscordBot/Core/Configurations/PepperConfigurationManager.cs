@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Text.Json;
+using System.Collections.Generic;
 
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
-using KunalsDiscordBot.Core.Configurations.Modules;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands;
 
 namespace KunalsDiscordBot.Core.Configurations
 {
@@ -16,6 +17,7 @@ namespace KunalsDiscordBot.Core.Configurations
         public FunData funData { get; private set; } = FromJsonFile<FunData>("Modules", "Fun", "FunData.json");    
         public ImageData imageData { get; private set; } = FromJsonFile<ImageData>("Modules","Images","ImageData.json");
         public CurrencyData currenyConfig { get; private set; } = FromJsonFile<CurrencyData>("Modules", "Currency", "CurrencyData.json");
+        public Dictionary<string, string> graphAttributes { get; private set; } = FromJsonFile<Dictionary<string, string>>("Modules", "Math", "Attributes.json");
 
         public ServerConfigData ServerConfigData { get; private set; } = FromJsonFile<ServerConfigData>("Modules", "General", "ConfigValues.json");
 

@@ -13,6 +13,8 @@ using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Services.Games;
+using KunalsDiscordBot.Services.Fun;
+using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot
 {
@@ -31,13 +33,15 @@ namespace KunalsDiscordBot
             services.AddSingleton<PepperConfigurationManager>();
 
             services.AddSingleton<RedditApp>()
+                .AddSingleton<ModuleService>()
                 .AddScoped<IProfileService, ProfileService>()
                 .AddScoped<IModerationService, ModerationService>()
                 .AddScoped<IImageService, ImageService>()
                 .AddScoped<IServerService, ServerService>()
                 .AddScoped<IConfigurationService, ConfigurationService>()
                 .AddSingleton<IMusicService, MusicService>()
-                .AddSingleton<IGameService, GameService>();
+                .AddSingleton<IGameService, GameService>()
+                .AddSingleton<IFunService, FunService>();
 
             BuildService(services);
         }

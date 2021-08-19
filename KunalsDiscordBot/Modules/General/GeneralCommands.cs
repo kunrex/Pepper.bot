@@ -11,31 +11,36 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using DSharpPlus;
 
 namespace KunalsDiscordBot.Modules.General
 {
     [Group("General")]
     [Decor("Blurple", ":tools:")]
+    [Description("General commands. This inlcudes viewing server configuration.")]
     [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.General)]
-    public class GeneralCommands : BaseCommandModule
+    public class GeneralCommands : PepperCommandModule
     {
-        private static readonly DiscordColor Color = typeof(GeneralCommands).GetCustomAttribute<DecorAttribute>().color;
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
+
         private const int Height = 15;
         private const int Width = 20;
 
         private readonly IServerService serverService;
         private readonly IConfigurationService configService;
 
-        public GeneralCommands(IServerService service, IConfigurationService _configService)
+        public GeneralCommands(IServerService service, IConfigurationService _configService, ModuleService moduleService)
         {
             serverService = service;
             configService = _configService;
+            ModuleInfo = moduleService.ModuleInfo[typeof(GeneralCommands)];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -55,14 +60,6 @@ namespace KunalsDiscordBot.Modules.General
 
             await base.BeforeExecutionAsync(ctx);
         }
-
-        [Command("date")]
-        [Description("Tells you the date")]
-        public async Task Date(CommandContext ctx) => await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("dddd, dd MMMM yyyy")).ConfigureAwait(false);
-
-        [Command("time")]
-        [Description("Tells you the time")]
-        public async Task Time(CommandContext ctx) => await ctx.Channel.SendMessageAsync(DateTime.Now.ToString("hh:mm tt")).ConfigureAwait(false);
 
         [Command("poll")]
         [Description("Conducts a poll **DEMOCRACY**")]
@@ -88,7 +85,7 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = poll,
                 Description = string.Join(" ", options),
-                Color = Color
+                Color = ModuleInfo.Color
             };
 
             var pollMessage = await ctx.Channel.SendMessageAsync(embed: embed).ConfigureAwait(false);
@@ -127,7 +124,7 @@ namespace KunalsDiscordBot.Modules.General
             var embed = new DiscordEmbedBuilder
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} ({member.Username}) #{member.Discriminator}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = thumbnail,
                 Footer = footer
             };
@@ -169,7 +166,7 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = ctx.Guild.Name,
                 Description = ctx.Guild.Description == string.Empty ? "None" : ctx.Guild.Description,
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = thumbnail,
                 Footer = footer
             }.AddField("__General Info__", "** **")
@@ -201,9 +198,9 @@ namespace KunalsDiscordBot.Modules.General
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Pong! :ping_pong:",
-                Description = $"Current `API latency` is about {ctx.Client.Ping}ms and current `client latency` is about {difference.Milliseconds}ms",
-                Color = Color
-            }).ConfigureAwait(false);
+                Color = ModuleInfo.Color
+            }.AddField("API Latency", $"{ctx.Client.Ping}ms")
+             .AddField("Client Latency", $"{difference.Milliseconds}ms")).ConfigureAwait(false);
         }
 
         [Command("AboutMe")]
@@ -223,7 +220,7 @@ namespace KunalsDiscordBot.Modules.General
             {
                 embeds[i].Footer = footer;
                 embeds[i].Thumbnail = thumbnail;
-                embeds[i].Color = Color;
+                embeds[i].Color = ModuleInfo.Color;
 
                 pages[i] = new Page($"Configuration for `{ctx.Guild.Name}`", embeds[i]);
             }
@@ -254,7 +251,7 @@ namespace KunalsDiscordBot.Modules.General
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce Admin Permissions For Editing Config` to {toChange}",
                 Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -270,7 +267,7 @@ namespace KunalsDiscordBot.Modules.General
                 Title = "Edited Configuration",
                 Description = $"Changed `Log Errors` to {toSet}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -286,7 +283,7 @@ namespace KunalsDiscordBot.Modules.General
                 Title = "Edited Configuration",
                 Description = $"Changed `Log New Members` to {toSet}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -302,7 +299,7 @@ namespace KunalsDiscordBot.Modules.General
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the welcome channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -318,7 +315,7 @@ namespace KunalsDiscordBot.Modules.General
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the rule channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
     }

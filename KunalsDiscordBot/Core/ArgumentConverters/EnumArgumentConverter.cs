@@ -11,8 +11,8 @@ namespace KunalsDiscordBot.Core.ArgumentConverters
     {
         public Task<Optional<T>> ConvertAsync(string value, CommandContext ctx)
         {
-            if (Enum.TryParse(typeof(T), value, out var x))
-                return Task.FromResult(Optional.FromValue((T)Enum.Parse(typeof(T), value)));
+            if (Enum.TryParse(typeof(T), value, true, out var x))
+                return Task.FromResult(Optional.FromValue((T)Enum.Parse(typeof(T), value, true)));
 
             return Task.FromResult(Optional.FromNoValue<T>());
         }

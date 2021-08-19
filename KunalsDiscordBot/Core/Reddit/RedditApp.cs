@@ -3,6 +3,7 @@ using Reddit;
 using Reddit.Controllers;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Extensions;
+using System.Threading.Tasks;
 
 namespace KunalsDiscordBot.Core.Reddit
 {
@@ -16,6 +17,8 @@ namespace KunalsDiscordBot.Core.Reddit
     public sealed class RedditApp
     {
         public RedditClient client { get; private set; }
+        public bool Online { get; private set; }
+
         private readonly RedditAppConfig configuration;
 
         private RedditPostCollection memes { get; set; } 
@@ -27,15 +30,16 @@ namespace KunalsDiscordBot.Core.Reddit
             configuration = configManager.botConfig.redditConfig;
             client = new RedditClient(appId: configuration.appId, appSecret: configuration.appSecret, refreshToken: configuration.refreshToken);
 
-            SetUpCollections();
+            Task.Run(() => SetUpCollections());
         }
 
-        private async void SetUpCollections()
+        private async Task SetUpCollections()
         {
             memes = await new RedditPostCollection("memes").Start(client, configuration);
             aww = await new RedditPostCollection("aww").Start(client, configuration);
             animals = await new RedditPostCollection("Animals").Start(client, configuration);
 
+            Online = true;
             Console.WriteLine("Reddit app online");
         }
 

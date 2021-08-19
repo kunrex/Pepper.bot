@@ -10,6 +10,7 @@ using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Moderation;
@@ -23,18 +24,21 @@ namespace KunalsDiscordBot.Modules.Moderation
     [Decor("Blurple", ":scales:")]
     [Description("Moderation Commands")]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
-    public class ModerationCommands : BaseCommandModule
+    public class ModerationCommands : PepperCommandModule
     {
+        private static readonly int ThumbnailSize = 20;
+
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
+
         private readonly IModerationService modService;
         private readonly IServerService serverService;
 
-        public ModerationCommands(IModerationService moderationService, IServerService _serverService)
+        public ModerationCommands(IModerationService moderationService, IServerService _serverService, ModuleService moduleService)
         {
             modService = moderationService;
             serverService = _serverService;
+            ModuleInfo = moduleService.ModuleInfo[typeof(ModerationCommands)];
         }
-        private static readonly DiscordColor Color = typeof(ModerationCommands).GetCustomAttribute<DecorAttribute>().color;
-        private static readonly int ThumbnailSize = 30;
 
         [Command("AddRole")]
         [Aliases("ar")]
@@ -49,7 +53,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 {
                     Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
                     Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -66,7 +70,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Added Role",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             }.AddField("Role: ", role.Mention).AddField("From: ", member.Mention);
@@ -87,7 +91,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 {
                     Description = $"The role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
                     Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -104,7 +108,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Removed Role",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
             }.AddField("Role: ", role.Mention).AddField("To: ", member.Mention);
@@ -126,7 +130,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = $"Banned member {member.Username} [Id: {id}]",
-                    Color = Color,
+                    Color = ModuleInfo.Color,
                     Footer =BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                     Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
                 }.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds")
@@ -159,7 +163,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Unbanned user {user.Username} #{user.Discriminator}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
                 Thumbnail = BotService.GetEmbedThumbnail(user, ThumbnailSize)
             }).ConfigureAwait(false);
@@ -179,7 +183,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"Kicked member {member.Username} [Id: {id}]",
-                    Color = Color,
+                    Color = ModuleInfo.Color,
                     Footer = new DiscordEmbedBuilder.EmbedFooter
                     {
                         Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
@@ -224,7 +228,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = $"Kick {kick.Id}",
                 Description = $"User: <@{(ulong)kick.UserId}>\nReason: {kick.Reason}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)kick.ModeratorID).ConfigureAwait(false)).Nickname}"
@@ -256,7 +260,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = $"Ban {ban.Id}",
                 Description = $"User: <@{(ulong)ban.UserId}>\nReason: {ban.Reason}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter
                 {
                     Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)ban.ModeratorID).ConfigureAwait(false)).Nickname}"
@@ -290,7 +294,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Removed all roles (that I can)",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
             }.AddField("From: ", member.Mention)
              .AddField("Reason: ", reason)).ConfigureAwait(false);
@@ -306,7 +310,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
                 Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize),
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Footer = BotService.GetEmbedFooter($"Member info: {member.Username} #{member.Discriminator}")
             }.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true)
@@ -331,7 +335,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                     {
                         Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                     },
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -345,7 +349,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 {
                     Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                 },
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -364,7 +368,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                     {
                         Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                     },
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -380,7 +384,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 {
                     Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
                 },
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -397,7 +401,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the rule channel for guild: {ctx.Guild.Name}",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
     }

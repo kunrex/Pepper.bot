@@ -24,6 +24,7 @@ using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Modules.FunCommands;
 
 namespace KunalsDiscordBot
 {
@@ -110,6 +111,7 @@ namespace KunalsDiscordBot
             commands.RegisterConverter(new TimeSpanArgumentConverter());
             commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
             commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
+            commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
         }
 
         public async Task ConnectAsync()
@@ -155,7 +157,7 @@ namespace KunalsDiscordBot
                     if (!TimeSpan.TryParse(mute.Time, out var x) || span > TimeSpan.Parse(mute.Time))
                         await member.RevokeRoleAsync(role).ConfigureAwait(false);
                     else
-                        BotEventFactory.CreateEvent().WithSpan(span).WithEvent((s, e) =>
+                        BotEventFactory.CreateScheduledEvent().WithSpan(span).WithEvent((s, e) =>
                         {
                             Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
                         }).Execute();

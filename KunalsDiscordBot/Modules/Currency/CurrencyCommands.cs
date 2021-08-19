@@ -1,40 +1,44 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
 using KunalsDiscordBot.Core;
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
-using KunalsDiscordBot.Modules.Currency.Jobs;
-using KunalsDiscordBot.Modules.Currency.Shops;
-using KunalsDiscordBot.Core.Configurations.Modules;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
     [Decor("Gold", ":coin:")]
     [Description("A currency system!")]
-    public partial class CurrencyCommands : BaseCommandModule
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels))]
+    public sealed partial class CurrencyCommands : PepperCommandModule
     {
-        private static readonly DiscordColor Color = typeof(CurrencyCommands).GetCustomAttribute<DecorAttribute>().color;
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
         private readonly IProfileService service;
         private readonly CurrencyData data;
 
-        public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager)
+        public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager, ModuleService moduleService)
         {
             service = _service;
             data = configurationManager.currenyConfig;
+            ModuleInfo = moduleService.ModuleInfo[typeof(CurrencyCommands)];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -50,7 +54,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     {
                         Description = "You need a profile to run this command",
                         Footer = BotService.GetEmbedFooter("Use the `currency profile` command to create a profile"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
 
                     throw new CustomCommandException();
@@ -67,7 +71,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     {
                         Description = "You need a job to run this command",
                         Footer = BotService.GetEmbedFooter("Use the \"currency hire\" command to get a job"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
 
                     throw new CustomCommandException();
@@ -78,7 +82,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     {
                         Description = "You should not have a job to run this command",
                         Footer = BotService.GetEmbedFooter("Use the `currency resign` command to resign from your job"),
-                        Color = Color
+                        Color = ModuleInfo.Color
                     }).ConfigureAwait(false);
 
                     throw new CustomCommandException();
@@ -103,7 +107,7 @@ namespace KunalsDiscordBot.Modules.Currency
                             Title = "Chill out",
                             Description = profile.Job == "None" ? $"You just resigned and its only been {timeSpan}, gotta wait {Job.resignTimeSpan} hours before you can apply again" : $"Its only been {timeSpan} since your last shift, {job.CoolDown} hours is the minimum time.",
                             Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
-                            Color = Color
+                            Color = ModuleInfo.Color
                         }).ConfigureAwait(false);
 
                         throw new CustomCommandException();
@@ -126,7 +130,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 {
                     Title = ctx.Member.Username,
                     Description = "Does not have an account",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 };
 
                 await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
@@ -170,7 +174,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 {
                     Title = member.Username,
                     Description = "Does not have an account",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 };
 
                 await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
@@ -204,8 +208,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Deposit")]
         [Aliases("dep")]
-        [Description("Deposits Money into the bank")]
-        [RequireProfile]
+        [Description("Deposits Money into the bank"), RequireProfile]
         public async Task Deposit(CommandContext ctx, string amount)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
@@ -252,8 +255,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Withdraw")]
         [Aliases("with")]
-        [Description("Withdraws Money into the bank")]
-        [RequireProfile]
+        [Description("Withdraws Money into the bank"), RequireProfile]
         public async Task Withdraw(CommandContext ctx, string amount)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
@@ -291,8 +293,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Lend")]
-        [Description("Lend another user money")]
-        [RequireProfile]
+        [Description("Lend another user money"), RequireProfile]
         public async Task Lend(CommandContext ctx, DiscordMember member, string amount)
         {
             if (member.Id == ctx.Member.Id)
@@ -365,7 +366,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Daily Coins",
                 Description = $"{coins} {data.coinsEmoji}, Here are your coins for the day.",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             }).ConfigureAwait(false);
         }
@@ -382,7 +383,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Weekly Coins",
                 Description = $"{coins} {data.coinsEmoji}, Here are your coins for the week.",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
             }).ConfigureAwait(false);
         }
@@ -399,15 +400,14 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Monthly Coins",
                 Description = $"{coins} {data.coinsEmoji}, Here are your coins for the monthly.",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
             }).ConfigureAwait(false);
         }
 
         [Command("SafeMode")]
         [Aliases("sm")]
-        [Description("Toggles safe mode")]
-        [RequireProfile]
+        [Description("Toggles safe mode"), RequireProfile]
         public async Task SafeMode(CommandContext ctx)
         {
             await service.ToggleSafeMode(ctx.Member.Id).ConfigureAwait(false);
@@ -435,7 +435,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Job List",
                 Description = description,
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Footer = BotService.GetEmbedFooter("Use the \"currency hire\" command to get a job")
             }).ConfigureAwait(false);
@@ -463,7 +463,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Cogratulations",
                 Description = $"{ctx.Member.Mention} you have been hired. \nUse the work command to earn some money.",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
@@ -484,7 +484,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Resigned",
                 Description = $"{ctx.Member.Mention} has resigned from being a {prevJob}",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
@@ -501,7 +501,7 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
             var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
-            var steps = await job.GetWork(Color, BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize));     
+            var steps = await job.GetWork(ModuleInfo.Color, BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize));     
 
             DialogueHandlerConfig dialogueConfig = new DialogueHandlerConfig
             {
@@ -520,7 +520,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = completed ? "Good Job" : "Time Out",
                 Description = completed ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
@@ -547,7 +547,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Shop",
                 Thumbnail = thumbnail,
-                Color = Color
+                Color = ModuleInfo.Color
             };
             int index = 0;
 
@@ -584,7 +584,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = item.Name,
                 Description = item.Description,
                 Thumbnail = thumbnail,
-                Color = Color
+                Color = ModuleInfo.Color
             };
 
             embed.AddField("Price: ", item.Price.ToString(), true);
@@ -620,7 +620,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     Title = "Purchase Successful",
                     Description = result.message,
                     Thumbnail = thumbnail,
-                    Color = Color
+                    Color = ModuleInfo.Color
                 };
 
                 await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -656,7 +656,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     Title = "Sold item",
                     Description = $"Successfuly sold {quantity} {result.Name}(s) for {quantity * result.SellingPrice}",
                     Thumbnail = thumbnail,
-                    Color = Color
+                    Color = ModuleInfo.Color
                 };
 
                 await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
@@ -710,7 +710,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = $"{ctx.Member.Username}'s Inventory",
                 Description = descripton,
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize)
             };
 
@@ -728,7 +728,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 {
                     Title = member.Username,
                     Description = "Does not have an account",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 };
 
                 await ctx.Channel.SendMessageAsync(nullEmbed).ConfigureAwait(false);
@@ -750,7 +750,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = $"{member.Username}'s Inventory",
                 Description = descripton,
-                Color = Color,
+                Color = ModuleInfo.Color,
                 Thumbnail = BotService.GetEmbedThumbnail(member, data.thumbnailSize)
             };
 
@@ -802,7 +802,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Meme")]
         [Description("The currency meme command")]
-        [RequireProfile, PresenceItem(Shops.Items.PresenceData.PresenceCommand.Meme)]
+        [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Meme)]
         public async Task Meme(CommandContext ctx)
         {
             var itemNeed = Shop.GetPresneceItem(ctx);
@@ -814,7 +814,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 {
                     Description = $"You need a {itemNeed.Name} to run this command, you have 0",
                     Footer = BotService.GetEmbedFooter($"User: {ctx.Member.Username}"),
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
 
                 return;
@@ -838,7 +838,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Description = descripion,
                 Thumbnail = BotService.GetEmbedThumbnail(ctx.User, data.thumbnailSize),
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.Username}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
     }

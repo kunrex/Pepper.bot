@@ -5,10 +5,13 @@ using System.Drawing;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
@@ -18,11 +21,19 @@ namespace KunalsDiscordBot.Modules.Images
 {
     [Group("Image")]
     [Decor("Chartreuse", ":camera:")]
-    public class ImageCommands : BaseCommandModule
+    [ModuleLifespan(ModuleLifespan.Transient), Description("Image Manipulation! Make memes with pre-built and more!")]
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks)]
+    public class ImageCommands : PepperCommandModule
     {
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
+
         private readonly IImageService service;
 
-        public ImageCommands(IImageService _service) => service = _service;
+        public ImageCommands(IImageService _service, ModuleService moduleService)
+        {
+            service = _service;
+            ModuleInfo = moduleService.ModuleInfo[typeof(ImageCommands)];
+        }
 
         [Command("abandon")]
         [Description("Abandon meme")]
@@ -50,6 +61,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -79,6 +91,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -107,6 +120,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -138,6 +152,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -172,6 +187,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
 
                 foreach (var image in images)
@@ -206,6 +222,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -237,6 +254,7 @@ namespace KunalsDiscordBot.Modules.Images
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                                  .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
         }
@@ -257,6 +275,7 @@ namespace KunalsDiscordBot.Modules.Images
                     using (var ms = await graphicalImage.ToMemoryStream())
                         await new DiscordMessageBuilder()
                                   .WithFiles(new Dictionary<string, Stream>() { { $"{string.Concat(ctx.Member.DisplayName.Reverse())}.png", ms } })
+                                  .WithReply(ctx.Message.Id)
                                   .SendAsync(ctx.Channel);
                 }
             }

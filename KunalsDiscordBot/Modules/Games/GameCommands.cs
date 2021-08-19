@@ -10,6 +10,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Services.Games;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Attributes;
@@ -18,24 +19,27 @@ using KunalsDiscordBot.Core.Modules.GameCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.GameCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using DSharpPlus;
 
 namespace KunalsDiscordBot.Modules.Games
 {
     [Group("Games")]
     [Decor("IndianRed", ":video_game:")]
     [Description("A set of commands to play popular games with other server members")]
-    [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.Games)]     
-    public class GameCommands : BaseCommandModule
+    [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.Games)]
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels)]
+    public class GameCommands : PepperCommandModule
     {
-        public static readonly DiscordColor Color = typeof(GameCommands).GetCustomAttribute<DecorAttribute>().color;
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
         private readonly IServerService serverService;
         private readonly IGameService gameService;
 
-        public GameCommands(IServerService service, IGameService _gameService)
+        public GameCommands(IServerService service, IGameService _gameService, ModuleService moduleService)
         {
             serverService = service;
             gameService = _gameService;
+            ModuleInfo = moduleService.ModuleInfo[typeof(GameCommands)];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -92,7 +96,7 @@ namespace KunalsDiscordBot.Modules.Games
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the Connect4 channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -108,7 +112,7 @@ namespace KunalsDiscordBot.Modules.Games
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the TicTacToe channel for guild: `{ctx.Guild.Name}`",
                 Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = Color
+                Color = ModuleInfo.Color
             }).ConfigureAwait(false);
         }
 
@@ -137,7 +141,7 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Failed to start match, If a game already is going on in the server then wait for it to finish.",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }.WithFooter($"Member: {ctx.Member.Username}, at {DateTime.Now}"));
         }
 
@@ -168,7 +172,7 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Failed to start match, If a game already is going on in the server then wait for it to finish.",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }.WithFooter($"Member: {ctx.Member.Username}, at {DateTime.Now}"));
         }
 
@@ -202,29 +206,10 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Failed to start match",
-                    Color = Color
+                    Color = ModuleInfo.Color
                 }.WithFooter($"Member: {ctx.Member.Id}, at {DateTime.Now}"));
             else
                 await ctx.Channel.SendMessageAsync("Started").ConfigureAwait(false);
-        }
-
-        //AI
-        [Command("RPS")]
-        [Description("Rock Paper Scissors")]
-        public async Task RockPaperScissors(CommandContext ctx, string option)
-        {
-            int optionToInt = 0;
-            switch (option.ToLower())
-            {
-                case var val when val == "paper" || val == "p":
-                    optionToInt = 1;
-                    break;
-                case var val when val == "scissors" || val == "s":
-                    optionToInt = 2;
-                    break;
-            }
-
-            RockPaperScissor rockPaperScissor = new RockPaperScissor(optionToInt, ctx);
         }
 
         [Command("UNO")]

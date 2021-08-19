@@ -1,10 +1,8 @@
-﻿//System name spaces
-using System;
+﻿using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-//D# name spaces
 using DSharpPlus;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Entities;
@@ -12,6 +10,7 @@ using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
@@ -25,17 +24,21 @@ namespace KunalsDiscordBot.Modules.Music
     [Group("Music")]
     [Decor("Aquamarine", ":musical_note:")]
     [Description("Set of music commands offered by Pepper"), ConfigData(ConfigValueSet.Music)]
-    public sealed class MusicCommands : BaseCommandModule
+    [ModuleLifespan(ModuleLifespan.Transient), RequireBotPermissions(Permissions.SendMessages | Permissions.AccessChannels | Permissions.UseVoice | Permissions.Speak)]
+    public sealed class MusicCommands : PepperCommandModule
     {
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
+
         public static DiscordColor Color = typeof(MusicCommands).GetCustomAttribute<DecorAttribute>().color;
 
         private readonly IMusicService service;
         private readonly IServerService serverService;
 
-        public MusicCommands(IMusicService _service, IServerService _serverService)
+        public MusicCommands(IMusicService _service, IServerService _serverService, ModuleService moduleService)
         {
             service = _service;
             serverService = _serverService;
+            ModuleInfo = moduleService.ModuleInfo[typeof(MusicCommands)];
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
