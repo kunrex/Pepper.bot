@@ -16,6 +16,7 @@ using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Help;
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Exceptions;
@@ -23,8 +24,10 @@ using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.ArgumentConverters;
-using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.FunCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Attributes.ModerationCommands;
+using System.Text;
 
 namespace KunalsDiscordBot
 {
@@ -136,28 +139,30 @@ namespace KunalsDiscordBot
                 Console.WriteLine("Lavalink connection section complete");
             }
 
-            await CheckMutes();
+            await CheckModerationMutes();
         }
 
-        private async Task CheckMutes()
+        private async Task CheckModerationMutes()
         {
             var modService = (IModerationService)services.GetService(typeof(IModerationService));
             var serverService = (IServerService)services.GetService(typeof(IServerService));
 
             foreach (var guild in client.Guilds.Where(x => x.Value.Permissions.HasValue).Where(x => (x.Value.Permissions & Permissions.Administrator) == Permissions.Administrator))//all servers where the bot is an admin
             {
-                foreach(var mute in await modService.GetMutes(guild.Value.Id))
+                ulong id = (ulong)(await serverService.GetModerationData(guild.Value.Id)).MutedRoleId;
+                var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
+
+                foreach (var mute in await modService.GetMutes(guild.Value.Id))
                 {
                     var span = DateTime.Now - DateTime.Parse(mute.StartTime);
-                    ulong id = (ulong)(await serverService.GetModerationData(guild.Value.Id)).MutedRoleId;
-
-                    var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
+                 
                     var member = guild.Value.Members.FirstOrDefault(x => x.Value.Id == (ulong)mute.UserId).Value;
+                    var muteTime = TimeSpan.Parse(mute.Time);
 
-                    if (!TimeSpan.TryParse(mute.Time, out var x) || span > TimeSpan.Parse(mute.Time))
+                    if (span > muteTime || !TimeSpan.TryParse(mute.Time, out var x))
                         await member.RevokeRoleAsync(role).ConfigureAwait(false);
                     else
-                        BotEventFactory.CreateScheduledEvent().WithSpan(span).WithEvent((s, e) =>
+                        BotEventFactory.CreateScheduledEvent().WithSpan(muteTime - span).WithEvent((s, e) =>
                         {
                             Task.Run(async () => await member.RevokeRoleAsync(role).ConfigureAwait(false));
                         }).Execute();
@@ -202,24 +207,36 @@ namespace KunalsDiscordBot
 
                 if (cfe.FailedChecks.FirstOrDefault(x => x is RequireBotPermissionsAttribute) != null)
                 {
+                    var attribute = (RequireBotPermissionsAttribute)cfe.FailedChecks.First(x => x is RequireBotPermissionsAttribute);
+
                     title = "Permission denied";
-                    description = $"The bot lacks the permissions necessary to run this command.";
+                    description = $"The bot lacks the permissions necessary to run this command.\n Permissions Required: {attribute.Permissions.FormatePermissions()}";
 
                     footer = "Permissions be all";
                 }
-                else if(cfe.FailedChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute) != null)
+                else if (cfe.FailedChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute || x is ModeratorNeededAttribute) != null)
                 {
+                    var permissions = new StringBuilder();
+
+                    var requireUserPerms = (RequireUserPermissionsAttribute)cfe.FailedChecks.FirstOrDefault(x => x is RequireUserPermissionsAttribute);
+                    if (requireUserPerms != null)
+                        permissions.Append(requireUserPerms.Permissions.FormatePermissions());
+
+                    if (cfe.FailedChecks.FirstOrDefault(x => x is ModeratorNeededAttribute) != null)
+                        permissions.Append($"{(requireUserPerms == null ? "" : ", ")}`Moderator`");
+
                     title = "Permission denied";
-                    description = $"You lack the permissions necessary to run this command.";
+                    description = $"You lack the permissions necessary to run this command.\n Permissions Required: {permissions.ToString()}";
 
                     footer = "Permissions be all";
                 }
                 else if(cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute) != null)
                 {
                     title = "Chill out";
-                    var casted = (CooldownAttribute)cfe.FailedChecks.FirstOrDefault(x => x is CooldownAttribute);
+                    var casted = (CooldownAttribute)cfe.FailedChecks.First(x => x is CooldownAttribute);
+                    var cooldown = casted.GetRemainingCooldown(e.Context);
 
-                    description = $"You just used this command and can use it after this much time:\n{casted.GetRemainingCooldown(e.Context)}";
+                    description = $"You just used this command and can use it after this much time:\n {cooldown.Days} days, {cooldown.Hours} hours, {cooldown.Minutes} minutes {cooldown.Seconds} seconds";
                     footer = "Spam ain't cool";
                 }
 

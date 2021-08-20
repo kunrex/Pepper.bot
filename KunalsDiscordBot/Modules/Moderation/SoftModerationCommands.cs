@@ -26,7 +26,7 @@ using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
     [Group("SoftModeration")]
-    [Aliases("softmod", "sm")]
+    [Aliases("softmod", "sm"), Decor("Blurple", ":scales:")]
     [Description("Commands for soft moderation, user and bot should be able to manage nicknames")]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class SoftModerationCommands : PepperCommandModule

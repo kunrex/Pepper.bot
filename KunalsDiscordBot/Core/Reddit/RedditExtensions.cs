@@ -16,28 +16,36 @@ namespace KunalsDiscordBot.Extensions
         {
             var filtered = new List<Post>();
 
-            switch (filter.filter)
+            switch (filter.Filter)
             {
                 case RedditPostFilter.New:
-                    filtered = posts.New.Take(filter.take).ToList();
+                    filtered = posts.New.Take(filter.Take).ToList();
                     break;
                 case RedditPostFilter.Hot:
-                    filtered = posts.Hot.Take(filter.take).ToList();
+                    filtered = posts.Hot.Take(filter.Take).ToList();
                     break;
                 case RedditPostFilter.Top:
-                    filtered = posts.Top.Take(filter.take).ToList();
+                    filtered = posts.Top.Take(filter.Take).ToList();
+                    break;
+                default:
+                    filtered.AddRange(posts.New.Take(filter.Take).ToList());
+                    filtered.AddRange(posts.Hot.Take(filter.Take).ToList());
+                    filtered.AddRange(posts.Top.Take(filter.Take).ToList());
                     break;
             }
 
             if (filtered.IsNullOrEmpty())
                 return null;
 
-            if (!filter.allowNSFW)
+            if (!filter.AllowNSFW)
+            {
                 filtered = filtered.Where(x => !x.NSFW).ToList();
-            if (filtered.IsNullOrEmpty())
-                return null;
 
-            if (filter.imagesOnly)
+                if (filtered.IsNullOrEmpty())
+                    return null;
+            }
+
+            if (filter.ImagesOnly)
                 filtered = filtered.Where(x => x.IsValidDiscordPost()).ToList();
 
             return filtered;

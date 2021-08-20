@@ -22,29 +22,22 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public RedditPostCollection(string subReddit) => subRedditName = subReddit;
 
-        public async Task<RedditPostCollection> Collect(RedditClient client, RedditAppConfig config)
+        public async Task<RedditPostCollection> Collect(RedditClient client, RedditFilter filter)
         {
-            await SetUp(client, config, OnPostAdded);
+            await SetUp(client, OnPostAdded, filter);
 
             return this;
         }
 
-        public Post this[int index]
+        public Post this[int index, bool allowNSFW = true]
         {
-            get => posts[index];
+            get => allowNSFW ? posts[index] : posts.Where(x => !x.NSFW).ToList()[index];
         }
 
-        private Task SetUp(RedditClient client, RedditAppConfig config, EventHandler<PostsUpdateEventArgs> action)
+        private Task SetUp(RedditClient client, EventHandler<PostsUpdateEventArgs> action, RedditFilter filter)
         {
             var subReddit = client.Subreddit(subRedditName).About();
-            posts = new List<Post>();
-
-            posts.AddRange(subReddit.Posts.New.Where(x => x.IsValidDiscordPost())
-                .Take(config.postLimit).ToList());
-            posts.AddRange(subReddit.Posts.Hot.Where(x => x.IsValidDiscordPost())
-                .Take(config.postLimit).ToList());
-            posts.AddRange(subReddit.Posts.Top.Where(x => x.IsValidDiscordPost())
-                .Take(config.postLimit).ToList());
+            posts = subReddit.Posts.FilterPosts(filter);
 
             //subscribe to all events
             subReddit.Posts.NewUpdated += action;

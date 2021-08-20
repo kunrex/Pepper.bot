@@ -297,6 +297,32 @@ namespace KunalsDiscordBot.Modules.Fun
             await ctx.Channel.SendMessageAsync($"{(completed ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {num}")}").ConfigureAwait(false);
         }
 
+        [Command("Subreddit")]
+        [Description("Get information on a reddit subreddit"), RedditCommand]
+        public async Task Subreddit(CommandContext ctx, string name)
+        {
+            var subreddit = redditApp.GetSubReddit(name);
+
+            if(subreddit == null)
+            {
+                await ctx.RespondAsync("Subreddit not found");
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = subreddit.Name,
+                Description = $"**{subreddit.Title}**\n{subreddit.Description}",
+                Url = "https://www.reddit.com" + subreddit.URL,
+            }.AddField("ID", subreddit.Id, true)
+             .AddField("Full Name", subreddit.Fullname, true)
+             .AddField("Language", string.IsNullOrWhiteSpace(subreddit.Lang) ? "Unspecified" : subreddit.Lang, true)
+             .AddField("Over 18", string.IsNullOrWhiteSpace(subreddit.Over18.ToString()) ? "Unspecified" : subreddit.Over18.ToString(), true)
+             .AddField("Active User Count", string.IsNullOrWhiteSpace(subreddit.ActiveUserCount.ToString()) ? "Unspecified" : subreddit.ActiveUserCount.ToString(), true)
+             .AddField("Key Color",string.IsNullOrWhiteSpace(subreddit.KeyColor) ? "Unspecified" : subreddit.KeyColor, true)
+             .WithThumbnail(subreddit.CommunityIcon, 20, 20));
+        }
+
         [Command("meme")]
         [Description("Juicy memes straight from r/memes"), RedditCommand]
         public async Task Meme(CommandContext ctx)
@@ -372,9 +398,9 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var post = redditApp.GetRandomPost(subReddit, new RedditFilter
             {
-                allowNSFW = serverProfile.AllowNSFW == 1,
-                imagesOnly = useImage,
-                filter = filter,
+                AllowNSFW = serverProfile.AllowNSFW == 1,
+                ImagesOnly = useImage,
+                Filter = filter,
             });
 
             if (post == null)
