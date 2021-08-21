@@ -35,8 +35,8 @@ namespace KunalsDiscordBot.Services
             embed.AddField($"** **", "** **")
                  .AddField("__My Prefix'__", "`pep`, `pepper`", true)
                  .AddField("__My Help Command__", "pep help", true)
-                 .AddField("__Contribute__", "The githib repo isn't public yet", true)
-                 .AddField("__Configuration__", "use the `pep general configuration` command to view and edit my configuration for this server", true)
+                 .AddField("__Contribute__", "Use the `pep general github` command for the source code", true)
+                 .AddField("__Configuration__", "Use the `pep general configuration` command to view and edit my configuration for this server", true)
                  .AddField("__Moderation and Solf Moderation__", "I also offer commands for server moderation, If you can't see them in the help command" +
                  ", its probably because I haven't been given the `Administrator` permission");
 

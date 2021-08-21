@@ -7,12 +7,14 @@ using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Lavalink.EventArgs;
 
+using KunalsDiscordBot.Core.Events;
+
 namespace KunalsDiscordBot.Core.Modules.MusicCommands
 {
     public sealed class VCPlayer 
     {
-        private static readonly int Height = 50;
-        private static readonly int Width = 75;
+        private static readonly int Height = 30;
+        private static readonly int Width = 40;
 
         public ulong guildID { get; private set; }
         public Queue<QueueData> queue { get; private set; }
@@ -20,12 +22,14 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         public LavalinkExtension lava { get; private set; }
         public LavalinkNodeConnection node { get; private set; }
 
+        public SimpleBotEvent OnDisconnect { get; private set; } = new SimpleBotEvent();
+
         private string memberWhoRequested = string.Empty;
+        private LavalinkTrack currentTrack { get => connection.CurrentState.CurrentTrack; }
 
         private bool isPaused { get; set; }
         private bool isLooping { get; set; }
         private bool queueLoop { get; set; }
-        private LavalinkTrack currentTrack;
         private bool isConnected = false;
 
         private DiscordChannel boundChannel { get; set; }
@@ -46,13 +50,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             isConnected = false;
 
-            if (!lava.ConnectedNodes.Any())
-                return "LavaLink has not been established";
-
-            if (connection == null)
-                return "LavaLink is not connected";
-
             await connection.DisconnectAsync();
+            OnDisconnect.Invoke();
+
             return $"Left {connection.Channel.Mention} succesfully";
         }
 
@@ -73,29 +73,30 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
         private async Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args) => await PlayNext();
 
-        public async Task<string> StartPlaying(string search, string member, ulong id)
+        public async Task<DiscordEmbedBuilder> StartPlaying(string search, string member, ulong id)
         {
             if (connection == null)
-                return "LavaLink is not connected.";
+                return new DiscordEmbedBuilder().WithDescription("LavaLink is not connected.");
+
+            var loadResult = await node.Rest.GetTracksAsync(search);
+
+            if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+                return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}");
 
             if (currentTrack == null)
             {
-                var loadResult = await node.Rest.GetTracksAsync(search);
-
-                if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
-                    return $"Track search failed for {search}";
-
-                currentTrack = loadResult.Tracks.First();
+                var track = loadResult.Tracks.First();
                 memberWhoRequested = member;
 
-                await connection.PlayAsync(currentTrack);
+                await connection.PlayAsync(track);
 
-                return "Playing...";
+                return new DiscordEmbedBuilder().WithDescription($"Playing [{track.Title}]({track.Uri})");
             }
             else
             {
-                queue.Enqueue(new QueueData { name = member , id = id, search = search});
-                return $"Added `{search}` to queue";
+                var track = loadResult.Tracks.First();
+                queue.Enqueue(new QueueData { userName = member , id = id, track = track });
+                return new DiscordEmbedBuilder().WithDescription($"Queue  [{track.Title}]({track.Uri}) at index `{queue.Count}`");
             }
         }
 
@@ -114,33 +115,18 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             if (queue.Count <= 0)
             {
                 await boundChannel.SendMessageAsync("Queue Finished");
-                currentTrack = null;
                 return;
             }
-
-            currentTrack = null;
 
             var search = queue.Dequeue();
-            memberWhoRequested = queue.Dequeue().name;
+            memberWhoRequested = queue.Dequeue().userName;
 
-            var loadResult = await node.Rest.GetTracksAsync(search.search);
-
-            if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
-            {
-                await boundChannel.SendMessageAsync($"Track search failed for {search}");
-                await PlayNext();
-                return;
-            }
-
-            currentTrack = loadResult.Tracks.First();
-
-            await connection.PlayAsync(currentTrack);
+            await connection.PlayAsync(search.track);
 
             if (queueLoop)//re add the search
                 queue.Enqueue(search);
 
-            var embed = await NowPlaying();
-            await boundChannel.SendMessageAsync(embed: embed);
+            await boundChannel.SendMessageAsync(await NowPlaying());
         }
 
         public async Task<string> Pause()
@@ -205,74 +191,58 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             return queueLoop;
         }
 
-        public async Task<DiscordEmbedBuilder> GetQueue()
+        public Task<List<DiscordEmbedBuilder>> GetQueue()
         {
-            string description;
+            List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
+            int index = 0, newEmbedIndex = 15;
+            var title = $"Queue For __{connection.Channel.Guild.Name}__";
 
-            description = $"Now Playing: `{currentTrack.Title}`\n\n __Up Next__\n";
-            if (queue.Count > 0)
+            DiscordEmbedBuilder currentEmbed = new DiscordEmbedBuilder().WithTitle(title).AddField("Now Playing",
+                $"[{currentTrack.Title}]({currentTrack.Uri})");
+
+            embeds.Add(currentEmbed);
+
+            foreach(var value in queue)
             {
-                int index = 1;
-                var members = queue.Select(x => x.name).ToArray();
-
-                foreach (var search in queue)
+                if (index == 0)
                 {
-                    description += $"{index}. `{search}` \n Requested By: `{members[index - 1]}`\n";
-                    index++;
+                    currentEmbed = new DiscordEmbedBuilder().WithTitle(title);
+                    embeds.Add(currentEmbed);
                 }
+
+                currentEmbed.AddField($"[{value.track.Title}]({value.track.Uri})", $"Length: {value.track.Length:mm\\:ss}, Requested By: `{value.userName}`");
+
+                index++;
+                if (index == newEmbedIndex)
+                    index = 0;
             }
-            else
-                description += "Queue is Empty";
 
-            var embed = new DiscordEmbedBuilder
-            {
-                Title = "Queue",
-                Description = description,
-                Color = DiscordColor.Aquamarine
-            };
-
-            await Task.CompletedTask;
-            return embed;
+            return Task.FromResult(embeds);
         }
 
         public async Task<DiscordEmbedBuilder> NowPlaying()
         {
             if (currentTrack == null)
-            {
-                var emptyEmbed = new DiscordEmbedBuilder
+                return new DiscordEmbedBuilder
                 {
                     Title = $"Now Playing: Nothing",
                     Description = "Use the `play` command to play some music."
-                };
+                }; 
 
-                return emptyEmbed;
-            }
-
-            string id = await GetImageURL(currentTrack.Uri.AbsoluteUri);
-            string thumbnailURL = $"https://img.youtube.com/vi/" + id + "/default.jpg";
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Url = thumbnailURL,
-                Height = Height,
-                Width = Width
-            };
+            string thumbnailURL = $"https://img.youtube.com/vi/{await GetImageURL(currentTrack.Uri.AbsoluteUri)}/default.jpg";
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Now Playing: {currentTrack.Title}",
-                Description = $"`Length:` {currentTrack.Length}\n `Author:` {currentTrack.Author}\n `Url:` {currentTrack.Uri.AbsoluteUri}",
-                Color = DiscordColor.Aquamarine,
-                Url = currentTrack.Uri.AbsoluteUri,
-                Thumbnail = thumbnail
-            };
-
-            embed.AddField("`Requested By:` ", memberWhoRequested);
-            embed.AddField("`Position`",  $"{connection.CurrentState.PlaybackPosition:mm\\:ss}");
-            embed.AddField("`Next Search:` ", queue.TryPeek(out QueueData result) ? queue.Peek().search : "Nothing", true);
-            embed.AddField("`Paused`", isPaused.ToString(), true);
-            embed.AddField("`Looping`", isLooping.ToString(), true);
-            embed.AddField("`Queue Loop`", queueLoop.ToString(), true);
+                Description = $"`Length:` {currentTrack.Length}\n `Author:` {currentTrack.Author}\n",
+                Url = currentTrack.Uri.AbsoluteUri
+            }.AddField("`Requested By:` ", memberWhoRequested)
+             .AddField("`Position`", $"{connection.CurrentState.PlaybackPosition:mm\\:ss}")
+             .AddField("`Next Track:` ", queue.TryPeek(out QueueData result) ? $"[{queue.Peek().track.Title}]({queue.Peek().track.Uri})" : "Nothing", true)
+             .AddField("`Paused`", isPaused.ToString(), true)
+             .AddField("`Looping`", isLooping.ToString(), true)
+             .AddField("`Queue Loop`", queueLoop.ToString(), true)
+             .WithThumbnail(thumbnailURL, Height, Width);
 
             return embed;
         }

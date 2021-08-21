@@ -69,7 +69,8 @@ namespace KunalsDiscordBot
 
             client.UseInteractivity(new InteractivityConfiguration
             {
-                Timeout = TimeSpan.FromSeconds(configuration.discordConfig.timeOut)
+                Timeout = TimeSpan.FromSeconds(configuration.discordConfig.timeOut),
+                AckPaginationButtons = true,
             });
 
             client.GuildCreated += OnGuildCreated;

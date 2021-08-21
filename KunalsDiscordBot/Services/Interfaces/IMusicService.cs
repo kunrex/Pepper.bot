@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 using DSharpPlus.Entities;
@@ -16,7 +17,7 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> ConnnectPlayer(VCPlayer player, DiscordChannel _channel, DiscordChannel _boundChannel);
         public Task<string> DisconnectPlayer(ulong id);
 
-        public Task<string> Play(ulong id, string search, string member, ulong memberId);
+        public Task<DiscordEmbedBuilder> Play(ulong id, string search, string member, ulong memberId);
 
         public Task<string> Pause(ulong id);
         public Task<string> Resume(ulong id);
@@ -26,7 +27,7 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> Loop(ulong id);
         public Task<string> QueueLoop(ulong id);
 
-        public Task<DiscordEmbedBuilder> GetQueue(ulong id);
+        public Task<List<DiscordEmbedBuilder>> GetQueue(ulong id);
         public Task<DiscordEmbedBuilder> NowPlaying(ulong id);
 
         public Task<string> Move(ulong id, int trackToMove, int newIndex);

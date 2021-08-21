@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
@@ -47,7 +51,7 @@ namespace KunalsDiscordBot.Modules.Music
             {
                 var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
 
-                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
                 {
                     await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
                     throw new CustomCommandException();
@@ -55,8 +59,8 @@ namespace KunalsDiscordBot.Modules.Music
             }
 
             var botVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is BotVCNeededAttribute) != null;
-            var channel = await service.GetPlayerChannel(ctx.Guild.Id);
-            if (botVCCheck && channel == null)
+            var playerChannel = await service.GetPlayerChannel(ctx.Guild.Id);
+            if (botVCCheck && playerChannel == null)
             {
                 await ctx.RespondAsync("I'm not in a voice channel?");
                 throw new CustomCommandException();
@@ -65,8 +69,8 @@ namespace KunalsDiscordBot.Modules.Music
             var userVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is UserVCNeededAttribute) != null;
             if(userVCCheck)
             {
-                var player = ctx.Member.VoiceState.Channel;
-                if (player == null || player.Type != ChannelType.Voice)
+                var userChannel = ctx.Member.VoiceState.Channel;
+                if (userChannel == null || userChannel.Type != ChannelType.Voice)
                 {
                     await ctx.RespondAsync("You need to be in a Voice Channel to run this command");
                     throw new CustomCommandException();
@@ -76,7 +80,7 @@ namespace KunalsDiscordBot.Modules.Music
                     await ctx.RespondAsync("You can't run this command while deafened");
                     throw new CustomCommandException();
                 }
-                else if (botVCCheck && player.Id != channel.Id)
+                else if (botVCCheck && userChannel.Id != playerChannel.Id)
                 {
                     await ctx.RespondAsync("You need to be in the same Voice Channel as Pepper to run this command");
                     throw new CustomCommandException();
@@ -149,14 +153,14 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            var channel = ctx.Member.VoiceState.Channel;
-
             var lava = ctx.Client.GetLavalink();
-            if (!lava.ConnectedNodes.Any())
+            if (lava == null || !lava.ConnectedNodes.Any())
             {
                 await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established");
                 return;
             }
+
+            var channel = ctx.Member.VoiceState.Channel;
             var node = lava.ConnectedNodes.Values.First();
 
             var message = await service.CreatePlayer(ctx.Guild.Id, node, lava, channel, ctx.Channel);
@@ -166,163 +170,97 @@ namespace KunalsDiscordBot.Modules.Music
         [Command("Leave")]
         [Description("Leaves the joined channel")]
         [UserVCNeeded, BotVCNeeded, DJCheck]
-        public async Task Leave(CommandContext ctx)
-        {
-            var message = await service.DisconnectPlayer(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Leave(CommandContext ctx) => await ctx.Channel.SendMessageAsync($"{await service.DisconnectPlayer(ctx.Guild.Id)}, on request of {ctx.Member.DisplayName}");
 
         [Command("Play")]
         [Description("Plays a song")]
         [UserVCNeeded, BotVCNeeded]
-        public async Task Play(CommandContext ctx, [RemainingText]string search)
-        {           
-            var message = await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName, ctx.Member.Id);
-
-            if(message.Equals("Playing..."))
-                await ctx.Channel.SendMessageAsync(await service.NowPlaying(ctx.Guild.Id)).ConfigureAwait(false);
-            else
-                await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Play(CommandContext ctx, [RemainingText]string search) => await ctx.Channel.SendMessageAsync((await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName, ctx.Member.Id)).WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Pause")]
         [Description("Pauses the player")]
         [DJCheck, UserVCNeeded,BotVCNeeded]
-        public async Task Pause(CommandContext ctx)
-        {
-            var message = await service.Pause(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Pause(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Pause(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Resume")]
         [Description("Resumes the player")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Resume(CommandContext ctx)
-        {
-            var message = await service.Resume(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Resume(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Resume(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Loop")]
         [Description("Toggles if the current track should loop or not")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Loop(CommandContext ctx)
-        {
-            var message = await service.Loop(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
-
+        public async Task Loop(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Loop(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("QueueLoop")]
         [Aliases("ql")]
         [Description("Toggles if the queue should loop or not, this does not include the track being played")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task QueueLoop(CommandContext ctx)
-        {
-            var message = await service.QueueLoop(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task QueueLoop(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithDescription(await service.QueueLoop(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Queue")]
         [Description("Gets the players queue")]
         [BotVCNeeded]
         public async Task GetQueue(CommandContext ctx)
         {
-            var embed = await service.GetQueue(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            var pages = (await service.GetQueue(ctx.Guild.Id)).Select(x => new Page(null, x.WithFooter($"Requested By{ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)));
+
+            var buttons = new PaginationButtons()
+            {
+                Left = new DiscordButtonComponent(ButtonStyle.Primary, "left", "Left", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":arrow_backward:"))),
+                Right = new DiscordButtonComponent(ButtonStyle.Primary, "right", "Right", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":arrow_forward:"))),
+                Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", "Stop", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":stop_button:"))),
+                SkipLeft = new DiscordButtonComponent(ButtonStyle.Secondary, "leftskip", "First", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":rewind:"))),
+                SkipRight = new DiscordButtonComponent(ButtonStyle.Secondary, "rightskip", "Last", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":fast_forward:")))
+            };
+
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, buttons, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Remove")]
         [Description("Removes a search from the queue")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Remove(CommandContext ctx, int index)
-        {
-            var message = await service.Remove(ctx.Guild.Id, index);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Remove(CommandContext ctx, int index) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Remove(ctx.Guild.Id, index)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Skip")]
         [Description("Skips the current track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Skip(CommandContext ctx)
-        {
-            var message = await service.Skip(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Skip(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Skip(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("NowPlaying")]
         [Aliases("np")]
-        [Description("Gets info about the current track")]
-        [BotVCNeeded]
-        public async Task NowPlaying(CommandContext ctx)
-        {
-            var channel = await service.GetPlayerChannel(ctx.Guild.Id);
-            if (channel == null)
-            {
-                await ctx.Channel.SendMessageAsync("I'm not in a voice channel?");
-                return;
-            }
-
-            var embed = await service.NowPlaying(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
-        }
+        [Description("Gets info about the current track"), BotVCNeeded]
+        public async Task NowPlaying(CommandContext ctx) => await ctx.RespondAsync((await service.NowPlaying(ctx.Guild.Id)).WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Move")]
         [Description("Moves a track around")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Move(CommandContext ctx, int trackToMove, int newPosition)
-        {
-            var message = await service.Move(ctx.Guild.Id, trackToMove, newPosition);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-
-            var currentQueue = await service.GetQueue(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(currentQueue).ConfigureAwait(false);
-        }
+        public async Task Move(CommandContext ctx, int trackToMove, int newPosition) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Move(ctx.Guild.Id, trackToMove, newPosition)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Clear")]
         [Description("Clears the track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Clear(CommandContext ctx)
-        {
-            var message = await service.Skip(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Clear(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Skip(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("PlayFrom")]
         [Aliases("pf", "seek")]
         [Description("Starts playing from a specified position")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Seek(CommandContext ctx, TimeSpan span)
-        {
-            var message = await service.Seek(ctx.Guild.Id, span);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Seek(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Forward")]
         [Description("Make the track move forward")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Forward(CommandContext ctx, TimeSpan span)
-        {
-            var message = await service.Seek(ctx.Guild.Id, span, true);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Forward(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span, true)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Rewind")]
         [Description("Rewind the track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Rewind(CommandContext ctx, TimeSpan span)
-        {
-            var message = await service.Seek(ctx.Guild.Id, span.Negate(), true);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Rewind(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span.Negate(), true)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
 
         [Command("Clean")]
         [Description("Cleans the queue. If a track is in the queue and the user who requested is not in the channel, the track is removed")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Clean(CommandContext ctx)
-        {
-            var message = await service.Clean(ctx.Guild.Id);
-            await ctx.Channel.SendMessageAsync(message).ConfigureAwait(false);
-        }
+        public async Task Clean(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Clean(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
     }
 }
