@@ -12,12 +12,11 @@ namespace KunalsDiscordBot.Services.Music
     public interface IMusicService
     {
         public Task<string> CreatePlayer(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension, DiscordChannel _channel, DiscordChannel _boundChannel);
-        public Task<DiscordChannel> GetPlayerChannel(ulong id);
-
         public Task<string> ConnnectPlayer(VCPlayer player, DiscordChannel _channel, DiscordChannel _boundChannel);
         public Task<string> DisconnectPlayer(ulong id);
 
         public Task<DiscordEmbedBuilder> Play(ulong id, string search, string member, ulong memberId);
+        public Task<DiscordChannel> GetPlayerChannel(ulong id);
 
         public Task<string> Pause(ulong id);
         public Task<string> Resume(ulong id);

@@ -1,7 +1,7 @@
 ﻿using System;
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands
 {
-    public class CurrencyData
+    public class CurrencyModuleData
     {
         public int thumbnailSize;
         public string coinsEmoji;

@@ -7,7 +7,6 @@ namespace KunalsDiscordBot.Core
     public class CustomDisposable : IAsyncDisposable, IDisposable
     {
         protected bool disposed { get; set; } = false;
-        private Component component { get; set; } = new Component();
 
         public CustomDisposable() { }
 
@@ -17,15 +16,12 @@ namespace KunalsDiscordBot.Core
         {
             if (!disposed)
             {
-                if (disposing)
-                    component.Dispose();
-
-                GC.SuppressFinalize(this);
                 disposed = true;
+                GC.SuppressFinalize(this);
             }
         }
 
-        ~CustomDisposable() => Dispose(disposing: false);
+        ~CustomDisposable() => Dispose(false);
 
         public ValueTask DisposeAsync()
         {

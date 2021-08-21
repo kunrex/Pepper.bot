@@ -36,7 +36,7 @@ namespace KunalsDiscordBot.Modules.Fun
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
-        private readonly FunData funData;
+        private readonly FunModuleData funData;
         private readonly RedditApp redditApp;
         private readonly IServerService serverService;
         private readonly IFunService funService;

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands;
+using KunalsDiscordBot.Core.Modules.MusicCommands;
 
 namespace KunalsDiscordBot.Core.Configurations
 {
@@ -14,9 +15,10 @@ namespace KunalsDiscordBot.Core.Configurations
         public PepperBotConfig botConfig { get; private set; } = FromJsonFile<PepperBotConfig>("Config.json");
 
         //module specific
-        public FunData funData { get; private set; } = FromJsonFile<FunData>("Modules", "Fun", "FunData.json");    
-        public ImageData imageData { get; private set; } = FromJsonFile<ImageData>("Modules","Images","ImageData.json");
-        public CurrencyData currenyConfig { get; private set; } = FromJsonFile<CurrencyData>("Modules", "Currency", "CurrencyData.json");
+        public FunModuleData funData { get; private set; } = FromJsonFile<FunModuleData>("Modules", "Fun", "FunData.json");    
+        public ImageModuleData imageData { get; private set; } = FromJsonFile<ImageModuleData>("Modules","Images","ImageData.json");
+        public CurrencyModuleData currenyConfig { get; private set; } = FromJsonFile<CurrencyModuleData>("Modules", "Currency", "CurrencyData.json");
+        public MusicModuleData musicConfig { get; private set; } = FromJsonFile<MusicModuleData>("Modules", "Music", "MusicConfig.json");
         public Dictionary<string, string> graphAttributes { get; private set; } = FromJsonFile<Dictionary<string, string>>("Modules", "Math", "Attributes.json");
 
         public ServerConfigData ServerConfigData { get; private set; } = FromJsonFile<ServerConfigData>("Modules", "General", "ConfigValues.json");

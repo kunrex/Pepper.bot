@@ -1,0 +1,4 @@
+﻿{
+  "maxQueueLength": 30,
+  "inactivityLength" : 2
+}

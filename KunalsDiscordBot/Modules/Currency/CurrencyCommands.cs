@@ -34,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Currency
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
         private readonly IProfileService service;
-        private readonly CurrencyData data;
+        private readonly CurrencyModuleData data;
 
         public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager, ModuleService moduleService)
         {

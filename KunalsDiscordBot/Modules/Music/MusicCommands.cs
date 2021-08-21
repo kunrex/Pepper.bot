@@ -170,40 +170,30 @@ namespace KunalsDiscordBot.Modules.Music
         [Command("Leave")]
         [Description("Leaves the joined channel")]
         [UserVCNeeded, BotVCNeeded, DJCheck]
-        public async Task Leave(CommandContext ctx) => await ctx.Channel.SendMessageAsync($"{await service.DisconnectPlayer(ctx.Guild.Id)}, on request of {ctx.Member.DisplayName}");
+        public async Task Leave(CommandContext ctx) => await ctx.Channel.SendMessageAsync($"{await service.DisconnectPlayer(ctx.Guild.Id)}");
 
         [Command("Play")]
         [Description("Plays a song")]
         [UserVCNeeded, BotVCNeeded]
-        public async Task Play(CommandContext ctx, [RemainingText]string search) => await ctx.Channel.SendMessageAsync((await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName, ctx.Member.Id)).WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Play(CommandContext ctx, [RemainingText] string search)
+        {
+            var embed = await service.Play(ctx.Guild.Id, search, ctx.Member.DisplayName, ctx.Member.Id);
+            if (embed == null)
+                return;
 
-        [Command("Pause")]
-        [Description("Pauses the player")]
-        [DJCheck, UserVCNeeded,BotVCNeeded]
-        public async Task Pause(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Pause(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
-
-        [Command("Resume")]
-        [Description("Resumes the player")]
-        [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Resume(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Resume(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
-
-        [Command("Loop")]
-        [Description("Toggles if the current track should loop or not")]
-        [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Loop(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Loop(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
-
-        [Command("QueueLoop")]
-        [Aliases("ql")]
-        [Description("Toggles if the queue should loop or not, this does not include the track being played")]
-        [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task QueueLoop(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithDescription(await service.QueueLoop(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
 
         [Command("Queue")]
         [Description("Gets the players queue")]
         [BotVCNeeded]
         public async Task GetQueue(CommandContext ctx)
         {
-            var pages = (await service.GetQueue(ctx.Guild.Id)).Select(x => new Page(null, x.WithFooter($"Requested By{ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)));
+            int index = 1;
+            var embeds = await service.GetQueue(ctx.Guild.Id);
+            embeds.ForEach(x => x.WithFooter($"Page: {index++}, Requested By {ctx.Member.DisplayName}"));
+
+            var pages = embeds.Select(x => new Page(null, x));
 
             var buttons = new PaginationButtons()
             {
@@ -214,18 +204,39 @@ namespace KunalsDiscordBot.Modules.Music
                 SkipRight = new DiscordButtonComponent(ButtonStyle.Secondary, "rightskip", "Last", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":fast_forward:")))
             };
 
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, buttons, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, buttons, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
+
+        [Command("Pause")]
+        [Description("Pauses the player")]
+        [DJCheck, UserVCNeeded,BotVCNeeded]
+        public async Task Pause(CommandContext ctx) => await ctx.RespondAsync(await service.Pause(ctx.Guild.Id)).ConfigureAwait(false);
+
+        [Command("Resume")]
+        [Description("Resumes the player")]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
+        public async Task Resume(CommandContext ctx) => await ctx.RespondAsync(await service.Resume(ctx.Guild.Id));
+
+        [Command("Loop")]
+        [Description("Toggles if the current track should loop or not")]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
+        public async Task Loop(CommandContext ctx) => await ctx.RespondAsync(await service.Loop(ctx.Guild.Id)).ConfigureAwait(false);
+
+        [Command("QueueLoop")]
+        [Aliases("ql")]
+        [Description("Toggles if the queue should loop or not, this does not include the track being played")]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
+        public async Task QueueLoop(CommandContext ctx) => await ctx.RespondAsync(await service.QueueLoop(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("Remove")]
         [Description("Removes a search from the queue")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Remove(CommandContext ctx, int index) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Remove(ctx.Guild.Id, index)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Remove(CommandContext ctx, int index) => await ctx.RespondAsync(await service.Remove(ctx.Guild.Id, index)).ConfigureAwait(false);
 
         [Command("Skip")]
         [Description("Skips the current track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Skip(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Skip(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Skip(CommandContext ctx) => await ctx.RespondAsync(await service.Skip(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("NowPlaying")]
         [Aliases("np")]
@@ -235,32 +246,32 @@ namespace KunalsDiscordBot.Modules.Music
         [Command("Move")]
         [Description("Moves a track around")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Move(CommandContext ctx, int trackToMove, int newPosition) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Move(ctx.Guild.Id, trackToMove, newPosition)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Move(CommandContext ctx, int trackToMove, int newPosition) => await ctx.RespondAsync(await service.Move(ctx.Guild.Id, trackToMove, newPosition)).ConfigureAwait(false);
 
         [Command("Clear")]
         [Description("Clears the track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Clear(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Skip(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Clear(CommandContext ctx) => await ctx.RespondAsync(await service.ClearQueue(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("PlayFrom")]
         [Aliases("pf", "seek")]
         [Description("Starts playing from a specified position")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Seek(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Seek(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(await service.Seek(ctx.Guild.Id, span)).ConfigureAwait(false);
 
         [Command("Forward")]
         [Description("Make the track move forward")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Forward(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span, true)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Forward(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(await service.Seek(ctx.Guild.Id, span, true)).ConfigureAwait(false);
 
         [Command("Rewind")]
         [Description("Rewind the track")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Rewind(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Seek(ctx.Guild.Id, span.Negate(), true)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Rewind(CommandContext ctx, TimeSpan span) => await ctx.RespondAsync(await service.Seek(ctx.Guild.Id, span.Negate(), true)).ConfigureAwait(false);
 
         [Command("Clean")]
         [Description("Cleans the queue. If a track is in the queue and the user who requested is not in the channel, the track is removed")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
-        public async Task Clean(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder().WithDescription(await service.Clean(ctx.Guild.Id)).WithFooter($"User: {ctx.Member.DisplayName}").WithColor(ModuleInfo.Color)).ConfigureAwait(false);
+        public async Task Clean(CommandContext ctx) => await ctx.RespondAsync(await service.Clean(ctx.Guild.Id)).ConfigureAwait(false);
     }
 }

@@ -5,13 +5,23 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 
+using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.MusicCommands;
 
 namespace KunalsDiscordBot.Services.Music
 {
     public class MusicService : IMusicService
     {
-        public static Dictionary<ulong, VCPlayer> players = new Dictionary<ulong, VCPlayer>();
+        public Dictionary<ulong, VCPlayer> players { get; private set; } = new Dictionary<ulong, VCPlayer>();
+        public MusicModuleData moduleData;
+
+        public MusicService(PepperConfigurationManager configurationManager, ModuleService moduleService)
+        {
+            moduleData = configurationManager.musicConfig;
+
+            moduleData.color = moduleService.ModuleInfo[ConfigValueSet.Music].Color;
+        }
 
         public async Task<string> ClearQueue(ulong id)
         {
@@ -27,7 +37,7 @@ namespace KunalsDiscordBot.Services.Music
 
         public async Task<string> CreatePlayer(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension, DiscordChannel _channel, DiscordChannel _boundChannel)
         {
-            var player = new VCPlayer(id, nodeConnection, extension);
+            var player = new VCPlayer(moduleData, nodeConnection, extension);
 
             players.Add(id, player);
             player.OnDisconnect.WithEvent(() => players.Remove(id));
