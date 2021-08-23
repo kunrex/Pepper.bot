@@ -17,6 +17,7 @@ using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
@@ -37,7 +38,7 @@ namespace KunalsDiscordBot.Modules.General
         private readonly IServerService serverService;
         private readonly IConfigurationService configService;
 
-        public GeneralCommands(IServerService service, IConfigurationService _configService, ModuleService moduleService)
+        public GeneralCommands(IServerService service, IConfigurationService _configService, IModuleService moduleService)
         {
             serverService = service;
             configService = _configService;
@@ -98,7 +99,7 @@ namespace KunalsDiscordBot.Modules.General
             foreach (var option in reactions)
                 await pollMessage.CreateReactionAsync(option).ConfigureAwait(false);
 
-            await ctx.Channel.SendMessageAsync($"The poll :{poll} has begun").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"The poll: `{poll}` has begun").ConfigureAwait(false);
 
             var result = await interactivity.CollectReactionsAsync(pollMessage, duration).ConfigureAwait(false);
 
@@ -177,7 +178,8 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("AboutMe")]
         [Description("Allow me to intorduce myself :D")]
-        public async Task AboutMe(CommandContext ctx) => await ctx.Channel.SendMessageAsync(BotService.GetBotInfo(ctx.Client, ctx.Member, 30)).ConfigureAwait(false);
+        public async Task AboutMe(CommandContext ctx) => await ctx.Channel.SendMessageAsync((await configService.GetPepperBotInfo(ctx.Client.Guilds.Count, ctx.Client.ShardCount, ctx.Client.ShardId))
+            .WithFooter($"User: {ctx.Member.DisplayName}").WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, Height, Width)).ConfigureAwait(false);
 
         [Command("Configuration")]
         [Aliases("Config")]

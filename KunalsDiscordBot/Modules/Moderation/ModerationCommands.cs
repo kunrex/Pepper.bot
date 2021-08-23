@@ -12,6 +12,7 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.Configurations.Enums;
@@ -33,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         private readonly IModerationService modService;
         private readonly IServerService serverService;
 
-        public ModerationCommands(IModerationService moderationService, IServerService _serverService, ModuleService moduleService)
+        public ModerationCommands(IModerationService moderationService, IServerService _serverService, IModuleService moduleService)
         {
             modService = moderationService;
             serverService = _serverService;

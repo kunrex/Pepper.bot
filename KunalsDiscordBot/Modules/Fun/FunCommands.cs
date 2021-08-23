@@ -12,11 +12,12 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Core.Modules;
-using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services.Fun;
+using KunalsDiscordBot.Core.Modules;
+using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
@@ -41,7 +42,7 @@ namespace KunalsDiscordBot.Modules.Fun
         private readonly IServerService serverService;
         private readonly IFunService funService;
 
-        public FunCommands(PepperConfigurationManager configManager, RedditApp reddit, IServerService _serverService, IFunService _funService, ModuleService moduleService)
+        public FunCommands(PepperConfigurationManager configManager, RedditApp reddit, IServerService _serverService, IFunService _funService, IModuleService moduleService)
         {
             funData = configManager.funData;
             redditApp = reddit;
@@ -271,7 +272,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [Command("LetMeGoogleThatForYou")]
         [Description("For those who can't google things for themselves")]
         [Aliases("Google")]
-        public async Task Google(CommandContext ctx, string search) => await ctx.RespondAsync("http://lmgtfy.com/?q=" + new Regex("[ ]{1,}", RegexOptions.None).Replace(search, "+")).ConfigureAwait(false);
+        public async Task Google(CommandContext ctx, [RemainingText] string search) => await ctx.RespondAsync("http://lmgtfy.com/?q=" + new Regex("[ ]{1,}", RegexOptions.None).Replace(search, "+")).ConfigureAwait(false);
 
         [Command("Guess")]
         [Description("Guess a random number")]

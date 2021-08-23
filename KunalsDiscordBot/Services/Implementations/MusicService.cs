@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.MusicCommands;
@@ -16,7 +17,7 @@ namespace KunalsDiscordBot.Services.Music
         public Dictionary<ulong, VCPlayer> players { get; private set; } = new Dictionary<ulong, VCPlayer>();
         public MusicModuleData moduleData;
 
-        public MusicService(PepperConfigurationManager configurationManager, ModuleService moduleService)
+        public MusicService(PepperConfigurationManager configurationManager, IModuleService moduleService)
         {
             moduleData = configurationManager.musicConfig;
 

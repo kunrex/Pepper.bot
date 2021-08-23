@@ -1,4 +1,5 @@
 ﻿{
   "maxQueueLength": 30,
-  "inactivityLength" : 2
+  "inactivityLength": 2,
+  "queuePageLimit" : 7  
 }

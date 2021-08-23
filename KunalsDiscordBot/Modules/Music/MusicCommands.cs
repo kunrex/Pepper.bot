@@ -19,6 +19,7 @@ using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.MusicCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
@@ -36,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Music
         private readonly IMusicService service;
         private readonly IServerService serverService;
 
-        public MusicCommands(IMusicService _service, IServerService _serverService, ModuleService moduleService)
+        public MusicCommands(IMusicService _service, IServerService _serverService, IModuleService moduleService)
         {
             service = _service;
             serverService = _serverService;

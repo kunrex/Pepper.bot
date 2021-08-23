@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -23,43 +24,42 @@ using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
+using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
-using System.Text;
 
 namespace KunalsDiscordBot
 {
     public class PepperBot
     {
-        public DiscordClient client { get; private set; }
-
-        public CommandsNextExtension commands { get; private set; }
+        public DiscordClient Client { get; private set; }
+        public CommandsNextExtension Commands { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
 
-        public LavalinkExtension lavaLink { get; private set; }
-        public LavalinkConfiguration lavaLinkConfig { get; private set; }
+        public LavalinkExtension LavaLink { get; private set; }
+        public LavalinkConfiguration LavaLinkConfig { get; private set; }
 
-        public IServiceProvider services { get; private set; }
-        public PepperBotConfig configuration { get; private set; }
+        public IServiceProvider Services { get; private set; }
+        public PepperBotConfig Configuration { get; private set; }
 
-        public int shardId { get; set; }
+        public int ShardId { get; private set; }
 
-        public PepperBot (IServiceProvider _services, PepperBotConfig config, int _shardId)
+        public PepperBot (IServiceProvider _services, PepperBotConfig _config, int _shardId)
         {
-            configuration = config;
-            services = _services;
-            shardId = _shardId;
+            Configuration = _config;
+            Services = _services;
+            ShardId = _shardId;
 
-            client = new DiscordClient(new DiscordConfiguration
+            Client = new DiscordClient(new DiscordConfiguration
             {
-                Token = configuration.discordConfig.token,
+                Token = Configuration.discordConfig.token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
-                ShardCount = config.discordConfig.shardCount,
-                ShardId = shardId,
+                ShardCount = Configuration.discordConfig.shardCount,
+                ShardId = ShardId,
 
                 LargeThreshold = 250,
                 GatewayCompressionLevel = GatewayCompressionLevel.Stream
@@ -67,68 +67,67 @@ namespace KunalsDiscordBot
                 UseInternalLogHandler = true*/
             });
 
-            client.UseInteractivity(new InteractivityConfiguration
+            Client.UseInteractivity(new InteractivityConfiguration
             {
-                Timeout = TimeSpan.FromSeconds(configuration.discordConfig.timeOut),
-                AckPaginationButtons = true,
+                Timeout = TimeSpan.FromSeconds(Configuration.discordConfig.timeOut),
+                AckPaginationButtons = true
             });
 
-            client.GuildCreated += OnGuildCreated;
-            client.GuildDeleted += OnGuildDeleted;
-            client.GuildMemberAdded += OnGuildMemberAdded;
-            client.GuildMemberRemoved += OnGuildMemberRemoved;
+            Client.GuildCreated += OnGuildCreated;
+            Client.GuildDeleted += OnGuildDeleted;
+            Client.GuildMemberAdded += OnGuildMemberAdded;
+            Client.GuildMemberRemoved += OnGuildMemberRemoved;
 
             var endPoint = new ConnectionEndpoint
             {
-                Hostname = configuration.lavalinkConfig.hostname,
-                Port = configuration.lavalinkConfig.port
+                Hostname = Configuration.lavalinkConfig.hostname,
+                Port = Configuration.lavalinkConfig.port
             };
 
-            lavaLinkConfig = new LavalinkConfiguration
+            LavaLinkConfig = new LavalinkConfiguration
             {
-                Password = configuration.lavalinkConfig.password,
+                Password = Configuration.lavalinkConfig.password,
                 RestEndpoint = endPoint,
                 SocketEndpoint = endPoint
             };
 
-            lavaLink = client.UseLavalink();
+            LavaLink = Client.UseLavalink();
 
-            CommandsNextConfiguration commandsConfig = new CommandsNextConfiguration
+            Commands = Client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = configuration.discordConfig.prefixes,
-                EnableDms = configuration.discordConfig.dms,
+                StringPrefixes = Configuration.discordConfig.prefixes,
+                EnableDms = Configuration.discordConfig.dms,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = _services,
                 DmHelp = false,
-            };
+            });
 
-            commands = client.UseCommandsNext(commandsConfig);
-            commands.CommandErrored += CommandErrored;
+            Commands.CommandErrored += CommandErrored;
 
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
-                commands.RegisterCommands(type);
+                Commands.RegisterCommands(type);
 
-            commands.SetHelpFormatter<HelpFormatter>();
+            Commands.SetHelpFormatter<HelpFormatter>();
 
-            commands.RegisterConverter(new BoolArgumentConverter());
-            commands.RegisterConverter(new TimeSpanArgumentConverter());
-            commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
-            commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
-            commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
+            Commands.RegisterConverter(new BoolArgumentConverter());
+            Commands.RegisterConverter(new TimeSpanArgumentConverter());
+            Commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
+            Commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
+            Commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
         }
 
         public async Task ConnectAsync()
         {
-            await client.ConnectAsync(new DiscordActivity
+            await Client.ConnectAsync(new DiscordActivity
             {
-                Name = configuration.discordConfig.activityText,
-                ActivityType = (ActivityType)configuration.discordConfig.activityType
+                Name = Configuration.discordConfig.activityText,
+                ActivityType = (ActivityType)Configuration.discordConfig.activityType
             });
 
             try
             {
-                await lavaLink.ConnectAsync(lavaLinkConfig);
+                await LavaLink.ConnectAsync(LavaLinkConfig);
                 Console.WriteLine("Lavalink connection success");
             }
             catch
@@ -145,10 +144,10 @@ namespace KunalsDiscordBot
 
         private async Task CheckModerationMutes()
         {
-            var modService = (IModerationService)services.GetService(typeof(IModerationService));
-            var serverService = (IServerService)services.GetService(typeof(IServerService));
+            var modService = (IModerationService)Services.GetService(typeof(IModerationService));
+            var serverService = (IServerService)Services.GetService(typeof(IServerService));
 
-            foreach (var guild in client.Guilds.Where(x => x.Value.Permissions.HasValue).Where(x => (x.Value.Permissions & Permissions.Administrator) == Permissions.Administrator))//all servers where the bot is an admin
+            foreach (var guild in Client.Guilds.Where(x => x.Value.Permissions.HasValue).Where(x => (x.Value.Permissions & Permissions.Administrator) == Permissions.Administrator))//all servers where the bot is an admin
             {
                 ulong id = (ulong)(await serverService.GetModerationData(guild.Value.Id)).MutedRoleId;
                 var role = guild.Value.Roles.FirstOrDefault(x => x.Value.Id == id).Value;
@@ -176,7 +175,7 @@ namespace KunalsDiscordBot
             DiscordEmbedBuilder embed = null;
 
             var exception = e.Exception;
-            var serverService = (IServerService)services.GetService(typeof(IServerService));
+            var serverService = (IServerService)Services.GetService(typeof(IServerService));
             var profile = await serverService.GetServerProfile(e.Context.Guild.Id);
 
             var log = profile.LogErrors == 1;
@@ -188,7 +187,7 @@ namespace KunalsDiscordBot
                     Title = "The given command wasn't found",
                     Description = $"Did you mispell something? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("You gotta use a command that exists", configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", Configuration.discordConfig.errorLink);
             }
             else if (exception is InvalidOverloadException && log)
             {
@@ -197,7 +196,7 @@ namespace KunalsDiscordBot
                     Title = "No version of the command uses has these parameters",
                     Description = $"Did you miss a parameter? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("You gotta use a command that exists", configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", Configuration.discordConfig.errorLink);
             }
             else if (exception is CustomCommandException)//ignore
             { }
@@ -246,7 +245,7 @@ namespace KunalsDiscordBot
                     Title = title,
                     Description = description,
                     Color = DiscordColor.Red
-                }.WithFooter(footer, configuration.discordConfig.errorLink);
+                }.WithFooter(footer, Configuration.discordConfig.errorLink);
             }
             else if(log)
             {
@@ -255,7 +254,7 @@ namespace KunalsDiscordBot
                     Title = "A problem occured while executing the command",
                     Description = $"Exception: {exception.Message} at {Formatter.InlineCode(e.Command.QualifiedName)}",
                     Color = DiscordColor.Red,
-                }.WithFooter("Well that wasn't supposed to happen", configuration.discordConfig.errorLink);
+                }.WithFooter("Well that wasn't supposed to happen", Configuration.discordConfig.errorLink);
             }
 
             await e.Context.RespondAsync(embed).ConfigureAwait(false);
@@ -269,11 +268,14 @@ namespace KunalsDiscordBot
                 if (channel == null)
                     return;
 
-                await channel.SendMessageAsync(BotService.GetBotInfo(s, null, 30)).ConfigureAwait(false);
-                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var configService = (IConfigurationService)Services.GetService(typeof(IConfigurationService));
+                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId))
+                    .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
 
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
                 await serverService.CreateServerProfile(e.Guild.Id);
             });
+
             return Task.CompletedTask;
         }
 
@@ -281,8 +283,8 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)services.GetService(typeof(IServerService));
-                var modService = (IModerationService)services.GetService(typeof(IModerationService));
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
+                var modService = (IModerationService)Services.GetService(typeof(IModerationService));
 
                 var profile = await serverService.GetServerProfile(e.Guild.Id);
           
@@ -305,7 +307,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
                 var profile = await serverService.GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
@@ -335,7 +337,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)services.GetService(typeof(IServerService));
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
                 var profile = await serverService.GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)

@@ -1,20 +1,23 @@
 ﻿using System;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+
 using DiscordBotDataBase.Dal;
+
+using KunalsDiscordBot.Core.Reddit;
+using KunalsDiscordBot.Services.Fun;
+using KunalsDiscordBot.Services.Music;
+using KunalsDiscordBot.Services.Games;
+using KunalsDiscordBot.Services.Images;
+using KunalsDiscordBot.Services.Modules;
+using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Services.Moderation;
-using KunalsDiscordBot.Services.Images;
-using KunalsDiscordBot.Services.General;
-using KunalsDiscordBot.Services.Music;
-using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Configuration;
-using KunalsDiscordBot.Services.Games;
-using KunalsDiscordBot.Services.Fun;
-using KunalsDiscordBot.Services;
 
 namespace KunalsDiscordBot
 {
@@ -34,7 +37,7 @@ namespace KunalsDiscordBot
 
             services.AddSingleton(configManager)
                 .AddSingleton(new RedditApp(configManager))
-                .AddSingleton<ModuleService>()
+                .AddSingleton<IModuleService, ModuleService>()
                 .AddScoped<IProfileService, ProfileService>()
                 .AddScoped<IModerationService, ModerationService>()
                 .AddScoped<IImageService, ImageService>()
@@ -53,7 +56,7 @@ namespace KunalsDiscordBot
             var serviceProvider = services.BuildServiceProvider();
 
             var botManager = new PepperBotClientManager(serviceProvider);
-            services.AddSingleton(botManager);
+            services.AddSingleton(botManager).BuildServiceProvider();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment environment) => Console.WriteLine("InConfigure");

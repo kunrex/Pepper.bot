@@ -13,6 +13,7 @@ using DSharpPlus.CommandsNext.Attributes;
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.MathCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
@@ -30,7 +31,7 @@ namespace KunalsDiscordBot.Modules.Math
 
         private readonly Dictionary<string, string> attributes;
 
-        public MathCommands(PepperConfigurationManager configManager, ModuleService moduleService)
+        public MathCommands(PepperConfigurationManager configManager, IModuleService moduleService)
         {
             attributes = configManager.graphAttributes;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Math];

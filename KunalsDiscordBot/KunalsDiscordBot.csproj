@@ -16,12 +16,6 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Google.Apis" Version="1.51.0" />
-    <PackageReference Include="Google.Apis.Core" Version="1.51.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.51.0" />
-    <PackageReference Include="Google.Api.Gax" Version="3.3.0" />
-    <PackageReference Include="GoogleApi" Version="3.10.9" />
-    <PackageReference Include="Google.Apis.YouTube.v3" Version="1.51.0.2343" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />

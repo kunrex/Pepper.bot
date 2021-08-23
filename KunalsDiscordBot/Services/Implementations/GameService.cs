@@ -82,7 +82,7 @@ namespace KunalsDiscordBot.Services.Games
                     if (battleShipMatch == null)
                         return false;
 
-                    return await battleShipMatch.AddSpectator(specator); ;
+                    return await battleShipMatch.AddSpectator(specator); 
                 case var x when x == typeof(UNOGame):
                     var unoMatch = UNOMatches.FirstOrDefault(x => x.players.FirstOrDefault(x => x.member.Id == id) != null);
                     if (unoMatch == null)

@@ -12,6 +12,7 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
@@ -36,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Currency
         private readonly IProfileService service;
         private readonly CurrencyModuleData data;
 
-        public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager, ModuleService moduleService)
+        public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager, IModuleService moduleService)
         {
             service = _service;
             data = configurationManager.currenyConfig;

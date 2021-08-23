@@ -15,6 +15,7 @@ using KunalsDiscordBot.Services.Games;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Modules.GameCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.GameCommands;
@@ -34,7 +35,7 @@ namespace KunalsDiscordBot.Modules.Games
         private readonly IServerService serverService;
         private readonly IGameService gameService;
 
-        public GameCommands(IServerService service, IGameService _gameService, ModuleService moduleService)
+        public GameCommands(IServerService service, IGameService _gameService, IModuleService moduleService)
         {
             serverService = service;
             gameService = _gameService;

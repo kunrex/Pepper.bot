@@ -10,10 +10,10 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Images;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
@@ -31,7 +31,7 @@ namespace KunalsDiscordBot.Modules.Images
 
         private readonly IImageService service;
 
-        public ImageCommands(IImageService _service, ModuleService moduleService)
+        public ImageCommands(IImageService _service, IModuleService moduleService)
         {
             service = _service;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Images];
@@ -45,7 +45,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             string[] sentences = new[] { message };
 
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
@@ -76,7 +76,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             string[] sentences = new[] { message };
 
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
@@ -105,7 +105,7 @@ namespace KunalsDiscordBot.Modules.Images
         public async Task Billy(CommandContext ctx, [RemainingText] string message)
         {
             string[] sentences = new[] { message };
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
@@ -137,7 +137,7 @@ namespace KunalsDiscordBot.Modules.Images
             if (sentences.Length < 3)
                 sentences = new[] { "Im going to use this command", "You're gonna split the 3 sentences with ,'s right?", "You will split them right?" };
 
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
@@ -165,16 +165,16 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Brother(CommandContext ctx, DiscordMember other)
         {
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
 
-            List<ImageGraphic> images = service.GetImages(new Dictionary<string, int>
+            List<ImageGraphic> images = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)>
             {
-                {ctx.Member.AvatarUrl, 3 },
-                {other.AvatarUrl, 1 }
-            });
+                (ctx.Member.AvatarUrl, 3 ),
+                (other.AvatarUrl, 1 )
+            }));
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
@@ -207,7 +207,7 @@ namespace KunalsDiscordBot.Modules.Images
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);
@@ -239,7 +239,7 @@ namespace KunalsDiscordBot.Modules.Images
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
-            string fileName = service.GetFileByCommand(ctx);
+            string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
             EditData editData = service.GetEditData(fileName);

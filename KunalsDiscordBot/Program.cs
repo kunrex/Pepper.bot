@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace KunalsDiscordBot
 {
-    static class Program
+    public static class Program
     {
         public static void Main(string[] args) => CreateHostBuilder(args).Build().Run();
 
@@ -12,7 +12,6 @@ namespace KunalsDiscordBot
             {
                 webBuilder.UseStartup<StartUp>();
             });
-
     }
 }
 

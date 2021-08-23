@@ -6,8 +6,8 @@ using System.Collections.Generic;
 
 using DSharpPlus.CommandsNext;
 
-using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Configurations;
+using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Exceptions.ImageCommands;
 
@@ -16,16 +16,17 @@ namespace KunalsDiscordBot.Services.Images
     public class ImageService : IImageService
     {
         private readonly EditData[] edits;
+
         public ImageService(PepperConfigurationManager configManager) => edits = configManager.imageData.edits;
 
         public EditData GetEditData(string fileName) => edits.FirstOrDefault(x => x.fileName == fileName);
 
-        public string GetFileByCommand(in CommandContext ctx)
+        public string GetFileByCommand(in Command command)
         {
-            var attribute = ctx.Command.CustomAttributes.FirstOrDefault(x => x is WithFileAttribute);
+            var attribute = command.CustomAttributes.FirstOrDefault(x => x is WithFileAttribute);
 
             if (attribute == null)
-                throw new WithFileAttributeMissingException(ctx.Command.Name);
+                throw new WithFileAttributeMissingException(command.Name);
 
             return ((WithFileAttribute)attribute).fileName;
         }
@@ -36,16 +37,17 @@ namespace KunalsDiscordBot.Services.Images
             brush = new SolidBrush(fontColor);
         }
 
-        public List<ImageGraphic> GetImages(Dictionary<string, int> urls)
+        public List<ImageGraphic> DownLoadImages(TupleBag<string, int> urls)
         {
             List<ImageGraphic> images = new List<ImageGraphic>();
+
             using (var client = new WebClient())
             {
-                foreach (var url in urls)
+                for(int i=0;i<urls.Count;i++)
                 {
-                    var image = new ImageGraphic(new MemoryStream(client.DownloadData(url.Key)));
+                    var image = new ImageGraphic(new MemoryStream(client.DownloadData(urls[i].Key)));
 
-                    for (int i = 0; i < url.Value; i++)
+                    for (int k = 0; k < urls[i].Value; k++)
                         images.Add(image);
                 }
             }

@@ -17,6 +17,7 @@ using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
+using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.Configurations.Enums;
@@ -36,7 +37,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         private readonly IModerationService modService;
         private readonly IServerService serverService;
 
-        public SoftModerationCommands(IModerationService moderationService, IServerService _serverService, ModuleService moduleService)
+        public SoftModerationCommands(IModerationService moderationService, IServerService _serverService, IModuleService moduleService)
         {
             modService = moderationService;
             serverService = _serverService;
