@@ -37,9 +37,9 @@ namespace KunalsDiscordBot.Services.Images
             brush = new SolidBrush(fontColor);
         }
 
-        public List<ImageGraphic> DownLoadImages(TupleBag<string, int> urls)
+        public ImageCollection DownLoadImages(TupleBag<string, int> urls)
         {
-            List<ImageGraphic> images = new List<ImageGraphic>();
+            var images = new ImageCollection();
 
             using (var client = new WebClient())
             {

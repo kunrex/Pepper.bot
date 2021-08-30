@@ -74,6 +74,7 @@
     <Folder Include="Core\Modules\CurrencyCommands\Shop\" />
     <Folder Include="Core\Modules\FunCommands\GhostPresence\" />
     <Folder Include="Core\Modules\FunCommands\Enums\" />
+    <Folder Include="Core\Modules\ImageCommands\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -132,6 +133,7 @@
     <None Remove="Core\Per Module\CurrencyCommands\Shop\" />
     <None Remove="Core\Per Module\FunCommands\GhostPresence\" />
     <None Remove="Core\Per Module\FunCommands\Enums\" />
+    <None Remove="Core\Modules\ImageCommands\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

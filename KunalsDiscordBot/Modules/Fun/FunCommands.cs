@@ -315,6 +315,7 @@ namespace KunalsDiscordBot.Modules.Fun
                 Title = subreddit.Name,
                 Description = $"**{subreddit.Title}**\n{subreddit.Description}",
                 Url = "https://www.reddit.com" + subreddit.URL,
+                Color = ModuleInfo.Color
             }.AddField("ID", subreddit.Id, true)
              .AddField("Full Name", subreddit.Fullname, true)
              .AddField("Language", string.IsNullOrWhiteSpace(subreddit.Lang) ? "Unspecified" : subreddit.Lang, true)

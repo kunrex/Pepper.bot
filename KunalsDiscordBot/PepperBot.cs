@@ -28,6 +28,7 @@ using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 
 namespace KunalsDiscordBot
@@ -115,6 +116,9 @@ namespace KunalsDiscordBot
             Commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
             Commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
             Commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
+            Commands.RegisterConverter(new EnumArgumentConverter<Colors>());
+            Commands.RegisterConverter(new EnumArgumentConverter<Deforms>());
+            Commands.RegisterConverter(new EnumArgumentConverter<ColorScales>());
         }
 
         public async Task ConnectAsync()

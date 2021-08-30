@@ -53,6 +53,36 @@
       "length": [ 220 ],
       "breadth": [ 70 ],
       "size": [ 20 ]
+    },
+    {
+      "fileName": "wanted.jpg",
+      "x": [ 118 ],
+      "y": [ 206 ],
+      "size": [ 185 ]
+    },
+    {
+      "fileName": "dinoJoke.png",
+      "x": [ 48, 414 ],
+      "y": [ 28, 19 ],
+      "length": [ 216, 248 ],
+      "breadth": [ 107, 66 ],
+      "size": [ 15, 15 ]
+    },
+    {
+      "fileName": "changeMyMind.jpeg",
+      "x": [ 301 ],
+      "y": [ 565 ],
+      "length": [ 495 ],
+      "breadth": [ 212 ],
+      "size": [ 30 ]
+    },
+    {
+      "fileName": "sleep.png",
+      "x": [ 29 ],
+      "y": [ 388 ],
+      "length": [ 339 ],
+      "breadth": [ 95 ],
+      "size": [ 20 ]
     }
   ]
 }

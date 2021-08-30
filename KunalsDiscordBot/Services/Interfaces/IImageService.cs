@@ -15,6 +15,6 @@ namespace KunalsDiscordBot.Services.Images
 
         public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, out Font font, out SolidBrush brush);
 
-        public List<ImageGraphic> DownLoadImages(TupleBag<string, int> urls);
+        public ImageCollection DownLoadImages(TupleBag<string, int> urls);
     }
 }

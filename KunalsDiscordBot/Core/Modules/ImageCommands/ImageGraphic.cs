@@ -1,68 +1,71 @@
 ﻿using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
+using System.Drawing.Drawing2D;
 
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
     public class ImageGraphic : CustomDisposable
     {
         public Image image { get; private set; }
-        public Graphics graphics { get; private set; }
 
-        public int width
+        public int Width
         {
             get => image.Width;
         }
 
-        public int height
+        public int Height
         {
             get => image.Height;
         }
 
-        public ImageGraphic(string filePath)
-        {
-            image = Bitmap.FromFile(filePath);
-            graphics = Graphics.FromImage(image);
-        }
+        public ImageGraphic(string filePath) => image = Bitmap.FromFile(filePath);
 
-        public ImageGraphic(Stream stream)
-        {
-            image = Bitmap.FromStream(stream);
-
-            if (image.IsIndexed())
-                using (var tempBitmap = new Bitmap(image.Width, image.Height))
-                {
-                    using (Graphics g = Graphics.FromImage(tempBitmap))
-                        g.DrawImage(image, 0, 0);
-
-                    image = new Bitmap(tempBitmap);
-                    graphics = Graphics.FromImage(image);
-                }
-            else
-                graphics = Graphics.FromImage(image);
-        }
+        public ImageGraphic(Stream stream) => image = Bitmap.FromStream(stream);
 
         public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush)
         {
-            graphics.DrawString(message, font, brush, new RectangleF(x, y, length, breadth));
+            using(var graphics = Graphics.FromImage(image))
+                graphics.DrawString(message, font, brush, new RectangleF(x, y, length, breadth));
 
             return Task.CompletedTask;
         }
 
         public Task DrawString(string message, int x, int y, Font font, Brush brush)
         {
-            graphics.DrawString(message, font, brush, new PointF(x, y));
+            using (var graphics = Graphics.FromImage(image))
+                graphics.DrawString(message, font, brush, new PointF(x, y));
 
             return Task.CompletedTask;
         }
 
         public Task DrawImage(ImageGraphic other, int x, int y, RectangleF rect, GraphicsUnit unit)
         {
-            graphics.DrawImage(other.image, x, y, rect, unit);
+            using (var graphics = Graphics.FromImage(image))
+                graphics.DrawImage(other.image, x, y, rect, unit);
+
+            return Task.CompletedTask;
+        }
+
+        public Task SetOpcaity(int opacity)
+        {
+            var bmap = (Bitmap)image;
+
+            for(int i =0;i<bmap.Width;i++)
+                for(int k = 0;k<bmap.Height;k++)
+                {
+                    var color = bmap.GetPixel(i, k);
+                    var newColor = Color.FromArgb(opacity, color);
+
+                    bmap.SetPixel(i, k, newColor);
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
 
             return Task.CompletedTask;
         }
@@ -123,6 +126,114 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             return Task.CompletedTask;
         }
 
+        public Task ColorScale(Colors color)
+        {
+            Bitmap bmap = (Bitmap)image;
+            Color c;
+
+            for (int i = 0; i < bmap.Width; i++)
+                for (int j = 0; j < bmap.Height; j++)
+                {
+                    c = bmap.GetPixel(i, j);
+                    Color newColor = c.ColorScale(color);
+                    bmap.SetPixel(i, j, newColor);
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        public Task GrayScale()
+        {
+            Bitmap bmap = (Bitmap)image;
+            Color c;
+
+            for (int i = 0; i < bmap.Width; i++)
+                for (int j = 0; j < bmap.Height; j++)
+                {
+                    c = bmap.GetPixel(i, j);
+                    int grayScale = (int)((c.R * 0.3) + (c.G * 0.59) + (c.B * 0.11));
+                    bmap.SetPixel(i, j, Color.FromArgb(c.A, grayScale, grayScale, grayScale));
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        public Task Blur(int blurSize)
+        {
+            Bitmap bmap = (Bitmap)image;
+            Color c;
+
+            for (int x = 0; x < bmap.Width; x++)
+                for (int y = 0; y < bmap.Width; y++)
+                {
+                    int red = 0, blue = 0, green = 0, pixelCount = 0;
+
+                    for (int i = x; i < (x + blurSize) && i < bmap.Width; i++)
+                        for (int k = y; k < (y + blurSize) && k < bmap.Height; k++)
+                        {
+                            c = bmap.GetPixel(i, k);
+                            red += c.R;
+                            blue += c.B;
+                            green += c.G;
+                            pixelCount++;
+                        }
+
+                    red /= pixelCount;
+                    blue /= pixelCount;
+                    green /= pixelCount;
+
+                    for (int i = x; i < x + blurSize && i < bmap.Width; i++)
+                        for (int k = y; k < y + blurSize && k < bmap.Height; k++)
+                            bmap.SetPixel(i, k, Color.FromArgb(red, green, blue));
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        public Task Pixelate(int pixelSize)
+        {
+            Bitmap bmap = (Bitmap)image;
+            Color c;
+
+            for (int x = 0; x < bmap.Width; x+= pixelSize)
+                for (int y = 0; y < bmap.Width; y+= pixelSize)
+                {
+                    int red = 0, blue = 0, green = 0, pixelCount = 0;
+
+                    for(int i = x; i< x + pixelSize && i < bmap.Width; i++)
+                        for (int k = y; k < y + pixelSize && k < bmap.Height; k++)
+                        {
+                            c = bmap.GetPixel(x, y);
+                            red += c.R;
+                            blue += c.B;
+                            green += c.G;
+                            pixelCount++;
+                        }
+
+                    red /= pixelCount;
+                    blue /= pixelCount;
+                    green /= pixelCount;
+
+                    for (int i = x; i < x + pixelSize && i < bmap.Width; i++)
+                        for (int k = y; k < y + pixelSize && k < bmap.Height; k++)
+                            bmap.SetPixel(i, k, Color.FromArgb(red, green, blue));
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
+
+            return Task.CompletedTask;
+        }
+
         public Task<MemoryStream> ToMemoryStream()
         {
             var ms = new MemoryStream();
@@ -136,9 +247,6 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         {
             if(image != null)
                 image.Dispose();
-
-            if(graphics != null)
-                graphics.Dispose();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace KunalsDiscordBot.Core.Modules.FunCommands
             isSpamming = true;
         }
 
-        public SimpleBotEvent OnSpamEnded { get; private set; }
+        public SimpleBotEvent OnSpamEnded { get; private set; } = new SimpleBotEvent();
 
         public int time { get; private set; }
         public string message {get ; private set;}
