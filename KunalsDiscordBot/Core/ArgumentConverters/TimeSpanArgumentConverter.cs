@@ -13,31 +13,18 @@ namespace KunalsDiscordBot.Core.ArgumentConverters
 
         public Task<Optional<TimeSpan>> ConvertAsync(string value, CommandContext ctx)
         {
-            Console.WriteLine("hello");
-
             if (TimeSpan.TryParse(value, out var time))
                 return Task.FromResult(Optional.FromValue(TimeSpan.Parse(value)));
-            else if(value.Length < 3)
-            {
-                ctx.Channel.SendMessageAsync("Invalid value for a time span, defaulting to 1 day").ConfigureAwait(false);
-                return Task.FromResult(Optional.FromValue(TimeSpan.FromDays(1)));
-            }
 
             var regexp = new System.Text.RegularExpressions.Regex(regexString);
             if (!regexp.IsMatch(value))
-            {
-                ctx.Channel.SendMessageAsync("Invalid value for a time span, defaulting to 1 day").ConfigureAwait(false);
-                return Task.FromResult(Optional.FromValue(TimeSpan.FromDays(1)));
-            }
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
             string unit = value.Substring(value.Length - 2);
             string magnitude = value.Substring(0, value.Length - 2);
 
             if (!int.TryParse(magnitude, out var val))
-            {
-                ctx.Channel.SendMessageAsync("Invalid value for a time span, defaulting to 1 day").ConfigureAwait(false);
-                return Task.FromResult(Optional.FromValue(TimeSpan.FromDays(1)));
-            }
+                return Task.FromResult(Optional.FromNoValue<TimeSpan>());
 
             int magnitudeToInt = int.Parse(magnitude);
             switch(unit)
@@ -57,8 +44,7 @@ namespace KunalsDiscordBot.Core.ArgumentConverters
                 case "yr":
                     return Task.FromResult(Optional.FromValue(TimeSpan.FromDays(magnitudeToInt * 365)));
                 default:
-                    ctx.Channel.SendMessageAsync("Invalid value for a time span, defaulting to 1 day");
-                    return Task.FromResult(Optional.FromValue(TimeSpan.FromDays(1)));
+                    return Task.FromResult(Optional.FromNoValue<TimeSpan>());
             }
         }
     }

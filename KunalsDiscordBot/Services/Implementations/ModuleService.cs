@@ -34,8 +34,8 @@ namespace KunalsDiscordBot.Services.Modules
                 modules.Add(type);
                 TotalCommands += type.GetMethods().Where(x => x.GetCustomAttribute<CommandAttribute>() != null).Count();
 
-                var valueSet = type.GetCustomAttribute<ConfigDataAttribute>().set;
-                if (ModuleInfo.ContainsKey(valueSet))
+                var attribute = type.GetCustomAttribute<ConfigDataAttribute>();
+                if (attribute == null || ModuleInfo.ContainsKey(attribute.set))
                     continue;
 
                 var info = new PepperCommandModuleInfo();
@@ -46,7 +46,7 @@ namespace KunalsDiscordBot.Services.Modules
                 var botPermissions = type.GetCustomAttribute<RequireBotPermissionsAttribute>();
                 info.Permissions = botPermissions == null ? Permissions.None : botPermissions.Permissions;
 
-                ModuleInfo.Add(valueSet, info);
+                ModuleInfo.Add(attribute.set, info);
             }
         }
     }

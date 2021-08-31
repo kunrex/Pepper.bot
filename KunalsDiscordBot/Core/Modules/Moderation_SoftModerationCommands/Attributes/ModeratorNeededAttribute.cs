@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Core.Attributes.ModerationCommands
                 var serverService = (IServerService)ctx.Services.GetService(typeof(IServerService));
                 var profile = await serverService.GetModerationData(ctx.Guild.Id);
 
-                if (profile.ModeratorRoleId == 0)
+                if (profile.ModeratorRoleId == 0 && !help)
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                         {
                             Description = "Note: This server does not have a registered Moderator role"

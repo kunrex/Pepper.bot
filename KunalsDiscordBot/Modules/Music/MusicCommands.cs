@@ -195,17 +195,7 @@ namespace KunalsDiscordBot.Modules.Music
             embeds.ForEach(x => x.WithFooter($"Page: {index++}, Requested By {ctx.Member.DisplayName}"));
 
             var pages = embeds.Select(x => new Page(null, x));
-
-            var buttons = new PaginationButtons()
-            {
-                Left = new DiscordButtonComponent(ButtonStyle.Primary, "left", "Left", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":arrow_backward:"))),
-                Right = new DiscordButtonComponent(ButtonStyle.Primary, "right", "Right", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":arrow_forward:"))),
-                Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", "Stop", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":stop_button:"))),
-                SkipLeft = new DiscordButtonComponent(ButtonStyle.Secondary, "leftskip", "First", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":rewind:"))),
-                SkipRight = new DiscordButtonComponent(ButtonStyle.Secondary, "rightskip", "Last", false, new DiscordComponentEmoji(DiscordEmoji.FromName(ctx.Client, ":fast_forward:")))
-            };
-
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, buttons, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Pause")]

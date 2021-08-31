@@ -27,7 +27,7 @@ namespace KunalsDiscordBot.Modules.Images
     [Group("Image")]
     [Decor("Chartreuse", ":camera:")]
     [ModuleLifespan(ModuleLifespan.Transient), Description("Image Manipulation! Make memes with pre-built and more!")]
-    [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks),ConfigData(ConfigValueSet.Images)]
+    [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks), ConfigData(ConfigValueSet.Images)]
     public class ImageCommands : PepperCommandModule
     {
         public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
@@ -509,7 +509,7 @@ namespace KunalsDiscordBot.Modules.Images
 
             Colors colorScaleColor = Colors.Red;
 
-            if (color != ColorScales.GrayScale)
+            if (color != ColorScales.GreyScale)
             {
                 await ctx.RespondAsync("What color would you like to colorize to?");
                 var result = await ctx.Client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromSeconds(10));
@@ -544,7 +544,7 @@ namespace KunalsDiscordBot.Modules.Images
 
                     switch (color)
                     {
-                        case ColorScales.GrayScale:
+                        case ColorScales.GreyScale:
                             await graphicalImage.GrayScale();
                             break;
                         case ColorScales.ColorScale:
@@ -574,7 +574,7 @@ namespace KunalsDiscordBot.Modules.Images
 
             Colors colorScaleColor = Colors.Red;
 
-            if (color != ColorScales.GrayScale)
+            if (color != ColorScales.GreyScale)
             {
                 await ctx.RespondAsync("What color would you like to colorize to?");
                 var result = await ctx.Client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromSeconds(10));
@@ -609,7 +609,7 @@ namespace KunalsDiscordBot.Modules.Images
 
                     switch (color)
                     {
-                        case ColorScales.GrayScale:
+                        case ColorScales.GreyScale:
                             await graphicalImage.GrayScale();
                             break;
                         case ColorScales.ColorScale:

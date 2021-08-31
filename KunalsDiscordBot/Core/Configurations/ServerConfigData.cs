@@ -29,7 +29,7 @@ namespace KunalsDiscordBot.Core.Configurations
             foreach(var module in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
             {
                 var attribute = module.GetCustomAttribute<ConfigDataAttribute>();
-                if (!ServerConfigValues.ContainsKey(attribute.set))
+                if (attribute == null || !ServerConfigValues.ContainsKey(attribute.set))
                     continue;
 
                 var name = module.GetCustomAttribute<GroupAttribute>().Name;

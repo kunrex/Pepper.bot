@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 using DiscordBotDataBase.Dal;
 
+using KunalsDiscordBot.Core.Help;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.Services.Music;

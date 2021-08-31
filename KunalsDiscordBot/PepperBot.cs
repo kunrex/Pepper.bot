@@ -16,7 +16,6 @@ using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Services;
-using KunalsDiscordBot.Core.Help;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Events;
@@ -24,6 +23,7 @@ using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
+using DSharpPlus.Interactivity.EventHandling;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.FunCommands;
@@ -71,7 +71,15 @@ namespace KunalsDiscordBot
             Client.UseInteractivity(new InteractivityConfiguration
             {
                 Timeout = TimeSpan.FromSeconds(Configuration.discordConfig.timeOut),
-                AckPaginationButtons = true
+                AckPaginationButtons = true,
+                PaginationButtons = new PaginationButtons()
+                {
+                    Left = new DiscordButtonComponent(ButtonStyle.Primary, "left", "Left", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":arrow_backward:"))),
+                    Right = new DiscordButtonComponent(ButtonStyle.Primary, "right", "Right", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":arrow_forward:"))),
+                    Stop = new DiscordButtonComponent(ButtonStyle.Danger, "stop", "Stop", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":stop_button:"))),
+                    SkipLeft = new DiscordButtonComponent(ButtonStyle.Secondary, "leftskip", "First", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":rewind:"))),
+                    SkipRight = new DiscordButtonComponent(ButtonStyle.Secondary, "rightskip", "Last", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":fast_forward:")))
+                }
             });
 
             Client.GuildCreated += OnGuildCreated;
@@ -102,14 +110,13 @@ namespace KunalsDiscordBot
                 CaseSensitive = false,
                 Services = _services,
                 DmHelp = false,
+                EnableDefaultHelp = false
             });
 
             Commands.CommandErrored += CommandErrored;
 
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
                 Commands.RegisterCommands(type);
-
-            Commands.SetHelpFormatter<HelpFormatter>();
 
             Commands.RegisterConverter(new BoolArgumentConverter());
             Commands.RegisterConverter(new TimeSpanArgumentConverter());

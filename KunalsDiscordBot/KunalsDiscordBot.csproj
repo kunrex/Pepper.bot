@@ -75,6 +75,7 @@
     <Folder Include="Core\Modules\FunCommands\GhostPresence\" />
     <Folder Include="Core\Modules\FunCommands\Enums\" />
     <Folder Include="Core\Modules\ImageCommands\Enums\" />
+    <Folder Include="Modules\Help\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -134,6 +135,7 @@
     <None Remove="Core\Per Module\FunCommands\GhostPresence\" />
     <None Remove="Core\Per Module\FunCommands\Enums\" />
     <None Remove="Core\Modules\ImageCommands\Enums\" />
+    <None Remove="Modules\Help\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

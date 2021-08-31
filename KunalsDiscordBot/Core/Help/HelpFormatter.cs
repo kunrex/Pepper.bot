@@ -13,7 +13,7 @@ using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Core.Help
 {
-    public class HelpFormatter : BaseHelpFormatter
+    public class HelpFormatter 
     {
         private string Title { get; set; }
         private string Description { get; set; }
@@ -29,7 +29,6 @@ namespace KunalsDiscordBot.Core.Help
         private FieldData Cooldown { get; set; }
         private FieldData BotPerms { get; set; }
         private FieldData UserPerms { get; set; }
-        private FieldData ExecutionRequirements { get; set; }
 
         private bool IsCommand { get; set; } = false;
         private bool IsModule { get; set; } = false;
@@ -37,11 +36,11 @@ namespace KunalsDiscordBot.Core.Help
 
         private string Footer { get; set; } = string.Empty;
 
-        public HelpFormatter(CommandContext ctx) : base(ctx) => Footer = $"User: {ctx.Member.DisplayName} at {DateTime.Now}";
+        public HelpFormatter(string displayName) => Footer = $"User: {displayName} at {DateTime.Now}";
 
-        public override CommandHelpMessage Build()
+        public DiscordEmbedBuilder Build()
         {
-            var Embed = new DiscordEmbedBuilder
+            var embed = new DiscordEmbedBuilder
             {
                 Title = Title,
                 Description = Description,
@@ -50,30 +49,30 @@ namespace KunalsDiscordBot.Core.Help
             };
 
             if (IsModule)
-                Embed.AddField(Commands.name, Commands.value, false);
+                embed.AddField(Commands.name, Commands.value, false);
 
             if (IsGeneralHelp)
                 foreach (var field in Fields)
-                    Embed.AddField(field.name, field.value, field.inline);
+                    embed.AddField(field.name, field.value, field.inline);
             else
             {
-                Embed.AddField(Aliases.name, Aliases.value, false);
-                Embed.AddField(Module.name, Module.value, false);
+                embed.AddField(Aliases.name, Aliases.value, false);
+                embed.AddField(Module.name, Module.value, false);
 
-                Embed.AddField(BotPerms.name, BotPerms.value, true);
-                Embed.AddField(UserPerms.name, UserPerms.value, true);
+                embed.AddField(BotPerms.name, BotPerms.value, true);
+                embed.AddField(UserPerms.name, UserPerms.value, true);
             }
 
             if (IsCommand && !IsModule)
             {
-                Embed.AddField(Cooldown.name, Cooldown.value, false);
-                Embed.AddField(Overloads.name, Overloads.value, false);
+                embed.AddField(Cooldown.name, Cooldown.value, false);
+                embed.AddField(Overloads.name, Overloads.value, false);
             }
 
-            return new CommandHelpMessage(embed: Embed);
+            return embed;
         }
 
-        public override BaseHelpFormatter WithCommand(Command command)
+        public HelpFormatter WithCommand(Command command)
         {
             IsCommand = true;
 
@@ -99,7 +98,7 @@ namespace KunalsDiscordBot.Core.Help
             return this;
         }
 
-        public override BaseHelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
+        public HelpFormatter WithSubcommands(IEnumerable<Command> subcommands)
         {
             Command[] commands = subcommands.ToArray();
             if (commands[0].Parent != null)//checks if a module or sub module was specified

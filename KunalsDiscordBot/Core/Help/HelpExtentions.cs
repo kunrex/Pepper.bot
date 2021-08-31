@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using DSharpPlus;
@@ -13,9 +14,22 @@ namespace KunalsDiscordBot.Extensions
 {
     public static partial class PepperBotExtensions
     {
+        public static Dictionary<string, Command> FilteredRegisteredCommands(this CommandsNextExtension commandsNext)
+        {
+            var dictionary = new Dictionary<string, Command>();
+
+            foreach (var elemant in commandsNext.RegisteredCommands)
+                if (dictionary.FirstOrDefault(x => x.Value.Name == elemant.Value.Name).Value == null)
+                    dictionary.Add(elemant.Key, elemant.Value);
+
+            return dictionary;
+        }
+
+        public static IEnumerable<Command> GetModules(this IEnumerable<Command> commands) => commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) != null);
+
         public static IEnumerable<FieldData> FormatModules(this Command[] commands)
         {
-            foreach (var command in commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) != null))//get all modules, ignore help command
+            foreach (var command in commands.GetModules())//get all modules, ignore help command
             {
                 var decor = (DecorAttribute)command.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
                 yield return new FieldData { name = $"• **{command.Name.Format()}** {(decor == null ? "" : decor.emoji)}\n", value = $"Description: {command.Description}\n\n" };
