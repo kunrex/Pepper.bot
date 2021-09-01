@@ -35,7 +35,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
             int boost = Data.GetBoost();
             int time = Data.GetBoostTime();
 
-            await service.AddOrRemoveBoost(member.Id, Data.Type.ToString(), boost, time, DateTime.Now.ToString("dddd, dd MMMM yyyy"), 1);
+            await service.AddOrRemoveBoost(member.Id, Data.Type.ToString(), boost, TimeSpan.FromHours(Data.GetBoostTime()), DateTime.Now.ToString("dddd, dd MMMM yyyy"), 1);
             await service.AddOrRemoveItem(member.Id, Name, -1).ConfigureAwait(false);
 
             return new UseResult

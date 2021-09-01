@@ -335,10 +335,9 @@ namespace KunalsDiscordBot
                 {
                     Title = $"Everybody Welcome {e.Member.Username}!",
                     Description = $"Hey there {e.Member.Username}, welcome to the server! {(profile.RulesChannelId == 0 ? "" : $"Check out the rules at {(e.Guild.Channels.FirstOrDefault(x => x.Value.Id == (ulong) profile.RulesChannelId)).Value.Mention}")}",
-                    Thumbnail = BotService.GetEmbedThumbnail(e.Member, 30),
-                    Footer = BotService.GetEmbedFooter($"At {DateTime.Now}"),
                     Color = DiscordColor.SpringGreen
-                }).ConfigureAwait(false);
+                }.WithThumbnail(e.Member.AvatarUrl, 10, 10)
+                 .WithFooter($"At {DateTime.Now}")).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;
@@ -365,10 +364,9 @@ namespace KunalsDiscordBot
                 {
                     Title = $"See You Later {e.Member.Username}!",
                     Description = $"Hope you had a great time",
-                    Thumbnail = BotService.GetEmbedThumbnail(e.Member, 30),
-                    Footer = BotService.GetEmbedFooter($"At {DateTime.Now}"),
                     Color = DiscordColor.CornflowerBlue
-                }).ConfigureAwait(false);
+                }.WithThumbnail(e.Member.AvatarUrl, 10, 10)
+                 .WithFooter($"At {DateTime.Now}")).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;

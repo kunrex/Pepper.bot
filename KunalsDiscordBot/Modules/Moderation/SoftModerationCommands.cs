@@ -59,9 +59,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Description = $"There is no muted role stored for server: {ctx.Guild.Name}. Use the `soft moderation setmuterole` command to do so",
-                        Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
                         Color = ModuleInfo.Color
-                    }).ConfigureAwait(false);
+                    }.WithFooter($"Moderator: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
 
                     throw new CustomCommandException();
                 }
@@ -72,9 +71,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
-                        Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
                         Color = ModuleInfo.Color
-                    }).ConfigureAwait(false);
+                    }.WithFooter($"Moderator: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
 
                     throw new CustomCommandException();
                 }
@@ -94,11 +92,9 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {role.Mention} as the moderator role for the server",
-                Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
-
 
         [Command("SetMuteRole")]
         [Description("Sets the mute role of a server")]
@@ -111,12 +107,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"{role.Mention} as it is higher than my highest role in this server. I will not be able to add or remove it. Please assign a role lower than my highest role or give me a higher role",
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                    },
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
                 return;
             }
 
@@ -124,127 +116,93 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
-                Title = "Muted Role Saved",
+                Title = "Mute Role Saved",
                 Description = $"Succesfully stored {role.Mention} as the mute role for the server",
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                },
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("ChangeNickName")]
         [Aliases("cnn")]
-        [RequireBotPermissions(Permissions.ManageNicknames)]
-        [ModeratorNeeded]
+        [RequireBotPermissions(Permissions.ManageNicknames), ModeratorNeeded]
         public async Task ChangeNickName(CommandContext ctx, DiscordMember member, [RemainingText] string newNick)
         {
             try
             {
-                await member.ModifyAsync((DSharpPlus.Net.Models.MemberEditModel obj) => obj.Nickname = newNick);
+                await member.ModifyAsync((MemberEditModel obj) => obj.Nickname = newNick);
 
                 await ctx.Channel.SendMessageAsync($"Changed nickname for {member.Username} to {newNick}");
             }
             catch
             {
-                await ctx.Channel.SendMessageAsync("Cannot change the nick name of the spcified user.\nThis may be because the specified user is a modertor or administrator").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Failed to change nickname for {member.Mention}").ConfigureAwait(false);
             }      
         }
 
         [Command("VCMute")]
-        [Aliases("vcm")]
-        [ModeratorNeeded]
+        [Aliases("vcm"), ModeratorNeeded]
         public async Task VoiceMuteMember(CommandContext ctx, DiscordMember member, bool toMute)
         {
             try
             {
                 await member.SetMuteAsync(toMute).ConfigureAwait(false);
 
-                await ctx.RespondAsync($"{(toMute ? "Unmuted" : "Muted")} {member.Username} in the voice channels");
+                await ctx.RespondAsync($"{(toMute ? "VC unmuted" : "VC muted")} {member.Username} in the voice channels");
             }
             catch
             {
-                await ctx.Channel.SendMessageAsync($"Cannot {(toMute ? "unmute" : "mute")} the spcified user.\nThis may be because the specified user is a modertor or administrator").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Failed to {(toMute ? "VC unmute" : "VC mute")} the spcified user.").ConfigureAwait(false);
             }
         }
 
         [Command("VCDeafen")]
-        [Aliases("vcd")]
-        [ModeratorNeeded]
+        [Aliases("vcd"), ModeratorNeeded]
         public async Task VoiceDeafenMember(CommandContext ctx, DiscordMember member, bool toDeafen)
         {
             try
             {
                 await member.SetDeafAsync(toDeafen).ConfigureAwait(false);
 
-                await ctx.RespondAsync($"{(toDeafen ? "Undeafened" : "Deafened")} {member.Username} in the voice channels");
+                await ctx.RespondAsync($"{(toDeafen ? "VC undeafened" : "VC deafened")} {member.Username} in the voice channels");
             }
             catch
             {
-                await ctx.Channel.SendMessageAsync($"Cannot {(toDeafen ? "undeafen" : "deafen")} the spcified user.\nThis may be because the specified user is a modertor or administrator").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Failed to {(toDeafen ? "VC undeafen" : "VC deafen")} the spcified user.").ConfigureAwait(false);
             }
         }
 
         [Command("AddInfraction")]
-        [Aliases("AI", "Infract")]
-        [Description("Adds an infraction for the user")]
-        [ModeratorNeeded]
+        [Aliases("Infract"), Description("Adds an infraction for a user"), ModeratorNeeded]
         public async Task AddInfraction(CommandContext ctx, DiscordMember member, [RemainingText]  string reason = "Unpsecified")
         {
             var id = await modService.AddInfraction(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Infraction Added [Id: {id}]",
                 Description = $"Reason: {reason}",
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
-                    Url = member.AvatarUrl
-                },
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                },
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("AddEndorsement")]
-        [Aliases("AE", "Endorse")]
-        [Description("Adds an endorsement for the user")]
-        [ModeratorNeeded]
+        [Aliases("Endorse"), Description("Adds an endorsement for a user"), ModeratorNeeded]
         public async Task AddEndorsement(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unpsecified")
         {
             var id = await modService.AddEndorsement(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Endrosement Added [Id: {id}]",
                 Description = $"Reason: {reason}",
-                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                {
-                    Height = ThumbnailSize,
-                    Width = ThumbnailSize,
-                    Url = member.AvatarUrl
-                },
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                },
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("GetEndorsement")]
-        [Aliases("ge")]
-        [Description("Gets an infraction using its ID")]
+        [Aliases("ge"), Description("Gets an infraction using its ID")]
         public async Task GetEndorsement(CommandContext ctx, int endorsementID)
         {
             var endorsement = await modService.GetEndorsement(endorsementID);
@@ -261,23 +219,16 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Endorsement {endorsement.Id}",
                 Description = $"User: <@{(ulong)endorsement.UserId}>\nReason: {endorsement.Reason}",
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)endorsement.ModeratorID).ConfigureAwait(false)).Nickname}"
-                }
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)endorsement.ModeratorID).ConfigureAwait(false)).DisplayName}")).ConfigureAwait(false);
         }
 
         [Command("GetInfraction")]
-        [Aliases("gi")]
-        [Description("Gets an infraction using its ID")]
+        [Aliases("gi"), Description("Gets an infraction using its ID")]
         public async Task GetInfraction(CommandContext ctx, int infractionID)
         {
             var infraction = await modService.GetInfraction(infractionID);
@@ -294,18 +245,12 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Infraction {infraction.Id}",
                 Description = $"User: <@{(ulong)infraction.UserId}>\nReason: {infraction.Reason}",
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator:{(await ctx.Guild.GetMemberAsync((ulong)infraction.ModeratorID).ConfigureAwait(false)).Nickname}"
-                }
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)infraction.ModeratorID).ConfigureAwait(false)).DisplayName}")).ConfigureAwait(false);
         }
 
         [Command("Rule")]
@@ -318,19 +263,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Rule {index}",
                 Description = $"{(rule == null ? "Rule doesn't exist" : rule.RuleContent)}",
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                },
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}")).ConfigureAwait(false);
         }
 
         [Command("ClearChat")]
-        [Aliases("Clear")]
-        [Description("Deletes `x` number of messages")]
-        [RequireBotPermissions(Permissions.ManageMessages)]
-        [ModeratorNeeded]
+        [Aliases("Clear"), Description("Deletes `x` number of messages")]
+        [RequireBotPermissions(Permissions.ManageMessages), ModeratorNeeded]
         public async Task ClearChat(CommandContext ctx, int number)
         {
             foreach (var message in await ctx.Channel.GetMessagesAsync(number))
@@ -340,10 +279,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         }
 
         [Command("Slowmode")]
-        [Aliases("slow")]
-        [ModeratorNeeded]
-        [Description("Sets the slow mode for the chat")]
-        [RequireBotPermissions(Permissions.ManageChannels)]
+        [Aliases("slow"), Description("Sets the slow mode for the chat")]
+        [RequireBotPermissions(Permissions.ManageChannels), ModeratorNeeded]
         public async Task SlowMode(CommandContext ctx, int seconds)
         {
             if(ctx.Channel.PerUserRateLimit == seconds)
@@ -357,16 +294,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Description = $"{(seconds == 0 ? $"Disabled slow mode for {ctx.Channel.Mention}": "$Set Slow Mode for {ctx.Channel.Mention} to {seconds} seconds")}",
-                Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {ctx.Member.DisplayName}")).ConfigureAwait(false);
         }
 
         [Command("SetNSFW")]
-        [Aliases("NSFW")]
-        [ModeratorNeeded]
-        [Description("Changes the NSFW status of a channel")]
-        [RequireBotPermissions(Permissions.ManageChannels)]
+        [Aliases("NSFW"), Description("Changes the NSFW status of a channel")]
+        [RequireBotPermissions(Permissions.ManageChannels), ModeratorNeeded]
         public async Task NSFW(CommandContext ctx, bool toSet)
         {
             if(ctx.Channel.IsNSFW == toSet)
@@ -380,15 +314,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Description = $"{ctx.Channel.Mention} {(toSet ? "is now NSFW" : "is not NSFW anymore")}",
-                Footer = BotService.GetEmbedFooter($"Mod/Admin: {ctx.Member.DisplayName}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {ctx.Member.DisplayName}")).ConfigureAwait(false);
         }
 
         [Command("AddEmoji")]
         [Description("Addes an emoji to the server")]
-        [ModeratorNeeded]
-        [RequireBotPermissions(Permissions.ManageEmojis)]
+        [RequireBotPermissions(Permissions.ManageEmojis), ModeratorNeeded]
         public async Task AddEmoji(CommandContext ctx, string name, string url)
         {
             if(ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name.ToLower() == name) != null)
@@ -410,9 +342,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                     {
                         Title = $"Emoji Added! <:{emoji.Name}:{emoji.Id}>",
-                        Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
                         Color = ModuleInfo.Color
-                    }).ConfigureAwait(false);
+                    }.WithFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}")).ConfigureAwait(false);
                 }
             }       
         }
@@ -442,9 +373,8 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Removed Emoji {name}",
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("Mute")]
@@ -473,11 +403,9 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Muted Member {member.DisplayName}",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
-            };
-
-            embed.AddField("Reason: ", reason);
+            }.AddField("Reason: ", reason)
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)
+             .WithFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -502,11 +430,9 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 Title = $"Unmuted Member {member.DisplayName}",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
-            };
-
-            embed.AddField("Reason: ", reason);
+            }.AddField("Reason: ", reason)
+             .WithFooter($"Moderator: {ctx.Member.DisplayName} at {DateTime.Now}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize);
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -534,14 +460,10 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 Title = $"Mute {mute.Id}",
                 Description = $"User: <@{(ulong)mute.UserId}>\nReason: {mute.Reason}",
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)mute.ModeratorID).ConfigureAwait(false)).Nickname}"
-                }
-            };
+            }.WithFooter($"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)mute.ModeratorID).ConfigureAwait(false)).DisplayName}");
 
             var span = TimeSpan.Parse(mute.Time);
-            embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
+            embed.AddField("Time: ", $"{span.Days} days, {span.Hours} hours, {span.Minutes} minutes, {span.Seconds} seconds");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }

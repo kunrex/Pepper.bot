@@ -100,9 +100,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
                 {
                     Title = title,
                     ImageUrl = Card.GetLink(card.fileName).link + ".png",
-                    Footer = BotService.GetEmbedFooter($"{index}/{cards.Count}. (You can view your cards using this message for {UNOGame.timeLimit} minute(s))"),
                     Color = UNOGame.UNOColor
-                }.AddField("Card", card.cardName);
+                }.WithFooter($"{index}/{cards.Count}. (You can view your cards using this message for {UNOGame.timeLimit} minute(s))")
+                 .AddField("Card", card.cardName);
 
                 pages.Add(new Page(null, embed));
                 index++;

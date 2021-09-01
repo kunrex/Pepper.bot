@@ -1,20 +1,23 @@
-﻿
+﻿using System.Collections.Generic;
+
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
 {
-    public class WorkData<T>  
+    public abstract class WorkData<WorkReturnType>
     {
-        public readonly int totalTime;
+        protected readonly int totalTime;
+        public int TotalTime { get => totalTime ; }
+
         public readonly int numberOfTurns;
+        public int NumberOfTurns { get => numberOfTurns; }
 
-        public readonly T workData;
-
-        public WorkData(int time, int numOfTurns, T data)
+        public WorkData(int time, int numOfTurns)
         {
             totalTime = time;
             numberOfTurns = numOfTurns;
-
-            workData = data;
         }
+
+        public abstract WorkReturnType GetWork();
     }
 }

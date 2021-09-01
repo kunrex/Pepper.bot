@@ -9,13 +9,13 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Core.Help;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules;
-using DSharpPlus.CommandsNext.Attributes;
 
 namespace KunalsDiscordBot.Modules.Help
 {
@@ -32,7 +32,7 @@ namespace KunalsDiscordBot.Modules.Help
         [Command("Help")]
         [Description("Displays command help")]
         [Cooldown(1, 5, CooldownBucketType.User)]
-        public async Task Help(CommandContext ctx, params string[] command)
+        public async Task Help(CommandContext ctx, [Description("The command to show help for")] params string[] command)
         {
             if (command == null || !command.Any())
             {
@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Modules.Help
                         break;
                     }
 
-                    searchCommand = searchIn.FirstOrDefault(xc => xc.Name.ToLowerInvariant() == _command.ToLowerInvariant() || (xc.Aliases != null && xc.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(_command.ToLowerInvariant())));
+                    searchCommand = searchIn.FirstOrDefault(x => x.Name.ToLowerInvariant() == _command.ToLowerInvariant() || (x.Aliases != null && x.Aliases.Select(xs => xs.ToLowerInvariant()).Contains(_command.ToLowerInvariant())));
 
                     if (searchCommand == null)
                         break;
@@ -84,23 +84,23 @@ namespace KunalsDiscordBot.Modules.Help
 
                 if (searchCommand is CommandGroup group)
                 {
-                    var commandsToSearch = group.Children.Where(xc => !xc.IsHidden);
-                    var eligibleCommands = new List<Command>();
-                    foreach (var candidateCommand in commandsToSearch)
+                    var subCommands = group.Children.Where(x => !x.IsHidden);
+                    var executables = new List<Command>();
+                    foreach (var subCommand in subCommands)
                     {
-                        if (candidateCommand.ExecutionChecks == null || !candidateCommand.ExecutionChecks.Any())
+                        if (subCommand.ExecutionChecks == null || !subCommand.ExecutionChecks.Any())
                         {
-                            eligibleCommands.Add(candidateCommand);
+                            executables.Add(subCommand);
                             continue;
                         }
 
-                        var candidateFailedChecks = await candidateCommand.RunChecksAsync(ctx, true).ConfigureAwait(false);
+                        var candidateFailedChecks = await subCommand.RunChecksAsync(ctx, true).ConfigureAwait(false);
                         if (!candidateFailedChecks.Any())
-                            eligibleCommands.Add(candidateCommand);
+                            executables.Add(subCommand);
                     }
 
-                    if (eligibleCommands.Any())
-                        helpBuilder.WithSubcommands(eligibleCommands.OrderBy(xc => xc.Name));
+                    if (executables.Any())
+                        helpBuilder.WithSubcommands(executables.OrderBy(xc => xc.Name));
                 }
 
                 await ctx.Channel.SendMessageAsync(helpBuilder.Build());

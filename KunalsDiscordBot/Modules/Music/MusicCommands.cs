@@ -88,15 +88,25 @@ namespace KunalsDiscordBot.Modules.Music
                 }
             }
 
-            var DJCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) != null;
+            var musicData = await serverService.GetMusicData(ctx.Guild.Id);
+            var DJCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) != null && musicData.UseDJRoleEnforcement == 1;
+
             if(DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
             {
                 var id = (ulong)(await serverService.GetMusicData(ctx.Guild.Id)).DJRoleId;
-
-                if (ctx.Member.Roles.FirstOrDefault(x => x.Id == id) == null)
+                if (id == 0)
                 {
-                    await ctx.RespondAsync(":x: You need the DJ role to run this command");
-                    throw new CustomCommandException();
+                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithDescription("No DJ role is stored for the server, all users will be able to run DJ commands").WithColor(ModuleInfo.Color));
+                }
+                else
+                {
+                    var role = ctx.Guild.GetRole(id);
+
+                    if (ctx.Member.Roles.FirstOrDefault(x => x.Id == role.Id || x.Position > role.Position) == null)
+                    {
+                        await ctx.RespondAsync(":x: You need the DJ role to run this command");
+                        throw new CustomCommandException();
+                    }
                 }
             }
 
@@ -115,9 +125,8 @@ namespace KunalsDiscordBot.Modules.Music
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce DJ Role` to {toChange}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName} at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("DJRole")]
@@ -128,7 +137,7 @@ namespace KunalsDiscordBot.Modules.Music
             var profile = await serverService.GetMusicData(ctx.Guild.Id).ConfigureAwait(false);
             if (profile.UseDJRoleEnforcement == 0)
             {
-                await ctx.RespondAsync("`Enforce DJ Role` must be set to true to use this command, you can do so using the `general ToggleDJ` command").ConfigureAwait(false);
+                await ctx.RespondAsync("`Enforce DJ Role` must be set to true to use this command, you can do so using the `music toggleDJ` command").ConfigureAwait(false);
                 return;
             }
 
@@ -138,9 +147,8 @@ namespace KunalsDiscordBot.Modules.Music
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce DJ Role` to {role.Mention}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("Join")]

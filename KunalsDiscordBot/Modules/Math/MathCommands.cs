@@ -75,9 +75,8 @@ namespace KunalsDiscordBot.Modules.Math
                     {
                         Title = "Graph",
                         ImageUrl = url,
-                        Footer = BotService.GetEmbedFooter($"Rendered by: {ctx.Member.DisplayName}"),
                         Color = ModuleInfo.Color
-                    });
+                    }.WithFooter($"Rendered by: {ctx.Member.DisplayName}"));
             }
         }
 
@@ -91,8 +90,7 @@ namespace KunalsDiscordBot.Modules.Math
                 Title = "Graph Attributes",
                 Description = "All the attributes you can use in the graph command\n",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")
-            };
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}");
 
             foreach (var val in attributes)
                 embed.Description += $"• `{val.Key}`: {val.Value}\n";

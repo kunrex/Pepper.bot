@@ -26,7 +26,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<BoostData> GetBoost(ulong id, string name);
         public Task<List<BoostData>> GetBoosts(ulong id);
-        public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, int time, string startTime, int quantity);
+        public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity);
 
         public Task<bool> ChangePreviousWorkData(ulong id, DateTime date);
         public Task<bool> ToggleSafeMode(ulong id);

@@ -27,19 +27,19 @@ namespace KunalsDiscordBot.Services.Currency
             foreach (var boost in context.ProfileBoosts)
             {
                 var startTime = DateTime.Parse(boost.BoostStartTime);
-                var span = TimeSpan.FromHours(boost.BoostTime);
+                var span = TimeSpan.Parse(boost.BoostTime);
 
                 if(DateTime.Now - startTime > span)
                 {
                     var profile = context.UserProfiles.First(x => x.Id == boost.ProfileId);
-                    await AddOrRemoveBoost((ulong)profile.DiscordUserID, boost.BoosteName, 0, 0, "", -1);
+                    await AddOrRemoveBoost((ulong)profile.Id, boost.BoosteName, 0, TimeSpan.FromSeconds(0), "", -1);
                 }
             }
         }
 
         public async Task<Profile> GetProfile(ulong id, string name, bool defaultCreate = false)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null && defaultCreate)
                 profile = await CreateProfile(id, name);
@@ -51,7 +51,7 @@ namespace KunalsDiscordBot.Services.Currency
         {
             var profile = new Profile
             {
-                DiscordUserID = (long)id,
+                Id = (long)id,
                 Name = name,
                 XP = 0,
                 Coins = 0,
@@ -72,7 +72,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> AddXP(ulong id, int val)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -86,7 +86,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ChangeCoins(ulong id, int val)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -103,7 +103,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ChangeMaxCoinsBank(ulong id, int val)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -120,7 +120,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ChangeCoinsBank(ulong id, int val)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -138,7 +138,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<ItemDBData> GetItem(ulong id, string name)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return null;
@@ -150,7 +150,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<List<ItemDBData>> GetItems(ulong id)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
             if (profile == null)
                 return null;
 
@@ -161,7 +161,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> AddOrRemoveItem(ulong id, string name, int quantity)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -199,7 +199,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ChangeJob(ulong id, string jobName)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -213,9 +213,9 @@ namespace KunalsDiscordBot.Services.Currency
             return true;
         }
 
-        public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, int time, string startTime, int quantity)
+        public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -235,7 +235,7 @@ namespace KunalsDiscordBot.Services.Currency
                 }
             }
 
-            boost = new BoostData { BoosteName = name, BoostTime = time, BoostValue = value, BoostStartTime = startTime };
+            boost = new BoostData { BoosteName = name, BoostTime = time.ToString(), BoostValue = value, BoostStartTime = startTime };
             profile.Boosts.Add(boost);
 
             var updateEntry = context.UserProfiles.Update(profile);
@@ -247,7 +247,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<BoostData> GetBoost(ulong id, string name)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return null;
@@ -259,7 +259,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public Task<List<BoostData>> GetBoosts(ulong id)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
             var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
 
             return Task.FromResult(boosts);
@@ -267,7 +267,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ToggleSafeMode(ulong id)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;
@@ -283,7 +283,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> ChangePreviousWorkData(ulong id, DateTime date)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.DiscordUserID == (long)id);
+            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
 
             if (profile == null)
                 return false;

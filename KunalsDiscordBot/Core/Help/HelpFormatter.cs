@@ -4,8 +4,6 @@ using System.Collections.Generic;
 
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.CommandsNext.Converters;
-using DSharpPlus.CommandsNext.Entities;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
@@ -45,8 +43,7 @@ namespace KunalsDiscordBot.Core.Help
                 Title = Title,
                 Description = Description,
                 Color = Color,
-                Footer = BotService.GetEmbedFooter(Footer),
-            };
+            }.WithFooter(Footer);
 
             if (IsModule)
                 embed.AddField(Commands.name, Commands.value, false);
@@ -142,8 +139,8 @@ namespace KunalsDiscordBot.Core.Help
                 Fields.Add(new FieldData { name = "** **", value = "** **", inline = false });
                 Fields.Add(new FieldData { name = "__Commands__", value = "** **", inline = false });
 
-                var helpCommand = commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) == null).ToList()[0];
-                Fields.Add(new FieldData { name = $"• {helpCommand.Name.Format()}", value = $"Description: {helpCommand.Description}", inline = false });
+                foreach (var command in commands.GetCommands())
+                    Fields.Add(new FieldData { name = $"• {command.Name.Format()}", value = $"Description: {command.Description}", inline = false });
             }
 
             return this;

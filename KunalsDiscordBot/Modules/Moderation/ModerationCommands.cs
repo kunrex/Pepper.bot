@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
@@ -52,10 +52,9 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
-                    Description = $"The mute role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
-                    Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
+                    Description = $"The role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
 
                 return;
             }
@@ -68,15 +67,14 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             await member.GrantRoleAsync(role).ConfigureAwait(false);
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Added Role",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
-            }.AddField("Role: ", role.Mention).AddField("From: ", member.Mention);
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.AddField("Role: ", role.Mention)
+             .AddField("To: ", member.Mention)
+             .WithFooter($"Admin: { ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("RemoveRole")]
@@ -91,9 +89,8 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"The role {role.Mention}, is higher than my higher role. Thus I cannot add or remove it.",
-                    Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"),
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
 
                 return;
             }
@@ -106,40 +103,85 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             await member.RevokeRoleAsync(role).ConfigureAwait(false);
 
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Removed Role",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, ThumbnailSize)
-            }.AddField("Role: ", role.Mention).AddField("To: ", member.Mention);
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.AddField("Role: ", role.Mention)
+             .AddField("From: ", member.Mention)
+             .WithFooter($"Admin: { ctx.Member.DisplayName}, at {DateTime.Now}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("Ban")]
         [Description("Bans a member")]
         [RequireBotPermissions(Permissions.BanMembers)]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan span, [RemainingText] string reason = "Unspecified")
+        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan deleteMessageDays, [RemainingText] string reason = "Unspecified")
         {
             try
             {
-                await member.BanAsync(5, reason).ConfigureAwait(false);
-                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, span.ToString());
+                if (await ctx.Guild.GetMemberAsync(member.Id) == null)
+                {
+                    await ctx.RespondAsync("User isn't the server?");
+                    return;
+                }
+                if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == member.Id) != null)
+                {
+                    await ctx.RespondAsync("User is banned?");
+                    return;
+                }
+
+                await member.BanAsync(deleteMessageDays.Days, reason).ConfigureAwait(false);
+                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, deleteMessageDays.ToString());
 
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = $"Banned member {member.Username} [Id: {id}]",
                     Color = ModuleInfo.Color,
-                    Footer =BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                    Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize)
-                }.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds")
-                 .AddField("Reason: ", reason)).ConfigureAwait(false);
+                }.AddField("Reason: ", reason)
+                 .WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
+                 .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
             }
             catch
             {
-                await ctx.Channel.SendMessageAsync($"Cannot ban specified member.\nThis may be because the member is a moderator or administrator").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Failed to ban specified member").ConfigureAwait(false);
+            }
+        }
+
+        [Command("Ban")]
+        [Description("Bans a member")]
+        [RequireBotPermissions(Permissions.BanMembers)]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task BanMember(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "Unspecified")
+        {
+            try
+            {
+                if (await ctx.Guild.GetMemberAsync(member.Id) == null)
+                {
+                    await ctx.RespondAsync("User isn't the server?");
+                    return;
+                }
+                if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == member.Id) != null)
+                {
+                    await ctx.RespondAsync("User is banned?");
+                    return;
+                }
+
+                await member.BanAsync(0, reason).ConfigureAwait(false);
+                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, TimeSpan.FromDays(0).ToString());
+
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = $"Banned member {member.Username} [Id: {id}]",
+                    Color = ModuleInfo.Color,
+                }.AddField("Reason: ", reason)
+                 .WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
+                 .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
+            }
+            catch
+            {
+                await ctx.Channel.SendMessageAsync($"Failed to unban specified user").ConfigureAwait(false);
             }
         }
 
@@ -151,7 +193,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         {
             if(await ctx.Guild.GetMemberAsync(user.Id) != null)
             {
-                await ctx.RespondAsync("Member is in in the server?");
+                await ctx.RespondAsync("Member is in the server?");
                 return;
             }
             if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == user.Id) == null)
@@ -165,9 +207,8 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = $"Unbanned user {user.Username} #{user.Discriminator}",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"),
-                Thumbnail = BotService.GetEmbedThumbnail(user, ThumbnailSize)
-            }).ConfigureAwait(false);
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
+             .WithThumbnail(user.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("Kick")]
@@ -181,29 +222,17 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await member.RemoveAsync(reason).ConfigureAwait(false);
                 int id = await modService.AddKick(member.Id, ctx.Guild.Id, ctx.Member.Id, reason);
 
-                var embed = new DiscordEmbedBuilder
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = $"Kicked member {member.Username} [Id: {id}]",
                     Color = ModuleInfo.Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}"
-                    },
-                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-                    {
-                        Url = member.AvatarUrl,
-                        Height = ThumbnailSize,
-                        Width = ThumbnailSize
-                    }
-                };
-
-                embed.AddField("Reason: ", reason);
-
-                await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+                }.AddField("Reason: ", reason)
+                 .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)
+                 .WithFooter($"Admin: {ctx.Member.Discriminator} at {DateTime.Now}")).ConfigureAwait(false);
             }
             catch
             {
-                await ctx.Channel.SendMessageAsync($"Cannot kick specified member.\nThis may be because the member is a modertaor or administrator").ConfigureAwait(false);
+                await ctx.Channel.SendMessageAsync($"Failed to kick specified member").ConfigureAwait(false);
             }
         }
 
@@ -225,18 +254,15 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            var embed = new DiscordEmbedBuilder
+            var admin = await ctx.Guild.GetMemberAsync((ulong)kick.ModeratorID).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Kick {kick.Id}",
-                Description = $"User: <@{(ulong)kick.UserId}>\nReason: {kick.Reason}",
+                Description = $"User: <@{(ulong)kick.UserId}>",
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)kick.ModeratorID).ConfigureAwait(false)).Nickname}"
-                }
-            };
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.AddField("Reason", kick.Reason)
+             .WithFooter($"Admin: {(admin == null ? admin.DisplayName : "admin isn't in the server anymore")}")).ConfigureAwait(false);
         }
 
         [Command("GetBan")]
@@ -257,19 +283,17 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
+            var admin = await ctx.Guild.GetMemberAsync((ulong)ban.ModeratorID).ConfigureAwait(false);
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"Ban {ban.Id}",
-                Description = $"User: <@{(ulong)ban.UserId}>\nReason: {ban.Reason}",
+                Description = $"User: <@{(ulong)ban.UserId}>",
                 Color = ModuleInfo.Color,
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Moderator: {(await ctx.Guild.GetMemberAsync((ulong)ban.ModeratorID).ConfigureAwait(false)).Nickname}"
-                }
-            };
+            }.AddField("Reason", ban.Reason)
+             .WithFooter($"Admin: {(admin == null ? admin.DisplayName : "admin isn't in the server anymore")}");
 
             var span = TimeSpan.Parse(ban.Time);
-            embed.AddField("Time: ", $"{span.Days} Days, {span.Hours} Hours, {span.Seconds} Seconds");
+            embed.AddField("Delete Message Time: ", $"{span.Days} days, {span.Hours} hours, {span.Minutes} minutes, {span.Seconds} seconds");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }
@@ -280,24 +304,24 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task RemoveAllRoles(CommandContext ctx, DiscordMember member, string reason = "Unspecified")
         {
-            int botHighest = (await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).GetHighest();
+            int botHighest = (await ctx.Guild.GetMemberAsync(ctx.Client.CurrentUser.Id)).Hierarchy;
+            List<string> rolesRemoved = new List<string>();
+
             foreach (var role in member.Roles)
             {
                 if (role.Position >= botHighest)
-                {
-                    await ctx.Channel.SendMessageAsync($"Cannot remove the role {role.Mention}, as its higher than my highest role");
                     continue;
-                }
 
                 await member.RevokeRoleAsync(role).ConfigureAwait(false);
+                rolesRemoved.Add(role.Mention);
             }
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = $"Removed all roles (that I can)",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Moderator: {ctx.Member.DisplayName} #{ctx.Member.Discriminator}")
-            }.AddField("From: ", member.Mention)
+            }.AddField("Roles", rolesRemoved.Count == 0 ? "None" : string.Join(',', rolesRemoved.Select(x => $"`{x}`")))
+             .AddField("From: ", member.Mention)
              .AddField("Reason: ", reason)).ConfigureAwait(false);
         }
 
@@ -309,15 +333,15 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
-                Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} (#{member.Username} {member.Discriminator})",
-                Thumbnail = BotService.GetEmbedThumbnail(member, ThumbnailSize),
+                Title = $"{member.DisplayName} # {member.Discriminator}",
                 Color = ModuleInfo.Color,
-                Footer = BotService.GetEmbedFooter($"Member info: {member.Username} #{member.Discriminator}")
             }.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("** **", "** **")
              .AddField("Bans: ", (await modService.GetBans(member.Id, ctx.Guild.Id)).Count.ToString(), true)
-             .AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true)).ConfigureAwait(false);
+             .AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true)
+             .WithFooter($"User: {ctx.User.Discriminator}, at {DateTime.Now}")
+             .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
         [Command("AddRule")]
@@ -328,30 +352,18 @@ namespace KunalsDiscordBot.Modules.Moderation
             var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
 
             if(!completed)
-            {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Rule already exists",
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                    },
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+            else
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = "Added Rule",
+                    Description = $"Rule added: {rule}",
                     Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
-
-                return;
-            }
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Added Rule",
-                Description = $"Rule added: {rule}",
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                },
-                Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
         }
 
         [Command("RemoveRule")]
@@ -365,12 +377,8 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Rule doesn't exists",
-                    Footer = new DiscordEmbedBuilder.EmbedFooter
-                    {
-                        Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                    },
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
 
                 return;
             }
@@ -381,29 +389,8 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = "Removed Rule",
                 Description = $"Rule {index} removed",
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Admin: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("MM/dd/yyyy hh:mm tt")}"
-                },
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
-        }
-
-
-        [Command("RuleChannel")]
-        [Description("Assigns the rule channel for a server")]
-        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleChannel)]
-        public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
-        {
-            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = "Edited Configuration",
-                Description = $"Saved {channel.Mention} as the rule channel for guild: {ctx.Guild.Name}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
-                Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
     }
 }

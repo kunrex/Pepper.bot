@@ -95,9 +95,8 @@ namespace KunalsDiscordBot.Modules.Games
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the Connect4 channel for guild: `{ctx.Guild.Name}`",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("TicTacToeChannel")]
@@ -111,9 +110,8 @@ namespace KunalsDiscordBot.Modules.Games
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the TicTacToe channel for guild: `{ctx.Guild.Name}`",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("Connect4")]

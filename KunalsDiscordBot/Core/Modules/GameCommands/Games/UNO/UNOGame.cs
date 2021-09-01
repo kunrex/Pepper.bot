@@ -331,9 +331,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             {
                 Title = "Here are the results!",
                 Color = UNOColor,
-                Footer = BotService.GetEmbedFooter("Hope you ppl had a good time")
             }.AddField("Winner!", completed ? playersWhoFinished[0].member.Username : "No one")
-             .AddField("Players who finished", players == null ? "No one" : players));
+             .AddField("Players who finished", players == null ? "No one" : players)
+             .WithFooter("Hope you ppl had a good time"));
         }
 
         private async Task SendMessageToAllPlayers(string message = null, DiscordEmbedBuilder embed = null)

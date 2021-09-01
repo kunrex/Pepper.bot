@@ -11,12 +11,12 @@
     <None Remove="System.ComponentModel.Annotations" />
     <None Remove="Models\" />
     <None Remove="Models\Currency\" />
-    <None Remove="Models\Currency\Items\" />
     <None Remove="Models\Currency\Profile\" />
     <None Remove="Models\Server\" />
     <None Remove="Models\Server\Models\" />
     <None Remove="Models\Server\Models\Moderation\" />
     <None Remove="Models\Server\Models\Partials\" />
+    <None Remove="Models\Currency\Profile\Items\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
@@ -30,11 +30,11 @@
   <ItemGroup>
     <Folder Include="Models\" />
     <Folder Include="Models\Currency\" />
-    <Folder Include="Models\Currency\Items\" />
     <Folder Include="Models\Currency\Profile\" />
     <Folder Include="Models\Server\" />
     <Folder Include="Models\Server\Models\" />
     <Folder Include="Models\Server\Models\Moderation\" />
     <Folder Include="Models\Server\Models\Partials\" />
+    <Folder Include="Models\Currency\Profile\Items\" />
   </ItemGroup>
 </Project>

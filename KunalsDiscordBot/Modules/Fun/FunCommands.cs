@@ -112,9 +112,8 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Allow NSFW` to {toChange}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("AllowSpam")]
@@ -128,9 +127,8 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Allow Spam` to {toSet}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("AllowGhost")]
@@ -144,9 +142,8 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Allow Ghost` to {toSet}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("Spam")]
@@ -180,6 +177,7 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("ask")]
+        [Aliases("8ball")]
         [Description("Ask the bot something")]
         public async Task Ask(CommandContext ctx, [RemainingText] string question)
         {
@@ -189,9 +187,9 @@ namespace KunalsDiscordBot.Modules.Fun
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "8ball thingy",
-                Thumbnail = BotService.GetEmbedThumbnail(ctx.User, 30),
                 Color = ModuleInfo.Color
-            }.AddField("Question", question).AddField("What I say", reponses[new Random().Next(0, reponses.Length)]));
+            }.WithThumbnail(ctx.Member.AvatarUrl, 10, 10)
+             .AddField("Question", question).AddField("What I say", reponses[new Random().Next(0, reponses.Length)]));
         }
 
         [Command("Coolrate")]
@@ -337,9 +335,8 @@ namespace KunalsDiscordBot.Modules.Fun
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
                 Url = "https://www.reddit.com" + post.Permalink,
-                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
         }
 
         [Command("aww")]
@@ -353,9 +350,8 @@ namespace KunalsDiscordBot.Modules.Fun
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
                 Url = "https://www.reddit.com" + post.Permalink,
-                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
         }
 
         [Command("animals")]
@@ -369,9 +365,8 @@ namespace KunalsDiscordBot.Modules.Fun
                 Title = post.Title,
                 ImageUrl = post.Listing.URL,
                 Url = "https://www.reddit.com" + post.Permalink,
-                Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
         }
 
         [Command("post")]
@@ -409,9 +404,8 @@ namespace KunalsDiscordBot.Modules.Fun
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = "Could not find a post in the subreddit with the given filter",
-                    Footer = BotService.GetEmbedFooter("The bot does not take into account all the posts only the a few from the top (like 50 or something, i donno)"),
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter("The bot does not take into account all the posts only the a few from the top (like 50 or something, i donno)")).ConfigureAwait(false);
             else
             {
                 if (post.NSFW)
@@ -422,9 +416,8 @@ namespace KunalsDiscordBot.Modules.Fun
                     Title = post.Title,
                     ImageUrl = post.Listing.URL,
                     Url = "https://www.reddit.com" + post.Permalink,
-                    Footer = BotService.GetEmbedFooter($"Upvotes: {post.UpVotes}"),
                     Color = ModuleInfo.Color
-                }).ConfigureAwait(false);
+                }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
             }
         }
 

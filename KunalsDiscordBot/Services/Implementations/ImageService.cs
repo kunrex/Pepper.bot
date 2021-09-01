@@ -2,10 +2,10 @@
 using System.Net;
 using System.Linq;
 using System.Drawing;
-using System.Collections.Generic;
 
 using DSharpPlus.CommandsNext;
 
+using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
@@ -45,9 +45,9 @@ namespace KunalsDiscordBot.Services.Images
             {
                 for(int i=0;i<urls.Count;i++)
                 {
-                    var image = new ImageGraphic(new MemoryStream(client.DownloadData(urls[i].Key)));
+                    var image = new ImageGraphic(new MemoryStream(client.DownloadData(urls[i].Item1)));
 
-                    for (int k = 0; k < urls[i].Value; k++)
+                    for (int k = 0; k < urls[i].Item2; k++)
                         images.Add(image);
                 }
             }

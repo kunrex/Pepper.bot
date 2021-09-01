@@ -247,7 +247,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         public Task<List<DiscordEmbedBuilder>> GetQueue()
         {
             List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
-            int index = 1;
+            int index = 0;
             var title = $"Queue For __{connection.Channel.Guild.Name}__";
 
             embeds.Add(new DiscordEmbedBuilder().WithTitle("Now Playing").WithColor(moduleData.color).WithDescription($"[{currentTrack.Title}]({currentTrack.Uri})"));
@@ -261,7 +261,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                     embeds.Add(currentEmbed);
                 }
 
-                currentEmbed.Description += $"{index++}. [{value.track.Title}]({value.track.Uri}) \n Length: {value.track.Length:mm\\:ss}, Requested By: `{value.userName}`\n";
+                currentEmbed.Description += $"{++index}. [{value.track.Title}]({value.track.Uri}) \n Length: {value.track.Length:mm\\:ss}, Requested By: `{value.userName}`\n";
             }
 
             if (embeds.Count == 1)

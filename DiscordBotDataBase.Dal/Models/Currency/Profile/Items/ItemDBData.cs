@@ -10,6 +10,6 @@ namespace DiscordBotDataBase.Dal.Models.Items
         public int Count { get; set; }
 
         [ForeignKey("ProfileId")]
-        public int ProfileId { get; set; }
+        public long ProfileId { get; set; }
     }
 }

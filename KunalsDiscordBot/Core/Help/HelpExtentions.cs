@@ -25,7 +25,9 @@ namespace KunalsDiscordBot.Extensions
             return dictionary;
         }
 
-        public static IEnumerable<Command> GetModules(this IEnumerable<Command> commands) => commands.Where(x => x.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) != null);
+        public static IEnumerable<Command> GetModules(this IEnumerable<Command> commands) => commands.Where(x => x is CommandGroup);
+
+        public static IEnumerable<Command> GetCommands(this IEnumerable<Command> commands) => commands.Where(x => !(x is CommandGroup));
 
         public static IEnumerable<FieldData> FormatModules(this Command[] commands)
         {

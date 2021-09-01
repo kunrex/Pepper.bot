@@ -206,9 +206,8 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Enforce Admin Permissions For Editing Config` to {toChange}",
-                Footer = BotService.GetEmbedFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("LogErrors")]
@@ -222,9 +221,8 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Log Errors` to {toSet}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("LogNewMembers")]
@@ -238,9 +236,8 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Log New Members` to {toSet}",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("WelcomeChannel")]
@@ -254,9 +251,8 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the welcome channel for guild: `{ctx.Guild.Name}`",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
 
         [Command("RuleChannel")]
@@ -270,9 +266,8 @@ namespace KunalsDiscordBot.Modules.General
             {
                 Title = "Edited Configuration",
                 Description = $"Saved {channel.Mention} as the rule channel for guild: `{ctx.Guild.Name}`",
-                Footer = BotService.GetEmbedFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}"),
                 Color = ModuleInfo.Color
-            }).ConfigureAwait(false);
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
     }
 }
