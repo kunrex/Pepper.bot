@@ -29,7 +29,7 @@ namespace KunalsDiscordBot.Services.Modules
             ModuleInfo = new Dictionary<ConfigValueSet, PepperCommandModuleInfo>();
             modules = new List<Type>();
 
-            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract))
+            foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract && x.GetCustomAttribute<GroupAttribute>() != null))
             {
                 modules.Add(type);
                 TotalCommands += type.GetMethods().Where(x => x.GetCustomAttribute<CommandAttribute>() != null).Count();

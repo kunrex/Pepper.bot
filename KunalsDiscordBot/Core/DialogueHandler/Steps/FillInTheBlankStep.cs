@@ -1,22 +1,25 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
-
 using DSharpPlus.Interactivity.Extensions;
 
 namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
-    public class ReplyStep : Step
+    public class FillInTheBlankStep : Step
     {
-        public List<string> ValidResponses = new List<string>();
+        private readonly string response, blank;
 
         private DiscordEmbedBuilder.EmbedThumbnail thumbnail;
         private DiscordColor color;
 
-        public ReplyStep(string _title, string _content, string _tryAgainMessage, int _tries, int _time, List<string> responses) : base(_title, _content, _tryAgainMessage, _tries, _time) => ValidResponses = responses;
+        public FillInTheBlankStep(string _title, string _content, string _tryAgainMessage, int _tries, int _time, string _response, string _blank) : base(_title, _content, _tryAgainMessage, _tries, _time)
+        {
+            response = _response;
+            blank = _blank;
+        }
 
         public override Step WithEmbedData(DiscordColor _color, DiscordEmbedBuilder.EmbedThumbnail _thumbnail)
         {
@@ -30,17 +33,21 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
         {
             int currentTry = tries, timeLeft = time;
             var interactivity = client.GetInteractivity();
-            DateTime prevTime = DateTime.Now;
+            DateTime prevTime = DateTime.Now; string messageContent = content;
 
-            while(currentTry > 0)
+            while (currentTry > 0)
             {
                 var message = new DiscordMessageBuilder();
+
+                var index = content.IndexOf(blank);
+                messageContent = messageContent.Remove(index, blank.Length).Insert(index, response[2 - (currentTry - 1)].ToString());
+
                 if (useEmbed)
                 {
                     var embed = new DiscordEmbedBuilder
                     {
                         Title = title,
-                        Description = content,
+                        Description = messageContent,
                         Color = color,
                         Thumbnail = thumbnail
                     };
@@ -59,7 +66,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                 //any of the return cases
                 if (messageResult.TimedOut)
                     return false;
-                else if (ValidResponses.Find(x => x.ToLower() == messageResult.Result.Content.ToLower()) != null)
+                else if (response.ToLower() == messageResult.Result.Content.ToLower())
                     return true;
                 else
                 {

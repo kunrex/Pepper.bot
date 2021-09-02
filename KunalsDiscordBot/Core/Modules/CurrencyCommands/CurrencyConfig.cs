@@ -16,5 +16,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands
 
         public int monthlyMin { get; set; }
         public int monthlyMax { get; set; }
+
+        public int XPMultiplier { get; set; }
+        public int CoinMultiplier { get; set; }
     }
 }

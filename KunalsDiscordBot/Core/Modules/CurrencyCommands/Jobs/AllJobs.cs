@@ -29,9 +29,9 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
            new FillInTheBlank(15, 3,
                new TupleBag<string, string>(new List<(string, string)>
                {
-                    ("Children", "Time For the School Prayer `       `"),
-                    ("Theorum", "You need to specify the `       ` used to prove the answer"),
-                    ("Homework", "The due date for the `        ` is next monday")
+                    ("Children", "Time For the School Prayer --------"),
+                    ("Theorum", "You need to specify the ------- used to prove the answer"),
+                    ("Homework", "The due date for the -------- is next monday")
                })),
 
            new WordsInAnOrder(
@@ -58,13 +58,13 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
            new FillInTheBlank( 15, 3,
                new TupleBag<string, string>(new List<(string, string)>
                {
-                    ("PHP", "Why would anyone use `   `"),
-                    ("8", "No you genius, a byte is ` ` bits"),
-                    ("Github", "Will you make the `      ` repository?"),
-                    ("Python", "Ml training in `      ` is peacefull" ),
-                    ("Unity", "Unreal engine or `     `?" ),
-                    ("binary", "Assembly is just readable `      `" ),
-                    ("Steve Jobs", "Apple was co-founded by `          `" )
+                    ("PHP", "Why would anyone use ---"),
+                    ("8", "No you genius, a byte is - bits"),
+                    ("Github", "Will you make the ------ repository?"),
+                    ("Python", "Ml training in ------ is peacefull" ),
+                    ("Unity", "Unreal engine or -----?" ),
+                    ("binary", "Assembly is just readable ------" ),
+                    ("Steve Jobs", "Apple was co-founded by ----------" )
                })),
 
            new WordsInAnOrder( 10, 1,
@@ -90,12 +90,12 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
             new FillInTheBlank( 15, 3,
                new TupleBag<string, string>(new List<(string, string)>
                {
-                    ("Salt", "Add some `    ` for taste"),
-                    ("Lasagne", "No no its pronounced `       `"),
-                    ("Sunny side up", "A `            ` is actually a very complicated dish"),
-                    ("Subway", "A `      ` is just a fancy sandwich" ),
-                    ("KFC", "`   ` or McDonalds?" ),
-                    ("Pizza Hut", "I feel dominos is better than `         `")
+                    ("Salt", "Add some ----for taste"),
+                    ("Lasagne", "No no its pronounced -------"),
+                    ("Sunny side up", "A ------------- is actually a very complicated dish"),
+                    ("Subway", "A ------ is just a fancy sandwich" ),
+                    ("KFC", "--- or McDonalds?" ),
+                    ("Pizza Hut", "I feel dominos is better than ---------")
                })),
 
             new WordsInAnOrder( 10, 1,

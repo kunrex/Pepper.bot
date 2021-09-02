@@ -44,6 +44,7 @@ namespace KunalsDiscordBot.Services.Currency
             if (profile == null && defaultCreate)
                 profile = await CreateProfile(id, name);
 
+            await DetatchProfile(profile);
             return profile;
         }
 
@@ -70,6 +71,29 @@ namespace KunalsDiscordBot.Services.Currency
             return profile;
         }
 
+
+        public async Task<bool> UpdateProfile(Profile profileToUpdate)
+        {
+            if (profileToUpdate == null)
+                return false;
+
+            var updateEntry = context.UserProfiles.Update(profileToUpdate);
+
+            await context.SaveChangesAsync();
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
+        public Task<bool> DetatchProfile(Profile profileToDetatch)
+        {
+            if (profileToDetatch == null)
+                return Task.FromResult(false);
+
+            context.Entry(profileToDetatch).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+
+            return Task.FromResult(true);
+        }
+
         public async Task<bool> AddXP(ulong id, int val)
         {
             var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
@@ -78,8 +102,10 @@ namespace KunalsDiscordBot.Services.Currency
                 return false;
 
             profile.XP += val;
-            context.UserProfiles.Update(profile);
+            var updateEntry = context.UserProfiles.Update(profile);
             await context.SaveChangesAsync();
+
+            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
             return true;
         }
@@ -126,7 +152,7 @@ namespace KunalsDiscordBot.Services.Currency
                 return false;
 
             profile.CoinsBank += val;
-            profile.CoinsBank = System.Math.Clamp(profile.CoinsBank, 0, profile.CoinsBankMax);
+            profile.CoinsBank = Math.Clamp(profile.CoinsBank, 0, profile.CoinsBankMax);
 
             var updateEntry = context.UserProfiles.Update(profile);
             await context.SaveChangesAsync();

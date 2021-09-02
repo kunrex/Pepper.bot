@@ -63,7 +63,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
 
                     return Task.FromResult(new List<Step>
                     {
-                         new TextStep($"Work for {Name}", $"Rewrite the following sentence: \n {work}", "Thats not the words",  RewriteSentences.numberOfTurns,  RewriteSentences.TotalTime, new List<string> { work })
+                         new ReplyStep($"Work for {Name}", $"Rewrite the following sentence: \n {work}", "Thats not the words",  RewriteSentences.numberOfTurns,  RewriteSentences.TotalTime, new List<string> { work })
                             .WithEmbedData(color, thumbnail)
                     });
                 case 1:
@@ -71,7 +71,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
 
                     return Task.FromResult(new List<Step>
                     {
-                        new TextStep($"Work for {Name}", $"Fill in the blank: \n {fill.Item2}", "Thats not the words",  FillInTheBlanks.numberOfTurns, FillInTheBlanks.TotalTime, new List<string> { fill.Item1 })
+                        new FillInTheBlankStep($"Work for {Name}", $"Fill in the blank: \n {fill.Item2}", "Thats not the words",  FillInTheBlanks.numberOfTurns, FillInTheBlanks.TotalTime, fill.Item1, "-")
                             .WithEmbedData(color, thumbnail)
                     });
                 case 2:
@@ -79,7 +79,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
 
                     return Task.FromResult(new List<Step>
                     {
-                        new TextStep($"Work for {Name}", $"Rewrite these words in the following order: \n`{ string.Join("\n", words.Select(x => $"`{x}`")) }`", "Thats not the words", RewriteWords.numberOfTurns, RewriteWords.TotalTime, new List<string> { string.Join("\n", words) })
+                        new ReplyStep($"Work for {Name}", $"Rewrite these words in the following order: \n{ string.Join("\n", words.Select(x => $"`{x}`")) }", "Thats not the words", RewriteWords.numberOfTurns, RewriteWords.TotalTime, new List<string> { string.Join("\n", words) })
                             .WithEmbedData(color, thumbnail)
                     });
                 default:

@@ -98,7 +98,7 @@ namespace KunalsDiscordBot.Services.Configuration
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Hi! I'm Pepper",
-                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {moduleService.TotalCommands} commands and have {shardCount} shard(s)." +
+                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {moduleService.TotalCommands} (+ 1 help command) commands and have {shardCount} shard(s)." +
                 $"The shard ID for this server is {shardId}.",
                 Color = DiscordColor.Blurple,
             }.AddField("__The Modules I offer:__", "** **");
@@ -108,11 +108,11 @@ namespace KunalsDiscordBot.Services.Configuration
 
             embed.AddField($"** **", "** **")
                  .AddField("__My Prefix'__", "`pep`, `pepper`", true)
-                 .AddField("__My Help Command__", "`pep hel`p", true)
-                 .AddField("__Contribute__", "Use the `pep general github` command for more info", true)
+                 .AddField("__My Help Command__", "`pep help`", true)
+                 .AddField("__Contribute (Source Code)__", "Use the `pep general github` command", true)
                  .AddField("__Configuration__", "Use the `pep general configuration` command to view and edit my configuration for this server", true)
                  .AddField("__Enabling and Disabling Modules__", "All the modules (except the general module) can be enabled and disabled depending on the permissions" +
-                 "I have. The permissions required for each module is explained the configuration command and is shown in the help command as well");
+                 " I have. The permissions required for each module is explained the configuration command and are shown in the help command as well");
 
             return Task.FromResult(embed);
         }

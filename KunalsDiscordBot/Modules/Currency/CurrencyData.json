@@ -8,5 +8,7 @@
   "weeklyMin": 500,
   "weeklyMax": 1200,
   "monthlyMin": 1000,
-  "monthlyMax" : 2500
+  "monthlyMax": 2500,
+  "XPMultiplier": 5,
+  "CoinMultiplier" :  10
 }

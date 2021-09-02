@@ -8,8 +8,8 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Modules;
@@ -113,11 +113,11 @@ namespace KunalsDiscordBot.Modules.Moderation
              .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
         }
 
-        [Command("Ban")]
-        [Description("Bans a member")]
-        [RequireBotPermissions(Permissions.BanMembers)]
+        [Command("TemporaryBan")]
+        [Description("Bans a member and unbans the member after a preiod of time")]
+        [RequireBotPermissions(Permissions.BanMembers), Aliases("Tempban")]
         [RequireUserPermissions(Permissions.Administrator)]
-        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan deleteMessageDays, [RemainingText] string reason = "Unspecified")
+        public async Task BanMember(CommandContext ctx, DiscordMember member, TimeSpan timePreiod, [RemainingText] string reason = "Unspecified")
         {
             try
             {
@@ -126,14 +126,20 @@ namespace KunalsDiscordBot.Modules.Moderation
                     await ctx.RespondAsync("User isn't the server?");
                     return;
                 }
-                if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == member.Id) != null)
+                if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == member.Id) == null)
                 {
                     await ctx.RespondAsync("User is banned?");
                     return;
                 }
 
-                await member.BanAsync(deleteMessageDays.Days, reason).ConfigureAwait(false);
-                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, deleteMessageDays.ToString());
+                await member.BanAsync(5, reason).ConfigureAwait(false);
+                int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, timePreiod.ToString());
+
+                BotEventFactory.CreateScheduledEvent().WithSpan(timePreiod).WithEvent(async(s, e) =>
+                {
+                    if((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == member.Id) != null)
+                        await ctx.Guild.UnbanMemberAsync(member);
+                }).Execute();
 
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
@@ -168,7 +174,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                     return;
                 }
 
-                await member.BanAsync(0, reason).ConfigureAwait(false);
+                await member.BanAsync(5, reason).ConfigureAwait(false);
                 int id = await modService.AddBan(member.Id, ctx.Guild.Id, ctx.Member.Id, reason, TimeSpan.FromDays(0).ToString());
 
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -179,7 +185,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                  .WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
                  .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
             }
-            catch
+            catch 
             {
                 await ctx.Channel.SendMessageAsync($"Failed to unban specified user").ConfigureAwait(false);
             }
@@ -191,14 +197,9 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task UnBanMember(CommandContext ctx, DiscordUser user,[RemainingText] string reason = "Unspecified")
         {
-            if(await ctx.Guild.GetMemberAsync(user.Id) != null)
-            {
-                await ctx.RespondAsync("Member is in the server?");
-                return;
-            }
             if ((await ctx.Guild.GetBansAsync()).FirstOrDefault(x => x.User.Id == user.Id) == null)
             {
-                await ctx.RespondAsync("Member isn't banned?");
+                await ctx.RespondAsync("User isn't banned?");
                 return;
             }
 
@@ -293,7 +294,7 @@ namespace KunalsDiscordBot.Modules.Moderation
              .WithFooter($"Admin: {(admin == null ? admin.DisplayName : "admin isn't in the server anymore")}");
 
             var span = TimeSpan.Parse(ban.Time);
-            embed.AddField("Delete Message Time: ", $"{span.Days} days, {span.Hours} hours, {span.Minutes} minutes, {span.Seconds} seconds");
+            embed.AddField("Delete Message Time: ", span == TimeSpan.FromDays(0) ? "Forever" : $"{span.Days} days, {span.Hours} hours, {span.Minutes} minutes, {span.Seconds} seconds");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
         }

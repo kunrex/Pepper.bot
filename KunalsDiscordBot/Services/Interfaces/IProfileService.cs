@@ -11,6 +11,8 @@ namespace KunalsDiscordBot.Services.Currency
     public interface IProfileService
     {
         public Task<Profile> GetProfile(ulong id, string name, bool sameMember = true);
+        public Task<bool> UpdateProfile(Profile profileToUpdate);
+        public Task<bool> DetatchProfile(Profile profileToDetatch);
         public Task<Profile> CreateProfile(ulong id, string name);
 
         public Task<bool> AddXP(ulong id, int val);
