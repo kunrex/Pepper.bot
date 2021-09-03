@@ -37,6 +37,24 @@ namespace KunalsDiscordBot.Services.Currency
             }
         }
 
+        public async Task<bool> RemoveEntity<T>(T entityToRemove)
+        {
+            var removeEntry = context.Remove(entityToRemove);
+            await context.SaveChangesAsync();
+
+            removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
+        public async Task<bool> AddEntity<T>(T entityToAdd)
+        {
+            var entityEntry = await context.AddAsync(entityToAdd).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
+
+            entityEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
         public async Task<Profile> GetProfile(ulong id, string name, bool defaultCreate = false)
         {
             var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
@@ -44,24 +62,27 @@ namespace KunalsDiscordBot.Services.Currency
             if (profile == null && defaultCreate)
                 profile = await CreateProfile(id, name);
 
-            await DetatchProfile(profile);
             return profile;
         }
 
-        public async Task<Profile> CreateProfile(ulong id, string name)
+        private async Task<Profile> CreateProfile(ulong id, string name)
         {
             var profile = new Profile
             {
                 Id = (long)id,
                 Name = name,
+
+                Level = 1,
                 XP = 0,
+
                 Coins = 0,
                 CoinsBank = 0,
                 CoinsBankMax = 100,
+
                 Job = "None",
                 PrevWorkDate = "None",
+
                 SafeMode = 0,
-                Level = 1
             };
 
             var entityEntry = await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
@@ -71,95 +92,31 @@ namespace KunalsDiscordBot.Services.Currency
             return profile;
         }
 
-
-        public async Task<bool> UpdateProfile(Profile profileToUpdate)
+        public async Task<bool> UpdateEntity<T>(T entityToUpdate)
         {
-            if (profileToUpdate == null)
+            if (entityToUpdate == null)
                 return false;
 
-            var updateEntry = context.UserProfiles.Update(profileToUpdate);
+            var updateEntry = context.Update(entityToUpdate);
 
             await context.SaveChangesAsync();
             updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             return true;
         }
 
-        public Task<bool> DetatchProfile(Profile profileToDetatch)
+        public async Task<bool> ModifyProfile(Profile profileToModify, Action<Profile> modification)
         {
-            if (profileToDetatch == null)
-                return Task.FromResult(false);
+            modification.Invoke(profileToModify);
 
-            context.Entry(profileToDetatch).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return Task.FromResult(true);
+            return await UpdateEntity(profileToModify);
         }
 
-        public async Task<bool> AddXP(ulong id, int val)
+        public async Task<bool> ModifyProfile(ulong id, Action<Profile> modification)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
+            var profileToModify = await GetProfile(id, "");
+            modification.Invoke(profileToModify);
 
-            if (profile == null)
-                return false;
-
-            profile.XP += val;
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
-        }
-
-        public async Task<bool> ChangeCoins(ulong id, int val)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.Coins += val;
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
-        }
-
-
-        public async Task<bool> ChangeMaxCoinsBank(ulong id, int val)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.CoinsBankMax += val;
-
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
-        }
-
-        public async Task<bool> ChangeCoinsBank(ulong id, int val)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.CoinsBank += val;
-            profile.CoinsBank = Math.Clamp(profile.CoinsBank, 0, profile.CoinsBankMax);
-
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
+            return await UpdateEntity(profileToModify);
         }
 
         public Task<ItemDBData> GetItem(ulong id, string name)
@@ -187,7 +144,7 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> AddOrRemoveItem(ulong id, string name, int quantity)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
+            var profile = await GetProfile(id, "");
 
             if (profile == null)
                 return false;
@@ -198,50 +155,20 @@ namespace KunalsDiscordBot.Services.Currency
                 item.Count += quantity;
 
                 if(item.Count == 0)
-                {
-                    var removeEntry = context.ProfileItems.Remove(item);
-                    await context.SaveChangesAsync();
+                    return await RemoveEntity(item);
 
-                    removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                    return true;
-                }
-
-                var _updateEntry = context.ProfileItems.Update(item);
-                await context.SaveChangesAsync();
-
-                _updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                return true;
+                return await UpdateEntity(item);
             }
 
             item = new ItemDBData { Name = name, Count = quantity };
             profile.Items.Add(item);
 
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
-        public async Task<bool> ChangeJob(ulong id, string jobName)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.Job = jobName;
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
+            return await UpdateEntity(profile);
         }
 
         public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
+            var profile = await GetProfile(id, "");
 
             if (profile == null)
                 return false;
@@ -249,26 +176,16 @@ namespace KunalsDiscordBot.Services.Currency
             var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.BoosteName.ToLower() == name.ToLower());
             if (boost != null)//boost already exists
             {
-                if(quantity > 0)
+                if (quantity > 0)
                     return false;//prevent more than one boost
-                else 
-                {
-                    var removeEntry = context.ProfileBoosts.Remove(boost);
-                    await context.SaveChangesAsync();
-
-                    removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                    return true;
-                }
+                else
+                    return await RemoveEntity(boost);
             }
 
             boost = new BoostData { BoosteName = name, BoostTime = time.ToString(), BoostValue = value, BoostStartTime = startTime };
             profile.Boosts.Add(boost);
 
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
+            return await UpdateEntity(profile);
         }
 
         public Task<BoostData> GetBoost(ulong id, string name)
@@ -289,37 +206,6 @@ namespace KunalsDiscordBot.Services.Currency
             var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
 
             return Task.FromResult(boosts);
-        }
-
-        public async Task<bool> ToggleSafeMode(ulong id)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.SafeMode = profile.SafeMode == 1 ? 0 : 1;
-            var updateEntry = context.UserProfiles.Update(profile);
-            await context.SaveChangesAsync().ConfigureAwait(false);
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-
-            return true;
-        }
-
-        public async Task<bool> ChangePreviousWorkData(ulong id, DateTime date)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return false;
-
-            profile.PrevWorkDate = date.ToString("MM/dd/yyyy HH:mm:ss");
-            var updateEntry = context.UserProfiles.Update(profile);
-
-            await context.SaveChangesAsync();
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
         }
     }
 }

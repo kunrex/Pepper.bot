@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items
             switch(Data.Type)
             {
                  case ToolData.ToolType.BankSpace:
-                    await service.ChangeMaxCoinsBank(member.Id, boost);
+                    await service.ModifyProfile(member.Id, x => x.CoinsBankMax += boost);
                     break;
             }
             await service.AddOrRemoveItem(member.Id, Name, -1).ConfigureAwait(false);

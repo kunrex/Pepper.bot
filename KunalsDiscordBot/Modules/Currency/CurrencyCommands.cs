@@ -139,17 +139,17 @@ namespace KunalsDiscordBot.Modules.Currency
 
             var provideXP = ctx.Command.CustomAttributes.FirstOrDefault(x => x is NonXPCommandAttribute) == null;
             if (provideXP)
-                await service.AddXP((ulong)profile.Id, new Random().Next(0, profile.Level * data.XPMultiplier));
+                await service.ModifyProfile(profile, x => x.XP += new Random().Next(0, profile.Level * data.XPMultiplier));
 
             var moneyCommandExecuted = ctx.Command.CustomAttributes.FirstOrDefault(x => x is MoneyCommandAttribute) != null;
             if (moneyCommandExecuted)
-                await service.ChangeMaxCoinsBank((ulong)profile.Id, new Random().Next(0, profile.Level * data.CoinMultiplier));
+                await service.ModifyProfile(profile, x => x.CoinsBankMax += new Random().Next(0, profile.Level * data.CoinMultiplier));
 
             await base.AfterExecutionAsync(ctx);
         }
 
         [Command("profile")]
-        [Description("Gets the profile of he user"), NonXPCommand]
+        [Description("Gets the profile of a user"), NonXPCommand]
         public async Task GetProfile(CommandContext ctx)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username, true);
@@ -193,7 +193,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("profile")]
-        [Description("Gets the profile of he user"), NonXPCommand]
+        [Description("Gets the profile of a user"), NonXPCommand]
         public async Task GetProfile(CommandContext ctx, DiscordMember member = null)
         {
             var profile = await service.GetProfile(member.Id, member.Username, false);
@@ -237,7 +237,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Deposit")]
-        [Aliases("dep"), MoneyCommand]
+        [Aliases("dep")]
         [Description("Deposits Money into the bank"), RequireProfile]
         public async Task Deposit(CommandContext ctx, string amount)
         {
@@ -248,46 +248,54 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.RespondAsync($"Your your bank is full. Use a bank card to gain more space.");
                 return;
             }
-            else if (profile.Coins <= 0)
+            if (profile.Coins <= 0)
             {
                 await ctx.RespondAsync($"Your wallet is empty, can't deposit coins you don't have.");
                 return;
             }
 
             var difference = profile.CoinsBankMax - profile.CoinsBank;
+            int toDep;
 
             if (amount.ToLower().Equals("max"))
-            {
-                var toDep = System.Math.Min(difference, profile.Coins);
-
-                await service.ChangeCoinsBank(ctx.Member.Id, toDep);
-                await service.ChangeCoins(ctx.Member.Id, -toDep);
-
-                await ctx.RespondAsync($"Desposited max coins ({toDep} {data.coinsEmoji})");
-                ExecutionRewards = true;
-            }
+                toDep = System.Math.Min(difference, profile.Coins);
             else if (int.TryParse(amount, out int x))
             {
-                var toDep = int.Parse(amount);
+                toDep = int.Parse(amount);
 
                 if (toDep > difference)
                 {
-                    await ctx.Channel.SendMessageAsync("You can't deposit more than your bank can hold?");
+                    await ctx.RespondAsync("You can't deposit more than your bank can hold?");
                     return;
                 }
-
-                await service.ChangeCoinsBank(ctx.Member.Id, toDep);
-                await service.ChangeCoins(ctx.Member.Id, -toDep);
-
-                await ctx.RespondAsync($"Deposited {toDep} {data.coinsEmoji}");
-                ExecutionRewards = true;
+                if (toDep == 0)
+                {
+                    await ctx.RespondAsync("Dude, whats the point of depositing 0");
+                    return;
+                }
+                if (toDep < 0)
+                {
+                    await ctx.RespondAsync("If you want to depsoit negative numbers just use the `withdraw` command");
+                    return;
+                }
             }
             else
+            {
                 await ctx.RespondAsync("You do know coins are measured using numbers right?");
+                return;
+            }
+
+            await service.ModifyProfile(profile, x =>
+            {
+                x.CoinsBank += toDep;
+                x.Coins -= toDep;
+            });
+            await ctx.RespondAsync($"Deposited {toDep} {data.coinsEmoji}");
+            ExecutionRewards = true;
         }
 
         [Command("Withdraw")]
-        [Aliases("with"), MoneyCommand]
+        [Aliases("with")]
         [Description("Withdraws Money into the bank"), RequireProfile]
         public async Task Withdraw(CommandContext ctx, string amount)
         {
@@ -299,32 +307,44 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            if (amount.ToLower().Equals("max"))
-            {
-                await service.ChangeCoinsBank(ctx.Member.Id, -profile.CoinsBank);
-                await service.ChangeCoins(ctx.Member.Id, profile.CoinsBank);
+            int toWith;
 
-                await ctx.RespondAsync($"Withdrawed max coins ({profile.CoinsBank} {data.coinsEmoji})");
-                ExecutionRewards = true;
-            }
+            if (amount.ToLower().Equals("max"))
+                toWith = profile.CoinsBank;
             else if (int.TryParse(amount, out int x))
             {
-                var toWith = int.Parse(amount);
+                toWith = int.Parse(amount);
 
                 if (toWith > profile.CoinsBank)
                 {
                     await ctx.RespondAsync("You can't withdraw more money than there is in your bank?");
                     return;
                 }
-
-                await service.ChangeCoinsBank(ctx.Member.Id, -toWith);
-                await service.ChangeCoins(ctx.Member.Id, toWith);
-
-                await ctx.RespondAsync($"Withdrawed {toWith} {data.coinsEmoji}");
-                ExecutionRewards = true;
+                if(toWith == 0)
+                {
+                    await ctx.RespondAsync("Dude, whats the point of withdrawing 0");
+                    return;
+                }
+                if (toWith < 0)
+                {
+                    await ctx.RespondAsync("If you want to withdraw negative numbers just use the `deposit` command");
+                    return;
+                }
             }
             else
+            {
                 await ctx.RespondAsync("You do know coins are measured using numbers right?");
+                return;
+            }
+
+            await service.ModifyProfile(profile, x =>
+            {
+                x.CoinsBank -= toWith;
+                x.Coins += toWith;
+            });
+
+            await ctx.RespondAsync($"Withdrawed {toWith} {data.coinsEmoji}");
+            ExecutionRewards = true;
         }
 
         [Command("Lend")]
@@ -333,54 +353,66 @@ namespace KunalsDiscordBot.Modules.Currency
         {
             if (member.Id == ctx.Member.Id)
             {
-                await ctx.RespondAsync("Whats the point of lending money to your self?").ConfigureAwait(false);
+                await ctx.RespondAsync("Whats the point of lending money to yourself?").ConfigureAwait(false);
                 return;
             }
 
-            var other = service.GetProfile(member.Id, member.Username, false);
+            var other = await service.GetProfile(member.Id, member.Username, false);
             if(other == null)
             {
                 await ctx.RespondAsync($"{member.Mention} does not have a profile").ConfigureAwait(false);
                 return;
             }
 
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+            int toLend;
+
             if (amount.Equals("max"))
             {
-                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
-
                 if (profile.Coins <= 0)
                 {
                     await ctx.RespondAsync("You're broke dude...").ConfigureAwait(false);
                     return;
                 }
 
-                var coins = profile.Coins;
-                await service.ChangeCoins(ctx.Member.Id, -coins);
-                await service.ChangeCoins(member.Id, coins);
-
-                await ctx.RespondAsync($"You lended {coins} {data.coinsEmoji} to {member.Mention}").ConfigureAwait(false);
-                ExecutionRewards = true;
+                toLend = profile.Coins;
             }
             else if (int.TryParse(amount, out int x))
             {
-                var coins = int.Parse(amount);
-                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+                toLend = int.Parse(amount);
 
                 if (profile.Coins <= 0)
-                    await ctx.RespondAsync("You're broke dude...").ConfigureAwait(false);
-                else if (profile.Coins < coins)
-                    await ctx.RespondAsync("You can't lend money you don't have").ConfigureAwait(false);
-                else
                 {
-                    await service.ChangeCoins(ctx.Member.Id, -coins);
-                    await service.ChangeCoins(member.Id, coins);
-
-                    await ctx.RespondAsync($"You lended {coins} {data.coinsEmoji} to {member.Mention}").ConfigureAwait(false);
-                    ExecutionRewards = true;
-                }              
+                    await ctx.RespondAsync("You're broke dude...").ConfigureAwait(false);
+                    return;
+                }
+                if(toLend == 0)
+                {
+                    await ctx.RespondAsync("What exactly is the point of lending 0 coins?").ConfigureAwait(false);
+                    return;
+                }
+                if (toLend == 0)
+                {
+                    await ctx.RespondAsync("If you want to lend them a negative amount of coins might as well ask them to lend you the same number of coins").ConfigureAwait(false);
+                    return;
+                }
+                if (profile.Coins < toLend)
+                {
+                    await ctx.RespondAsync("You can't lend money you don't have").ConfigureAwait(false);
+                    return;
+                }
             }
             else
+            {
                 await ctx.RespondAsync("You do know coins are measured using numbers right?").ConfigureAwait(false);
+                return;
+            }
+
+            await service.ModifyProfile(profile, x => x.Coins -= toLend);
+            await service.ModifyProfile(other, x => x.Coins += toLend);
+
+            await ctx.RespondAsync($"You lended {toLend} {data.coinsEmoji} to {member.Mention}").ConfigureAwait(false);
+            ExecutionRewards = true;
         }
 
         [Command("Daily")]
@@ -389,7 +421,7 @@ namespace KunalsDiscordBot.Modules.Currency
         public async Task Daily(CommandContext ctx)
         {
             var coins = new Random().Next(data.dailyMin, data.dailyMax);
-            await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
+            await service.ModifyProfile(ctx.Member.Id, x => x.Coins += coins).ConfigureAwait(false); 
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
@@ -406,7 +438,7 @@ namespace KunalsDiscordBot.Modules.Currency
         public async Task Weekly(CommandContext ctx)
         {
             var coins = new Random().Next(data.weeklyMin, data.weeklyMax);
-            await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); 
+            await service.ModifyProfile(ctx.Member.Id, x => x.Coins += coins).ConfigureAwait(false); 
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
@@ -423,7 +455,7 @@ namespace KunalsDiscordBot.Modules.Currency
         public async Task Monthly(CommandContext ctx)
         {
             var coins = new Random().Next(data.monthlyMin, data.monthlyMax);
-            await service.ChangeCoins(ctx.Member.Id, coins).ConfigureAwait(false); ;
+            await service.ModifyProfile(ctx.Member.Id, x => x.Coins += coins).ConfigureAwait(false); 
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
@@ -439,7 +471,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Toggles safe mode"), RequireProfile, NonXPCommand]
         public async Task SafeMode(CommandContext ctx)
         {
-            await service.ToggleSafeMode(ctx.Member.Id).ConfigureAwait(false);
+            await service.ModifyProfile(ctx.Member.Id, x => x.SafeMode = x.SafeMode == 1 ? 0 : 1).ConfigureAwait(false);
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
             await ctx.RespondAsync($"Safe mode set to {profile.SafeMode == 1}").ConfigureAwait(false);
@@ -492,7 +524,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            await service.ChangeJob(ctx.User.Id, job.Name);
+            await service.ModifyProfile(profile, x => x.Job = job.Name);
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
@@ -511,7 +543,7 @@ namespace KunalsDiscordBot.Modules.Currency
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
             var prevJob = profile.Job;
 
-            await service.ChangeJob(ctx.Member.Id, "None");
+            await service.ModifyProfile(profile, x => x.Job = "None");
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
@@ -520,7 +552,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Color = ModuleInfo.Color,
             }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)).ConfigureAwait(false);
 
-            await service.ChangePreviousWorkData(ctx.Member.Id, DateTime.Now);
+            await service.ModifyProfile(profile, x => x.PrevWorkDate = DateTime.Now.ToString());
             ExecutionRewards = true;
         }
 
@@ -563,8 +595,11 @@ namespace KunalsDiscordBot.Modules.Currency
                 Thumbnail = thumbnail
             };
 
-            await service.ChangeCoins(ctx.Member.Id, money);
-            await service.ChangePreviousWorkData(ctx.Member.Id, DateTime.Now);
+            await service.ModifyProfile(profile, x =>
+            {
+                x.Coins += money;
+                x.PrevWorkDate = DateTime.Now.ToString();
+            });
 
             await ctx.RespondAsync(completedEmbed).ConfigureAwait(false);
             ExecutionRewards = true;
@@ -644,9 +679,8 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.RespondAsync(result.message).ConfigureAwait(false);
             else
             {
-                await service.ChangeCoins(ctx.Member.Id , - result.item.Price * quantity);
+                await service.ModifyProfile(profile, x => x.Coins -= result.item.Price * quantity);
                 await service.AddOrRemoveItem(ctx.Member.Id, result.item.Name, quantity);
-
 
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
@@ -675,7 +709,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 await ctx.RespondAsync("You don't have this item?").ConfigureAwait(false);
             else
             {
-                await service.ChangeCoins(ctx.Member.Id, result.SellingPrice * quantity);
+                await service.ModifyProfile(ctx.Member.Id, x => x.Coins += result.SellingPrice * quantity);
                 await service.AddOrRemoveItem(ctx.Member.Id, result.Name, -quantity);
 
                 await ctx.RespondAsync(new DiscordEmbedBuilder
@@ -858,7 +892,7 @@ namespace KunalsDiscordBot.Modules.Currency
             var casted = itemNeed as PresenceItem;
             var reward = casted.Data.GetReward();
 
-            await service.ChangeCoins(ctx.Member.Id, reward);
+            await service.ModifyProfile(ctx.Member.Id, x => x.Coins += reward);
 
             string descripion = reward switch
             {

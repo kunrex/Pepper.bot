@@ -14,16 +14,7 @@ namespace KunalsDiscordBot.Extensions
 {
     public static partial class PepperBotExtensions
     {
-        public static Dictionary<string, Command> FilteredRegisteredCommands(this CommandsNextExtension commandsNext)
-        {
-            var dictionary = new Dictionary<string, Command>();
-
-            foreach (var elemant in commandsNext.RegisteredCommands)
-                if (dictionary.FirstOrDefault(x => x.Value.Name == elemant.Value.Name).Value == null)
-                    dictionary.Add(elemant.Key, elemant.Value);
-
-            return dictionary;
-        }
+        public static IEnumerable<Command> FilteredRegisteredCommands(this CommandsNextExtension commandsNext) => commandsNext.RegisteredCommands.Values.Distinct();
 
         public static IEnumerable<Command> GetModules(this IEnumerable<Command> commands) => commands.Where(x => x is CommandGroup);
 

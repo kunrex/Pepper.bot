@@ -36,7 +36,7 @@ namespace KunalsDiscordBot.Modules.Help
         {
             if (command == null || !command.Any())
             {
-                var sorted = ctx.CommandsNext.FilteredRegisteredCommands().Values.OrderBy(x => x.Name).Where(x => !x.RunChecksAsync(ctx, true).GetAwaiter().GetResult().Any()).ToList();
+                var sorted = ctx.CommandsNext.FilteredRegisteredCommands().OrderBy(x => x.Name).Where(x => !x.RunChecksAsync(ctx, true).GetAwaiter().GetResult().Any()).ToList();
 
                 var embeds = new List<DiscordEmbedBuilder>() { new HelpFormatter(ctx.Member.DisplayName).WithSubcommands(sorted).Build() };
 
@@ -54,7 +54,7 @@ namespace KunalsDiscordBot.Modules.Help
             else
             {
                 var helpBuilder = new HelpFormatter(ctx.Member.DisplayName);
-                var searchIn = ctx.CommandsNext.FilteredRegisteredCommands().Values.ToList();
+                var searchIn = ctx.CommandsNext.FilteredRegisteredCommands().ToList();
                 Command searchCommand = null;
 
                 foreach(var _command in command)
