@@ -11,7 +11,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items
             Game = 2,
             Code = 4,
             Hunt = 8,
-            Fish = 16 
+            Fish = 16,
+            Sleep = 32
         }
 
         public readonly PresenceCommand allowedCommands;

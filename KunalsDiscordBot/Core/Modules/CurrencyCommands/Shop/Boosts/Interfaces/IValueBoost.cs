@@ -10,6 +10,6 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts.Interfaces
         public TimeSpan MaximumTimeSpam { get; }
 
         public virtual int GetBoostPrecentage() => new Random().Next(MinimumBoost, MaximumBoost);
-        public virtual TimeSpan GetBoostTimeSpan() => TimeSpan.FromSeconds(new Random().Next((int)MinimumTimeSpan.TotalHours, (int)MaximumTimeSpam.TotalHours));
+        public virtual TimeSpan GetBoostTimeSpan() => TimeSpan.FromHours(new Random().Next((int)MinimumTimeSpan.TotalHours, (int)MaximumTimeSpam.TotalHours));
     }
 }

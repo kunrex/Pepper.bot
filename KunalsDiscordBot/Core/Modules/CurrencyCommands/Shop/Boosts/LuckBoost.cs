@@ -17,7 +17,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts
 
         public LuckBoost(string _name, int _percentageIncrease, TimeSpan _span, DateTime _start) : base(_name, _percentageIncrease, _span, _start)
         {
-
+            Console.WriteLine("Name is: " + _name);
         }
 
         protected override Boost CreateClone(string _name, int _percentageIncrease, TimeSpan _span, DateTime _start) => new LuckBoost(_name, _percentageIncrease, _span, _start);

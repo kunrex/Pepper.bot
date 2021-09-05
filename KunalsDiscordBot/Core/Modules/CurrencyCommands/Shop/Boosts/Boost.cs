@@ -36,6 +36,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts
         public Boost(string _name, int _percentageIncrease, TimeSpan _span, DateTime _start)
         {
             Name = _name;
+            Console.WriteLine("Name is: " + Name);
+
             PercentageIncrease = _percentageIncrease;
             TimeSpan = _span;
             Start = _start;

@@ -8,6 +8,7 @@ using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Items;
 using DiscordBotDataBase.Dal.Models.Profile;
 using DiscordBotDataBase.Dal.Models.Profile.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
 
 namespace KunalsDiscordBot.Services.Currency
 {
@@ -19,21 +20,18 @@ namespace KunalsDiscordBot.Services.Currency
         {
             context = _context;
 
-            CheckBoosts();
+            CheckBoosts().GetAwaiter().GetResult();
         }
 
-        private async void CheckBoosts()
+        private async Task CheckBoosts()
         {
             foreach (var boost in context.ProfileBoosts)
             {
                 var startTime = DateTime.Parse(boost.StartTime);
                 var span = TimeSpan.Parse(boost.TimeSpan);
 
-                if(DateTime.Now - startTime > span)
-                {
-                    var profile = context.UserProfiles.First(x => x.Id == boost.ProfileId);
-                    await AddOrRemoveBoost((ulong)profile.Id, boost.Name, 0, TimeSpan.FromSeconds(0), "", -1);
-                }
+                if (DateTime.Now - startTime > span)
+                    await RemoveEntity(boost);
             }
         }
 
@@ -156,26 +154,27 @@ namespace KunalsDiscordBot.Services.Currency
                 return await UpdateEntity(item);
             }
 
-            item = new ItemDBData { Name = name, Count = quantity };
+            item = new ItemDBData { ProfileId = profile.Id, Name = name, Count = quantity };
             profile.Items.Add(item);
 
             return await UpdateEntity(profile);
         }
 
-        public async Task<BoostData> GetBoost(ulong id, string name)
+        public async Task<Boost> GetBoost(ulong id, string name)
         {
             var boosts = await GetBoosts(id);
             if (boosts == null)
                 return null;
 
+            Console.WriteLine(boosts.Count);
             return boosts.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public Task<List<BoostData>> GetBoosts(ulong id)
+        public Task<List<Boost>> GetBoosts(ulong id)
         {
             var casted = (long)id;
 
-            return Task.FromResult(context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == casted).ToList());
+            return Task.FromResult(context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == casted).Select(x => (Boost)x).ToList());
         }
 
         public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)
@@ -192,13 +191,14 @@ namespace KunalsDiscordBot.Services.Currency
             var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
             if (boost != null)//boost already exists
             {
+                Console.WriteLine(boost == null);
                 if (quantity > 0)
                     return false;//prevent more than one boost
                 else
-                    return await RemoveEntity(boost);
+                    return !await RemoveEntity(boost);
             }
 
-            boost = new BoostData { Name = name, TimeSpan = time.ToString(), PercentageIncrease = value, StartTime = startTime };
+            boost = new BoostData { ProfileId = profile.Id, Name = name, TimeSpan = time.ToString(), PercentageIncrease = value, StartTime = startTime };
             profile.Boosts.Add(boost);
 
             return await UpdateEntity(profile);

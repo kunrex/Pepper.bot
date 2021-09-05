@@ -870,7 +870,7 @@ namespace KunalsDiscordBot.Modules.Currency
         }
 
         [Command("Meme")]
-        [Description("The currency meme command")]
+        [Description("Upload memes, earn coins")]
         [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Meme), MoneyCommand]
         public async Task Meme(CommandContext ctx)
         {
@@ -903,6 +903,46 @@ namespace KunalsDiscordBot.Modules.Currency
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "Memes",
+                Description = descripion,
+                Color = ModuleInfo.Color
+            }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)
+             .WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
+        }
+
+        [Command("Sleep")]
+        [Description("Sleep do be good")]
+        [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Sleep), MoneyCommand]
+        public async Task Sleep(CommandContext ctx)
+        {
+            var itemNeed = Shop.GetPresneceItem(ctx);
+
+            var itemData = await service.GetItem(ctx.Member.Id, itemNeed.Name).ConfigureAwait(false);
+            if (itemData == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"You need a {itemNeed.Name} to run this command, you have 0",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
+
+                return;
+            }
+
+            var casted = itemNeed as PresenceItem;
+            var reward = casted.Data.GetReward();
+
+            await service.ModifyProfile(ctx.Member.Id, x => x.Coins += reward);
+
+            string descripion = reward switch
+            {
+                0 => "Yea, you didn't have a good night sleep so you get no coins",
+                var y when y < casted.Data.maxReward / 2 => $"Well, you had a half decent night. You get {reward} coins",
+                _ => $"That might have been the best sleep you've ever had. Here you go sleeping beauty, {reward} coins"
+            };
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+            {
+                Title = "Sleep",
                 Description = descripion,
                 Color = ModuleInfo.Color
             }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)

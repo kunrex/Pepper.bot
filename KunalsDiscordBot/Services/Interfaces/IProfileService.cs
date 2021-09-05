@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using DiscordBotDataBase.Dal.Models.Items;
 using DiscordBotDataBase.Dal.Models.Profile;
-using DSharpPlus.Entities;
-using System.Collections.Generic;
 using DiscordBotDataBase.Dal.Models.Profile.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
 
 namespace KunalsDiscordBot.Services.Currency
 {
@@ -24,8 +25,8 @@ namespace KunalsDiscordBot.Services.Currency
         public Task<bool> AddOrRemoveItem(ulong id, string name, int quantity);
         public Task<bool> AddOrRemoveItem(Profile profile, string name, int quantity);
 
-        public Task<BoostData> GetBoost(ulong id, string name);
-        public Task<List<BoostData>> GetBoosts(ulong id);
+        public Task<Boost> GetBoost(ulong id, string name);
+        public Task<List<Boost>> GetBoosts(ulong id);
         public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity);
         public Task<bool> AddOrRemoveBoost(Profile profile, string name, int value, TimeSpan time, string startTime, int quantity);
     }
