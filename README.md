@@ -15,15 +15,15 @@ __Modules :__
 
 Module | Description
 --- | --- |
-General | Commands for general purposes, this also includes config commands for servers |
-Moderation | Commands to moderate a server, including things like role and member management |
-Soft Moderation | Commands for soft moderation like infractions, changing nicknames etc.|
-Games | Commands to play games with other server members, Games inlcuded => TicTacToe, RockPaperScissors, Connect4, Battleship and UNO|
-Fun | Commands for general fun. Includes Reddit based commands|
-Music | Commands to play music on the server, has functionality for a queue and mutlpie commands to control it|
-Images | Commands to make your own memes and other image mdeia with pre built meme formats.|
-Math | Commands for math problems like solving and graphing linear equations|
-Currency | Commands for a functioning currency system. Each user has their own profile which itself contains coins, levels, items and more|
+General | General commands including commands for server configuration and more. |
+Moderation | Moderation Commands. |
+Soft Moderation | Soft Moderation commands. |
+Games | Commands to play games such as UNO and Battleship with other server members. |
+Fun | Commands for general fun! Troll users and use reddit based commands. |
+Music | Commands to play music on discord. |
+Images | Image Manipulation! Make memes with pre-built and and manipulate user profiles! |
+Math | Simple math commands such as solving and graphing equations. |
+Currency | A currency system! |
 
 Does not have seperate prefix', Im not planning on adding it anytime soon either. The bot is in developement, things I'm working on right now is
 1. The Currency System.
