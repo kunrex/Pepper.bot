@@ -11,13 +11,12 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
     public enum UseType
     {
         Presence = 0,
-        Invincibility = 1,
-        Decoration = 2,
-        Boost = 4,
-        Tool = 8,
-        Offensive = 16,
-        Defensive = 32,
-        NonBuyable = 64
+        Decoration = 1,
+        Boost = 2,
+        Tool = 4,
+        Offensive = 8,
+        Defensive = 16,
+        NonBuyable = 32
     }
 
     public abstract class Item
@@ -28,12 +27,17 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
 
         public string Description { get; protected set; }
 
-        public UseType Type { get; protected set; }
+        public UseType UseType { get; protected set; }
 
 
         public Item(string name, int price, string description, UseType type)
         {
+            Name = name;
+            Price = price;
+            Description = description;
 
+            UseType = type;
+            SellingPrice = Price / 2;
         }
 
         public abstract Task<UseResult> Use(IProfileService service, DiscordMember member);

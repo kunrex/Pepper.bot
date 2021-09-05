@@ -5,12 +5,12 @@ namespace DiscordBotDataBase.Dal.Models.Profile.Boosts
 {
     public class BoostData : Entity<int>
     {
-        public string BoosteName { get; set; }
+        public string Name { get; set; }
 
-        public int BoostValue { get; set; }
+        public int PercentageIncrease { get; set; }
 
-        public string BoostTime { get; set; }
-        public string BoostStartTime { get; set; }
+        public string TimeSpan { get; set; }
+        public string StartTime { get; set; }
 
         [ForeignKey("ProfileId")]
         public long ProfileId { get; set; }

@@ -11,7 +11,6 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Core;
 using KunalsDiscordBot.Services;
@@ -184,7 +183,7 @@ namespace KunalsDiscordBot.Modules.Currency
             int index = 1;
             foreach (var boost in await service.GetBoosts(ctx.Member.Id))
             {
-                boosts += $"{index}. {boost.BoosteName}\n";
+                boosts += $"{index}. {boost.Name}\n";
                 index++;
             }
             embed.AddField("Boosts:\n", boosts == string.Empty ? "None" : boosts);
@@ -228,7 +227,7 @@ namespace KunalsDiscordBot.Modules.Currency
             int index = 1;
             foreach (var boost in await service.GetBoosts(ctx.Member.Id))
             {
-                boosts += $"{index}. {boost.BoosteName}\n";
+                boosts += $"{index}. {boost.Name}\n";
                 index++;
             }
             embed.AddField("Boosts:\n", boosts == string.Empty ? "None" : boosts);
@@ -680,7 +679,7 @@ namespace KunalsDiscordBot.Modules.Currency
             else
             {
                 await service.ModifyProfile(profile, x => x.Coins -= result.item.Price * quantity);
-                await service.AddOrRemoveItem(ctx.Member.Id, result.item.Name, quantity);
+                await service.AddOrRemoveItem(profile, result.item.Name, quantity);
 
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
@@ -727,7 +726,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, MoneyCommand]
         public async Task Gift(CommandContext ctx, DiscordMember member, int number, [RemainingText]string itemName)
         {
-            var other = service.GetProfile(member.Id, member.Username, false);
+            var other = await service.GetProfile(member.Id, member.Username, false);
             if (other == null)
             {
                 await ctx.RespondAsync($"{member.Mention} does not have a profile").ConfigureAwait(false);
@@ -749,7 +748,7 @@ namespace KunalsDiscordBot.Modules.Currency
             else
             {
                 await service.AddOrRemoveItem(ctx.Member.Id, result.Name, -number);
-                await service.AddOrRemoveItem(member.Id, result.Name, number);
+                await service.AddOrRemoveItem(other, result.Name, number);
 
                 await ctx.RespondAsync($"{ctx.Member.Mention} gave {number} {result.Name}(s) to {member.Mention}").ConfigureAwait(false);
                 ExecutionRewards = true;

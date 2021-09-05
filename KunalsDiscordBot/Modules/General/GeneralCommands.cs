@@ -26,7 +26,7 @@ namespace KunalsDiscordBot.Modules.General
 {
     [Group("General")]
     [Decor("Blurple", ":tools:")]
-    [Description("General commands. This inlcudes viewing server configuration.")]
+    [Description("General commands including commands for server configuration and more.")]
     [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.General)]
     public class GeneralCommands : PepperCommandModule
     {

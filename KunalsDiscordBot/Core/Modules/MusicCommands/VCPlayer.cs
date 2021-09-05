@@ -75,7 +75,12 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             await connection.DisconnectAsync();
             OnDisconnect.Invoke();
-            inactivityCancellationToken.Dispose();
+
+            if (inactivityCancellationToken != null && !inactivityCancellationToken.IsCancellationRequested)
+            {
+                inactivityCancellationToken.Cancel();
+                inactivityCancellationToken.Dispose();
+            }
 
             return $"Left {connection.Channel.Mention} succesfully";
         }

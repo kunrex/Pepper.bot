@@ -12,12 +12,6 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items
 
         public ToolItem(string name, int price, string description, UseType type, ToolData data) :base(name, price, description, type)
         {
-            Name = name;
-            Price = price;
-            Description = description;
-
-            Type = type;
-            SellingPrice = Price / 2;
             Data = data;
         }
 

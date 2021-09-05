@@ -23,7 +23,7 @@ namespace KunalsDiscordBot.Modules.Moderation
     [Group("Moderation")]
     [Aliases("Mod")]
     [Decor("Blurple", ":scales:")]
-    [Description("Moderation Commands")]
+    [Description("Moderation Commands.")]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class ModerationCommands : PepperCommandModule
     {

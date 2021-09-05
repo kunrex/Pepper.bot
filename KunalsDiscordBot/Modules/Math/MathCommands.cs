@@ -23,7 +23,7 @@ namespace KunalsDiscordBot.Modules.Math
 {
     [Group("Math")]
     [Decor("MidnightBlue", ":1234:")]
-    [ModuleLifespan(ModuleLifespan.Transient), Description("Simple math commands! Solve and graph equations and more!")]
+    [ModuleLifespan(ModuleLifespan.Transient), Description("Simple math commands such as solving and graphing equations.")]
     [RequireBotPermissions(Permissions.SendMessages |  Permissions.EmbedLinks), ConfigData(ConfigValueSet.Math)]
     public class MathCommands : PepperCommandModule
     {

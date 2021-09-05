@@ -31,7 +31,7 @@ namespace KunalsDiscordBot.Modules.Fun
 {
     [Group("Fun")]
     [Decor("Lilac", ":game_die:"), ConfigData(ConfigValueSet.Fun)]
-    [ModuleLifespan(ModuleLifespan.Transient), Description("Fun commands!, troll users and access reddit")]
+    [ModuleLifespan(ModuleLifespan.Transient), Description("Commands for general fun! Troll users and use reddit based commands.")]
     [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels)]
     public class FunCommands : PepperCommandModule
     {

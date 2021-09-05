@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Modules.Games
 {
     [Group("Games")]
     [Decor("IndianRed", ":video_game:")]
-    [Description("A set of commands to play popular games with other server members")]
+    [Description("Commands to play games such as UNO and Battleship with other server members.")]
     [ModuleLifespan(ModuleLifespan.Transient), ConfigData(ConfigValueSet.Games)]
     [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels)]
     public class GameCommands : PepperCommandModule

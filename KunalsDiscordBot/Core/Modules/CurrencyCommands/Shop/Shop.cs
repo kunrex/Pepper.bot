@@ -3,10 +3,11 @@ using System.Collections.Generic;
 
 using DSharpPlus.CommandsNext;
 
+using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Core.Exceptions.CurrencyCommands;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
-using DiscordBotDataBase.Dal.Models.Profile;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
 {
@@ -23,9 +24,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
         public static readonly Item BankCard = new ToolItem("Bank Card", 125, "Provides extra bank space", UseType.Tool, new ToolData(ToolData.ToolType.BankSpace, 350, 700
             ));
 
-        public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.Boost, new BoostData(
-            BoostData.BoostType.Luck, 10, 20, 4, 6
-            ));
+        public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Alcohol));
 
         public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit, BankCard, Alcohol };
 

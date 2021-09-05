@@ -22,9 +22,11 @@ namespace KunalsDiscordBot.Services.Currency
         public Task<ItemDBData> GetItem(ulong id, string name);
         public Task<List<ItemDBData>> GetItems(ulong id);
         public Task<bool> AddOrRemoveItem(ulong id, string name, int quantity);
+        public Task<bool> AddOrRemoveItem(Profile profile, string name, int quantity);
 
         public Task<BoostData> GetBoost(ulong id, string name);
         public Task<List<BoostData>> GetBoosts(ulong id);
         public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity);
+        public Task<bool> AddOrRemoveBoost(Profile profile, string name, int value, TimeSpan time, string startTime, int quantity);
     }
 }

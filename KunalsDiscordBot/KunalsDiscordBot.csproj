@@ -77,6 +77,9 @@
     <Folder Include="Core\Modules\ImageCommands\Enums\" />
     <Folder Include="Modules\Help\" />
     <Folder Include="Core\Modules\CurrencyCommands\Jobs\WorkDatas\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Shop\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -138,6 +141,9 @@
     <None Remove="Core\Modules\ImageCommands\Enums\" />
     <None Remove="Modules\Help\" />
     <None Remove="Core\Modules\CurrencyCommands\Jobs\WorkDatas\" />
+    <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\" />
+    <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
+    <None Remove="Core\Modules\CurrencyCommands\Shop\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

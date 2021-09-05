@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Modules.Music
 {
     [Group("Music")]
     [Decor("Aquamarine", ":musical_note:")]
-    [Description("Set of music commands offered by Pepper"), ConfigData(ConfigValueSet.Music)]
+    [Description("Commands to play music on discord."), ConfigData(ConfigValueSet.Music)]
     [ModuleLifespan(ModuleLifespan.Transient), RequireBotPermissions(Permissions.SendMessages | Permissions.AccessChannels | Permissions.UseVoice | Permissions.Speak)]
     public sealed class MusicCommands : PepperCommandModule
     {

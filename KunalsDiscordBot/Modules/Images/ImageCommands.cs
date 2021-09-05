@@ -26,7 +26,7 @@ namespace KunalsDiscordBot.Modules.Images
 {
     [Group("Image")]
     [Decor("Chartreuse", ":camera:")]
-    [ModuleLifespan(ModuleLifespan.Transient), Description("Image Manipulation! Make memes with pre-built and more!")]
+    [ModuleLifespan(ModuleLifespan.Transient), Description("Image Manipulation! Make memes with pre-built and and manipulate user profiles!")]
     [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks), ConfigData(ConfigValueSet.Images)]
     public class ImageCommands : PepperCommandModule
     {

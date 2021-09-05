@@ -26,13 +26,13 @@ namespace KunalsDiscordBot.Services.Currency
         {
             foreach (var boost in context.ProfileBoosts)
             {
-                var startTime = DateTime.Parse(boost.BoostStartTime);
-                var span = TimeSpan.Parse(boost.BoostTime);
+                var startTime = DateTime.Parse(boost.StartTime);
+                var span = TimeSpan.Parse(boost.TimeSpan);
 
                 if(DateTime.Now - startTime > span)
                 {
                     var profile = context.UserProfiles.First(x => x.Id == boost.ProfileId);
-                    await AddOrRemoveBoost((ulong)profile.Id, boost.BoosteName, 0, TimeSpan.FromSeconds(0), "", -1);
+                    await AddOrRemoveBoost((ulong)profile.Id, boost.Name, 0, TimeSpan.FromSeconds(0), "", -1);
                 }
             }
         }
@@ -114,47 +114,43 @@ namespace KunalsDiscordBot.Services.Currency
         public async Task<bool> ModifyProfile(ulong id, Action<Profile> modification)
         {
             var profileToModify = await GetProfile(id, "");
-            modification.Invoke(profileToModify);
 
-            return await UpdateEntity(profileToModify);
+            return await ModifyProfile(profileToModify, modification);
         }
 
-        public Task<ItemDBData> GetItem(ulong id, string name)
+        public async Task<ItemDBData> GetItem(ulong id, string name)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
+            var items = await GetItems(id);
+            if (items == null)
                 return null;
 
-            var item = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
-
-            return Task.FromResult(item);
+            return items.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
         }
 
         public Task<List<ItemDBData>> GetItems(ulong id)
         {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-            if (profile == null)
-                return null;
+            long casted = (long)id;
 
-            var items = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
-
-            return Task.FromResult(items);
+            return Task.FromResult(context.ProfileItems.AsQueryable().Where(x => x.ProfileId == casted).ToList());
         }
 
         public async Task<bool> AddOrRemoveItem(ulong id, string name, int quantity)
         {
             var profile = await GetProfile(id, "");
-
             if (profile == null)
                 return false;
 
+            return await AddOrRemoveItem(profile, name, quantity);
+        }
+
+        public async Task<bool> AddOrRemoveItem(Profile profile, string name, int quantity)
+        {
             var item = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
             if (item != null)//item already exists
             {
                 item.Count += quantity;
 
-                if(item.Count == 0)
+                if (item.Count == 0)
                     return await RemoveEntity(item);
 
                 return await UpdateEntity(item);
@@ -166,14 +162,34 @@ namespace KunalsDiscordBot.Services.Currency
             return await UpdateEntity(profile);
         }
 
+        public async Task<BoostData> GetBoost(ulong id, string name)
+        {
+            var boosts = await GetBoosts(id);
+            if (boosts == null)
+                return null;
+
+            return boosts.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+        }
+
+        public Task<List<BoostData>> GetBoosts(ulong id)
+        {
+            var casted = (long)id;
+
+            return Task.FromResult(context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == casted).ToList());
+        }
+
         public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)
         {
             var profile = await GetProfile(id, "");
-
             if (profile == null)
                 return false;
 
-            var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.BoosteName.ToLower() == name.ToLower());
+            return await AddOrRemoveBoost(profile, name, value, time, startTime, quantity);
+        }
+
+        public async Task<bool> AddOrRemoveBoost(Profile profile, string name, int value, TimeSpan time, string startTime, int quantity)
+        {
+            var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
             if (boost != null)//boost already exists
             {
                 if (quantity > 0)
@@ -182,30 +198,10 @@ namespace KunalsDiscordBot.Services.Currency
                     return await RemoveEntity(boost);
             }
 
-            boost = new BoostData { BoosteName = name, BoostTime = time.ToString(), BoostValue = value, BoostStartTime = startTime };
+            boost = new BoostData { Name = name, TimeSpan = time.ToString(), PercentageIncrease = value, StartTime = startTime };
             profile.Boosts.Add(boost);
 
             return await UpdateEntity(profile);
-        }
-
-        public Task<BoostData> GetBoost(ulong id, string name)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-
-            if (profile == null)
-                return null;
-
-            var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.BoosteName.ToLower() == name.ToLower());
-
-            return Task.FromResult(boost);
-        }
-
-        public Task<List<BoostData>> GetBoosts(ulong id)
-        {
-            var profile = context.UserProfiles.FirstOrDefault(x => x.Id == (long)id);
-            var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).ToList();
-
-            return Task.FromResult(boosts);
         }
     }
 }
