@@ -21,6 +21,5 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
         public static readonly Item Padlock = new BoostItem("Padlock", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Padlock));
 
         public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow, Landmine, Padlock };
-
     }
 }

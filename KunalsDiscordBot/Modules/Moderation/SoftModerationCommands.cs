@@ -327,7 +327,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             {
                 await ctx.Channel.SendMessageAsync("emoji with this name already exists").ConfigureAwait(false);
                 return;
-            }    
+            }
+
+            if (ctx.Guild.Emojis.Count == 50 + (((int)ctx.Guild.PremiumTier) * 50))
+            {
+                await ctx.Channel.SendMessageAsync($"Emoji cap reached ({((int)ctx.Guild.PremiumTier) * 50})");
+                return;
+            }
 
             await ctx.Channel.SendMessageAsync("This might take a second").ConfigureAwait(false);
             using (WebClient webClient = new WebClient())

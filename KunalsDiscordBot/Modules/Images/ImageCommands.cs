@@ -46,7 +46,11 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Abandon(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = new[] { message };
+            if(string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
 
             string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
@@ -55,13 +59,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                for (int i = 0; i < sentences.Length; i++)
-                {
-                    //have to change this to load using the config
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
-                }
+                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -77,7 +76,11 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Violence(CommandContext ctx, [RemainingText] string message)
         {
-            string[] sentences = new[] { message };
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
 
             string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
@@ -86,12 +89,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                for (int i = 0; i < sentences.Length; i++)
-                {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
-                }
+                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -107,6 +106,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Billy(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string[] sentences = new[] { message };
             string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
@@ -656,6 +661,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Sleep(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 
@@ -680,6 +691,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task ChangeMyMind(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string fileName = service.GetFileByCommand(ctx.Command);
             string filePath = Path.Combine("Modules", "Images", "Images", fileName);
 

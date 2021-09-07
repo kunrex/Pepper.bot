@@ -476,5 +476,16 @@ namespace KunalsDiscordBot.Modules.Fun
                         break;
                 }
         }
+
+        [Command("Choose")]
+        [Aliases("Pick"), Description("Choose a value from given values")]
+        public async Task Choose(CommandContext ctx, [RemainingText] string options)
+        {
+            var choices = options.Split(',');
+            if (choices.Length <= 1)
+                await ctx.RespondAsync("You need to give me 2 or more options");
+            else
+                await ctx.RespondAsync($"I chose:\n {choices[new Random().Next(0, choices.Length)]}");
+        }
     }
 }

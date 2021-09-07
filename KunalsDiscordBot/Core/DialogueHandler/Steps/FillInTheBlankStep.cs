@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -40,7 +39,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                 var message = new DiscordMessageBuilder();
 
                 var index = content.IndexOf(blank);
-                messageContent = messageContent.Remove(index, blank.Length).Insert(index, response[2 - (currentTry - 1)].ToString());
+                messageContent = messageContent.Remove(index, blank.Length).Insert(index, response[tries - currentTry].ToString());
 
                 if (useEmbed)
                 {
