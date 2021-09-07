@@ -11,27 +11,8 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
 {
-    public static class Shop
+    public static partial class Shop
     {
-        public static readonly Item Laptop = new PresenceItem("Laptop", 125, "Allows you to run the currency meme, code and game commands", UseType.Presence, new PresenceData(
-            PresenceData.PresenceCommand.Meme | PresenceData.PresenceCommand.Game | PresenceData.PresenceCommand.Code, 100, 400
-            ));
-
-        public static readonly Item BodyPillow = new PresenceItem("BodyPillow", 125, "Allows you to run the currency sleep command", UseType.Presence, new PresenceData(
-           PresenceData.PresenceCommand.Sleep, 75, 300
-           ));
-
-        public static readonly Item HuntingKit = new PresenceItem("Hunting Kit", 125, "Allows you to run the currency hunt and fish commands", UseType.Presence, new PresenceData(
-           PresenceData.PresenceCommand.Hunt | PresenceData.PresenceCommand.Fish
-            ));
-
-        public static readonly Item BankCard = new ToolItem("Bank Card", 125, "Provides extra bank space", UseType.Tool, new ToolData(ToolData.ToolType.BankSpace, 350, 700
-            ));
-
-        public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Alcohol));
-
-        public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow };
-
         public static BuyResult Buy(string itemName, int quantity, in Profile profile)
         {
             var item = GetItem(itemName);
@@ -49,12 +30,12 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
 
         public static Item GetItem(string itemName) => AllItems.Find(x => x.Name.ToLower().Replace(" ", "") == itemName.ToLower().Replace(" ",""));
 
-        public static Item GetPresneceItem(CommandContext ctx)
+        public static Item GetPresneceItem(Command command)
         {
-            var attribute = ctx.Command.CustomAttributes.FirstOrDefault(x => x is PresenceItemAttribute);
+            var attribute = command.CustomAttributes.FirstOrDefault(x => x is PresenceItemAttribute);
 
             if (attribute == null)
-                throw new PresenceAttributeNotFoundException(ctx.Command.Name);
+                throw new PresenceAttributeNotFoundException(command.Name);
 
             var casted = (PresenceItemAttribute)attribute;
 

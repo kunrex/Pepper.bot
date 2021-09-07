@@ -19,8 +19,6 @@ namespace KunalsDiscordBot.Services.Currency
         public ProfileService(DataContext _context)
         {
             context = _context;
-
-            CheckBoosts().GetAwaiter().GetResult();
         }
 
         private async Task CheckBoosts()
@@ -170,11 +168,25 @@ namespace KunalsDiscordBot.Services.Currency
             return boosts.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public Task<List<Boost>> GetBoosts(ulong id)
+        public async Task<List<Boost>> GetBoosts(ulong id)
         {
             var casted = (long)id;
 
-            return Task.FromResult(context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == casted).Select(x => (Boost)x).ToList());
+            var boosts = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == casted).ToList();
+
+            foreach (var boost in boosts)
+            {
+                var startTime = DateTime.Parse(boost.StartTime);
+                var span = TimeSpan.Parse(boost.TimeSpan);
+
+                if (DateTime.Now - startTime > span)
+                {
+                    await RemoveEntity(boost);
+                    boosts.Remove(boost);
+                }
+            }
+
+            return boosts.Select(x => (Boost)x).ToList();
         }
 
         public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)

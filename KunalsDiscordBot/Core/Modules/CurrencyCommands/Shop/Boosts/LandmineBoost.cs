@@ -23,6 +23,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts
         public TimeSpan MaximumTimeSpam => maximumTimeSpam;
 
         public int Order => 1;
+        public int MethodId => 2;
 
         public LandmineBoost(string _name, int _minimumBoost, int _maximumBoost, TimeSpan _minimumTimeSpan, TimeSpan _maximumTimeSpan) : base(_name)
         {
@@ -60,8 +61,6 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts
 
                 message = $"Well you tried to rob someone, who was smart enough to place a landmin down. Long story short, ya died";
             }
-            else
-                message = $"Cool, you didn't trip the landmine";
 
             await profileService.AddOrRemoveBoost(userProfile, Name, 0, TimeSpan.FromSeconds(0), "", -1);
             return new UseResult

@@ -23,6 +23,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts
         public TimeSpan MaximumTimeSpam => maximumTimeSpam;
 
         public int Order => 1;
+        public int MethodId => 1;
 
         public PadlockBoost(string _name, int _minimumBoost, int _maximumBoost, TimeSpan _minimumTimeSpan, TimeSpan _maximumTimeSpan) : base(_name)
         {

@@ -28,6 +28,8 @@ using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts.Interfaces;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -54,27 +56,24 @@ namespace KunalsDiscordBot.Modules.Currency
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
-            var requireProfile = ctx.Command.CustomAttributes.FirstOrDefault(x => x is RequireProfileAttribute) != null;
-            if(requireProfile)
+            var customAttributes = ctx.Command.CustomAttributes;
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username, false);
+
+            var requireProfile = customAttributes.FirstOrDefault(x => x is RequireProfileAttribute) != null;
+            if(requireProfile && profile == null)
             {
-                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username, false);
-
-                if (profile == null)
+                await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
-                    await ctx.RespondAsync(new DiscordEmbedBuilder
-                    {
-                        Description = "You need a profile to run this command",
-                        Color = ModuleInfo.Color
-                    }.WithFooter("Use the `currency profile` command to create a profile")).ConfigureAwait(false);
+                    Description = "You need a profile to run this command",
+                    Color = ModuleInfo.Color
+                }.WithFooter("Use the `currency profile` command to create a profile")).ConfigureAwait(false);
 
-                    throw new CustomCommandException();
-                }
+                throw new CustomCommandException();
             }
 
-            var jobCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is RequireJobAttribute);
+            var jobCheck = customAttributes.FirstOrDefault(x => x is RequireJobAttribute);
             if(jobCheck != null)
             {
-                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
                 if (profile.Job.Equals("None") && ((RequireJobAttribute)jobCheck).require)
                 {
                     await ctx.RespondAsync(new DiscordEmbedBuilder
@@ -97,10 +96,9 @@ namespace KunalsDiscordBot.Modules.Currency
                 }
             }
 
-            var checkWorkDate = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckWorkDateAttribute) != null;
+            var checkWorkDate = customAttributes.FirstOrDefault(x => x is CheckWorkDateAttribute) != null;
             if(checkWorkDate)
             {
-                var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
                 var job = Job.AllJobs.FirstOrDefault(x => x.Name == profile.Job);
 
                 if (DateTime.TryParse(profile.PrevWorkDate, out var x))
@@ -122,6 +120,36 @@ namespace KunalsDiscordBot.Modules.Currency
                         throw new CustomCommandException();
                     }
                 }
+            }
+
+            var presenceItemNeeded = customAttributes.FirstOrDefault(x => x is PresenceItemAttribute);
+            if(presenceItemNeeded != null)
+            {
+                var itemNeeded = Shop.GetPresneceItem(ctx.Command);
+
+                var itemData = await service.GetItem(ctx.Member.Id, itemNeeded.Name).ConfigureAwait(false);
+                if (itemData == null)
+                {
+                    await ctx.RespondAsync(new DiscordEmbedBuilder
+                    {
+                        Description = $"You need a {itemNeeded.Name} to run this command, you have 0",
+                        Color = ModuleInfo.Color
+                    }.WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
+
+                    throw new CustomCommandException();
+                }
+            }
+
+            var noSafeModeNeeded = customAttributes.FirstOrDefault(x => x is NoSafeModeCommandAttribute) != null;
+            if(noSafeModeNeeded && profile.SafeMode == 1)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = "You have safe mode enabled and can't run this command",
+                    Color = ModuleInfo.Color
+                }.WithFooter("Use the `currency safemode` to toggle safe mode")).ConfigureAwait(false);
+
+                throw new CustomCommandException();
             }
 
             await base.BeforeExecutionAsync(ctx);
@@ -502,7 +530,7 @@ namespace KunalsDiscordBot.Modules.Currency
             }
 
             var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.DeleteButtons, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Apply")]
@@ -628,7 +656,7 @@ namespace KunalsDiscordBot.Modules.Currency
             }
 
             var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.DeleteButtons, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Item")]
@@ -669,7 +697,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Buy")]
         [Description("Buy an item"), RequireProfile, MoneyCommand]
-        public async Task BuyItem(CommandContext ctx, int quantity, [RemainingText]string itemName)
+        public async Task Buy(CommandContext ctx, int quantity, [RemainingText]string itemName)
         {
             var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
 
@@ -680,6 +708,30 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 await service.ModifyProfile(profile, x => x.Coins -= result.item.Price * quantity);
                 await service.AddOrRemoveItem(profile, result.item.Name, quantity);
+
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Title = "Purchase Successful",
+                    Description = result.message,
+                    Color = ModuleInfo.Color
+                }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)).ConfigureAwait(false);
+                ExecutionRewards = true;
+            }
+        }
+
+        [Command("Buy")]
+        [RequireProfile, MoneyCommand]
+        public async Task BuySingle(CommandContext ctx, [RemainingText] string itemName)
+        {
+            var profile = await service.GetProfile(ctx.Member.Id, ctx.Member.Username);
+
+            var result = Shop.Buy(itemName, 1, in profile);
+            if (!result.completed)
+                await ctx.RespondAsync(result.message).ConfigureAwait(false);
+            else
+            {
+                await service.ModifyProfile(profile, x => x.Coins -= result.item.Price);
+                await service.AddOrRemoveItem(profile, result.item.Name, 1);
 
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
@@ -703,9 +755,11 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            var item = service.GetItem(ctx.Member.Id, result.Name);           
+            var item = await service.GetItem(ctx.Member.Id, result.Name);
             if (item == null)
                 await ctx.RespondAsync("You don't have this item?").ConfigureAwait(false);
+            else if (item.Count < quantity)
+                await ctx.RespondAsync($"You only have {item.Count} {result.Name}(s)");
             else
             {
                 await service.ModifyProfile(ctx.Member.Id, x => x.Coins += result.SellingPrice * quantity);
@@ -787,7 +841,7 @@ namespace KunalsDiscordBot.Modules.Currency
                         .WithDescription("Inventory is empty"));
 
             var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.DeleteButtons, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(embeds.Count == 1 ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Inventory"), NonXPCommand]
@@ -833,7 +887,7 @@ namespace KunalsDiscordBot.Modules.Currency
                         .WithDescription("Inventory is empty"));
 
             var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.DeleteButtons, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Use")]
@@ -874,19 +928,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Meme), MoneyCommand]
         public async Task Meme(CommandContext ctx)
         {
-            var itemNeed = Shop.GetPresneceItem(ctx);
-
-            var itemData = await service.GetItem(ctx.Member.Id, itemNeed.Name).ConfigureAwait(false);
-            if(itemData == null)
-            {
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                {
-                    Description = $"You need a {itemNeed.Name} to run this command, you have 0",
-                    Color = ModuleInfo.Color
-                }.WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
-
-                return;
-            }
+            var itemNeed = Shop.GetPresneceItem(ctx.Command);
 
             var casted = itemNeed as PresenceItem;
             var reward = casted.Data.GetReward();
@@ -900,13 +942,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 _ => $"Damn your meme is **Trending**, got to say im impressed. Here you go, {reward} coins"
             };
 
-            await ctx.RespondAsync(new DiscordEmbedBuilder
-            {
-                Title = "Memes",
-                Description = descripion,
-                Color = ModuleInfo.Color
-            }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)
-             .WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
+            await ctx.RespondAsync(descripion).ConfigureAwait(false);
         }
 
         [Command("Sleep")]
@@ -914,19 +950,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Sleep), MoneyCommand]
         public async Task Sleep(CommandContext ctx)
         {
-            var itemNeed = Shop.GetPresneceItem(ctx);
-
-            var itemData = await service.GetItem(ctx.Member.Id, itemNeed.Name).ConfigureAwait(false);
-            if (itemData == null)
-            {
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                {
-                    Description = $"You need a {itemNeed.Name} to run this command, you have 0",
-                    Color = ModuleInfo.Color
-                }.WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
-
-                return;
-            }
+            var itemNeed = Shop.GetPresneceItem(ctx.Command);
 
             var casted = itemNeed as PresenceItem;
             var reward = casted.Data.GetReward();
@@ -940,13 +964,98 @@ namespace KunalsDiscordBot.Modules.Currency
                 _ => $"That might have been the best sleep you've ever had. Here you go sleeping beauty, {reward} coins"
             };
 
-            await ctx.RespondAsync(new DiscordEmbedBuilder
+            await ctx.RespondAsync(descripion).ConfigureAwait(false);
+        }
+
+        [Command("Hug")]
+        [Description("Everybody loves a hug now don't they?")]
+        [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Sleep)]
+        public async Task Hug(CommandContext ctx)
+        {
+            await ctx.RespondAsync("As you hug the waifu pillow, you feel a large amount of warmth").ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync("https://tenor.com/view/hugs-sending-virtual-hugs-loading-gif-8158818").ConfigureAwait(false);
+        }
+
+        [Command("Steal")]
+        [Aliases("Rob"), Description("Rob from another user"), NoSafeModeCommand]
+        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User)]
+        public async Task Steal(CommandContext ctx, DiscordUser victim)
+        {
+            if (victim.Id == ctx.User.Id)
             {
-                Title = "Sleep",
-                Description = descripion,
-                Color = ModuleInfo.Color
-            }.WithThumbnail(ctx.User.AvatarUrl, data.thumbnailSize, data.thumbnailSize)
-             .WithFooter($"User: {ctx.Member.Username}")).ConfigureAwait(false);
+                await ctx.RespondAsync("You can't rob yourself?");
+                return;
+            }
+            var victimProfile = await service.GetProfile(victim.Id, "");
+
+            if(victimProfile == null)
+            {
+                await ctx.RespondAsync($"{victim.Mention} doesn't have a profile");
+                return;
+            }
+            if(victimProfile.SafeMode == 1)
+            {
+                await ctx.RespondAsync($"{victim.Mention} has safe mode enabled");
+                return;
+            }
+            if (victimProfile.Coins <= 100)
+            {
+                await ctx.RespondAsync($"{victim.Mention} is almost broke lol, leave em alone");
+                return;
+            }
+
+            var robberProfile = await service.GetProfile(ctx.User.Id, "");
+
+            var boosts = (await service.GetBoosts(victim.Id).ConfigureAwait(false));
+            var theftProtectionBoosts = boosts.Where(x => x is ITheftProtection).Cast<ITheftProtection>().OrderBy(x => x.Order).ToList();
+            UseResult result = default;
+
+            foreach (var boost in theftProtectionBoosts)
+            {
+                result = boost.MethodId switch
+                {
+                    1 => await boost.Use(victimProfile, service),
+                    2 => await boost.Use(victimProfile, robberProfile, service),
+                    _ => default
+                };
+
+                if (result.useComplete)
+                    break;
+            }
+
+            if (result.useComplete)
+                await ctx.RespondAsync(result.message).ConfigureAwait(false);
+            else
+            {
+                var luckBoost = boosts.FirstOrDefault(x => x is LuckBoost);
+                var luck = luckBoost == null ? 0 : luckBoost.PercentageIncrease;
+
+                var random = new Random();
+                int coins; string message;
+
+                switch(random.Next(1, 100) + luck)
+                {
+                    case var x when x < 10:
+                        coins = 0;
+                        message = "Yeah you didn't steal anything lmfao";
+                        break;
+                    case var x when x < 100:
+                        coins = random.Next(0, (int)(x / 100f * victimProfile.Coins));
+                        message = coins < victimProfile.Coins / 2 ? "You stole a decent amount coins" : "Holy crap you stole more coins than I expected";
+                        break;
+                    default:
+                        coins = victimProfile.Coins;
+                        message = "YOU STOLE BASICALLY EVERYTHING HAHA";
+                        break;
+                }
+
+                await service.ModifyProfile(robberProfile, x => x.Coins += coins);
+                await service.ModifyProfile(victimProfile, x => x.Coins -= coins);
+
+                await ctx.RespondAsync($"{message}, here you go {coins} {data.coinsEmoji}");
+            }
+
+            ExecutionRewards = true;
         }
     }
 }
