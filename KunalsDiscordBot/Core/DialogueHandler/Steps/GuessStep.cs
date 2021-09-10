@@ -1,85 +1,69 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
-using DSharpPlus.Interactivity.Extensions;
+
+using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 
 namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
-    public class GuessStep : Step
+    public class GuessStep : Step, ITurnStep
     {
         private readonly string helpCode;
         private readonly int answer;
         private readonly int numOfHints;
 
-        private DiscordEmbedBuilder.EmbedThumbnail thumbnail;
-        private DiscordColor color;
+        private readonly int tries;
+        public int Tries => tries;
 
-        public GuessStep(string _title, string _content, string _tryAgainMessage, int _tries, int _time, string _helpCode, int _answer, int _numOfHints) : base(_title, _content, _tryAgainMessage, _tries, _time)
+        private readonly string tryAgainMessage;
+        public string TryAgainMessage => tryAgainMessage;
+
+        public GuessStep(string _title, string _content, int _time, string _tryAgainMessage, int _tries, string _helpCode, int _answer, int _numOfHints) : base(_title, _content, _time)
         {
             helpCode = _helpCode;
             answer = _answer;
+
+            tryAgainMessage = _tryAgainMessage;
+            tries = _tries;
+
             numOfHints = _numOfHints;
         }
 
-        public override Step WithEmbedData(DiscordColor _color, DiscordEmbedBuilder.EmbedThumbnail _thumbnail)
-        {
-            thumbnail = _thumbnail;
-            color = _color;
-
-            return this;
-        }
-
-        public async override Task<bool> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public async override Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
         {
             int currentTry = tries, timeLeft = time;
-            var interactivity = client.GetInteractivity();
             DateTime prevTime = DateTime.Now;
 
             int prevEntry = -1, hints = numOfHints;
 
             while (currentTry > 0)
             {
-                var message = new DiscordMessageBuilder();
+                var replyStep = new ReplyStep(title, content, time, new List<string>() { helpCode, answer.ToString() });
                 if (useEmbed)
-                {
-                    var embed = new DiscordEmbedBuilder
-                    {
-                        Title = title,
-                        Description = content,
-                        Color = color,
-                        Thumbnail = thumbnail
-                    };
+                    replyStep.WithEmbedData(color, thumbnail);
 
-                    embed.AddField("Time: ", $"{timeLeft} seconds");
-
-                    message.WithEmbed(embed);
-                }
-                else
-                    message.WithContent($"{title}\n{content}");
-
-                await message.SendAsync(channel).ConfigureAwait(false);
-
-                var messageResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == channel.Id, TimeSpan.FromSeconds(timeLeft));
+                var result = await replyStep.ProcessStep(channel, member, client, useEmbed);
 
                 //any of the return cases
-                if (messageResult.TimedOut)
-                    return false;
-                else if(messageResult.Result.Content.ToLower() == helpCode.ToLower())
+                if (!result.useComplete && result.message == null)
+                    return result;
+                else if (result.message == helpCode)
                 {
-                    if(hints == 0)
+                    if (hints == 0)
                         await channel.SendMessageAsync("You don't have any hints left??");
-
-                    if (prevEntry == -1)
+                    else if (prevEntry == -1)
                         await channel.SendMessageAsync("You haven't even tried yet??!!");
+                    else
+                        await channel.SendMessageAsync($"{(prevEntry > answer ? $"{prevEntry} was too high" : $"{prevEntry} was too low")}").ConfigureAwait(false);
 
-                    await channel.SendMessageAsync($"{(prevEntry > answer ? $"{prevEntry} was too high" : $"{prevEntry} was too low")}").ConfigureAwait(false);
                     hints--;
-
                     currentTry--;
                 }
-                else if (!int.TryParse(messageResult.Result.Content, out int x) || int.Parse(messageResult.Result.Content) != answer)
+                else if (!int.TryParse(result.message, out int x) || result.message != answer.ToString())
                 {
                     currentTry--;
                     DateTime messageTime = DateTime.Now;
@@ -87,17 +71,17 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                     int difference = (int)(messageTime - prevTime).TotalSeconds;
                     timeLeft -= difference;
 
-                    prevTime = messageTime;
-                    await channel.SendMessageAsync($"{tryAgainMessage}, you get {currentTry} more turn(s)").ConfigureAwait(false);
+                    await channel.SendMessageAsync($"{tryAgainMessage}, you now have {currentTry} more turn(s)").ConfigureAwait(false);
 
-                    if (int.TryParse(messageResult.Result.Content, out int y))
-                        prevEntry = int.Parse(messageResult.Result.Content);
+                    prevTime = messageTime;
+                    if (int.TryParse(result.message, out x))
+                        prevEntry = int.Parse(result.message);
                 }
                 else
-                    return true;
+                    return result;
             }
 
-            return false;
+            return default;
         }
     }
 }

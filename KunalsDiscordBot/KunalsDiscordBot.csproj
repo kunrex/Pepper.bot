@@ -80,6 +80,7 @@
     <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\" />
     <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
     <Folder Include="Core\Modules\CurrencyCommands\Shop\Enums\" />
+    <Folder Include="Core\DialogueHandler\Steps\Basics\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -144,6 +145,7 @@
     <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\" />
     <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
     <None Remove="Core\Modules\CurrencyCommands\Shop\Enums\" />
+    <None Remove="Core\DialogueHandler\Steps\Basics\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

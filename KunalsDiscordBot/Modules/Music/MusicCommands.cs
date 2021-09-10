@@ -146,7 +146,7 @@ namespace KunalsDiscordBot.Modules.Music
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Edited Configuration",
-                Description = $"Changed `Enforce DJ Role` to {role.Mention}",
+                Description = $"Saved {role.Mention} as the DJ role for the server",
                 Color = ModuleInfo.Color
             }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
@@ -156,16 +156,16 @@ namespace KunalsDiscordBot.Modules.Music
         [UserVCNeeded]
         public async Task Join(CommandContext ctx)
         {
-            if(await service.GetPlayerChannel(ctx.Guild.Id) != null)
-            {
-                await ctx.RespondAsync("I'm already in a channel?").ConfigureAwait(false);
-                return;
-            }
-
             var lava = ctx.Client.GetLavalink();
             if (lava == null || !lava.ConnectedNodes.Any())
             {
                 await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established");
+                return;
+            }
+
+            if (await service.GetPlayerChannel(ctx.Guild.Id) != null)
+            {
+                await ctx.RespondAsync("I'm already in a channel?").ConfigureAwait(false);
                 return;
             }
 

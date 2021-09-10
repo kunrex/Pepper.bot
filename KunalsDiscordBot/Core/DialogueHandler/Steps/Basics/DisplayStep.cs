@@ -4,44 +4,32 @@ using System.Threading.Tasks;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
+
+namespace KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics
 {
     public class DisplayStep : Step
     {
-        private DiscordEmbedBuilder.EmbedThumbnail thumbnail;
-        private DiscordColor color;
-
         private readonly bool edit;
         private readonly string editedvalue;
 
-        public DisplayStep(string _title, string _content, string _tryAgainMessage, int _tries, int _time, bool editAfter = false, string editted = null) : base(_title, _content, _tryAgainMessage, _tries, _time)
+        public DisplayStep(string _title, string _content, int _time, bool editAfter = false, string editted = null) : base(_title, _content, _time)
         {
             edit = editAfter;
             editedvalue = editted;
         }
 
-        public override Step WithEmbedData(DiscordColor _color, DiscordEmbedBuilder.EmbedThumbnail _thumbnail)
-        {
-            thumbnail = _thumbnail;
-            color = _color;
-
-            return this;
-        }
-
-        public async override Task<bool> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public async override Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
         {
             var message = new DiscordMessageBuilder();
             if (useEmbed)
-            {
-                var embed = new DiscordEmbedBuilder
+                message.WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = title,
                     Description = content,
                     Color = color,
                     Thumbnail = thumbnail
-                };
-                message.WithEmbed(embed);
-            }
+                });
             else
                 message.WithContent($"{title}\n{content}");
 
@@ -67,7 +55,11 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                     await sentMessage.ModifyAsync($"{title}\n{editedvalue}").ConfigureAwait(false);
             }
 
-            return true;
+            return new UseResult
+            {
+                useComplete = true,
+                message = string.Empty
+            };
         }
     }
 }

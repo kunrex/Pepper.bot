@@ -9,38 +9,34 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 
 namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
-    public class FillInTheBlankStep : Step, ITurnStep
+    public class QandAStep : Step, ITurnStep
     {
-        private readonly string response, blankSpot;
-
         private readonly int tries;
         public int Tries => tries;
 
         private readonly string tryAgainMessage;
         public string TryAgainMessage => tryAgainMessage;
 
-        public FillInTheBlankStep(string _title, string _content, int _time, string _tryAgainMessage, int _tries, string _response, string _blank) : base(_title, _content, _time)
+        private readonly string response;
+
+        public QandAStep(string _title, string _content, int _time, string _tryAgainMessage, int _tries, string _response) : base(_title, _content, _time)
         {
             response = _response;
-            blankSpot = _blank;
 
             tryAgainMessage = _tryAgainMessage;
             tries = _tries;
         }
 
-        public async override Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public override async Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
         {
             int currentTry = tries, timeLeft = time;
-            DateTime prevTime = DateTime.Now; string currentContent = content;
+            DateTime prevTime = DateTime.Now;
 
             while (currentTry > 0)
             {
-                var index = currentContent.IndexOf(blankSpot);
-                currentContent = currentContent.Remove(index, blankSpot.Length).Insert(index, response[tries - currentTry].ToString());
-
-                var replyStep = new ReplyStep(title, currentContent, timeLeft, response);
+                var replyStep = new ReplyStep(title, content, timeLeft, response);
                 if (useEmbed)
-                    replyStep.WithEmbedData(color, thumbnail); 
+                    replyStep.WithEmbedData(color, thumbnail);
 
                 var result = await replyStep.ProcessStep(channel, member, client, useEmbed);
 

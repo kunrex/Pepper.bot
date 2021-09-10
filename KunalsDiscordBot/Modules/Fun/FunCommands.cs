@@ -269,8 +269,17 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("LetMeGoogleThatForYou")]
         [Description("For those who can't google things for themselves")]
-        [Aliases("Google")]
-        public async Task Google(CommandContext ctx, [RemainingText] string search) => await ctx.RespondAsync("http://lmgtfy.com/?q=" + new Regex("[ ]{1,}", RegexOptions.None).Replace(search, "+")).ConfigureAwait(false);
+        [Aliases("LMGTFY")]
+        public async Task Google(CommandContext ctx, [RemainingText] string search)
+        {
+            if (string.IsNullOrEmpty(search))
+            {
+                await ctx.RespondAsync("At least give me something to google");
+                return;
+            }
+
+            await ctx.RespondAsync($"<https://letmegooglethat.com/?q={new Regex("[ ]{1,}", RegexOptions.None).Replace(search, "+")}>").ConfigureAwait(false);
+        }
 
         [Command("Guess")]
         [Description("Guess a random number")]
@@ -284,16 +293,16 @@ namespace KunalsDiscordBot.Modules.Fun
                 Member = ctx.Member,
                 Client = ctx.Client,
                 UseEmbed = false,
+                QuickStart = false
             };
 
-            var handler = new DialogueHandler(config,
-                new List<Step>
+            var handler = new DialogueHandler(config).WithSteps(new List<Step>
                 {
-                    new GuessStep("Random Number Generator", "Guess the number I'm thinking off between 1 and 20", "That wasn't the number I was thinking off", 5, 20, "hint", num, 2)
+                    new GuessStep("Random Number Generator", "Guess the number I'm thinking off between 1 and 20",  20, "That wasn't the number I was thinking off", 5, "hint", num, 2)
                 });
 
-            var completed = await handler.ProcessDialogue().ConfigureAwait(false);
-            await ctx.Channel.SendMessageAsync($"{(completed ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {num}")}").ConfigureAwait(false);
+            var result = await handler.ProcessDialogue().ConfigureAwait(false);
+            await ctx.Channel.SendMessageAsync($"{(result[0].useComplete ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {num}")}").ConfigureAwait(false);
         }
 
         [Command("Subreddit")]
@@ -485,7 +494,7 @@ namespace KunalsDiscordBot.Modules.Fun
             if (choices.Length <= 1)
                 await ctx.RespondAsync("You need to give me 2 or more options");
             else
-                await ctx.RespondAsync($"I chose:\n {choices[new Random().Next(0, choices.Length)]}");
+                await ctx.RespondAsync($"I choose: {choices[new Random().Next(0, choices.Length)]}");
         }
     }
 }

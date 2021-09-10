@@ -5,53 +5,56 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Core.DialogueHandlers.Steps;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 
 namespace KunalsDiscordBot.Core.DialogueHandlers
 {
     public class DialogueHandler
     {
-        public string MainTitle { get; private set; }
-        public bool UseEmbed { get; private set; }
-
-        public DiscordChannel Channel { get; private set; }
-        public DiscordMember Member { get; private set; }
-        public DiscordClient Client { get; private set; }
+        private DialogueHandlerConfig Configuration { get; set; }
 
         private List<Step> Steps { get; set; } = new List<Step>();
+
         private int stepIndex;
+        private bool started;
 
-        public DialogueHandler(DialogueHandlerConfig config, List<Step> steps)
+        public DialogueHandler(DialogueHandlerConfig config)
         {
-            MainTitle = config.MainTitle;
-            UseEmbed = config.UseEmbed;
+            Configuration = config;
 
-            Channel = config.Channel;
-            Member = config.Member;
-            Client = config.Client;
-
-            Steps.AddRange(steps);
             stepIndex = 0;
         }
 
-        public void AddSteps(List<Step> newSteps) => Steps.AddRange(newSteps);
-
-        public async Task<bool> ProcessDialogue()
+        public DialogueHandler WithSteps(List<Step> newSteps)
         {
-            if(MainTitle != null && MainTitle != string.Empty)
-                await Channel.SendMessageAsync(MainTitle).ConfigureAwait(false);
+            Steps.AddRange(newSteps);
+            if (Configuration.QuickStart)
+                Task.Run(() => ProcessDialogue());
+
+            return this;
+        }
+
+        public async Task<List<UseResult>> ProcessDialogue()
+        {
+            if (started)
+                return null;
+
+            started = true;
+            List<UseResult> results = new List<UseResult>();
 
             while (stepIndex < Steps.Count)
             {
                 Step currentStep = Steps[stepIndex];
-                bool completed = await currentStep.ProcessStep(Channel, Member, Client, UseEmbed);
+                var result = await currentStep.ProcessStep(Configuration.Channel, Configuration.Member, Configuration.Client, Configuration.UseEmbed);
 
-                if (!completed)
-                    return false;
+                if (!result.useComplete && Configuration.RequireFullCompletion)
+                    return results;
 
                 stepIndex++;
+                results.Add(result);
             }
 
-            return true;
+            return results;
         }
     }
 }

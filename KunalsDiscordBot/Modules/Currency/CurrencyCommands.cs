@@ -30,6 +30,8 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts.Interfaces;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -108,7 +110,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     var timeSpan =  DateTime.Now - prevDate;
                     if (timeSpan.TotalHours < (profile.Job == "None" ? Job.resignTimeSpan.TotalHours : job.CoolDown))
                     {
-                        var timeString = $"{timeSpan.Days} dyas, {timeSpan.Hours} hours, {timeSpan.Minutes}, {timeSpan.Seconds} seconds";
+                        var timeString = $"{timeSpan.Days} days, {timeSpan.Hours} hours, {timeSpan.Minutes} minutes, {timeSpan.Seconds} seconds";
 
                         await ctx.RespondAsync(new DiscordEmbedBuilder
                         {
@@ -599,25 +601,25 @@ namespace KunalsDiscordBot.Modules.Currency
                 Height = data.thumbnailSize,
                 Width = data.thumbnailSize
             };
-            var steps = await job.GetWork(ModuleInfo.Color, thumbnail);     
 
-            DialogueHandlerConfig dialogueConfig = new DialogueHandlerConfig
+            var steps = await job.GetWork(ModuleInfo.Color, thumbnail);
+            DialogueHandler handler = new DialogueHandler(new DialogueHandlerConfig
             {
                 Channel = ctx.Channel,
                 Member = ctx.Member,
                 Client = ctx.Client,
-                UseEmbed = true
-            };
+                UseEmbed = true,
+                RequireFullCompletion = true,
+                QuickStart = false
+            }).WithSteps(steps);
 
-            DialogueHandler handler = new DialogueHandler(dialogueConfig, steps); 
-            var completed = await handler.ProcessDialogue();
-
-            int money = completed?  GenerateRandom(job.SucceedMin, job.SucceedMax) : GenerateRandom(job.FailMin, job.FailMax);
+            var result = await handler.ProcessDialogue();
+            int money = result == null ? GenerateRandom(job.FailMin, job.FailMax) : GenerateRandom(job.SucceedMin, job.SucceedMax);
 
             var completedEmbed = new DiscordEmbedBuilder
             {
-                Title = completed ? "Good Job" : "Time Out",
-                Description = completed ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
+                Title = result == null ? "Good Job" : "Time Out",
+                Description = result == null ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
                 Color = ModuleInfo.Color,
                 Thumbnail = thumbnail
             };
