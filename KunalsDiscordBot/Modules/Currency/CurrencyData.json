@@ -1,14 +1,21 @@
 ﻿{
-  "coinsEmoji": ":coin:",
-  "thumbnailSize": 30,
-  "tick": ":white_check_mark:",
-  "cross": ":x:",
-  "dailyMin": 200,
-  "dailyMax": 800,
-  "weeklyMin": 500,
-  "weeklyMax": 1200,
-  "monthlyMin": 1000,
-  "monthlyMax": 2500,
+  "CoinsEmoji": ":coin:",
+  "ThumbnailSize": 30,
+
+  "Tick": ":white_check_mark:",
+  "Cross": ":x:",
+
+  "DailyMin": 200,
+  "DailyMax": 800,
+
+  "WeeklyMin": 500,
+  "WeeklyMax": 1200,
+
+  "MonthlyMin": 1000,
+  "MonthlyMax": 2500,
+
   "XPMultiplier": 5,
-  "CoinMultiplier" :  10
+  "CoinMultiplier": 10,
+
+  "Memes": [ "Classic", "Repost", "Wholesome", "Social Media", "Series", "Niche", "Obscurity", "Dark", "Slapstick Humour", "Fanbase", "Education" ]
 }

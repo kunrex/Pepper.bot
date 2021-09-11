@@ -27,21 +27,18 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
             tries = _tries;
         }
 
-        public override async Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public override async Task<DialougeResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed, DialougeResult previousResult = default)
         {
             int currentTry = tries, timeLeft = time;
             DateTime prevTime = DateTime.Now;
 
             while (currentTry > 0)
             {
-                var replyStep = new ReplyStep(title, content, timeLeft, response);
-                if (useEmbed)
-                    replyStep.WithEmbedData(color, thumbnail);
-
+                var replyStep = new ReplyStep(title, content, timeLeft, response).WithMesssageData(MessageData);
                 var result = await replyStep.ProcessStep(channel, member, client, useEmbed);
 
                 //any of the return cases
-                if ((!result.useComplete && result.message == null) || result.useComplete)
+                if ((!result.WasCompleted && result.Result == null) || result.WasCompleted)
                     return result;
                 else
                 {

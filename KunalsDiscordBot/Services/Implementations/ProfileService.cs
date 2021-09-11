@@ -21,33 +21,13 @@ namespace KunalsDiscordBot.Services.Currency
             context = _context;
         }
 
-        private async Task CheckBoosts()
-        {
-            foreach (var boost in context.ProfileBoosts)
-            {
-                var startTime = DateTime.Parse(boost.StartTime);
-                var span = TimeSpan.Parse(boost.TimeSpan);
 
-                if (DateTime.Now - startTime > span)
-                    await RemoveEntity(boost);
-            }
-        }
-
-        public async Task<bool> RemoveEntity<T>(T entityToRemove)
+        private async Task<bool> RemoveEntity<T>(T entityToRemove)
         {
             var removeEntry = context.Remove(entityToRemove);
             await context.SaveChangesAsync();
 
             removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
-        public async Task<bool> AddEntity<T>(T entityToAdd)
-        {
-            var entityEntry = await context.AddAsync(entityToAdd).ConfigureAwait(false);
-            await context.SaveChangesAsync().ConfigureAwait(false);
-
-            entityEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             return true;
         }
 
@@ -88,7 +68,7 @@ namespace KunalsDiscordBot.Services.Currency
             return profile;
         }
 
-        public async Task<bool> UpdateEntity<T>(T entityToUpdate)
+        private async Task<bool> UpdateEntity<T>(T entityToUpdate)
         {
             if (entityToUpdate == null)
                 return false;

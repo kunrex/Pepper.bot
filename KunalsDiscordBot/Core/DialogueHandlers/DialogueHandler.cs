@@ -34,24 +34,25 @@ namespace KunalsDiscordBot.Core.DialogueHandlers
             return this;
         }
 
-        public async Task<List<UseResult>> ProcessDialogue()
+        public async Task<List<DialougeResult>> ProcessDialogue()
         {
             if (started)
                 return null;
 
             started = true;
-            List<UseResult> results = new List<UseResult>();
+            List<DialougeResult> results = new List<DialougeResult>();
+            DialougeResult previousResult = default;
 
             while (stepIndex < Steps.Count)
             {
                 Step currentStep = Steps[stepIndex];
-                var result = await currentStep.ProcessStep(Configuration.Channel, Configuration.Member, Configuration.Client, Configuration.UseEmbed);
+                previousResult = await currentStep.ProcessStep(Configuration.Channel, Configuration.Member, Configuration.Client, Configuration.UseEmbed, previousResult);
 
-                if (!result.useComplete && Configuration.RequireFullCompletion)
+                if (!previousResult.WasCompleted && Configuration.RequireFullCompletion)
                     return results;
 
                 stepIndex++;
-                results.Add(result);
+                results.Add(previousResult);
             }
 
             return results;

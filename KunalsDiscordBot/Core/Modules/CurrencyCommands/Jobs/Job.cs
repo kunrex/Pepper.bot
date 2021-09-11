@@ -64,7 +64,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
                     return Task.FromResult(new List<Step>
                     {
                          new QandAStep($"Work for {Name}", $"Rewrite the following sentence: \n {work}",  RewriteSentences.TotalTime, "Thats not the words",  RewriteSentences.numberOfTurns, work)
-                            .WithEmbedData(color, thumbnail)
+                            .WithMesssageData(new MessageData{ Color = color, Thumbnail = thumbnail })
                     });
                 case 1:
                     var fill = FillInTheBlanks.GetWork();
@@ -72,7 +72,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
                     return Task.FromResult(new List<Step>
                     {
                         new FillInTheBlankStep($"Work for {Name}", $"Fill in the blank: \n {fill.Item2}", FillInTheBlanks.TotalTime, "Thats not the words",  FillInTheBlanks.numberOfTurns, fill.Item1, "-")
-                            .WithEmbedData(color, thumbnail)
+                            .WithMesssageData(new MessageData{ Color = color, Thumbnail = thumbnail })
                     });
                 case 2:
                     var words = RewriteWords.GetWork();
@@ -80,7 +80,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs
                     return Task.FromResult(new List<Step>
                     {
                         new QandAStep($"Work for {Name}", $"Rewrite these words in the following order: \n{ string.Join("\n", words.Select(x => $"`{x}`")) }",  RewriteWords.TotalTime, "Thats not the words", RewriteWords.numberOfTurns, string.Join("\n", words))
-                            .WithEmbedData(color, thumbnail)
+                            .WithMesssageData(new MessageData{ Color = color, Thumbnail = thumbnail })
                     });
                 default:
                     return Task.FromResult<List<Step>>(null);

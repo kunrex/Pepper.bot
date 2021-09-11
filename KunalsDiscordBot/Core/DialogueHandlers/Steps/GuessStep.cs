@@ -33,7 +33,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
             numOfHints = _numOfHints;
         }
 
-        public async override Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public async override Task<DialougeResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed, DialougeResult previousResult = default)
         {
             int currentTry = tries, timeLeft = time;
             DateTime prevTime = DateTime.Now;
@@ -42,16 +42,13 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 
             while (currentTry > 0)
             {
-                var replyStep = new ReplyStep(title, content, time, new List<string>() { helpCode, answer.ToString() });
-                if (useEmbed)
-                    replyStep.WithEmbedData(color, thumbnail);
-
+                var replyStep = new ReplyStep(title, content, time, new List<string>() { helpCode, answer.ToString() }).WithMesssageData(MessageData);
                 var result = await replyStep.ProcessStep(channel, member, client, useEmbed);
 
                 //any of the return cases
-                if (!result.useComplete && result.message == null)
+                if (!result.WasCompleted && result.Result == null)
                     return result;
-                else if (result.message == helpCode)
+                else if (result.Result == helpCode)
                 {
                     if (hints == 0)
                         await channel.SendMessageAsync("You don't have any hints left??");
@@ -63,7 +60,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                     hints--;
                     currentTry--;
                 }
-                else if (!int.TryParse(result.message, out int x) || result.message != answer.ToString())
+                else if (!int.TryParse(result.Result, out int x) || result.Result != answer.ToString())
                 {
                     currentTry--;
                     DateTime messageTime = DateTime.Now;
@@ -74,8 +71,8 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                     await channel.SendMessageAsync($"{tryAgainMessage}, you now have {currentTry} more turn(s)").ConfigureAwait(false);
 
                     prevTime = messageTime;
-                    if (int.TryParse(result.message, out x))
-                        prevEntry = int.Parse(result.message);
+                    if (int.TryParse(result.Result, out x))
+                        prevEntry = int.Parse(result.Result);
                 }
                 else
                     return result;

@@ -26,6 +26,7 @@ using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Attributes.FunCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
@@ -231,22 +232,27 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("RewriteSentence")]
-        [Description("rewrites the message")]
-        public async Task Response(CommandContext ctx)
+        [Aliases("Rewrite"), Description("rewrites a sentence")]
+        public Task Response(CommandContext ctx)
         {
-            var interactivity = ctx.Client.GetInteractivity();
-            await ctx.Channel.SendMessageAsync("Rewrite the following sentence, you have 10 seconds");
+            string sentence = funData.Sentences[new Random().Next(0, funData.Sentences.Length)];
 
-            Random random = new Random();
-            int index = random.Next(0, funData.Sentences.Length - 1);
+            var handler = new DialogueHandler(new DialogueHandlerConfig
+            {
+                Channel = ctx.Channel,
+                Member = ctx.Member,
+                Client = ctx.Client,
+                UseEmbed = false,
+                QuickStart = true
+            }).WithSteps(new List<Step>
+                {
+                    new QandAStep("Rewrite Sentence", $"`{sentence}`",  10, "That wasn't it", 1, sentence),
+                    new DisplayStep(default, default, default, (result) => Task.FromResult(new DiscordMessageBuilder()
+                    .WithContent($"{(result.WasCompleted ? "Good job" : $"What a bot, couldn't do that much?")}")
+                    .WithReply(ctx.Message.Id)))
+                });
 
-            await ctx.Channel.SendMessageAsync(funData.Sentences[index]);
-
-            var messsage = await interactivity.WaitForMessageAsync(x => x.Channel == ctx.Channel && x.Author == ctx.User).ConfigureAwait(false);
-            if (messsage.Result.Content == funData.Sentences[index])
-                await ctx.Channel.SendMessageAsync("Good job");
-            else
-                await ctx.Channel.SendMessageAsync("What a bot, you couldnt do that much");
+            return Task.CompletedTask;
         }
 
         [Command("PP")]
@@ -256,7 +262,7 @@ namespace KunalsDiscordBot.Modules.Fun
             other = other == null ? ctx.Member : other;
 
             var pp = "8";
-            Enumerable.Range(0, new Random().Next(0, 15)).Select(x => pp += "=");
+            Enumerable.Range(0, new Random().Next(0, 15)).Select(x => pp += '=');
             pp += "D";
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -282,10 +288,10 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("Guess")]
-        [Description("Guess a random number")]
-        public async Task Guess(CommandContext ctx)
+        [Description("Guess a random number between 1 and 20")]
+        public Task Guess(CommandContext ctx)
         {
-            int num = new Random().Next(1, 21);
+            int number = new Random().Next(1, 21);
 
             var config = new DialogueHandlerConfig
             {
@@ -293,16 +299,18 @@ namespace KunalsDiscordBot.Modules.Fun
                 Member = ctx.Member,
                 Client = ctx.Client,
                 UseEmbed = false,
-                QuickStart = false
+                QuickStart = true
             };
 
-            var handler = new DialogueHandler(config).WithSteps(new List<Step>
+            new DialogueHandler(config).WithSteps(new List<Step>
                 {
-                    new GuessStep("Random Number Generator", "Guess the number I'm thinking off between 1 and 20",  20, "That wasn't the number I was thinking off", 5, "hint", num, 2)
+                    new GuessStep("Random Number Generator", $"Guess the number I'm thinking off between 1 and 20",  20, "That wasn't the number I was thinking off", 5, "hint", number, 2),
+                    new DisplayStep(default, default, default, (result) => Task.FromResult(new DiscordMessageBuilder()
+                    .WithContent($"{(result.WasCompleted ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {number}")}")
+                    .WithReply(ctx.Message.Id)))
                 });
 
-            var result = await handler.ProcessDialogue().ConfigureAwait(false);
-            await ctx.Channel.SendMessageAsync($"{(result[0].useComplete ? "Good job that was the number I'm thinking off" : $"Oops, well I was thinking off {num}")}").ConfigureAwait(false);
+            return Task.CompletedTask;
         }
 
         [Command("Subreddit")]
@@ -311,9 +319,21 @@ namespace KunalsDiscordBot.Modules.Fun
         {
             var subreddit = redditApp.GetSubReddit(name);
 
-            if(subreddit == null)
+            if (subreddit == null)
             {
                 await ctx.RespondAsync("Subreddit not found");
+                return;
+            }
+
+            var funData = await serverService.GetFunData(ctx.Guild.Id);
+            if(funData.AllowNSFW == 0)
+            {
+                await ctx.RespondAsync("Given server had NSFW content, this server does not allow NSFW content");
+                return;
+            }
+            if (!ctx.Channel.IsNSFW)
+            {
+                await ctx.RespondAsync("Given server had NSFW content, this channel does not allow NSFW content");
                 return;
             }
 

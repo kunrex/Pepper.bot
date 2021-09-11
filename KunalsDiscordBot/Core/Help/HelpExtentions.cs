@@ -62,7 +62,7 @@ namespace KunalsDiscordBot.Extensions
         public static string GetCoolDown(this Command command)
         {
             var cooldown = (CooldownAttribute)command.ExecutionChecks.FirstOrDefault(x => x is CooldownAttribute);
-            return $"{(cooldown == null ? "None" : $"{cooldown.Reset.Days} Days, {cooldown.Reset.Hours} Hours, {cooldown.Reset.Minutes} Minutes")}";
+            return $"{(cooldown == null ? "None" : $"{cooldown.Reset.Days} Days, {cooldown.Reset.Hours} Hours, {cooldown.Reset.Minutes} Minutes, {cooldown.Reset.Seconds} Seconds")}";
         }
 
         public static string FormatePermissions(this Permissions perms) => string.Join(", ", perms.ToString().Replace(" ", "").Split(',').Select(x => $"`{x}`"));

@@ -18,44 +18,36 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics
 
         public ReplyStep(string _title, string _content, int _time, string response) : base(_title, _content, _time) => ValidResponses = new List<string>() { response };
 
-        public async override Task<UseResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed)
+        public async override Task<DialougeResult> ProcessStep(DiscordChannel channel, DiscordMember member, DiscordClient client, bool useEmbed, DialougeResult previousResult = default)
         {
             var interactivity = client.GetInteractivity();
+            var builder = BuildMessage(useEmbed);
 
-            var message = new DiscordMessageBuilder();
-            if (useEmbed)
-                message.WithEmbed(new DiscordEmbedBuilder
-                {
-                    Title = title,
-                    Description = content,
-                    Color = color,
-                    Thumbnail = thumbnail
-                });
-            else
-                message.WithContent($"{title}\n{content}");
-
-            await message.SendAsync(channel);
+            var message = await builder.SendAsync(channel);
 
             var messageResult = await interactivity.WaitForMessageAsync(x => x.Author.Id == member.Id && x.Channel.Id == channel.Id, TimeSpan.FromSeconds(time));
 
             //any of the return cases
             if (messageResult.TimedOut)
-                return new UseResult
+                return new DialougeResult
                 {
-                    useComplete = false,
-                    message = null
+                    WasCompleted = false,
+                    Result = null,
+                    Message = message
                 };
             else if (ValidResponses.Find(x => x.ToLower() == messageResult.Result.Content.ToLower()) != null)
-                return new UseResult
+                return new DialougeResult
                 {
-                    useComplete = true,
-                    message = messageResult.Result.Content
+                    WasCompleted = true,
+                    Result = messageResult.Result.Content,
+                    Message = message
                 };
             else
-                return new UseResult
+                return new DialougeResult
                 {
-                    useComplete = false,
-                    message = messageResult.Result.Content
+                    WasCompleted = false,
+                    Result = messageResult.Result.Content,
+                    Message = message
                 };
         }
     }
