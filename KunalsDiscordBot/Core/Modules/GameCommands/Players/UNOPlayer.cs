@@ -46,8 +46,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             await communicator.SendMessage("Are you ready to play the game? Enter anything to start. The game will auto start in 1 minute").ConfigureAwait(false);
             await communicator.WaitForMessage(client.GetInteractivity(), new InputData
             {
-                conditions = x => x.Author.Id == member.Id && x.Channel.Id == channel.Id,
-                span = TimeSpan.FromMinutes(1)
+                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == channel.Id,
+                Span = TimeSpan.FromMinutes(1)
             });
 
             return true;
@@ -58,13 +58,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             string yesReturn = "yes";
             var result = await communicator.QuestionInput(client.GetInteractivity(), "Do you want me to auto-ready on your part after each turn? Type `y` for yes. Anything else will be taken as no.\n Time: 10 seconds", new InputData
             {
-                extraInputValues = new Dictionary<string, (string, string)>
+                ExtraInputValues = new Dictionary<string, (string, string)>
                 {
                     { "no",  ("", "no")},
                     { "yes",  ("y", yesReturn)}
                 },
-                conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
-                span = TimeSpan.FromSeconds(10)
+                Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
+                Span = TimeSpan.FromSeconds(10)
             });
 
             if (result == yesReturn)
@@ -84,8 +84,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             await communicator.SendMessage(messsage).ConfigureAwait(false);
             await communicator.WaitForMessage(client.GetInteractivity(), new InputData
             {
-                conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id,
-                span = span
+                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id,
+                Span = span
             }); 
         }
 
@@ -96,8 +96,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 await communicator.SendMessage("None of the cards you have can be played on the current card, drawing 1");
                 return new InputResult
                 {
-                    wasCompleted = true,
-                    type = InputResult.Type.inValid
+                    WasCompleted = true,
+                    Type = InputResult.ResultType.InValid
                 };
             }
 
@@ -111,27 +111,27 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game. Enter `draw` to draw a card",
                     new InputData
                     {
-                        conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
-                        span = TimeSpan.FromMinutes(UNOGame.timeLimit),
-                        leaveMessage = "leave",
-                        extraInputValues = new Dictionary<string, (string, string)>
+                        Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
+                        Span = TimeSpan.FromMinutes(UNOGame.timeLimit),
+                        LeaveMessage = "leave",
+                        ExtraInputValues = new Dictionary<string, (string, string)>
                         {
                             {"draw", ("draw", drawCheck) }
                         },
-                        regexMatchFailExpression = "Please use the input format"
+                        RegexMatchFailExpression = "Please use the input format"
                     });
 
                 if (message.Equals(DiscordCommunicator.afkInputvalue))
                     return new InputResult
                     {
-                        wasCompleted = false,
-                        type = InputResult.Type.afk
+                        WasCompleted = false,
+                        Type = InputResult.ResultType.Afk
                     };
                 else if (message.Equals(DiscordCommunicator.quitInputvalue))
                     return new InputResult
                     {
-                        wasCompleted = false,
-                        type = InputResult.Type.end
+                        WasCompleted = false,
+                        Type = InputResult.ResultType.End
                     };
                 else if (message.Equals(drawCheck))
                 {
@@ -139,8 +139,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
                     return new InputResult
                     {
-                        wasCompleted = true,
-                        type = InputResult.Type.inValid
+                        WasCompleted = true,
+                        Type = InputResult.ResultType.InValid
                     };
                 }
                 else
@@ -185,12 +185,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     if (inputCards[inputCards.Count - 1] is IChangeColorCard)
                         ((IChangeColorCard)inputCards[inputCards.Count - 1]).colorToChange = await communicator.GetCardColor(interactivity, new InputData
                         {
-                            extraOutputValues = new Dictionary<string, string>
+                            ExtraOutputValues = new Dictionary<string, string>
                             {
                                 {"time out", "Time out, I'm just gonna choose red" },
                                 {"invalid", "Thats not even a valid color, I'm gonna go ahead with red" }
                             },
-                            span = TimeSpan.FromSeconds(10)
+                            Span = TimeSpan.FromSeconds(10)
                         });
 
                     foreach (var card in inputCards)
@@ -198,16 +198,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
                     return new InputResult
                     {
-                        wasCompleted = true,
-                        type = InputResult.Type.valid,
-                        cards = inputCards
+                        WasCompleted = true,
+                        Type = InputResult.ResultType.Valid,
+                        Cards = inputCards
                     };
                 }
             }
 
             return new InputResult
             {
-                wasCompleted = true
+                WasCompleted = true
             };
         }
 
@@ -218,8 +218,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 await communicator.SendMessage("Even after drawing, none of the cards can be played. Turn skipped");
                 return new InputResult
                 {
-                    wasCompleted = true,
-                    type = InputResult.Type.inValid
+                    WasCompleted = true,
+                    Type = InputResult.ResultType.InValid
                 };
             }
 
@@ -229,13 +229,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             string yesReturn = "yes";
             var result = await communicator.QuestionInput(client.GetInteractivity(), "The drawed card can be played, type `y` to play the card. Anything else and the card will be kept.\nTime - 10 seconds", new InputData
             {               
-                extraInputValues = new Dictionary<string, (string, string)>
+                ExtraInputValues = new Dictionary<string, (string, string)>
                 {
                     { "no",  ("", "no")},
                     { "no",  ("y", yesReturn)}
                 },
-                conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
-                span = TimeSpan.FromSeconds(10)
+                Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
+                Span = TimeSpan.FromSeconds(10)
             });
 
             if (result == yesReturn)
@@ -244,9 +244,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
                 return new InputResult
                 {
-                    wasCompleted = true,
-                    type = InputResult.Type.valid,
-                    cards = new List<Card> { cards[cards.Count - 1] }
+                    WasCompleted = true,
+                    Type = InputResult.ResultType.Valid,
+                    Cards = new List<Card> { cards[cards.Count - 1] }
                 };
             }
             else
@@ -254,15 +254,15 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 await communicator.SendMessage("Card kept");
                 return new InputResult
                 {
-                    wasCompleted = false
+                    WasCompleted = false
                 };
             }
         }
 
         public async Task<bool> UNOTime(DiscordClient client) => await communicator.CheckUNO(client.GetInteractivity(), new InputData
         {
-            conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id && x.Content.ToLower().Equals("uno"),
-            span = TimeSpan.FromSeconds(5)
+            Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id && x.Content.ToLower().Equals("uno"),
+            Span = TimeSpan.FromSeconds(5)
         });
 
         private Task<bool> CheckToDraw(Card currenctCard)

@@ -6,17 +6,17 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 {
     public struct InputResult
     {
-        public enum Type
+        public enum ResultType
         {
-            end,
-            afk,
-            valid,
-            inValid
+            End,
+            Afk,
+            Valid,
+            InValid
         }
 
-        public bool wasCompleted { get; set; }
-        public Type type;
-        public Coordinate ordinate { get; set; }
-        public List<Card> cards { get; set; }
+        public bool WasCompleted { get; set; }
+        public ResultType Type;
+        public Coordinate Ordinate { get; set; }
+        public List<Card> Cards { get; set; }
     }
 }

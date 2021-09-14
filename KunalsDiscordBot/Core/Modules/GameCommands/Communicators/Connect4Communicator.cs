@@ -1,43 +1,45 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
+
+using KunalsDiscordBot.Core.Modules.GameCommands.Communicators.Interfaces;
 
 namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
-    public class Connect4Communicator : DiscordCommunicator
+    public class Connect4Communicator : DiscordCommunicator, IComponentInputCommunicator
     {
-        public DiscordChannel channel { get; private set; }
-
-        public Connect4Communicator(Regex expression, TimeSpan span, DiscordChannel _channel) : base(expression, span)
+        public Connect4Communicator(Regex expression, TimeSpan span) : base(expression, span)
         {
-            channel = _channel;
+
         }
 
-        public async override Task<string> Input(InteractivityExtension interactivity, string inputMessage, InputData data)
+        public async Task<string> Input(InteractivityExtension interactivity, DiscordMessage message, DiscordUser user, InputData data)
         {
-            await SendMessage(inputMessage).ConfigureAwait(false);
-            var message = await WaitForMessage(interactivity, data.conditions, data.span);
+            if (data.InputType == InputType.Message || data.InputType == InputType.Button)
+                throw new InvalidOperationException();
 
-            if (message.TimedOut)
+            var builder = new DiscordMessageBuilder().WithContent(message.Content).AddEmbeds(message.Embeds);
+
+            builder.AddComponents(new DiscordSelectComponent("Input", "Choose a column", data.ExtraInputValues.Select(x => new DiscordSelectComponentOption(x.Key, x.Value.Item1))));
+            message = await message.ModifyAsync(builder);
+
+            var result = await WaitForSelection(interactivity, message, user, "Input", data.Span);
+            if (result.TimedOut)
                 return afkInputvalue;
-            else if (message.Result.Content.ToLower().Equals(data.leaveMessage))
-                return quitInputvalue;
-            else if (!inputExpression.IsMatch(message.Result.Content))
-            {
-                await SendMessage(data.regexMatchFailExpression);
-
-                return inputFormatNotFollow;
-            }
             else
-                return message.Result.Content;
+                return data.ExtraInputValues.First(x => x.Value.Item1 == result.Result.Values[0]).Value.Item2;
         }
 
-        public async Task<DiscordMessage> SendEmbedToPlayer(DiscordEmbed embed) => await SendEmbedToPlayer(channel, embed);
-        public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(channel, message);
-        public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(channel, message, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, DiscordEmbed embed) => await ModifyMessage(message, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, string content) => await ModifyMessage(message, content);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, string content, DiscordEmbed embed) => await ModifyMessage(message, content, embed);
 
+        public async Task<DiscordMessage> ClearComponents(DiscordMessage message) => await message.ModifyAsync(new DiscordMessageBuilder().WithContent(message.Content).AddEmbeds(message.Embeds));
     }
 }

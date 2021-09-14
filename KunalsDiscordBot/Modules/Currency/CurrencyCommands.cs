@@ -1074,7 +1074,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [RequireProfile, Cooldown(1, 20, CooldownBucketType.User), Aliases("Look"), MoneyCommand]
         public async Task Search(CommandContext ctx)
         {
-            var first3 = CurrencyModel.Random3Locations;
+            var first3 = CurrencyModel.Locations.Select(x => x).ToList().Shuffle().Take(3);
             var buttonStep = new ButtonStep("Where would you like to search?", "", 10, first3.Select(x => new DiscordButtonComponent(ButtonStyle.Primary, x.Name, x.Name)).ToList())
                 .WithMesssageData(new MessageData { Reply = true, ReplyId = ctx.Message.Id });
 

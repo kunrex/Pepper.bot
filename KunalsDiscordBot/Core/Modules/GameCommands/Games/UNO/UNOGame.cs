@@ -127,9 +127,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await PrintBoard();
                 var result = await currentPlayer.GetInput(client, currentCard);
 
-                if (!result.wasCompleted)
+                if (!result.WasCompleted)
                 {
-                    await SendMessageToAllPlayers($"{currentPlayer.member.Username} {(result.type == InputResult.Type.end ? "has left the game" : "has gone afk")}").ConfigureAwait(false);
+                    await SendMessageToAllPlayers($"{currentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has left the game" : "has gone afk")}").ConfigureAwait(false);
                     var end = await RemovePlayer();
 
                     if (end)
@@ -140,20 +140,20 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                         continue;
                     }
                 }
-                else if (result.type == InputResult.Type.inValid)
+                else if (result.Type == InputResult.ResultType.InValid)
                 {
                     await AddcardsToPlayer(1);
 
                     var checkResult = await currentPlayer.TryPlay(currentCard, client);
-                    if (checkResult.wasCompleted)
+                    if (checkResult.WasCompleted)
                         result = checkResult;
                 }
 
-                if (result.cards != null && result.cards.Count > 0)
+                if (result.Cards != null && result.Cards.Count > 0)
                 {
-                    await Task.Run(async () => await SendDeckToAllPlayers(result.cards, $"{currentPlayer.member.Username} Plays"));
-                    await ProcessTurn(result.cards);
-                    cardsInDeck.AddRange(result.cards.Shuffle());//cycle cards
+                    await Task.Run(async () => await SendDeckToAllPlayers(result.Cards, $"{currentPlayer.member.Username} Plays"));
+                    await ProcessTurn(result.Cards);
+                    cardsInDeck.AddRange(result.Cards.Shuffle());//cycle cards
                 }
                 else
                     await NextPlayer(currentCard);

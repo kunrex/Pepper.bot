@@ -53,9 +53,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             await player1Ships;
             await player2Ships;
 
-            if (!player1Ships.Result.wasCompleted)//checks if any one ended the game
+            if (!player1Ships.Result.WasCompleted)//checks if any one ended the game
             {
-                string message = $"{players[0].member.Username} {(player1Ships.Result.type == InputResult.Type.end ? "has ended the game." : "has gone AFK") }";
+                string message = $"{players[0].member.Username} {(player1Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                 await SendMessageToBoth(message);
                 await SendMessageToAllSpectators(message);
@@ -63,9 +63,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await RemovePlayers();
                 return;
             }
-            else if(!player2Ships.Result.wasCompleted)
+            else if(!player2Ships.Result.WasCompleted)
             {
-                string message = $"{players[1].member.Username} {(player2Ships.Result.type == InputResult.Type.end ? "has ended the game." : "has gone AFK") }";
+                string message = $"{players[1].member.Username} {(player2Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                 await SendMessageToBoth(message);
                 await SendMessageToAllSpectators(message);
@@ -97,9 +97,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     var result = await currentPlayer.GetAttackPos(client, await otherPlayer.GetBoard());
 
-                    if (!result.wasCompleted)//checks if player one ended the game
+                    if (!result.WasCompleted)//checks if player one ended the game
                     {
-                        string endMessage = $"{currentPlayer.member.Username} {(result.type == InputResult.Type.end ? "has ended the game." : "has gone AFK") }";
+                        string endMessage = $"{currentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                         await SendMessageToBoth(endMessage);
                         await SendMessageToAllSpectators(endMessage);
@@ -111,12 +111,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                         continue;
                     }
 
-                    var message = $"Position entered by {currentPlayer.member.Username} => {(char)(result.ordinate.x + 97)} {result.ordinate.y + 1}";
+                    var message = $"Position entered by {currentPlayer.member.Username} => {(char)(result.Ordinate.x + 97)} {result.Ordinate.y + 1}";
 
                     await SendMessageToBoth(message);
                     await SendMessageToAllSpectators(message);
 
-                    (bool hit, bool isDead) = await otherPlayer.SetAttackPos(result.ordinate);
+                    (bool hit, bool isDead) = await otherPlayer.SetAttackPos(result.Ordinate);
 
                     if (hit)
                     {

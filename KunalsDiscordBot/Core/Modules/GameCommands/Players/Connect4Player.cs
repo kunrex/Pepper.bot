@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 using DSharpPlus;
@@ -19,46 +20,54 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public override Task<bool> Ready(DiscordChannel channel)
         {
-            communicator = new Connect4Communicator(new Regex("([1-8])"), TimeSpan.FromMinutes(ConnectFour.inputTime), channel);
+            communicator = new Connect4Communicator(new Regex("([1-8])"), TimeSpan.FromMinutes(ConnectFour.inputTime));
 
             return Task.FromResult(true);
         }
 
-        public async Task<InputResult> GetInput(DiscordClient client, int[,] board)
+        public async Task<InputResult> GetInput(DiscordClient client, DiscordMessage message, int[,] board)
         {
-            while (true)
+            var inputValues = new Dictionary<string, (string, string)>();
+            foreach (var column in GetValidColumns(board))
             {
-                var result = await communicator.Input(client.GetInteractivity(), $"{member.Mention}, its you're turn. Where would you like to play? \nJust type in the column number. " +
-                        $"The columns increase from left to right starting from 1. Type `end` to end the game.", new InputData
-                        {
-                            conditions = x => x.Channel == communicator.channel && x.Author.Id == member.Id,
-                            span = TimeSpan.FromMinutes(ConnectFour.inputTime),
-                            leaveMessage = "end",
-                            regexMatchFailExpression = $"{member.Username}, do you mind using the input format?"
-                        });
-
-                if (result.Equals(DiscordCommunicator.afkInputvalue))
-                    return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
-                else if (result.Equals(DiscordCommunicator.quitInputvalue))
-                    return new InputResult { wasCompleted = false, type = InputResult.Type.end };
-                else if (result.Equals(DiscordCommunicator.inputFormatNotFollow))
-                    continue;
-                else if (TryExtract(result, board, out Coordinate ordinate))
-                    return new InputResult { wasCompleted = true, type = InputResult.Type.valid, ordinate = ordinate };
-                else
-                    await communicator.SendMessage($"{member.Mention}, thats not valid input");
+                var toString = column.ToString();
+                inputValues.Add(toString, (toString, toString));
             }
+
+            inputValues.Add("end", ("end", DiscordCommunicator.quitInputvalue));
+
+            var result = await communicator.Input(client.GetInteractivity(), message, member, new InputData
+            {
+                Span = TimeSpan.FromMinutes(ConnectFour.inputTime),
+                InputType = InputType.Dropdown,
+                ExtraInputValues = inputValues
+            });
+
+            if (result.Equals(DiscordCommunicator.afkInputvalue))
+                return new InputResult { WasCompleted = false, Type = InputResult.ResultType.Afk };
+            else if (result.Equals(DiscordCommunicator.quitInputvalue))
+                return new InputResult { WasCompleted = false, Type = InputResult.ResultType.End };
+            else
+                return new InputResult { WasCompleted = true, Type = InputResult.ResultType.Valid, Ordinate = Extract(result, board)};
         }
 
-        private bool TryExtract(string value, int[,] board, out Coordinate ordinate)
+        private List<int> GetValidColumns(int[,] board)
         {
-            ordinate = new Coordinate
+            List<int> validColumns = new List<int>();
+
+            for (int i = 0; i < board.GetLength(1); i++)
+                if (board[0, i] == 0)
+                    validColumns.Add(i + 1);
+
+            return validColumns;
+        }
+
+        private Coordinate Extract(string value, int[,] board)
+        {
+            var ordinate = new Coordinate
             {
                 x = int.Parse(value[0].ToString()) - 1,
             };
-
-            if (ordinate.x < 0 || ordinate.x >= board.GetLength(0))
-                return false;
 
             int nearestIndex = -1; bool found = false;
 
@@ -72,12 +81,11 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             ordinate.y = nearestIndex;
 
-            return nearestIndex != -1;
+            return ordinate;
         }
 
-
-        public async Task SendMessage(string message) => await communicator.SendMessage(message);
-        public async Task SendMessage(DiscordEmbedBuilder embed) => await communicator.SendEmbedToPlayer(embed);
-        public async Task SendMessage(string message, DiscordEmbedBuilder embed) => await communicator.SendMessage(message, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, string content) => await communicator.SendMessage(message, content);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, DiscordEmbedBuilder embed) => await communicator.SendMessage(message, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordMessage message, string content, DiscordEmbedBuilder embed) => await communicator.SendMessage(message, content, embed);
     }
 }

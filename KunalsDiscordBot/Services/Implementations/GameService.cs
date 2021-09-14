@@ -63,7 +63,7 @@ namespace KunalsDiscordBot.Services.Games
                     if (await GetServerGame<T>(guildid) != null)
                         return null;
 
-                    var tictactoe = new TicTacToe(client, players, channel, cellCount);
+                    var tictactoe = new TicTacToe(client, players, channel);
 
                     TicTacToeMatches.Add(guildid, tictactoe);
                     tictactoe.OnGameOver += () => TicTacToeMatches.Remove(guildid);

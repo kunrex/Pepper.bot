@@ -14,17 +14,18 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
     public sealed class TicTacToe : DiscordGame<TicTacToePlayer, TicTacToeCommunicator>
     {
         public static readonly float inputTime = 1;
+        public static readonly string X = ":x:";
+        public static readonly string O = ":o:";
 
-        public int numberOfCells { get; private set; }
+        public static readonly string Blank = "";
 
-        private const string X = ":x:";
-        private const string O = ":o:";
-        private const string BLACK = ":black_large_square:";
+        public const int numberOfCells = 3;
 
         private int[,] board { get; set; }
         private readonly DiscordChannel channel;
+        private DiscordMessage GameMessage { get; set; }
 
-        public TicTacToe(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel, int _numberOfCells) : base(_client, _players)
+        public TicTacToe(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel) : base(_client, _players)
         {
             channel = _channel;
             client = _client;
@@ -32,7 +33,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             players = _players.Select(x => new TicTacToePlayer(x)).ToList();
             currentPlayer = players[0];
             
-            numberOfCells = System.Math.Clamp(_numberOfCells, 3, 5);
             board = new int[numberOfCells, numberOfCells];
 
             SetUp();
@@ -40,42 +40,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         protected async override void SetUp()
         {
+            GameMessage = await channel.SendMessageAsync("Starting Game").ConfigureAwait(false);
             await Task.WhenAll(players.Select(x => Task.Run(() => x.Ready(channel))));
-            await currentPlayer.SendMessage("Starting Game");
 
             PlayGame();
         }
 
-        protected async override Task PrintBoard()
-        {
-            string description = string.Empty;
-            for (int i = 0; i < board.GetLength(0); i++)
-            {
-                for (int k = 0; k < board.GetLength(1); k++)
-                {
-                    int state = board[i, k];
-                    description += Evaluate(state);
-                }
-
-                description += "\n";
-            }
-
-            var embed = new DiscordEmbedBuilder()
-            {
-                Title = $"{players[0].member.Username} vs {players[1].member.Username}",
-                Color = DiscordColor.Blurple,
-                Description = description
-            };
-            embed.AddField("Turn :", currentPlayer.member.Username, true);
-
-            embed.AddField("Player 1 :", X, true);
-            embed.AddField("Player 2 :", O, true);
-
-
-            await currentPlayer.SendMessage(embed).ConfigureAwait(false);
-        }
-
-        private string Evaluate(int state) => state == 0 ? BLACK : (state == 1 ? X : O);
+        protected async override Task PrintBoard() => GameMessage = await currentPlayer.PrintCompleteBoard(client, GameMessage, $"{currentPlayer.member.Mention} its you're turn, where would you like to play?", board);
 
         private async Task<bool> CheckForWinner()
         {
@@ -111,24 +82,23 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 {
                     await PrintBoard();
 
-                    InputResult completed = await currentPlayer.GetInput(client, board);
+                    InputResult result = await currentPlayer.GetInput(client, GameMessage, board);
 
-                    if (!completed.wasCompleted)
+                    if (!result.WasCompleted)
                     {
-                        await currentPlayer.SendMessage($"{(completed.type == InputResult.Type.end ? $"{currentPlayer.member.Mention} has ended the game. noob" : $"{currentPlayer.member.Mention} has gone AFK")}").ConfigureAwait(false);
+                        await SendMessage(result.Type == InputResult.ResultType.Afk ? $"{currentPlayer.member.Mention} has gone AFK" : $"{currentPlayer.member.Mention} has ended the game. noob").ConfigureAwait(false);
 
                         GameOver = true;
-                        continue; ;
+                        continue; 
                     }
 
-                    board[completed.ordinate.y, completed.ordinate.x] = currentPlayer == players[0] ? 1 : 2;
+                    board[result.Ordinate.y, result.Ordinate.x] = currentPlayer == players[0] ? 1 : 2;
                    
                     await CheckForWinner();
 
                     if (GameOver)
                     {
-                        await currentPlayer.SendMessage($"{currentPlayer.member.Mention} Wins!").ConfigureAwait(false);
-                        await PrintBoard();
+                        await SendMessage($"{currentPlayer.member.Mention} Wins!").ConfigureAwait(false);
 
                         GameOver = true;
                         continue;
@@ -138,8 +108,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if (draw)
                     {
-                        await currentPlayer.SendMessage($"{players[0].member.Username} and {players[1].member.Username} ends in a draw").ConfigureAwait(false);
-                        await PrintBoard();
+                        await SendMessage($"The match between {players[0].member.Mention} and {players[1].member.Mention} ends in a draw").ConfigureAwait(false);
 
                         GameOver = true;
                         continue; 
@@ -150,12 +119,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             }
             catch (Exception e)
             {
-                await currentPlayer.SendMessage($"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
+                await SendMessage($"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
                 GameOver = true;
             }
+            finally
+            {
+                await currentPlayer.PrintCompleteBoard(client, GameMessage, GameMessage.Content, board, true);
 
-            if (OnGameOver != null)
-                OnGameOver();
+                if (OnGameOver != null)
+                    OnGameOver();
+            }
         }
 
         private Task<bool> CheckDraw()
@@ -319,6 +292,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             }
 
             return false;
+        }
+
+        private async Task SendMessage(string content = null)
+        {
+            if (content != null)
+                GameMessage = await currentPlayer.SendMessage(GameMessage, content);
         }
     }
 }

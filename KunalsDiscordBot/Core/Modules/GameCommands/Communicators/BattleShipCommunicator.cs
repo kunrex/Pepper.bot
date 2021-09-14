@@ -7,9 +7,11 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 
+using KunalsDiscordBot.Core.Modules.GameCommands.Communicators.Interfaces;
+
 namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
-    public class BattleShipCommunicator : DiscordCommunicator
+    public class BattleShipCommunicator : DiscordCommunicator, ITextInputCommunicator
     {
         public DiscordChannel dmChannel { get; private set; }
         public Regex battleShipInputExpression { get; private set; }
@@ -20,19 +22,19 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
             battleShipInputExpression = shipExpression;
         }
 
-        public async override Task<string> Input(InteractivityExtension interactivity, string inputMessage, InputData data)
+        public async Task<string> Input(InteractivityExtension interactivity, string inputMessage, InputData data)
         {
             await SendMessage(inputMessage);
 
-            var message = await WaitForMessage(interactivity, data.conditions, data.span);
+            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
 
             if (message.TimedOut)
                 return afkInputvalue;
-            else if (message.Result.Content.ToLower().Equals(data.leaveMessage))
+            else if (message.Result.Content.ToLower().Equals(data.LeaveMessage))
                 return quitInputvalue;
             else if (!inputExpression.IsMatch(message.Result.Content))
             {
-                await SendMessage(data.regexMatchFailExpression);
+                await SendMessage(data.RegexMatchFailExpression);
 
                 return inputFormatNotFollow;
             }
@@ -44,15 +46,15 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         {
             await SendMessage(inputMessage);
 
-            var message = await WaitForMessage(interactivity, data.conditions, data.span);
+            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
 
             if (message.TimedOut)
                 return afkInputvalue;
-            else if (message.Result.Content.ToLower().Equals(data.leaveMessage))
+            else if (message.Result.Content.ToLower().Equals(data.LeaveMessage))
                 return quitInputvalue;
             else if (!battleShipInputExpression.IsMatch(message.Result.Content))
             {
-                await SendMessage(data.regexMatchFailExpression);
+                await SendMessage(data.RegexMatchFailExpression);
 
                 return inputFormatNotFollow;
             }

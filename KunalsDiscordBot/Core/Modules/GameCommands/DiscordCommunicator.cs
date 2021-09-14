@@ -33,12 +33,17 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 
         protected bool MatchRegex(string input) => inputExpression.IsMatch(input);
 
-        public abstract Task<string> Input(InteractivityExtension interactivity, string inputMessage, InputData data);
+        //modify
+        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, string newContent) => await message.ModifyAsync(newContent).ConfigureAwait(false);
+        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, DiscordEmbed builder) => await message.ModifyAsync(null, builder).ConfigureAwait(false);
+        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, string newContent, DiscordEmbed builder) => await message.ModifyAsync(newContent, builder).ConfigureAwait(false);
 
+        //send
         protected async Task<DiscordMessage> SendMessageToPlayer(DiscordChannel channel, string message) => await channel.SendMessageAsync(message).ConfigureAwait(false);
         protected async Task<DiscordMessage> SendEmbedToPlayer(DiscordChannel channel, DiscordEmbed embed) => await channel.SendMessageAsync(embed).ConfigureAwait(false);
         protected async Task<DiscordMessage> SendMessageToPlayer(DiscordChannel channel, string message, DiscordEmbed embed) => await channel.SendMessageAsync(message, embed).ConfigureAwait(false);
 
+        //interactivity
         protected async Task SendPageinatedMessage(DiscordChannel channel, DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion, TimeSpan span)
             => await channel.SendPaginatedMessageAsync(user, pages, emojis, pagination, deletion, span);
 
@@ -47,5 +52,32 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 
         protected async Task<InteractivityResult<MessageReactionAddEventArgs>> WaitForReaction(InteractivityExtension interactivity, Func<MessageReactionAddEventArgs, bool> conditions, TimeSpan span)
             => await interactivity.WaitForReactionAsync(conditions, span);
+
+        protected async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForButton(InteractivityExtension interactivity, DiscordMessage message, DiscordUser member, TimeSpan span)
+        {
+            var result = await interactivity.WaitForButtonAsync(message, member, span);
+
+            if (!result.TimedOut)
+            {
+                await result.Result.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredMessageUpdate);
+                result.Result.Handled = true;
+            }
+
+            return result;
+        }
+
+        protected async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelection(InteractivityExtension interactivity, DiscordMessage message, DiscordUser member, string id, TimeSpan span)
+        {
+            var result = await interactivity.WaitForSelectAsync(message, member, id, span);
+
+
+            if (!result.TimedOut)
+            {
+                await result.Result.Interaction.CreateResponseAsync(DSharpPlus.InteractionResponseType.DeferredMessageUpdate);
+                result.Result.Handled = true;
+            }
+
+            return result;
+        }
     }
 }

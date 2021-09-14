@@ -145,7 +145,7 @@ namespace KunalsDiscordBot.Modules.Games
 
         [Command("TicTacToe")]
         [Description("The TicTacToe game, play with a friend"), RequireTicTacToeChannel]
-        public async Task TicTacToe(CommandContext ctx, DiscordMember other, int numberOfCells = 3)
+        public async Task TicTacToe(CommandContext ctx, DiscordMember other)
         {
             if (ctx.User.Equals(other))
             {
@@ -162,7 +162,7 @@ namespace KunalsDiscordBot.Modules.Games
             {
                 ctx.Member,
                 other
-            }, ctx.Client, ctx.Guild.GetChannel((ulong)(await serverService.GetGameData(ctx.Guild.Id)).TicTacToeChannel), numberOfCells);
+            }, ctx.Client, ctx.Guild.GetChannel((ulong)(await serverService.GetGameData(ctx.Guild.Id)).TicTacToeChannel), default);
 
             Console.WriteLine((game == null) + "hahahaha");
 

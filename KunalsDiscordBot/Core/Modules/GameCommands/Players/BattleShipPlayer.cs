@@ -59,16 +59,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     var result = await communicator.ShipInput(interactivity, $"Enter the position for a {numOfBlocks[i] * 2 + 1} unit ship.\n Format -> <Column> <Row> <Placement>. Ex: a 3 h.\n \"h\" for a horzintally placed ship, \"s\" for a vertical one"
                         , new InputData
                         {
-                            conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
-                            leaveMessage = "end",
-                            span = TimeSpan.FromSeconds(BattleShip.time),
-                            regexMatchFailExpression = "Please use the appropriate input format"
+                            Conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                            LeaveMessage = "end",
+                            Span = TimeSpan.FromSeconds(BattleShip.time),
+                            RegexMatchFailExpression = "Please use the appropriate input format"
                         });
 
                     if (result.Equals(DiscordCommunicator.afkInputvalue))
-                        return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
+                        return new InputResult { WasCompleted = false, Type = InputResult.ResultType.Afk };
                     if (result.Equals(DiscordCommunicator.quitInputvalue))
-                        return new InputResult { wasCompleted = false, type = InputResult.Type.end };
+                        return new InputResult { WasCompleted = false, Type = InputResult.ResultType.End };
                     if (result.Equals(DiscordCommunicator.inputFormatNotFollow))
                         continue;
                     else
@@ -95,8 +95,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             return new InputResult
             {
-                wasCompleted = true,
-                type = InputResult.Type.valid
+                WasCompleted = true,
+                Type = InputResult.ResultType.Valid
             };
         }
 
@@ -111,16 +111,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             {
                 var result = await communicator.Input(interactivity, "Its your turn type the position in which you want to attack.\n Format -> <Column> <Row>, Ex: a 6", new InputData
                 {
-                    conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
-                    span = TimeSpan.FromSeconds(BattleShip.time),
-                    leaveMessage = "end",
-                     regexMatchFailExpression = "Please use the appropriate input format"
+                    Conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                    Span = TimeSpan.FromSeconds(BattleShip.time),
+                    LeaveMessage = "end",
+                     RegexMatchFailExpression = "Please use the appropriate input format"
                 });
 
                 if (result.Equals(DiscordCommunicator.afkInputvalue))
-                    return new InputResult { wasCompleted = false, type = InputResult.Type.afk };
+                    return new InputResult { WasCompleted = false, Type = InputResult.ResultType.Afk };
                 if (result.Equals(DiscordCommunicator.quitInputvalue))
-                    return new InputResult { wasCompleted = false, type = InputResult.Type.end };
+                    return new InputResult { WasCompleted = false, Type = InputResult.ResultType.End };
                 else if (result.Equals(DiscordCommunicator.inputFormatNotFollow))
                     continue;
                 else if (TryParseAndAdd(result, out ordinate) && await IsValidAttackplacement(ordinate, other))
@@ -131,9 +131,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             return new InputResult
             {
-                ordinate = ordinate,
-                wasCompleted = true,
-                type = InputResult.Type.valid
+                Ordinate = ordinate,
+                WasCompleted = true,
+                Type = InputResult.ResultType.Valid
             };
         }
 

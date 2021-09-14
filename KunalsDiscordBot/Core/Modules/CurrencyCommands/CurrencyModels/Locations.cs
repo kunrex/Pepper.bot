@@ -36,7 +36,5 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models
           "You found {} coins in some dog poop you stepped on", "Your dog doesn't like you and bit you");
 
         public static readonly List<CurrencyModel> Locations = new List<CurrencyModel>() { Bank, Basement, Tree, Banana, Discord, Road, Reddit, Ocean, Doghouse };
-
-        public static IEnumerable<CurrencyModel> Random3Locations = new List<CurrencyModel>(Locations).Shuffle().Take(3);
     }
 }
