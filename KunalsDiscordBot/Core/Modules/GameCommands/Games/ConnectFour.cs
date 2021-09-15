@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 
@@ -25,13 +27,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         private readonly DiscordChannel channel;
         private DiscordMessage GameMessage { get; set; }
 
-        public ConnectFour(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel, int _numberOfCells) : base(_client, _players)
+        public ConnectFour(DiscordClient client, List<DiscordMember> players, DiscordChannel channel, int _numberOfCells) : base(client, players)
         {
-            client = _client;
-            channel = _channel;
+            this.channel = channel;
 
-            players = _players.Select(x => new Connect4Player(x)).ToList();
-            currentPlayer = players[0];
+            Players = players.Select(x => new Connect4Player(x)).ToList();
+            CurrentPlayer = Players[0];
 
             numberOfCells = Math.Clamp(_numberOfCells, 5, 8);
             board = new int[numberOfCells, numberOfCells];
@@ -43,7 +44,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         {
             var embed = await GetBoard();
             GameMessage = await channel.SendMessageAsync(embed).ConfigureAwait(false);
-            await Task.WhenAll(players.Select(x => Task.Run(() => x.Ready(channel))));
+            await Task.WhenAll(Players.Select(x => Task.Run(() => x.Ready(channel))));
 
             PlayGame();
         }
@@ -52,7 +53,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         {
             var embed = await GetBoard();
 
-            await SendMessage($"{currentPlayer.member.Mention} its your turn, which column would you like to place a coin in? Select `end` to end the game", embed)
+            await SendMessage($"{CurrentPlayer.member.Mention} its your turn, which column would you like to place a coin in? Select `end` to end the game", embed)
                 .ConfigureAwait(false);
         }
 
@@ -72,12 +73,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
             var embed = new DiscordEmbedBuilder()
             {
-                Title = $"{players[0].member.Username} vs {players[1].member.Username}",
+                Title = $"{Players[0].member.Username} vs {Players[1].member.Username}",
                 Color = DiscordColor.Blurple,
                 Description = description
-            }.AddField("Turn :", currentPlayer.member.Username, true)
-             .AddField($"Player 1: {players[0].member.Username}", RED, true)
-             .AddField($"Player 2: {players[1].member.Username}", YELLOW, true);
+            }.AddField("Turn :", CurrentPlayer.member.Username, true)
+             .AddField($"Player 1: {Players[0].member.Username}", RED, true)
+             .AddField($"Player 2: {Players[1].member.Username}", YELLOW, true);
 
             return Task.FromResult(embed);
         }
@@ -92,23 +93,23 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 {
                     await PrintBoard();
 
-                    InputResult result = await currentPlayer.GetInput(client, GameMessage, board);
+                    InputResult result = await CurrentPlayer.GetInput(Client, GameMessage, board);
 
                     if (!result.WasCompleted)
                     {
-                        await SendMessage($"{(result.Type == InputResult.ResultType.End ? $"{currentPlayer.member.Mention} has ended the game. noob" : $"{currentPlayer.member.Mention} has gone AFK")}")
+                        await SendMessage($"{(result.Type == InputResult.ResultType.End ? $"{CurrentPlayer.member.Mention} has ended the game. noob" : $"{CurrentPlayer.member.Mention} has gone AFK")}")
                             .ConfigureAwait(false);
 
                         GameOver = true;
                         continue;
                     }
 
-                    board[result.Ordinate.y, result.Ordinate.x] = currentPlayer == players[0] ? 1 : 2;
+                    board[result.Ordinate.y, result.Ordinate.x] = CurrentPlayer == Players[0] ? 1 : 2;
                     await CheckForWinner();
 
                     if (GameOver)
                     {
-                        await SendMessage($"{currentPlayer.member.Mention} Wins!").ConfigureAwait(false);
+                        await SendMessage($"{CurrentPlayer.member.Mention} Wins!").ConfigureAwait(false);
   
                         GameOver = true;
                         continue;
@@ -118,23 +119,23 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if (draw)
                     {
-                        await SendMessage($"The match between {players[0].member.Username} and {players[1].member.Username} ends in a draw").ConfigureAwait(false);
+                        await SendMessage($"The match between {Players[0].member.Username} and {Players[1].member.Username} ends in a draw").ConfigureAwait(false);
 
                         GameOver = true;
                         continue;
                     }
 
-                    currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
+                    CurrentPlayer = CurrentPlayer == Players[0] ? Players[1] : Players[0];
                 }
             }
             catch (Exception e)
             {
-                await currentPlayer.SendMessage(GameMessage, $"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
+                await CurrentPlayer.SendMessage(GameMessage, $"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
                 GameOver = true;
             }
             finally
             {
-                await currentPlayer.communicator.ClearComponents(GameMessage);
+                await GameMessage.ClearComponents();
 
                 if (OnGameOver != null)
                     OnGameOver();
@@ -333,11 +334,11 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         private async Task SendMessage(string content = null, DiscordEmbedBuilder embed = null)
         {
             if (content != null && embed != null)
-                GameMessage = await currentPlayer.SendMessage(GameMessage, content, embed);
+                GameMessage = await CurrentPlayer.SendMessage(GameMessage, content, embed);
             else if(content == null)
-                GameMessage = await currentPlayer.SendMessage(GameMessage, embed);
+                GameMessage = await CurrentPlayer.SendMessage(GameMessage, embed);
             else 
-                GameMessage = await currentPlayer.SendMessage(GameMessage, content);
+                GameMessage = await CurrentPlayer.SendMessage(GameMessage, content);
         }
     }
 }

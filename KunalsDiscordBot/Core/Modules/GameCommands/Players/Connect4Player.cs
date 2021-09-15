@@ -20,7 +20,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public override Task<bool> Ready(DiscordChannel channel)
         {
-            communicator = new Connect4Communicator(new Regex("([1-8])"), TimeSpan.FromMinutes(ConnectFour.inputTime));
+            communicator = new Connect4Communicator();
 
             return Task.FromResult(true);
         }

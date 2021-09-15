@@ -14,19 +14,17 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
     public class TicTacToeCommunicator : DiscordCommunicator, IComponentInputCommunicator
     {
-        public DiscordChannel channel { get; private set; }
-
-        public TicTacToeCommunicator(Regex expression, TimeSpan span, DiscordChannel _channel) : base(expression, span)
+        public TicTacToeCommunicator() 
         {
-            channel = _channel;
+ 
         }
 
-        public async Task<string> Input(InteractivityExtension interactivity, DiscordMessage message, DiscordUser user, InputData data)
+        public async Task<string> Input(InteractivityExtension interactivity, DiscordMessage message, DiscordUser user, InputData inputData)
         {
-            if (data.InputType == InputType.Message || data.InputType == InputType.Dropdown)
+            if (inputData.InputType == InputType.Message || inputData.InputType == InputType.Dropdown)
                 throw new InvalidOperationException();
 
-            var result = await WaitForButton(interactivity, message, user, data.Span);
+            var result = await WaitForButton(interactivity, message, user, inputData.Span);
 
             return result.TimedOut ? afkInputvalue : result.Result.Id;
         }
@@ -44,9 +42,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
                 {
                     var state = board[i, k];
                     var returnValue = $"{i},{k}";
-                    var emoji = state == 0 ? TicTacToe.Blank : (state == 1 ? TicTacToe.X : TicTacToe.O);
+                    var emoji = state == 0 ? TicTacToe.blank : (state == 1 ? TicTacToe.x : TicTacToe.o);
 
-                    var button = emoji == TicTacToe.Blank ? new DiscordButtonComponent(ButtonStyle.Primary, returnValue, "-", disableAll)
+                    var button = emoji == TicTacToe.blank ? new DiscordButtonComponent(ButtonStyle.Primary, returnValue, "-", disableAll)
                      : new DiscordButtonComponent(ButtonStyle.Primary, returnValue, "", true, new DiscordComponentEmoji(DiscordEmoji.FromName(client, emoji)));
                     buttons.Add(button);
 

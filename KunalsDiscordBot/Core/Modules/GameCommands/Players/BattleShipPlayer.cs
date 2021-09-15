@@ -31,7 +31,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public async override Task<bool> Ready(DiscordChannel channel)
         {
-            communicator = new BattleShipCommunicator(new Regex("([a-l,A-L]) ([1-9]|1[012])"), TimeSpan.FromSeconds(BattleShip.time), channel, new Regex("([a-l,A-L]) ([1-9]|1[012]) ([hsSH])"));
+            communicator = new BattleShipCommunicator(channel, new Regex("([a-l,A-L]) ([1-9]|1[012])"), new Regex("([a-l,A-L]) ([1-9]|1[012]) ([hsSH])"));
             board = new int[BattleShip.BoardSize, BattleShip.BoardSize];
 
             await Task.CompletedTask;
@@ -59,7 +59,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     var result = await communicator.ShipInput(interactivity, $"Enter the position for a {numOfBlocks[i] * 2 + 1} unit ship.\n Format -> <Column> <Row> <Placement>. Ex: a 3 h.\n \"h\" for a horzintally placed ship, \"s\" for a vertical one"
                         , new InputData
                         {
-                            Conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                            Conditions = x => x.Channel == communicator.DMChannel && x.Author == member,
                             LeaveMessage = "end",
                             Span = TimeSpan.FromSeconds(BattleShip.time),
                             RegexMatchFailExpression = "Please use the appropriate input format"
@@ -111,7 +111,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             {
                 var result = await communicator.Input(interactivity, "Its your turn type the position in which you want to attack.\n Format -> <Column> <Row>, Ex: a 6", new InputData
                 {
-                    Conditions = x => x.Channel == communicator.dmChannel && x.Author == member,
+                    Conditions = x => x.Channel == communicator.DMChannel && x.Author == member,
                     Span = TimeSpan.FromSeconds(BattleShip.time),
                     LeaveMessage = "end",
                      RegexMatchFailExpression = "Please use the appropriate input format"

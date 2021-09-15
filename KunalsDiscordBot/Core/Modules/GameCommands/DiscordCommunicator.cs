@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -16,27 +17,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         public static readonly string quitInputvalue = "QUIT";
         public static readonly string afkInputvalue = "AFK";
         public static readonly string inputFormatNotFollow = "INVALID";
-
-        public Regex inputExpression { get; set; }
-        public TimeSpan timeSpan { get; set; }
-
+  
         public DiscordCommunicator()
         {
 
         }
 
-        public DiscordCommunicator(Regex expression, TimeSpan span)
-        {
-            inputExpression = expression;
-            timeSpan = span;
-        }
-
-        protected bool MatchRegex(string input) => inputExpression.IsMatch(input);
-
         //modify
         protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, string newContent) => await message.ModifyAsync(newContent).ConfigureAwait(false);
-        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, DiscordEmbed builder) => await message.ModifyAsync(null, builder).ConfigureAwait(false);
-        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, string newContent, DiscordEmbed builder) => await message.ModifyAsync(newContent, builder).ConfigureAwait(false);
+        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, DiscordEmbed embed) => await message.ModifyAsync(null, embed).ConfigureAwait(false);
+        protected async Task<DiscordMessage> ModifyMessage(DiscordMessage message, string newContent, DiscordEmbed embed) => await message.ModifyAsync(newContent, embed).ConfigureAwait(false);
 
         //send
         protected async Task<DiscordMessage> SendMessageToPlayer(DiscordChannel channel, string message) => await channel.SendMessageAsync(message).ConfigureAwait(false);
@@ -69,7 +59,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         protected async Task<InteractivityResult<ComponentInteractionCreateEventArgs>> WaitForSelection(InteractivityExtension interactivity, DiscordMessage message, DiscordUser member, string id, TimeSpan span)
         {
             var result = await interactivity.WaitForSelectAsync(message, member, id, span);
-
 
             if (!result.TimedOut)
             {

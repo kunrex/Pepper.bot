@@ -78,13 +78,13 @@ namespace KunalsDiscordBot.Services.Games
             switch (typeof(T))
             {
                 case var x when x == typeof(BattleShip):
-                    var battleShipMatch = BattleShipMatches.FirstOrDefault(x => x.players.FirstOrDefault(x => x.member.Id == id) != null);
+                    var battleShipMatch = BattleShipMatches.FirstOrDefault(x => x.Players.FirstOrDefault(x => x.member.Id == id) != null);
                     if (battleShipMatch == null)
                         return false;
 
                     return await battleShipMatch.AddSpectator(specator); 
                 case var x when x == typeof(UNOGame):
-                    var unoMatch = UNOMatches.FirstOrDefault(x => x.players.FirstOrDefault(x => x.member.Id == id) != null);
+                    var unoMatch = UNOMatches.FirstOrDefault(x => x.Players.FirstOrDefault(x => x.member.Id == id) != null);
                     if (unoMatch == null)
                         return false;
 
@@ -116,8 +116,8 @@ namespace KunalsDiscordBot.Services.Games
 
         public Task<Game> GetDMGame<T>(ulong playerId) where T : Game => typeof(T) switch
         {
-            var x when x == typeof(UNOGame) => Task.FromResult((Game)UNOMatches.FirstOrDefault(x => x.players.FirstOrDefault(x => x.member.Id == playerId) != null)),
-            var x when x == typeof(BattleShip) => Task.FromResult((Game)BattleShipMatches.FirstOrDefault(x => x.players.FirstOrDefault(x => x.member.Id == playerId) != null)),
+            var x when x == typeof(UNOGame) => Task.FromResult((Game)UNOMatches.FirstOrDefault(x => x.Players.FirstOrDefault(x => x.member.Id == playerId) != null)),
+            var x when x == typeof(BattleShip) => Task.FromResult((Game)BattleShipMatches.FirstOrDefault(x => x.Players.FirstOrDefault(x => x.member.Id == playerId) != null)),
             _ => null
         };
     }

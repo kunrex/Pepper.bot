@@ -16,16 +16,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public DiscordGame(DiscordClient _client, List<DiscordMember> _players)
         {
-            client = _client;
+            Client = _client;
         }
 
         public delegate void Event();
         public Event OnGameOver { get; set; }
 
-        public DiscordClient client { get; protected set; }
+        public DiscordClient Client { get; protected set; }
 
-        public List<Player> players { get; protected set; }
-        protected Player currentPlayer { get; set; }
+        public List<Player> Players { get; protected set; }
+        protected Player CurrentPlayer { get; set; }
         public bool GameOver { get; protected set; } = false;
 
         protected abstract void SetUp();

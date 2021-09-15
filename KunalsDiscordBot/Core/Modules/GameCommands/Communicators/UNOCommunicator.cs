@@ -1,91 +1,102 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 
-using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.GameCommands.UNO.Cards;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators.Interfaces;
 
 namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
-    public class UNOCommunicator : DiscordCommunicator, ITextInputCommunicator
+    public class UNOCommunicator : DiscordCommunicator, IComponentInputCommunicator
     {
-        public DiscordChannel channel { get; private set; }
+        public DiscordChannel DMChannel { get; private set; }
 
-        public UNOCommunicator(Regex expression, TimeSpan span, DiscordChannel channel) : base(expression, span)
+        private TimeSpan CardsDisplaySpan { get; }
+
+        public UNOCommunicator(DiscordChannel _DMChannel, TimeSpan _cardsDisplaySpan) 
         {
-            this.channel = channel;
+            DMChannel = _DMChannel;
+
+            CardsDisplaySpan = _cardsDisplaySpan;
         }
 
-        public async Task<string> Input(InteractivityExtension interactivity, string inputMessage, InputData data)
+        public async Task<string> Input(InteractivityExtension interactivity, DiscordMessage message, DiscordUser user, InputData inputData)
         {
-            await SendMessage(inputMessage);
+            if (inputData.InputType != InputType.Dropdown)
+                throw new InvalidOperationException();
 
-            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
+            var builder = new DiscordMessageBuilder().WithContent(message.Content).AddEmbeds(message.Embeds);
 
-            if (message.TimedOut)
+            var options = new List<DiscordSelectComponentOption>();
+            foreach(var value in inputData.ExtraInputValues)
+                options.Add(new DiscordSelectComponentOption(value.Key, value.Value.Item2));
+            options.Add(new DiscordSelectComponentOption("Leave", inputData.LeaveMessage));
+
+            builder.AddComponents(new DiscordSelectComponent("Input", "Choose a maximum of 4 cards to play", options, false, 1, 4));
+            message = await message.ModifyAsync(builder);
+
+            var result = await WaitForSelection(interactivity, message, user, "Input", inputData.Span);
+            await message.ClearComponents();
+
+            if(result.TimedOut)
                 return afkInputvalue;
-            else if (message.Result.Content.ToLower().Equals(data.LeaveMessage))
+            else if (result.Result.Values.FirstOrDefault(x => x == inputData.LeaveMessage) != null)
                 return quitInputvalue;
-            else if (message.Result.Content.ToLower().Equals(data.ExtraInputValues["draw"].Item1))
+            else if (result.Result.Values.FirstOrDefault(x => x == inputData.ExtraInputValues["draw"].Item2) != null)
             {
                 await SendMessage("Drawing card").ConfigureAwait(false);
 
-                return data.ExtraInputValues["draw"].Item2;
-            }
-            else if(!MatchRegex(message.Result.Content))
-            {
-                await SendMessage(data.RegexMatchFailExpression);
-
-                return inputFormatNotFollow;
+                return inputData.ExtraInputValues["draw"].Item2;
             }
 
-            return message.Result.Content;
+            return string.Join(',', result.Result.Values);
         }
 
-        public async Task<string> QuestionInput(InteractivityExtension interactivity, string question, InputData data)
+        public async Task<string> QuestionInput(InteractivityExtension interactivity, string question, DiscordUser user, InputData data)
         {
-            await SendMessage(question).ConfigureAwait(false);
-            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
+            var builder = new DiscordMessageBuilder().WithContent(question).AddComponents(data.ExtraInputValues.Select(x =>
+            new DiscordButtonComponent(ButtonStyle.Primary, x.Value.Item1, x.Key)));
 
-            if (message.TimedOut)
-                return data.ExtraInputValues["no"].Item2;
-            if (message.Result.Content.ToLower().Equals(data.ExtraInputValues["yes"].Item1))
-                return data.ExtraInputValues["yes"].Item2;
+            var message = await builder.SendAsync(DMChannel);
+            var result = await WaitForButton(interactivity, message, user, data.Span);
 
-            return data.ExtraInputValues["no"].Item2;
+            await message.ClearComponents();
+            return result.TimedOut ? data.ExtraInputValues["no"].Item1 : data.ExtraInputValues.First(x => x.Value.Item1 == result.Result.Id).Value.Item2;
         }
 
-        public async Task<CardColor> GetCardColor(InteractivityExtension interactivity, InputData data)
+        public async Task<CardColor> GetCardColor(InteractivityExtension interactivity, string messageToUser, DiscordUser user, InputData data)
         {
-            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
+            var values = ((CardColor[])Enum.GetValues(typeof(CardColor))).ToList();
+            values.Remove(CardColor.none);
 
-            if(message.TimedOut)
+            var builder = new DiscordMessageBuilder().WithContent(messageToUser).AddComponents(new DiscordSelectComponent("Color", "Choose a color", 
+                values.Select(x => new DiscordSelectComponentOption(x.ToString(), x.ToString()))));
+
+            var message = await builder.SendAsync(DMChannel);
+            var result = await WaitForSelection(interactivity, message, user, "Color", data.Span);
+            await message.ClearComponents();
+
+            if (result.TimedOut)
             {
                 await SendMessage(data.ExtraOutputValues["time out"]);
 
                 return CardColor.red;
             }
-            else
-            {
-                var content = message.Result.Content;
 
-                if (Enum.TryParse(typeof(CardColor), content, out var x))
-                    return (CardColor)Enum.Parse(typeof(CardColor), content);
-
-                await SendMessage(data.ExtraOutputValues["invalid"]);
-                return CardColor.red;
-            }
+            return Enum.Parse<CardColor>(result.Result.Values[0]);
         }
 
-        public async Task<bool> CheckUNO(InteractivityExtension interactivity, InputData data)
+        public async Task<bool> CheckUNO(InteractivityExtension interactivity, InputData inputData)
         {
-            var message = await WaitForMessage(interactivity, data.Conditions, data.Span);
+            var message = await WaitForMessage(interactivity, inputData.Conditions, inputData.Span);
 
             return !message.TimedOut;
         }
@@ -112,12 +123,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
             return Task.FromResult(pages);
         }
 
-        public async Task<InteractivityResult<DiscordMessage>> WaitForMessage(InteractivityExtension interactivity, InputData data) => await WaitForMessage(interactivity, data.Conditions, data.Span);
+        public async Task<InteractivityResult<DiscordMessage>> WaitForMessage(InteractivityExtension interactivity, InputData inputData) => await WaitForMessage(interactivity, inputData.Conditions, inputData.Span);
 
-        public async Task<DiscordMessage> SendEmbedToPlayer(DiscordEmbed embed) => await SendEmbedToPlayer(channel, embed);
-        public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(channel, message);
-        public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(channel, message, embed);
+        public async Task<DiscordMessage> SendEmbedToPlayer(DiscordEmbed embed) => await SendEmbedToPlayer(DMChannel, embed);
+        public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(DMChannel, message);
+        public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(DMChannel, message, embed);
         public async Task SendPageinatedMessage(DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion)
-            => await SendPageinatedMessage(channel, user, pages, emojis, pagination, deletion, timeSpan);
+            => await SendPageinatedMessage(DMChannel, user, pages, emojis, pagination, deletion, CardsDisplaySpan);
     }
 }

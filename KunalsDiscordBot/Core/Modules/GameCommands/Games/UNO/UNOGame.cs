@@ -74,16 +74,16 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public UNOGame(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
-            client = _client;
+            Client = _client;
             emojis = new PaginationEmojis()
             {
-                Left = DiscordEmoji.FromName(client, ":arrow_backward:"),
-                Right = DiscordEmoji.FromName(client, ":arrow_forward:"),
+                Left = DiscordEmoji.FromName(Client, ":arrow_backward:"),
+                Right = DiscordEmoji.FromName(Client, ":arrow_forward:"),
                 Stop = null
             };
 
-            players = _players.Select(x => new UNOPlayer(x, emojis)).ToList();
-            currentPlayer = players[0];
+            Players = _players.Select(x => new UNOPlayer(x, emojis)).ToList();
+            CurrentPlayer = Players[0];
 
             SetUp();
         }
@@ -98,22 +98,22 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 Color = UNOColor
             }.AddField("Host:", "Me", true)
              .AddField("Number of cards given:", startCardNumber.ToString(), true)
-             .AddField("Players: ", string.Join(", ", players.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length + 1, "`")))));
+             .AddField("Players: ", string.Join(", ", Players.Select(x => x.member.Username.Insert(0, "`").Insert(x.member.Username.Length + 1, "`")))));
 
             PlayGame();
         }
 
         private async Task DistributeCards()
         {
-            foreach (var player in players)
+            foreach (var player in Players)
             {
                 player.AssignCards(cardsInDeck.Take(startCardNumber).ToList());
                 cardsInDeck.RemoveRange(0, startCardNumber);
             }
 
             List<Task<bool>> awaitReady = new List<Task<bool>>();
-            foreach(var player in players)
-                awaitReady.Add(player.Ready(await player.member.CreateDmChannelAsync(), client));
+            foreach(var player in Players)
+                awaitReady.Add(player.Ready(await player.member.CreateDmChannelAsync(), Client));
             await Task.WhenAll(awaitReady);
 
             currentCard = cardsInDeck.First(x => x is NumberCard);
@@ -125,11 +125,11 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             while (!GameOver)
             {
                 await PrintBoard();
-                var result = await currentPlayer.GetInput(client, currentCard);
+                var result = await CurrentPlayer.GetInput(Client, currentCard);
 
                 if (!result.WasCompleted)
                 {
-                    await SendMessageToAllPlayers($"{currentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has left the game" : "has gone afk")}").ConfigureAwait(false);
+                    await SendMessageToAllPlayers($"{CurrentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has left the game" : "has gone afk")}").ConfigureAwait(false);
                     var end = await RemovePlayer();
 
                     if (end)
@@ -144,21 +144,21 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 {
                     await AddcardsToPlayer(1);
 
-                    var checkResult = await currentPlayer.TryPlay(currentCard, client);
+                    var checkResult = await CurrentPlayer.TryPlay(currentCard, Client);
                     if (checkResult.WasCompleted)
                         result = checkResult;
                 }
 
                 if (result.Cards != null && result.Cards.Count > 0)
                 {
-                    await Task.Run(async () => await SendDeckToAllPlayers(result.Cards, $"{currentPlayer.member.Username} Plays"));
+                    await Task.Run(async () => await SendDeckToAllPlayers(result.Cards, $"{CurrentPlayer.member.Username} Plays"));
                     await ProcessTurn(result.Cards);
                     cardsInDeck.AddRange(result.Cards.Shuffle());//cycle cards
                 }
                 else
                     await NextPlayer(currentCard);
 
-                if (players.Count == 1)//only one player left
+                if (Players.Count == 1)//only one player left
                 {
                     await SendMessageToAllPlayers("Theres only 1 player left now").ConfigureAwait(false);
                     await SendEndMessage("Game Over!", true).ConfigureAwait(false);
@@ -169,7 +169,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                 await Task.Delay(TimeSpan.FromSeconds(1));
 
-                List<Task> tasks = players.Select(x => Task.Run(() => x.Ready("Are you ready to proceed to the next round? I will auto-ready after 1 minute", TimeSpan.FromMinutes(timeLimit), client))).ToList();
+                List<Task> tasks = Players.Select(x => Task.Run(() => x.Ready("Are you ready to proceed to the next round? I will auto-ready after 1 minute", TimeSpan.FromMinutes(timeLimit), Client))).ToList();
                 await Task.WhenAll(tasks);
 
                 await SendMessageToAllPlayers("All players ready");
@@ -183,7 +183,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         {
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"{currentPlayer.member.Username}'s Turn",
+                Title = $"{CurrentPlayer.member.Username}'s Turn",
                 ImageUrl = Card.GetLink(currentCard.fileName).link + ".png",
                 Color = UNOColor
             };
@@ -197,7 +197,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             embed.AddField("Current Card:", "** **");
             await SendMessageToAllPlayers(null, embed);
 
-            await currentPlayer.PrintAllCards();
+            await CurrentPlayer.PrintAllCards();
             await Task.Delay(TimeSpan.FromSeconds(1));
         }
 
@@ -208,11 +208,11 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 switch (cardsPlayed[0].cardType)
                 {
                     case CardType.Skip:
-                        int newIndex = players.IndexOf(currentPlayer);
+                        int newIndex = Players.IndexOf(CurrentPlayer);
                         newIndex += direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count;
-                        newIndex = (newIndex + players.Count) % players.Count;
+                        newIndex = (newIndex + Players.Count) % Players.Count;
 
-                        currentPlayer = players[newIndex];
+                        CurrentPlayer = Players[newIndex];
                         currentCard = cardsPlayed[cardsPlayed.Count - 1];
 
                         await SendMessageToAllPlayers($"{cardsPlayed.Count} player(s) skipped lol");
@@ -259,15 +259,15 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task<bool> RemovePlayer(bool won = false)
         {
-            players.Remove(currentPlayer);
+            Players.Remove(CurrentPlayer);
 
             if (won)
             {
-                playersWhoFinished.Add(currentPlayer);
-                await SendMessageToAllPlayers($"{currentPlayer} has no more cards left comes in position {playersWhoFinished.Count}!");
+                playersWhoFinished.Add(CurrentPlayer);
+                await SendMessageToAllPlayers($"{CurrentPlayer} has no more cards left comes in position {playersWhoFinished.Count}!");
             }
 
-            if (players.Count == 1)
+            if (Players.Count == 1)
             {
                 await SendMessageToAllPlayers("There are now too less players left to play the game").ConfigureAwait(false);
                 return true;
@@ -281,19 +281,19 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             var cardsToAdd = cardsInDeck.Take(num).ToList();
             cardsInDeck.RemoveRange(0, num);
 
-            await SendMessageToAllPlayers($"{currentPlayer.member.Username} has drawed {num} card(s)");
-            await currentPlayer.AddCards(cardsToAdd);
+            await SendMessageToAllPlayers($"{CurrentPlayer.member.Username} has drawed {num} card(s)");
+            await CurrentPlayer.AddCards(cardsToAdd);
         }
 
         private async Task NextPlayer(Card newCard)
         {
-            if (currentPlayer.cards.Count <= 1)//UNO time
+            if (CurrentPlayer.cards.Count <= 1)//UNO time
             {
-                if (!await currentPlayer.UNOTime(client))
+                if (!await CurrentPlayer.UNOTime(Client))
                 {
                     await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
                     {
-                        Description = $"{currentPlayer.member.Username} forgot to say UNO lmao",
+                        Description = $"{CurrentPlayer.member.Username} forgot to say UNO lmao",
                         Color = UNOColor
                     }).ConfigureAwait(false);
                     await AddcardsToPlayer(unoMissPenalty);
@@ -302,21 +302,21 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 {
                     await SendMessageToAllPlayers(null, new DiscordEmbedBuilder
                     {
-                        Description = $"{currentPlayer.member.Username} {(currentPlayer.cards.Count == 0 ? "has no more cards left" : "has 1 card left")} and they said UNO \\:(",
+                        Description = $"{CurrentPlayer.member.Username} {(CurrentPlayer.cards.Count == 0 ? "has no more cards left" : "has 1 card left")} and they said UNO \\:(",
                         Color = UNOColor
                     }).ConfigureAwait(false);
                 }
             }
 
-            int index = players.IndexOf(currentPlayer);
-            var prevPlayer = currentPlayer;
+            int index = Players.IndexOf(CurrentPlayer);
+            var prevPlayer = CurrentPlayer;
 
             Console.WriteLine(index);
 
             index += direction == GameDirection.forward ? 1 : -1;
-            index = (index + (players.Count)) % players.Count;
+            index = (index + (Players.Count)) % Players.Count;
 
-            currentPlayer = players[index];
+            CurrentPlayer = Players[index];
             currentCard = newCard;
 
             if (prevPlayer.cards.Count == 0)
@@ -345,22 +345,22 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             if (embed != null)
                 messageBuild.WithEmbed(embed);
 
-            await Task.WhenAll(players.Select(x => x.SendMessage(messageBuild)));
+            await Task.WhenAll(Players.Select(x => x.SendMessage(messageBuild)));
             await Task.WhenAll(spectators.Select(x => x.SendMessage(messageBuild)));
         }
 
         private async Task SendDeckToAllPlayers(List<Card> cards, string title)
         {
-            await Task.WhenAll(players.Select(x => Task.Run(() => x.PrintCards(cards, title))));
-            await Task.WhenAll(spectators.Select(x => Task.Run(async () => x.SendMessage(await currentPlayer.communicator.GetPrintableDeck(cards, title), emojis))));
+            await Task.WhenAll(Players.Select(x => Task.Run(() => x.PrintCards(cards, title))));
+            await Task.WhenAll(spectators.Select(x => Task.Run(async () => x.SendMessage(await CurrentPlayer.communicator.GetPrintableDeck(cards, title), emojis))));
         }
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
-            if (spectators.Count == maxSpectators || players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
+            if (spectators.Count == maxSpectators || Players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
 
-            var spectator = new DiscordSpectator(_member, client, this);
+            var spectator = new DiscordSpectator(_member, Client, this);
 
             spectators.Add(spectator);
             var channel = await _member.CreateDmChannelAsync();

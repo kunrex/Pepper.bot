@@ -20,12 +20,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public override Task<bool> Ready(DiscordChannel channel)
         {
-            communicator = new TicTacToeCommunicator(new Regex("([a-e] [1-5])"), TimeSpan.FromMinutes(TicTacToe.inputTime), channel);
+            communicator = new TicTacToeCommunicator();
 
             return Task.FromResult(true);
         }
 
-        public async Task<InputResult> GetInput(DiscordClient client, DiscordMessage message, int[,] board)
+        public async Task<InputResult> GetInput(DiscordClient client, DiscordMessage message)
         {
             var result = await communicator.Input(client.GetInteractivity(), message, member, new InputData
             {

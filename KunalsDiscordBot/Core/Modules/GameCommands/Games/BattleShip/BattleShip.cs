@@ -33,29 +33,29 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public BattleShip(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
-            players = _players.Select(x => new BattleShipPlayer(x)).ToList();
-            client = _client;
+            Players = _players.Select(x => new BattleShipPlayer(x)).ToList();
+            Client = _client;
 
             SetUp();
         }
 
         protected override async void SetUp()
         {
-            await players[0].Ready(await players[0].member.CreateDmChannelAsync().ConfigureAwait(false));
-            await players[1].Ready(await players[1].member.CreateDmChannelAsync().ConfigureAwait(false));
+            await Players[0].Ready(await Players[0].member.CreateDmChannelAsync().ConfigureAwait(false));
+            await Players[1].Ready(await Players[1].member.CreateDmChannelAsync().ConfigureAwait(false));
 
             await SendMessageToAllSpectators("Both players ready to play, starting ship position placement...");
 
             //run both input methods "simultaneously"
-            var player1Ships = Task.Run(() => players[0].GetShips(client));
-            var player2Ships = Task.Run(() => players[1].GetShips(client));
+            var player1Ships = Task.Run(() => Players[0].GetShips(Client));
+            var player2Ships = Task.Run(() => Players[1].GetShips(Client));
 
             await player1Ships;
             await player2Ships;
 
             if (!player1Ships.Result.WasCompleted)//checks if any one ended the game
             {
-                string message = $"{players[0].member.Username} {(player1Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
+                string message = $"{Players[0].member.Username} {(player1Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                 await SendMessageToBoth(message);
                 await SendMessageToAllSpectators(message);
@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             }
             else if(!player2Ships.Result.WasCompleted)
             {
-                string message = $"{players[1].member.Username} {(player2Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
+                string message = $"{Players[1].member.Username} {(player2Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                 await SendMessageToBoth(message);
                 await SendMessageToAllSpectators(message);
@@ -87,19 +87,19 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             await PrintBoard();
             await PrintBoardForSpectators();
 
-            currentPlayer = players[0];
+            CurrentPlayer = Players[0];
 
             try
             {
                 while (!GameOver)
                 {
-                    var otherPlayer = currentPlayer == players[0] ? players[1] : players[0];
+                    var otherPlayer = CurrentPlayer == Players[0] ? Players[1] : Players[0];
 
-                    var result = await currentPlayer.GetAttackPos(client, await otherPlayer.GetBoard());
+                    var result = await CurrentPlayer.GetAttackPos(Client, await otherPlayer.GetBoard());
 
                     if (!result.WasCompleted)//checks if player one ended the game
                     {
-                        string endMessage = $"{currentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
+                        string endMessage = $"{CurrentPlayer.member.Username} {(result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
                         await SendMessageToBoth(endMessage);
                         await SendMessageToAllSpectators(endMessage);
@@ -111,7 +111,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                         continue;
                     }
 
-                    var message = $"Position entered by {currentPlayer.member.Username} => {(char)(result.Ordinate.x + 97)} {result.Ordinate.y + 1}";
+                    var message = $"Position entered by {CurrentPlayer.member.Username} => {(char)(result.Ordinate.x + 97)} {result.Ordinate.y + 1}";
 
                     await SendMessageToBoth(message);
                     await SendMessageToAllSpectators(message);
@@ -120,7 +120,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if (hit)
                     {
-                        await currentPlayer.SendMessage($"{(isDead ? "A ship has been sunk!" : "A ship was hit!")}");
+                        await CurrentPlayer.SendMessage($"{(isDead ? "A ship has been sunk!" : "A ship was hit!")}");
                         await otherPlayer.SendMessage($"{(isDead ? "Your ship has been sunk!" : "Your ship has hit!")}");
 
                         await SendMessageToAllSpectators($"{(isDead ? $"{otherPlayer.member.Username}'s ship has been sunk": $"{otherPlayer.member.Username}'s ship has been hit")}");
@@ -137,7 +137,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if(lose)
                     {
-                        var winMessage = $"{currentPlayer.member.Username} Wins!";
+                        var winMessage = $"{CurrentPlayer.member.Username} Wins!";
 
                         await SendMessageToBoth(winMessage);
                         await SendMessageToAllSpectators(winMessage);
@@ -154,7 +154,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                     await PrintBoard();
                     await PrintBoardForSpectators();
 
-                    currentPlayer = currentPlayer == players[0] ? players[1] : players[0];
+                    CurrentPlayer = CurrentPlayer == Players[0] ? Players[1] : Players[0];
                 }
             }
             catch(Exception e)
@@ -172,8 +172,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         protected override async Task PrintBoard()
         {
-            var boardForPlayer1 = Task.Run(() => PrintBoardForPlayer(players[0], players[1]));
-            var boardForPlayer2 = Task.Run(() => PrintBoardForPlayer(players[1], players[0]));
+            var boardForPlayer1 = Task.Run(() => PrintBoardForPlayer(Players[0], Players[1]));
+            var boardForPlayer2 = Task.Run(() => PrintBoardForPlayer(Players[1], Players[0]));
 
             await boardForPlayer1;
             await boardForPlayer2;
@@ -191,7 +191,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task SendMessageToBoth(object message)
         {
-            foreach (var player in players)
+            foreach (var player in Players)
                 await player.SendMessage($"{message}").ConfigureAwait(false);
         }
 
@@ -221,18 +221,18 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task PrintBoardForSpectators()
         {
-            var currentPlayerBoard = await players[0].GetBoardToPrint(false);
-            var otherPlayerBoard = await players[1].GetBoardToPrint(false);
+            var currentPlayerBoard = await Players[0].GetBoardToPrint(false);
+            var otherPlayerBoard = await Players[1].GetBoardToPrint(false);
 
             var plyer1Board = new DiscordEmbedBuilder
             {
-                Title = $"{players[0].member.Username}'s board",
+                Title = $"{Players[0].member.Username}'s board",
                 Description = currentPlayerBoard
             };
 
             var player2Board = new DiscordEmbedBuilder
             {
-                Title = $"{players[1].member.Username}'s board",
+                Title = $"{Players[1].member.Username}'s board",
                 Description = otherPlayerBoard
             };
 
@@ -257,10 +257,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
-            if (spectators.Count == maxSpectators || players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
+            if (spectators.Count == maxSpectators || Players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
 
-            var spectator = new DiscordSpectator(_member, client, this);
+            var spectator = new DiscordSpectator(_member, Client, this);
 
             spectators.Add(spectator);
             var channel = await _member.CreateDmChannelAsync();

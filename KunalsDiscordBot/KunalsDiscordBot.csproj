@@ -83,6 +83,7 @@
     <Folder Include="Core\DialogueHandler\Steps\Basics\" />
     <Folder Include="Core\Modules\CurrencyCommands\CurrencyModels\" />
     <Folder Include="Core\Modules\GameCommands\Communicators\Interfaces\" />
+    <Folder Include="Core\Modules\GameCommands\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -150,6 +151,7 @@
     <None Remove="Core\DialogueHandler\Steps\Basics\" />
     <None Remove="Core\Modules\CurrencyCommands\CurrencyModels\" />
     <None Remove="Core\Modules\GameCommands\Communicators\Interfaces\" />
+    <None Remove="Core\Modules\GameCommands\Interfaces\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

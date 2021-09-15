@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Collections.Generic;
+
+using DSharpPlus.Entities;
 
 namespace KunalsDiscordBot.Extensions
 {
@@ -36,6 +39,6 @@ namespace KunalsDiscordBot.Extensions
             return newList;
         }
 
-        public static bool HasDuplicates<T>(this IList<T> list) => list.Count != list.Distinct().ToList().Count;
+        public static async Task<DiscordMessage> ClearComponents(this DiscordMessage message) => await message.ModifyAsync(new DiscordMessageBuilder().WithContent(message.Content).AddEmbeds(message.Embeds));
     }
 }

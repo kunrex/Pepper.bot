@@ -10,19 +10,18 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
     public class SpectatorCommunicator : DiscordCommunicator
     {
-        public DiscordChannel channel { get; private set; }
+        public DiscordChannel Channel { get; private set; }
 
-        public SpectatorCommunicator(DiscordChannel _channel)
+        public SpectatorCommunicator(DiscordChannel channel)
         {
-            channel = _channel;
+            Channel = channel;
         }
 
-        public async Task<DiscordMessage> SendMessage(DiscordEmbed embed) => await SendEmbedToPlayer(channel, embed);
-        public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(channel, message);
-        public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(channel, message, embed);
+        public async Task<DiscordMessage> SendMessage(DiscordEmbed embed) => await SendEmbedToPlayer(Channel, embed);
+        public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(Channel, message);
+        public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(Channel, message, embed);
 
-        public async Task SendPageinatedMessage(DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion)
-            => await SendPageinatedMessage(channel, user, pages, emojis, pagination, deletion, timeSpan);
-
+        public async Task SendPageinatedMessage(DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion, TimeSpan timeSpan)
+            => await SendPageinatedMessage(Channel, user, pages, emojis, pagination, deletion, timeSpan);
     }
 }

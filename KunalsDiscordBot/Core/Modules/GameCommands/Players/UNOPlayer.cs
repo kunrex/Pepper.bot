@@ -34,7 +34,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public async Task<bool> Ready(DiscordChannel channel, DiscordClient client)
         {
-            communicator = new UNOCommunicator(new Regex("([1-9][,]?)+"), TimeSpan.FromMinutes(UNOGame.timeLimit), channel);
+            communicator = new UNOCommunicator(channel, TimeSpan.FromMinutes(UNOGame.timeLimit));
             await communicator.SendMessage("Waiting for players to get ready...");
 
             await communicator.SendMessage("Cards recieved").ConfigureAwait(false);
@@ -42,12 +42,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             await Task.Delay(TimeSpan.FromSeconds(1));//gap
 
             await CheckAutoContinue(client); 
-
-            await communicator.SendMessage("Are you ready to play the game? Enter anything to start. The game will auto start in 1 minute").ConfigureAwait(false);
-            await communicator.WaitForMessage(client.GetInteractivity(), new InputData
+            await communicator.QuestionInput(client.GetInteractivity(), "Are you ready to play the game? The game will auto start in 1 minute", member, new InputData
             {
-                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == channel.Id,
-                Span = TimeSpan.FromMinutes(1)
+                ExtraInputValues = new Dictionary<string, (string, string)>()
+                {
+                    {"yes", ("yes", "yes") }
+                },
+                Span = TimeSpan.FromMinutes(1),
             });
 
             return true;
@@ -56,14 +57,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
         private async Task CheckAutoContinue(DiscordClient client)
         {
             string yesReturn = "yes";
-            var result = await communicator.QuestionInput(client.GetInteractivity(), "Do you want me to auto-ready on your part after each turn? Type `y` for yes. Anything else will be taken as no.\n Time: 10 seconds", new InputData
+            var result = await communicator.QuestionInput(client.GetInteractivity(), "Do you want me to auto-ready on your part after each turn? Type `y` for yes. Anything else will be taken as no.\n Time: 10 seconds", member, new InputData
             {
                 ExtraInputValues = new Dictionary<string, (string, string)>
                 {
-                    { "no",  ("", "no")},
+                    { "no",  ("n", "no")},
                     { "yes",  ("y", yesReturn)}
                 },
-                Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
                 Span = TimeSpan.FromSeconds(10)
             });
 
@@ -84,7 +84,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             await communicator.SendMessage(messsage).ConfigureAwait(false);
             await communicator.WaitForMessage(client.GetInteractivity(), new InputData
             {
-                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id,
+                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.DMChannel.Id,
                 Span = span
             }); 
         }
@@ -107,57 +107,47 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             while(!comepleted)
             {
-                var message = await communicator.Input(interactivity, "Which Card would you like to play?.\nEnter the index number of the card to play it " +
-                    "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game. Enter `draw` to draw a card",
+                var message = await communicator.SendMessage("Which Card would you like to play?.\nEnter the index number of the card to play it " +
+                    "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game. Enter `draw` to draw a card");
+                var options = new Dictionary<string, (string, string)>();
+                for (int i = 0; i < cards.Count; i++)
+                {
+                    var value = $"{i + 1}";
+                    options.Add(value, (value, value));
+                }
+                options.Add("draw", ("draw", drawCheck));
+
+                var result = await communicator.Input(interactivity, message, member,
                     new InputData
                     {
-                        Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
                         Span = TimeSpan.FromMinutes(UNOGame.timeLimit),
                         LeaveMessage = "leave",
-                        ExtraInputValues = new Dictionary<string, (string, string)>
-                        {
-                            {"draw", ("draw", drawCheck) }
-                        },
-                        RegexMatchFailExpression = "Please use the input format"
+                        ExtraInputValues = options,
+                        InputType = InputType.Dropdown
                     });
 
-                if (message.Equals(DiscordCommunicator.afkInputvalue))
+                if (result.Equals(DiscordCommunicator.afkInputvalue))
                     return new InputResult
                     {
                         WasCompleted = false,
                         Type = InputResult.ResultType.Afk
                     };
-                else if (message.Equals(DiscordCommunicator.quitInputvalue))
+                else if (result.Equals(DiscordCommunicator.quitInputvalue))
                     return new InputResult
                     {
                         WasCompleted = false,
                         Type = InputResult.ResultType.End
                     };
-                else if (message.Equals(drawCheck))
-                {
-                    await communicator.SendMessage("Drawing card").ConfigureAwait(false);
-
+                else if (result.Equals(drawCheck))
                     return new InputResult
                     {
                         WasCompleted = true,
                         Type = InputResult.ResultType.InValid
                     };
-                }
                 else
                 {
-                    var indexs = GetIndexes(message);
-                    if (indexs == null)
-                    {
-                        await communicator.SendMessage($"Thats not valid input. Check the index' you're entering. \nPS: you also can't play more than {UNOGame.maxCardsInATurn} card(s) per turn.");
-                        continue;
-                    }
-
-                    if (indexs.HasDuplicates())
-                    {
-                        await communicator.SendMessage($"Dupliacates don't work my friend");
-                        continue;
-                    }
-                    var inputCards = cards.GetElemantsWithIndex(indexs.ToArray()).ToList();
+                    var indexes = GetIndexes(result);
+                    var inputCards = cards.GetElemantsWithIndex(indexes.ToArray()).ToList();
 
                     if (currentCard is IChangeColorCard)
                     {
@@ -183,12 +173,11 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     }
 
                     if (inputCards[inputCards.Count - 1] is IChangeColorCard)
-                        ((IChangeColorCard)inputCards[inputCards.Count - 1]).colorToChange = await communicator.GetCardColor(interactivity, new InputData
+                        ((IChangeColorCard)inputCards[inputCards.Count - 1]).colorToChange = await communicator.GetCardColor(interactivity, "What color would you like to change to?", member, new InputData
                         {
                             ExtraOutputValues = new Dictionary<string, string>
                             {
                                 {"time out", "Time out, I'm just gonna choose red" },
-                                {"invalid", "Thats not even a valid color, I'm gonna go ahead with red" }
                             },
                             Span = TimeSpan.FromSeconds(10)
                         });
@@ -227,14 +216,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             var interactivity = client.GetInteractivity();
 
             string yesReturn = "yes";
-            var result = await communicator.QuestionInput(client.GetInteractivity(), "The drawed card can be played, type `y` to play the card. Anything else and the card will be kept.\nTime - 10 seconds", new InputData
+            var result = await communicator.QuestionInput(interactivity, "The drawed card can be played, type `y` to play the card. Anything else and the card will be kept.\nTime - 10 seconds", member, new InputData
             {               
                 ExtraInputValues = new Dictionary<string, (string, string)>
                 {
-                    { "no",  ("", "no")},
-                    { "no",  ("y", yesReturn)}
+                    { "no",  ("no", "no")},
+                    { "yes",  ("y", yesReturn)}
                 },
-                Conditions = x => x.Channel.Id == communicator.channel.Id && x.Author.Id == member.Id,
                 Span = TimeSpan.FromSeconds(10)
             });
 
@@ -261,7 +249,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public async Task<bool> UNOTime(DiscordClient client) => await communicator.CheckUNO(client.GetInteractivity(), new InputData
         {
-            Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.channel.Id && x.Content.ToLower().Equals("uno"),
+            Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.DMChannel.Id && x.Content.ToLower().Equals("uno"),
             Span = TimeSpan.FromSeconds(5)
         });
 
@@ -335,7 +323,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             return Task.CompletedTask;
         }
 
-        public async Task SendMessage(DiscordMessageBuilder message) => await message.SendAsync(communicator.channel);
+        public async Task SendMessage(DiscordMessageBuilder message) => await message.SendAsync(communicator.DMChannel);
 
     }
 }
