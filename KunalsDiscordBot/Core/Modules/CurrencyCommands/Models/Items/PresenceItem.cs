@@ -1,8 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
 
-using DSharpPlus.Entities;
-
-using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
@@ -15,7 +12,5 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
         {
             Data = data;
         }
-
-        public override Task<UseResult> Use(IProfileService service, DiscordMember member) => Task.FromResult(new UseResult { useComplete = false, message = "You can't use this item??" });
     }
 }

@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 
+using DSharpPlus;
+using DSharpPlus.Entities;
+
 using KunalsDiscordBot.Services.Currency;
 using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Interfaces;
@@ -8,13 +11,13 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts.Interfaces;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 {
-    public class LandmineBoost : Boost, ITheftProtection, IValueModel
+    public class LandmineBoost : Boost, ITimeSpanValueModel, ITheftProtection
     {
         private readonly int miminumBoost;
-        public int MinimumBoost => miminumBoost;
+        public int MinimumIncrease => miminumBoost;
 
         private readonly int maximumBoost;
-        public int MaximumBoost => maximumBoost;
+        public int MaximumIncrease => maximumBoost;
 
         private readonly TimeSpan minimumTimeSpan;
         public TimeSpan MinimumTimeSpan => minimumTimeSpan;
@@ -41,8 +44,6 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 
         protected override Boost CreateClone(string _name, int _percentageIncrease, TimeSpan _span, DateTime _start) => new LandmineBoost(_name, _percentageIncrease, _span, _start);
 
-        public Task<UseResult> Use(Profile userProfile, IProfileService profileService) => throw new InvalidOperationException();
-
         public async Task<UseResult> Use(Profile userProfile, Profile robberProfile, IProfileService profileService)
         {
             var failed = new Random().Next(1, 100) < 50;
@@ -65,9 +66,11 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
             await profileService.AddOrRemoveBoost(userProfile, Name, 0, TimeSpan.FromSeconds(0), "", -1);
             return new UseResult
             {
-                useComplete = true,
-                message = message
+                UseComplete = true,
+                Message = message
             };
         }
+
+        public Task<UseResult> Use(Profile userProfile, IProfileService profileService) => throw new NotImplementedException();
     }
 }

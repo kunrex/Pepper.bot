@@ -8,13 +8,13 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts.Interfaces;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 {
-    public class PadlockBoost : Boost, ITheftProtection, IValueModel
+    public class PadlockBoost : Boost, ITheftProtection, ITimeSpanValueModel
     {
         private readonly int miminumBoost;
-        public int MinimumBoost => miminumBoost;
+        public int MinimumIncrease => miminumBoost;
 
         private readonly int maximumBoost;
-        public int MaximumBoost => maximumBoost;
+        public int MaximumIncrease => maximumBoost;
 
         private readonly TimeSpan minimumTimeSpan;
         public TimeSpan MinimumTimeSpan => minimumTimeSpan;
@@ -47,11 +47,11 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 
             return new UseResult
             {
-                useComplete = true,
-                message = $"Well sadly, the person you tried to rob had a padlock on and ya failed :kek:"
+                UseComplete = true,
+                Message = $"Well sadly, the person you tried to rob had a padlock on and ya failed <:kek:849534098643877929>"
             };
         }
 
-        public Task<UseResult> Use(Profile userProfile, Profile robberProfile, IProfileService profileService) => throw new InvalidOperationException();
+        public Task<UseResult> Use(Profile userProfile, Profile robberProfile, IProfileService profileService) => throw new NotImplementedException();
     }
 }

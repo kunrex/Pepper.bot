@@ -4,6 +4,9 @@ using System.Threading.Tasks;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Services.Currency;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Interfaces;
+using DSharpPlus;
+using DiscordBotDataBase.Dal.Models.Profile;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 {
@@ -19,7 +22,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
         NonBuyable = 32
     }
 
-    public abstract class Item
+    public abstract class Item : IDiscordUseableModel
     {
         public string Name { get; protected set; }
         public int Price { get; protected set; }
@@ -40,6 +43,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
             SellingPrice = Price / 2;
         }
 
-        public abstract Task<UseResult> Use(IProfileService service, DiscordMember member);
+        public virtual Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member) => Task.FromResult(new UseResult { UseComplete = true, Message = "" });
+        public virtual Task<UseResult> Use(Profile profile, IProfileService profileService) => Task.FromResult(new UseResult { UseComplete = true, Message = "" });
     }
 }

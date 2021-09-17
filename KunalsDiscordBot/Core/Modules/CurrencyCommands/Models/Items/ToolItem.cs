@@ -1,38 +1,23 @@
 ﻿using System.Threading.Tasks;
 
+using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Services.Currency;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Tools;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 {
-    public class ToolItem : Item
+    public sealed class ToolItem : Item
     {
-        public ToolData Data;
+        public Tool Tool { get; private set; }
 
-        public ToolItem(string name, int price, string description, UseType type, ToolData data) :base(name, price, description, type)
+        public ToolItem(string name, int price, string description, UseType type, Tool tool) :base(name, price, description, type)
         {
-            Data = data;
+            Tool = tool;
         }
 
-        public async override Task<UseResult> Use(IProfileService service, DiscordMember member)
-        {
-            int boost = Data.GetBoost();
-
-            switch(Data.Type)
-            {
-                 case ToolData.ToolType.BankSpace:
-                    await service.ModifyProfile(member.Id, x => x.CoinsBankMax += boost);
-                    break;
-            }
-            await service.AddOrRemoveItem(member.Id, Name, -1).ConfigureAwait(false);
-
-            return new UseResult
-            {
-                useComplete = true,
-                message = $"{member.Mention}, Increase {Data.Type} by {boost}"
-            };
-        }
+        public async override Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member) => await Tool.Use(service, client, channel, member);
     }
 }

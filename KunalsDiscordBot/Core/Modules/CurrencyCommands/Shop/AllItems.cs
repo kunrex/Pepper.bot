@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Tools;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 
@@ -15,7 +16,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
            PresenceData.PresenceCommand.Sleep, 75, 300));
         public static readonly Item HuntingKit = new PresenceItem("Hunting Kit", 125, "Allows you to run the currency hunt and fish commands", UseType.Presence, new PresenceData(
            PresenceData.PresenceCommand.Hunt | PresenceData.PresenceCommand.Fish));
-        public static readonly Item BankCard = new ToolItem("Bank Card", 125, "Provides extra bank space", UseType.Tool, new ToolData(ToolData.ToolType.BankSpace, 350, 700));
+        public static readonly Item BankCard = new ToolItem("Bank Card", 125, "Provides extra bank space", UseType.Tool, Tool.BankCard);
 
         public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Alcohol));
         public static readonly Item Landmine = new BoostItem("Landmine", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Landmine));

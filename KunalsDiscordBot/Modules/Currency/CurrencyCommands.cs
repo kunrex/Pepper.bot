@@ -913,17 +913,17 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            var useResult = await item.Use(service, ctx.Member);
-            if (!useResult.useComplete)
+            var useResult = await item.Use(await service.GetProfile(ctx.Message.Id, ""), service);
+            if (!useResult.UseComplete)
             {
-                await ctx.RespondAsync(useResult.message).ConfigureAwait(false);
+                await ctx.RespondAsync(useResult.Message).ConfigureAwait(false);
                 return;
             }
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "Item Successfully Used",
-                Description = useResult.message,
+                Description = useResult.Message,
             }.WithFooter($"Item: {itemData.Name}").WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)).ConfigureAwait(false);
             ExecutionRewards = true;
         }
@@ -1032,12 +1032,12 @@ namespace KunalsDiscordBot.Modules.Currency
                     _ => default
                 };
 
-                if (result.useComplete)
+                if (result.UseComplete)
                     break;
             }
 
-            if (result.useComplete)
-                await ctx.RespondAsync(result.message).ConfigureAwait(false);
+            if (result.UseComplete)
+                await ctx.RespondAsync(result.Message).ConfigureAwait(false);
             else
             {
                 var luckBoost = boosts.FirstOrDefault(x => x is LuckBoost);

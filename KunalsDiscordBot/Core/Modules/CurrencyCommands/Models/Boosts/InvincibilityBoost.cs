@@ -4,16 +4,18 @@ using System.Threading.Tasks;
 using KunalsDiscordBot.Services.Currency;
 using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Interfaces;
+using DSharpPlus.Entities;
+using DSharpPlus;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 {
-    public class InvincibilityBoost : Boost, IValueModel, IUsableModel
+    public class InvincibilityBoost : Boost, ITimeSpanValueModel, IUsableModel
     {
         private readonly int miminumBoost;
-        public int MinimumBoost => miminumBoost;
+        public int MinimumIncrease => miminumBoost;
 
         private readonly int maximumBoost;
-        public int MaximumBoost => maximumBoost;
+        public int MaximumIncrease => maximumBoost;
 
         private readonly TimeSpan minimumTimeSpan;
         public TimeSpan MinimumTimeSpan => minimumTimeSpan;
@@ -37,7 +39,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 
         protected override Boost CreateClone(string _name, int _percentageIncrease, TimeSpan _span, DateTime _start) => new InvincibilityBoost(_name, _percentageIncrease, _span, _start);
 
-        public int GetBoostPrecentage() => throw new NotImplementedException();
+        public int GetIncrease() => throw new NotImplementedException();
         public TimeSpan GetBoostTimeSpan() => throw new NotImplementedException();
 
         public async Task<UseResult> Use(Profile userProfile, IProfileService profileService)
@@ -46,8 +48,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 
             return new UseResult
             {
-                useComplete = true,
-                message = string.Empty
+                UseComplete = true,
+                Message = string.Empty
             };
         }
     }

@@ -7,14 +7,14 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData
 {
     public struct BoostData 
     {
-        public Boost Boost { get; set; }
+        public Boost Boost { get; private set; }
 
         public BoostData(Boost boost)
         {
             Boost = boost;
         }
 
-        public int GetBoost() => Boost is IValueModel ? ((IValueModel)Boost).GetBoostPrecentage() : 100;
-        public TimeSpan GetBoostTime() => Boost is IValueModel ? ((IValueModel)Boost).GetBoostTimeSpan() : TimeSpan.FromDays(1);
+        public int GetBoost() => Boost is IValueModel ? ((IValueModel)Boost).GetIncrease() : 100;
+        public TimeSpan GetBoostTime() => Boost is ITimeSpanValueModel ? ((ITimeSpanValueModel)Boost).GetTimeSpan() : TimeSpan.FromDays(1);
     }
 }

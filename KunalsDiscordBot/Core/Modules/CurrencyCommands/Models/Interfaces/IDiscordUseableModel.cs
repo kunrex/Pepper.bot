@@ -5,13 +5,11 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Services.Currency;
-using DiscordBotDataBase.Dal.Models.Profile;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Interfaces
 {
-    public interface IUsableModel
+    public interface IDiscordUseableModel : IUsableModel
     {
-        public Task<UseResult> Use(Profile profile, IProfileService profileService);
+        public Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member);
     }
 }
