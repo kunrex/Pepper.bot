@@ -8,6 +8,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.GameCommands.UNO.Cards;
@@ -128,7 +129,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         public async Task<DiscordMessage> SendEmbedToPlayer(DiscordEmbed embed) => await SendEmbedToPlayer(DMChannel, embed);
         public async Task<DiscordMessage> SendMessage(string message) => await SendMessageToPlayer(DMChannel, message);
         public async Task<DiscordMessage> SendMessage(string message, DiscordEmbed embed) => await SendMessageToPlayer(DMChannel, message, embed);
-        public async Task SendPageinatedMessage(DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion)
-            => await SendPageinatedMessage(DMChannel, user, pages, emojis, pagination, deletion, CardsDisplaySpan);
+        public async Task SendPageinatedMessage(DiscordUser user, List<Page> pages, PaginationButtons buttons, PaginationBehaviour pagination, ButtonPaginationBehavior deletion)
+            => await SendPageinatedMessage(DMChannel, user, pages, buttons, pagination, deletion, CardsDisplaySpan);
     }
 }

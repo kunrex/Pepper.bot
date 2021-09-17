@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using DiscordBotDataBase.Dal.Models.Items;
 using DiscordBotDataBase.Dal.Models.Profile;
 
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts;
 
 namespace KunalsDiscordBot.Services.Currency
 {

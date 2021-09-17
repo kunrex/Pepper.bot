@@ -70,20 +70,22 @@
     <Folder Include="Core\Modules\FunCommands\Attributes\" />
     <Folder Include="Core\Modules\GameCommands\Attributes\" />
     <Folder Include="Core\Configurations\Enums\" />
-    <Folder Include="Core\Modules\CurrencyCommands\Jobs\" />
     <Folder Include="Core\Modules\CurrencyCommands\Shop\" />
     <Folder Include="Core\Modules\FunCommands\GhostPresence\" />
     <Folder Include="Core\Modules\FunCommands\Enums\" />
     <Folder Include="Core\Modules\ImageCommands\Enums\" />
     <Folder Include="Modules\Help\" />
-    <Folder Include="Core\Modules\CurrencyCommands\Jobs\WorkDatas\" />
-    <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\" />
-    <Folder Include="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
-    <Folder Include="Core\Modules\CurrencyCommands\Shop\Enums\" />
     <Folder Include="Core\DialogueHandler\Steps\Basics\" />
-    <Folder Include="Core\Modules\CurrencyCommands\CurrencyModels\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\" />
     <Folder Include="Core\Modules\GameCommands\Communicators\Interfaces\" />
     <Folder Include="Core\Modules\GameCommands\Interfaces\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Boosts\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Interfaces\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Items\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Tools\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\CurrencyModels\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Boosts\Interfaces\" />
+    <Folder Include="Core\Modules\CurrencyCommands\Models\Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -144,14 +146,17 @@
     <None Remove="Core\Per Module\FunCommands\Enums\" />
     <None Remove="Core\Modules\ImageCommands\Enums\" />
     <None Remove="Modules\Help\" />
-    <None Remove="Core\Modules\CurrencyCommands\Jobs\WorkDatas\" />
-    <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\" />
-    <None Remove="Core\Modules\CurrencyCommands\Shop\Boosts\Interfaces\" />
-    <None Remove="Core\Modules\CurrencyCommands\Shop\Enums\" />
     <None Remove="Core\DialogueHandler\Steps\Basics\" />
     <None Remove="Core\Modules\CurrencyCommands\CurrencyModels\" />
     <None Remove="Core\Modules\GameCommands\Communicators\Interfaces\" />
     <None Remove="Core\Modules\GameCommands\Interfaces\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Boosts\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Interfaces\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Items\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Tools\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\CurrencyModels\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Boosts\Interfaces\" />
+    <None Remove="Core\Modules\CurrencyCommands\Models\Jobs\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

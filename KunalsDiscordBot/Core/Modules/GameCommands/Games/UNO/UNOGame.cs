@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
@@ -32,8 +33,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private List<Card> cardsInDeck { get; set; } = GetDeck().Shuffle().ToList();
         private Card currentCard { get; set; }
-
-        public PaginationEmojis emojis { get; private set; }
 
         private int? cardStacks { get; set; } = null;
         public List<DiscordSpectator> spectators { get; set; } = new List<DiscordSpectator>();
@@ -75,14 +74,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         public UNOGame(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
             Client = _client;
-            emojis = new PaginationEmojis()
-            {
-                Left = DiscordEmoji.FromName(Client, ":arrow_backward:"),
-                Right = DiscordEmoji.FromName(Client, ":arrow_forward:"),
-                Stop = null
-            };
 
-            Players = _players.Select(x => new UNOPlayer(x, emojis)).ToList();
+            Players = _players.Select(x => new UNOPlayer(x)).ToList();
             CurrentPlayer = Players[0];
 
             SetUp();
@@ -203,52 +196,44 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task ProcessTurn(List<Card> cardsPlayed)
         {
-            if (cardStacks == null)
+            bool plus2OrPlus4 = false;
+
+            switch (cardsPlayed[0].cardType)
             {
-                switch (cardsPlayed[0].cardType)
-                {
-                    case CardType.Skip:
-                        int newIndex = Players.IndexOf(CurrentPlayer);
-                        newIndex += direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count;
-                        newIndex = (newIndex + Players.Count) % Players.Count;
+                case CardType.plus2:
+                case CardType.plus4:
+                    plus2OrPlus4 = true;
+                    int cardCount = 0;
+                    if (cardStacks == null)
+                        cardStacks = 0;
 
-                        CurrentPlayer = Players[newIndex];
-                        currentCard = cardsPlayed[cardsPlayed.Count - 1];
+                    foreach (var card in cardsPlayed)
+                        if (card is Plus2Card)
+                            cardCount += 2;
+                        else
+                            cardCount += 4;
+                    cardStacks += cardCount;
+                    goto case CardType.Wild;
+                case CardType.Skip:
+                    int newIndex = Players.IndexOf(CurrentPlayer) + 1;
+                    newIndex += direction == GameDirection.forward ? cardsPlayed.Count : -cardsPlayed.Count;
+                    newIndex = (newIndex + Players.Count) % Players.Count;
 
-                        await SendMessageToAllPlayers($"{cardsPlayed.Count} player(s) skipped lol");
-                        break;
-                    case CardType.Reverse:
-                        direction = cardsPlayed.Count % 2 == 0 ? direction : (direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward);
-                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
-                        break;
-                    case var x when x == CardType.plus2 || x == CardType.plus4:
-                        int cardCount = 0;
-                        foreach (var card in cardsPlayed)
-                            if (card is Plus2Card)
-                                cardCount += 2;
-                            else
-                                cardCount += 4;
-                        cardStacks = cardCount;
-                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
-                        break;
-                    case var x when x == CardType.number || x== CardType.Wild:
-                        await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
-                        break;
-                }
+                    CurrentPlayer = Players[newIndex];
+                    currentCard = cardsPlayed[cardsPlayed.Count - 1];
+
+                    await SendMessageToAllPlayers($"{cardsPlayed.Count} player(s) skipped lol");
+                    break;
+                case CardType.Reverse:
+                    direction = cardsPlayed.Count % 2 == 0 ? direction : (direction == GameDirection.forward ? GameDirection.reverse : GameDirection.forward);
+                    goto case CardType.Wild;
+                case CardType.number:
+                case CardType.Wild:
+                    await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
+                    break;
             }
-            else if (cardsPlayed[0].cardType == CardType.plus2 || cardsPlayed[0].cardType == CardType.plus4)//adding
-            {
-                int cardCount = 0;
-                foreach (var card in cardsPlayed)
-                    if (card is Plus2Card)
-                        cardCount += 2;
-                    else
-                        cardCount += 4;
-                cardStacks += cardCount;
 
-                await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
-            }
-            else
+            if(!plus2OrPlus4 && cardStacks != null)
             {
                 await AddcardsToPlayer(cardStacks.Value);
                 await NextPlayer(cardsPlayed[cardsPlayed.Count - 1]);
@@ -352,14 +337,14 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         private async Task SendDeckToAllPlayers(List<Card> cards, string title)
         {
             await Task.WhenAll(Players.Select(x => Task.Run(() => x.PrintCards(cards, title))));
-            await Task.WhenAll(spectators.Select(x => Task.Run(async () => x.SendMessage(await CurrentPlayer.communicator.GetPrintableDeck(cards, title), emojis))));
+            await Task.WhenAll(spectators.Select(x => Task.Run(async () => x.SendMessage(await CurrentPlayer.communicator.GetPrintableDeck(cards, title), default))));
         }
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
             if (spectators.Count == maxSpectators || Players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
-
+            
             var spectator = new DiscordSpectator(_member, Client, this);
 
             spectators.Add(spectator);

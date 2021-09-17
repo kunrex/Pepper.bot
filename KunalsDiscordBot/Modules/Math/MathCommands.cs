@@ -62,7 +62,7 @@ namespace KunalsDiscordBot.Modules.Math
                 if (json[0] == '{')//error
                 {
                     var jsonData = JsonSerializer.Deserialize<JsonData>(json);
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    await ctx.RespondAsync(new DiscordEmbedBuilder
                     {
                         Title = "Graph",
                         Color = ModuleInfo.Color
@@ -71,7 +71,7 @@ namespace KunalsDiscordBot.Modules.Math
                      .AddField("Fix", jsonData.fix)).ConfigureAwait(false);
                 }
                 else
-                    await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                    await ctx.RespondAsync(new DiscordEmbedBuilder
                     {
                         Title = "Graph",
                         ImageUrl = url,

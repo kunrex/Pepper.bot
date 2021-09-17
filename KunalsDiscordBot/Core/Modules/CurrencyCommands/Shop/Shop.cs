@@ -6,8 +6,7 @@ using DSharpPlus.CommandsNext;
 using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Core.Exceptions.CurrencyCommands;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
 {

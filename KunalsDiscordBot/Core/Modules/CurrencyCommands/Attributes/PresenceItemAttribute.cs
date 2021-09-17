@@ -1,6 +1,6 @@
 ﻿using System;
 
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 
 namespace KunalsDiscordBot.Core.Attributes.CurrencyCommands
 {

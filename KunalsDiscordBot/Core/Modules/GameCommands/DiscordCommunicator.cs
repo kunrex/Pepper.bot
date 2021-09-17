@@ -9,6 +9,7 @@ using DSharpPlus.EventArgs;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.EventHandling;
 
 namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 {
@@ -34,8 +35,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         protected async Task<DiscordMessage> SendMessageToPlayer(DiscordChannel channel, string message, DiscordEmbed embed) => await channel.SendMessageAsync(message, embed).ConfigureAwait(false);
 
         //interactivity
-        protected async Task SendPageinatedMessage(DiscordChannel channel, DiscordUser user, List<Page> pages, PaginationEmojis emojis, PaginationBehaviour pagination, PaginationDeletion deletion, TimeSpan span)
-            => await channel.SendPaginatedMessageAsync(user, pages, emojis, pagination, deletion, span);
+        protected async Task SendPageinatedMessage(DiscordChannel channel, DiscordUser user, List<Page> pages, PaginationButtons buttons, PaginationBehaviour pagination, ButtonPaginationBehavior deletion, TimeSpan span)
+            => await channel.SendPaginatedMessageAsync(user, pages, buttons, pagination, deletion, new CancellationTokenSource(span).Token);
 
         protected async Task<InteractivityResult<DiscordMessage>> WaitForMessage(InteractivityExtension interactivity, Func<DiscordMessage, bool> conditions, TimeSpan span)
             => await interactivity.WaitForMessageAsync(conditions, span);

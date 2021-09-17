@@ -7,6 +7,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 
@@ -39,9 +40,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players.Spectators
         public async Task SendMessage(DiscordEmbedBuilder embed) => await communicator.SendMessage(embed).ConfigureAwait(false);
         public async Task SendMessage(string message) => await communicator.SendMessage(message).ConfigureAwait(false);
         public async Task SendMessage(DiscordMessageBuilder message) => await message.SendAsync(communicator.Channel);
-        public Task SendMessage(List<Page> pages, PaginationEmojis emojis)
+        public Task SendMessage(List<Page> pages, PaginationButtons emojis)
         {
-            Task.Run(async () => await communicator.SendPageinatedMessage(member, pages, emojis, PaginationBehaviour.WrapAround, PaginationDeletion.DeleteMessage, TimeSpan.FromMinutes(1)));
+            Task.Run(async () => await communicator.SendPageinatedMessage(member, pages, emojis, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, TimeSpan.FromMinutes(1)));
 
             return Task.CompletedTask;
         }

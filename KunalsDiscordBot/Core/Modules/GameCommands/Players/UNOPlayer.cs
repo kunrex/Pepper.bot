@@ -21,11 +21,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
         private bool autoReady { get; set; } = false;
 
         public List<Card> cards { get; private set; }
-        private PaginationEmojis emojis { get; set; }
 
-        public UNOPlayer(DiscordMember _member, PaginationEmojis allEmojis) : base(_member)
+        public UNOPlayer(DiscordMember _member) : base(_member)
         {
-            emojis = allEmojis;
+            
         }
 
         public void AssignCards(List<Card> _cards) => cards = _cards;
@@ -81,12 +80,14 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 return;
             }
 
-            await communicator.SendMessage(messsage).ConfigureAwait(false);
-            await communicator.WaitForMessage(client.GetInteractivity(), new InputData
+            await communicator.QuestionInput(client.GetInteractivity(), "Are you ready to proceed to the next round? I will auto-continue after 1 minute", member, new InputData
             {
-                Conditions = x => x.Author.Id == member.Id && x.Channel.Id == communicator.DMChannel.Id,
-                Span = span
-            }); 
+                ExtraInputValues = new Dictionary<string, (string, string)>
+                {
+                    { "yes",  ("y", "yes")}
+                },
+                Span = TimeSpan.FromMinutes(1)
+            });
         }
 
         public async Task<InputResult> GetInput(DiscordClient client, Card currentCard)
@@ -297,33 +298,32 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public Task PrintAllCards()
         {
-            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cards, "Your Cards"), emojis));
+            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cards, "Your Cards")));
 
             return Task.CompletedTask;
         }
 
         public Task PrintCards(int start, int number, string title)
         {
-            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cards.Skip(start).Take(start + number).ToList(), title), emojis));
+            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cards.Skip(start).Take(start + number).ToList(), title)));
 
             return Task.CompletedTask;
         }
 
         public Task PrintCards(List<Card> cardsToPrint, string title)
         {
-            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cardsToPrint, title), emojis));
+            _ = Task.Run(async () => await SendMessage(await communicator.GetPrintableDeck(cardsToPrint, title)));
 
             return Task.CompletedTask;
         }
 
-        public Task SendMessage(List<Page> pages, PaginationEmojis emojis)
+        public Task SendMessage(List<Page> pages)
         {
-            Task.Run(async () => await communicator.SendPageinatedMessage(member, pages, emojis, PaginationBehaviour.WrapAround, PaginationDeletion.DeleteMessage));
+            Task.Run(async () => await communicator.SendPageinatedMessage(member, pages, default, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable));
 
             return Task.CompletedTask;
         }
 
         public async Task SendMessage(DiscordMessageBuilder message) => await message.SendAsync(communicator.DMChannel);
-
     }
 }

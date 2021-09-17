@@ -22,17 +22,19 @@ using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
 using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
 using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Jobs;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Items;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops.Boosts.Interfaces;
-using KunalsDiscordBot.Core.DialogueHandlers.Steps;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.CurrencyModels;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts.Interfaces;
 
 namespace KunalsDiscordBot.Modules.Currency
 {

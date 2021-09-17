@@ -118,13 +118,13 @@ namespace KunalsDiscordBot.Modules.General
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = member.Nickname == null ? $"{member.Username} (#{member.Discriminator})" : $"{member.Nickname} ({member.Username}) #{member.Discriminator}",
+                Title = $"{member.DisplayName} #{member.Discriminator}",
                 Color = ModuleInfo.Color,
-            }.AddField("Account Created Date: ", $"{member.CreationTimestamp.Date.ToString("dddd, dd MMMM yyyy")}")
+            }.AddField("Account Creation Date: ", $"{member.CreationTimestamp.Date.ToString("dddd, dd MMMM yyyy")}")
              .AddField("Server Join Date: ", $"{member.JoinedAt.Date.ToString("dddd, dd MMMM yyyy")}")
              .AddField("Id: ", $"`{member.Id}`")
              .WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now.ToString("dd hh:mm:ss.s")}")
-             .WithThumbnail(member.AvatarHash, Height, Width);
+             .WithThumbnail(member.AvatarUrl, Height, Width);
 
             if (member.IsBot)
                 embed.AddField("Is Bot:", "`true`");

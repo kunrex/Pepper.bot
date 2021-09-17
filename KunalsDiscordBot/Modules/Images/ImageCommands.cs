@@ -141,6 +141,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Right(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string[] sentences = message.Split(',');
             if (sentences.Length < 3)
                 sentences = new[] { "Im going to use this command", "You're gonna split the 3 sentences with ,'s right?", "You will split them right?" };
@@ -209,6 +215,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task YesNo(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string[] sentences = message.Split(',');
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
@@ -241,6 +253,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task YesNoPewds(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string[] sentences = message.Split(',');
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
@@ -721,6 +739,12 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task DinoJoke(CommandContext ctx, [RemainingText] string message)
         {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
             string[] sentences = message.Split(',');
             if (sentences.Length < 2)
                 sentences = new[] { $"{ctx.Member.DisplayName} used this command", "But they didn't split the sentences with commas" };
