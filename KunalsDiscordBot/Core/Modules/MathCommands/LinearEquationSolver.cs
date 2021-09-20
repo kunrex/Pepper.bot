@@ -1,162 +1,123 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace KunalsDiscordBot.Core.Modules.MathCommands
-{
-    //This was 1 year old programmer me smashing his keyboard, so if this code makes you cry im sorry
-    public class LinearEquationSolver 
+namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
+{ 
+    public sealed class LinearEquationSolver
     {
+        public char Variable { get; private set; }
+
+        private readonly string equation;
+        public string Equation { get => equation; }
+
+        private List<Token> RHS { get; set; }
+        private List<Token> LHS { get; set; }
+
         public LinearEquationSolver(string _equation)
         {
             equation = _equation;
-            varName = FindVariable(equation); 
-        }
 
-        private readonly string equation;
-        private readonly char varName;
-        private List<string> polynomials { get; set; }
+            Variable = LinearEquationLexer.GetVariable(equation);
+            var sides = equation.Split('=');
 
-        private char FindVariable(string s)
-        {
-            for (int i = 0; i < s.Length; i++)
-            {
-                bool isNumber = char.IsDigit(s[i]);
-                if (!isNumber)//not a number
-                {
-                    bool isLetter = char.IsLetter(s[i]);
-                    if (isLetter)
-                        return s[i];
-                }
-            }
-            return '.';//some value
-        }
-
-        private void GetPolynomials()
-        {
-            polynomials = new List<string>();
-            bool foundVal = false;
-            string val = "";
-            string sign = "";
-            bool foundEqualTo = false;
-
-            for (int i = 0; i < equation.Length; i++)
-            {
-                if (equation[i] != ' ' && equation[i] != '-' && equation[i] != ' ' && equation[i] != '=')
-                {
-                    if (foundVal == false)
-                    {
-                        foundVal = true;
-                        val += equation[i];
-                    }
-                    else
-                        val += equation[i];
-                }
-                else if (equation[i] == '-')
-                {
-                    sign = "-";
-                }
-                else if (equation[i] == '=')
-                {
-                    foundEqualTo = true;
-                    foundVal = false;
-                    val = "";
-                    sign = "";
-                }
-                else
-                {
-                    if (val == "")
-                        continue;
-                    if (Contains(val) && foundEqualTo)
-                    {
-                        if (sign == "-")
-                            sign = "";
-                        else
-                            sign = "-";
-                    }
-                    else if (!Contains(val) && !foundEqualTo)
-                    {
-                        if (sign == "-")
-                            sign = "";
-                        else
-                            sign = "-";
-                    }
-
-
-                    if (val != "+" && val != "-")
-                    {
-                        polynomials.Add(sign + val);
-                    }
-                    else
-                        polynomials.Add(val);
-
-                    foundVal = false;
-                    val = "";
-                    sign = "";
-                }
-            }
+            RHS = LinearEquationLexer.GetTokens(sides[1], Variable);
+            LHS = LinearEquationLexer.GetTokens(sides[0], Variable);
         }
 
         public Task<string> Solve()
         {
-            GetPolynomials();
+            Simplify();
+            Transfer();
 
-            double numericVal = 0, varNumericVal = 0;
-            for (int i = 0; i < polynomials.Count; i++)
-            {
-                if (Contains(polynomials[i]))
-                {
-                    varNumericVal = DealWithVariables(polynomials[i], varNumericVal);
-                }
+            if ((RHS[0].Type & TokenType.Operator) == RHS[0].Type)
+                RHS.Insert(0, new Token("0", TokenType.Constant, null));
+            if ((LHS[0].Type & TokenType.Operator) == LHS[0].Type)
+                LHS.Insert(0, new Token("0x", TokenType.Variable, null));
+
+            var rhs = new Token("1", TokenType.Constant, RHS).Simplyfy(Variable);
+            var lhs = new Token("1", TokenType.Constant, LHS).Simplyfy(Variable);
+
+            var rhsNumber = rhs.GetNumberPart();
+            var lhsNumber = lhs.GetNumberPart();
+
+            return Task.FromResult($"{Variable} is {rhsNumber / lhsNumber}");
+        }
+
+        private void Simplify()
+        {
+            var newTokens = new List<Token>();
+            for (int i = 0; i < RHS.Count; i++)
+                newTokens.Add(RHS[i].Simplyfy(Variable));
+
+            RHS = new List<Token>();
+            foreach (var token in newTokens)
+                if (token.HasSubTokens)
+                    RHS.AddRange(token.SubTokens);
                 else
-                {
-                    numericVal += double.Parse(polynomials[i]);
-                }
-            }
-            double answer = numericVal / varNumericVal;
-            string answerToString = varName + " is equal to " + answer;
+                    RHS.Add(token);
 
-            return Task.FromResult(answerToString);
+            newTokens = new List<Token>();
+            for (int i = 0; i < LHS.Count; i++)
+                newTokens.Add(LHS[i].Simplyfy(Variable));
+
+            LHS = new List<Token>();
+            foreach (var token in newTokens)
+                if (token.HasSubTokens)
+                    LHS.AddRange(token.SubTokens);
+                else
+                    LHS.Add(token);
         }
 
-        private double DealWithVariables(string s, double numericVal)
+        private void Transfer()
         {
-            if (s.Length == 0)
-                return numericVal;
-            else if (s.Length == 1 && s[0] == varName)
-                return numericVal + 1;
-            else if (s.Length == 2 && s[0] == '-')
+            for (int i = 0; i < RHS.Count; i++)
             {
-                return numericVal - 1;
-            }
+                var token = RHS[i];
 
-            string number = "";
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (s[i] != varName && s[i] != ' ' && s[i] != '+')
-                    number += s[i];
-            }
-
-            if (number != "")
-                numericVal += double.Parse(number);
-
-            return numericVal;
-        }
-
-        private bool Contains(string s)
-        {
-            if (s.Length == 0)
-                return true;
-
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (s[i] == varName || s[i] == '+' || s[i] == ' ')
+                if (token.Type == TokenType.Variable)//wrong side
                 {
-                    return true;
+                    Token operation = null;
+                    if (i == 0)
+                        operation = new Token("-", TokenType.Subtraction, null);
+                    else
+                    {
+                        operation = RHS[i - 1].Type == TokenType.Addition ? new Token("-", TokenType.Subtraction, null) : new Token("+", TokenType.Addition, null);
+                        RHS.RemoveAt(i - 1);
+                        i--;
+                    }
+
+                    RHS.Remove(token);
+                    i--;
+
+                    LHS.Add(operation);
+                    LHS.Add(token);
                 }
             }
 
-            return false;
+            for (int i = 0; i < LHS.Count; i++)
+            {
+                var token = LHS[i];
+
+                if (token.Type == TokenType.Constant)//wrong side
+                {
+                    Token operation = null;
+                    if (i == 0)
+                        operation = new Token("-", TokenType.Subtraction, null);
+                    else
+                    {
+                        operation = LHS[i - 1].Type == TokenType.Addition ? new Token("-", TokenType.Subtraction, null) : new Token("+", TokenType.Addition, null);
+                        LHS.RemoveAt(i - 1);
+                        i--;
+                    }
+                    LHS.Remove(token);
+                    i--;
+
+                    RHS.Add(operation);
+                    RHS.Add(token);
+                }
+            }
         }
     }
 }

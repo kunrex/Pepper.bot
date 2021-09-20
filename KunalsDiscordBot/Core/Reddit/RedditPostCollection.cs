@@ -40,15 +40,28 @@ namespace KunalsDiscordBot.Core.Reddit
             posts = subReddit.Posts.FilterPosts(filter);
 
             //subscribe to all events
-            subReddit.Posts.NewUpdated += action;
-            subReddit.Posts.MonitorNew();
-
-            subReddit.Posts.HotUpdated += action;
-            subReddit.Posts.MonitorHot();
-
-            subReddit.Posts.TopUpdated += action;
-            subReddit.Posts.MonitorTop();
-
+            switch(filter.Filter)
+            {
+                case RedditPostFilter.New:
+                    subReddit.Posts.NewUpdated += action;
+                    subReddit.Posts.MonitorNew();
+                    break;
+                case RedditPostFilter.Hot:
+                    subReddit.Posts.HotUpdated += action;
+                    subReddit.Posts.MonitorHot();
+                    break;
+                case RedditPostFilter.Top:
+                    subReddit.Posts.TopUpdated += action;
+                    subReddit.Posts.MonitorTop();
+                    break;
+                default:
+                    subReddit.Posts.NewUpdated += action;
+                    subReddit.Posts.MonitorNew();
+                    subReddit.Posts.HotUpdated += action;
+                    subReddit.Posts.MonitorHot();
+                    goto case RedditPostFilter.Top;
+            }
+            
             return Task.CompletedTask;
         }
 

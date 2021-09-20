@@ -1,13 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using KunalsDiscordBot.Core.Reddit;
-using Reddit;
+using System.Collections.Generic;
+
 using Reddit.Controllers;
+
+using KunalsDiscordBot.Core.Reddit;
 
 namespace KunalsDiscordBot.Extensions
 {
-    public static class RedditExtensions
+    public static partial class PepperBotExtensions
     {
         public static bool IsValidDiscordPost(this Post post) => post.Listing.URL.Contains(".jpg") || post.Listing.URL.Contains(".png")
             || (post.Listing.URL.Contains(".gif") && !post.Listing.URL.Contains(".gifv"));
@@ -28,9 +29,11 @@ namespace KunalsDiscordBot.Extensions
                     filtered = posts.Top.Take(filter.Take).ToList();
                     break;
                 default:
-                    filtered.AddRange(posts.New.Take(filter.Take).ToList());
-                    filtered.AddRange(posts.Hot.Take(filter.Take).ToList());
-                    filtered.AddRange(posts.Top.Take(filter.Take).ToList());
+                    var toTake = filter.Take / 3;
+
+                    filtered.AddRange(posts.New.Take(toTake).ToList());
+                    filtered.AddRange(posts.Hot.Take(toTake).ToList());
+                    filtered.AddRange(posts.Top.Take(toTake).ToList());
                     break;
             }
 

@@ -18,6 +18,7 @@ using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.MathCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using KunalsDiscordBot.Core.Modules.MathCommands.Evaluation;
 
 namespace KunalsDiscordBot.Modules.Math
 {
@@ -38,10 +39,10 @@ namespace KunalsDiscordBot.Modules.Math
         }
 
         [Command("Solve")]
-        [Description("Solves an equation")]
+        [Description("Solves a linear equation")]
         public async Task Solve(CommandContext ctx, [RemainingText] string equation)
         {
-            var solver = new LinearEquationSolver($"{equation} .");
+            var solver = new LinearEquationSolver($" {equation}");
 
             await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
         }
