@@ -34,7 +34,7 @@ namespace KunalsDiscordBot.Modules.Math
 
         public MathCommands(PepperConfigurationManager configManager, IModuleService moduleService)
         {
-            attributes = configManager.graphAttributes;
+            attributes = configManager.GraphAttributes;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Math];
         }
 

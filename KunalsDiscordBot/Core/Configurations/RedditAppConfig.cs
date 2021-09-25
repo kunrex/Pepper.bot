@@ -3,9 +3,9 @@ namespace KunalsDiscordBot.Core.Configurations
 {
     public class RedditAppConfig
     {
-        public string appId { get; set; }
-        public string appSecret { get; set; }
-        public string refreshToken { get; set; }
-        public int postLimit { get; set; }
+        public string AppId { get; set; }
+        public string AppSecret { get; set; }
+        public string RefreshToken { get; set; }
+        public int PostLimit { get; set; }
     }
 }

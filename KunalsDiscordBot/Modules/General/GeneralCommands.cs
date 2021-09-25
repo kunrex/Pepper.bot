@@ -18,6 +18,7 @@ using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Modules;
+using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
@@ -37,12 +38,15 @@ namespace KunalsDiscordBot.Modules.General
 
         private readonly IServerService serverService;
         private readonly IConfigurationService configService;
+        private readonly Type[] enumTypes;
 
-        public GeneralCommands(IServerService service, IConfigurationService _configService, IModuleService moduleService)
+        public GeneralCommands(IServerService service, IConfigurationService _configService, IModuleService moduleService, PepperConfigurationManager configManager)
         {
             serverService = service;
             configService = _configService;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.General];
+
+            enumTypes = configManager.EnumConvertorTypes;
         }
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
@@ -191,6 +195,23 @@ namespace KunalsDiscordBot.Modules.General
 
             var pages = embeds.Select(x => new Page($"Configuration for `{ctx.Guild.Name}`", x)).ToList();
             await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+        }
+
+        [Command("EnumValues")]
+        [Description("Displays different values for enum argument types used by Pepper")]
+        public async Task EnumValues(CommandContext ctx)
+        {
+            var builder = new DiscordEmbedBuilder()
+            {
+                Title = "Enums in Pepper",
+                Description = "Enums are arguments with only specific values. If you see any of these as command paramaters, these are the valid values for each.",
+                Color = ModuleInfo.Color
+            }.WithFooter($"User: {ctx.Member.DisplayName} at {DateTime.Now}");
+
+            foreach (var type in enumTypes)
+                builder.AddField(type.Name, $"Values: {string.Join(", ", Enum.GetNames(type).Select(x => $"`{x}`"))}");
+
+            await ctx.RespondAsync(builder);
         }
 
         [Command("ChangeEditPermissions")]

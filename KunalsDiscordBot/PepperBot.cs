@@ -47,19 +47,19 @@ namespace KunalsDiscordBot
 
         public int ShardId { get; private set; }
 
-        public PepperBot (IServiceProvider _services, PepperBotConfig _config, int _shardId)
+        public PepperBot (IServiceProvider _services, PepperConfigurationManager _configManager, int _shardId)
         {
-            Configuration = _config;
+            Configuration = _configManager.BotConfig;
             Services = _services;
             ShardId = _shardId;
 
             Client = new DiscordClient(new DiscordConfiguration
             {
-                Token = Configuration.discordConfig.token,
+                Token = Configuration.DiscordConfig.Token,
                 TokenType = TokenType.Bot,
                 AutoReconnect = true,
                 Intents = DiscordIntents.AllUnprivileged | DiscordIntents.GuildMembers,
-                ShardCount = Configuration.discordConfig.shardCount,
+                ShardCount = Configuration.DiscordConfig.ShardCount,
                 ShardId = ShardId,
 
                 LargeThreshold = 250,
@@ -70,7 +70,7 @@ namespace KunalsDiscordBot
 
             Client.UseInteractivity(new InteractivityConfiguration
             {
-                Timeout = TimeSpan.FromSeconds(Configuration.discordConfig.timeOut),
+                Timeout = TimeSpan.FromSeconds(Configuration.DiscordConfig.TimeOut),
                 AckPaginationButtons = true,
                 PaginationButtons = new PaginationButtons()
                 {
@@ -89,13 +89,13 @@ namespace KunalsDiscordBot
 
             var endPoint = new ConnectionEndpoint
             {
-                Hostname = Configuration.lavalinkConfig.hostname,
-                Port = Configuration.lavalinkConfig.port
+                Hostname = Configuration.LavalinkConfig.Hostname,
+                Port = Configuration.LavalinkConfig.Port
             };
 
             LavaLinkConfig = new LavalinkConfiguration
             {
-                Password = Configuration.lavalinkConfig.password,
+                Password = Configuration.LavalinkConfig.Password,
                 RestEndpoint = endPoint,
                 SocketEndpoint = endPoint
             };
@@ -104,8 +104,8 @@ namespace KunalsDiscordBot
 
             Commands = Client.UseCommandsNext(new CommandsNextConfiguration
             {
-                StringPrefixes = Configuration.discordConfig.prefixes,
-                EnableDms = Configuration.discordConfig.dms,
+                StringPrefixes = Configuration.DiscordConfig.Prefixes,
+                EnableDms = Configuration.DiscordConfig.Dms,
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = _services,
@@ -121,7 +121,6 @@ namespace KunalsDiscordBot
             Commands.RegisterConverter(new BoolArgumentConverter());
             Commands.RegisterConverter(new TimeSpanArgumentConverter());
             Commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
-            Commands.RegisterConverter(new EnumArgumentConverter<ConfigValue>());
             Commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
             Commands.RegisterConverter(new EnumArgumentConverter<Colors>());
             Commands.RegisterConverter(new EnumArgumentConverter<Deforms>());
@@ -132,8 +131,8 @@ namespace KunalsDiscordBot
         {
             await Client.ConnectAsync(new DiscordActivity
             {
-                Name = Configuration.discordConfig.activityText,
-                ActivityType = (ActivityType)Configuration.discordConfig.activityType
+                Name = Configuration.DiscordConfig.ActivityText,
+                ActivityType = (ActivityType)Configuration.DiscordConfig.ActivityType
             });
 
             try
@@ -198,7 +197,7 @@ namespace KunalsDiscordBot
                     Title = "The given command wasn't found",
                     Description = $"Did you mispell something? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("You gotta use a command that exists", Configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", Configuration.DiscordConfig.ErrorLink);
             }
             else if (exception is InvalidOverloadException && log)
             {
@@ -207,7 +206,7 @@ namespace KunalsDiscordBot
                     Title = "No version of the command uses has these parameters",
                     Description = $"Did you miss a parameter? Use the `pep help` command for help",
                     Color = DiscordColor.Red
-                }.WithFooter("You gotta use a command that exists", Configuration.discordConfig.errorLink);
+                }.WithFooter("You gotta use a command that exists", Configuration.DiscordConfig.ErrorLink);
             }
             else if (exception is CustomCommandException)//ignore
             { }
@@ -256,7 +255,7 @@ namespace KunalsDiscordBot
                     Title = title,
                     Description = description,
                     Color = DiscordColor.Red
-                }.WithFooter(footer, Configuration.discordConfig.errorLink);
+                }.WithFooter(footer, Configuration.DiscordConfig.ErrorLink);
             }
             else if(log)
             {
@@ -265,7 +264,7 @@ namespace KunalsDiscordBot
                     Title = "A problem occured while executing the command",
                     Description = $"Exception: {exception.Message} at {Formatter.InlineCode(e.Command.QualifiedName)}",
                     Color = DiscordColor.Red,
-                }.WithFooter("Well that wasn't supposed to happen", Configuration.discordConfig.errorLink);
+                }.WithFooter("Well that wasn't supposed to happen", Configuration.DiscordConfig.ErrorLink);
             }
 
             await e.Context.RespondAsync(embed).ConfigureAwait(false);

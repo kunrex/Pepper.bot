@@ -19,7 +19,7 @@ namespace KunalsDiscordBot.Services.Music
 
         public MusicService(PepperConfigurationManager configurationManager, IModuleService moduleService)
         {
-            moduleData = configurationManager.musicConfig;
+            moduleData = configurationManager.MusicConfig;
 
             moduleData.color = moduleService.ModuleInfo[ConfigValueSet.Music].Color;
         }

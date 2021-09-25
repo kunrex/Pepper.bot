@@ -27,8 +27,8 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public RedditApp(PepperConfigurationManager configManager)
         {
-            configuration = configManager.botConfig.redditConfig;
-            client = new RedditClient(appId: configuration.appId, appSecret: configuration.appSecret, refreshToken: configuration.refreshToken);
+            configuration = configManager.BotConfig.RedditConfig;
+            client = new RedditClient(appId: configuration.AppId, appSecret: configuration.AppSecret, refreshToken: configuration.RefreshToken);
 
             Task.Run(() => SetUpCollections());
         }
@@ -39,7 +39,7 @@ namespace KunalsDiscordBot.Core.Reddit
             {
                 AllowNSFW = true,
                 ImagesOnly = true,
-                Take = configuration.postLimit
+                Take = configuration.PostLimit
             };
 
             memes = await new RedditPostCollection("memes").Collect(client, filter);
@@ -64,7 +64,7 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public Post GetRandomPost(Subreddit subreddit, RedditFilter filter)
         {
-            filter.Take = configuration.postLimit;
+            filter.Take = configuration.PostLimit;
             var filtered = subreddit.Posts.FilterPosts(filter);
 
             return filtered == null ? null : filtered[new Random().Next(0, filtered.Count)];

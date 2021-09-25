@@ -4,10 +4,10 @@ namespace KunalsDiscordBot.Core.Configurations
 {
     public class PepperBotConfig
     {
-        public int version { get; set; }
+        public int Version { get; set; }
 
-        public DiscordConfig discordConfig { get; set; }
-        public LavalinkConfig lavalinkConfig { get; set; }
-        public RedditAppConfig redditConfig { get; set; }
+        public DiscordConfig DiscordConfig { get; set; }
+        public LavalinkConfig LavalinkConfig { get; set; }
+        public RedditAppConfig RedditConfig { get; set; }
     }
 }

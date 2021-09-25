@@ -55,7 +55,7 @@ namespace KunalsDiscordBot.Modules.Currency
         public CurrencyCommands(IProfileService _service, PepperConfigurationManager configurationManager, IModuleService moduleService)
         {
             service = _service;
-            data = configurationManager.currenyConfig;
+            data = configurationManager.CurrenyConfig;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Currency];
         }
 
@@ -628,8 +628,8 @@ namespace KunalsDiscordBot.Modules.Currency
 
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
-                Title = result == null ? "Good Job" : "Time Out",
-                Description = result == null ? $"You recieve {money} coins for a job well done" : $"You recieve only {money} coins",
+                Title = result == null ? "Time Out" : "Good Job" ,
+                Description = result == null ? $"You recieve only {money} coins" : $"You recieve {money} coins for a job well done",
                 Color = ModuleInfo.Color,
                 Thumbnail = thumbnail
             }).ConfigureAwait(false);

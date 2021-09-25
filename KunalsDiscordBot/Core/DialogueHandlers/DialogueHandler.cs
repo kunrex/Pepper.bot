@@ -23,6 +23,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers
             Configuration = config;
 
             stepIndex = 0;
+            started = false;
         }
 
         public DialogueHandler WithSteps(List<Step> newSteps)

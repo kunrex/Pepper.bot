@@ -21,6 +21,8 @@ using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 
 namespace KunalsDiscordBot.Modules.Images
 {
@@ -444,106 +446,44 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("Imagify")]
         [Description("Combines multiple image manipulation functions on an user avatur")]
         [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task Imagify(CommandContext ctx, bool invert, Deforms deform, int scale)
+        public async Task Imagify(CommandContext ctx, bool invert, Deforms deform, ColorScales color)
         {
-            if(scale < 0 || scale > 10)
-            {
-                await ctx.Channel.SendMessageAsync("How about you keep the scale withing 0 and 10 next time?");
-                return;
-            }
-
-            using (var client = new WebClient())
-            {
-                using (var graphicalImage = new ImageGraphic(new MemoryStream(client.DownloadData(ctx.Member.AvatarUrl))))
-                {
-                    await graphicalImage.Resize(600, 600);
-
-                    if (invert)
-                        await graphicalImage.Invert();
-
-                    switch (deform)
-                    {
-                        case Deforms.Pixelate:
-                            await graphicalImage.Pixelate(scale);
-                            break;
-                        case Deforms.Blur:
-                            await graphicalImage.Blur(scale);
-                            break;
-                    }
-
-                    using (var ms = await graphicalImage.ToMemoryStream())
-                        await new DiscordMessageBuilder()
-                                  .WithFiles(new Dictionary<string, Stream>() { { $"Imagified_{ctx.Member.DisplayName}.png", ms } })
-                                  .WithReply(ctx.Message.Id)
-                                  .SendAsync(ctx.Channel);
-                }
-            }
-        }
-
-        [Command("Imagify")]
-        [Description("Combines multiple image manipulation functions on an user avatur")]
-        [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task Imagify(CommandContext ctx, DiscordMember member, bool invert, Deforms deform, int scale)
-        {
-            if (scale < 0 || scale > 10)
-            {
-                await ctx.Channel.SendMessageAsync("How about you keep the scale withing 0 and 10 next time?");
-                return;
-            }
-
-            using (var client = new WebClient())
-            {
-                using (var graphicalImage = new ImageGraphic(new MemoryStream(client.DownloadData(member.AvatarUrl))))
-                {
-                    await graphicalImage.Resize(600, 600);
-
-                    if (invert)
-                        await graphicalImage.Invert();
-
-                    switch (deform)
-                    {
-                        case Deforms.Pixelate:
-                            await graphicalImage.Pixelate(scale);
-                            break;
-                        case Deforms.Blur:
-                            await graphicalImage.Blur(scale);
-                            break;
-                    }
-
-                    using (var ms = await graphicalImage.ToMemoryStream())
-                        await new DiscordMessageBuilder()
-                                  .WithFiles(new Dictionary<string, Stream>() { { $"Imagified_{ctx.Member.DisplayName}.png", ms } })
-                                  .WithReply(ctx.Message.Id)
-                                  .SendAsync(ctx.Channel);
-                }
-            }
-        }
-
-        [Command("Imagify")]
-        [Description("Combines multiple image manipulation functions on an user avatur")]
-        [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task Imagify(CommandContext ctx, bool invert, Deforms deform, int scale, ColorScales color)
-        {
-            if (scale < 0 || scale > 10)
-            {
-                await ctx.Channel.SendMessageAsync("How about you keep the scale withing 0 and 10 next time?");
-                return;
-            }
-
+            int scale = 1;
             Colors colorScaleColor = Colors.Red;
-
-            if (color != ColorScales.GreyScale)
+            var messageData = new MessageData
             {
-                await ctx.RespondAsync("What color would you like to colorize to?");
-                var result = await ctx.Client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromSeconds(10));
+                Reply = true,
+                ReplyId = ctx.Message.Id
+            };
 
-                if (result.TimedOut)
+            if (deform != Deforms.None)
+            {
+                var messageStep = new MessageStep("What scale would do you want for the deformation", "", 10)
+                    .WithMesssageData(messageData);
+                var result = await messageStep.ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+                scale = int.TryParse(result.Result, out var x) ? int.Parse(result.Result) : -1;
+
+                if (scale < 0 || scale > 10)
                 {
-                    await ctx.Channel.SendMessageAsync("well you didn't reply so :shrug:");
+                    await ctx.RespondAsync("How about you keep the scale within 0 and 10 next time?");
+                    return;
+                }
+            }
+
+            if (color == ColorScales.ColorScale)
+            {
+                var replyStep = new ReplyStep("What color would you like to colorize to?", "", 10, Enum.GetNames(typeof(Colors)).ToList())
+                     .WithMesssageData(messageData);
+                var result = await replyStep.ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+                if (!result.WasCompleted)
+                {
+                    await ctx.RespondAsync("well I didn't get a valid reply so ¯\\_(ツ)_/¯");
                     return;
                 }
 
-                colorScaleColor = (Colors)await ctx.CommandsNext.ConvertArgument<Colors>(result.Result.Content, ctx);
+                colorScaleColor = (Colors)await ctx.CommandsNext.ConvertArgument<Colors>(result.Result, ctx);
             }
 
             using (var client = new WebClient())
@@ -587,28 +527,44 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("Imagify")]
         [Description("Combines multiple image manipulation functions on an user avatur")]
         [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task Imagify(CommandContext ctx, DiscordMember member, bool invert, Deforms deform, int scale, ColorScales color)
+        public async Task Imagify(CommandContext ctx, DiscordMember member, bool invert, Deforms deform, ColorScales color)
         {
-            if (scale < 0 || scale > 10)
+            int scale = 1;
+            Colors colorScaleColor = Colors.Red;
+            var messageData = new MessageData
             {
-                await ctx.Channel.SendMessageAsync("How about you keep the scale withing 0 and 10 next time?");
-                return;
+                Reply = true,
+                ReplyId = ctx.Message.Id
+            };
+
+            if (deform != Deforms.None)
+            {
+                var messageStep = new MessageStep("What scale would do you want for the deformation?", "", 10)
+                    .WithMesssageData(messageData);
+                var result = await messageStep.ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+                scale = int.TryParse(result.Result, out var x) ? int.Parse(result.Result) : -1;
+
+                if (scale < 0 || scale > 10)
+                {
+                    await ctx.RespondAsync("How about you keep the scale within 0 and 10 next time?");
+                    return;
+                }
             }
 
-            Colors colorScaleColor = Colors.Red;
-
-            if (color != ColorScales.GreyScale)
+            if (color == ColorScales.ColorScale)
             {
-                await ctx.RespondAsync("What color would you like to colorize to?");
-                var result = await ctx.Client.GetInteractivity().WaitForMessageAsync(x => x.Author.Id == ctx.Member.Id, TimeSpan.FromSeconds(10));
+                var replyStep = new ReplyStep("What color would you like to colorize to?", "", 10, Enum.GetNames(typeof(Colors)).ToList())
+                    .WithMesssageData(messageData);
+                var result = await replyStep.ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
 
-                if (result.TimedOut)
+                if (!result.WasCompleted)
                 {
-                    await ctx.Channel.SendMessageAsync("well you didn't reply so :shrug:");
+                    await ctx.RespondAsync("well I didn't get a valid reply so ¯\\_(ツ)_/¯");
                     return;
                 }
 
-                colorScaleColor = (Colors)await ctx.CommandsNext.ConvertArgument<Colors>(result.Result.Content, ctx);
+                colorScaleColor = (Colors)await ctx.CommandsNext.ConvertArgument<Colors>(result.Result, ctx);
             }
 
             using (var client = new WebClient())
@@ -802,6 +758,105 @@ namespace KunalsDiscordBot.Modules.Images
                                      .WithReply(ctx.Message.Id)
                                      .SendAsync(ctx.Channel);
                 }
+            }
+        }
+
+        [Command("Headache")]
+        [Description("Headaches aren't pog")]
+        [WithFile("headache.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Headache(CommandContext ctx, [RemainingText] string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Lightning")]
+        [Description("lightning kill tree")]
+        [WithFile("lightning.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Lightning(CommandContext ctx, [RemainingText] string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Scary")]
+        [Description("m o n k a p r a y")]
+        [WithFile("scary.jpg")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Scary(CommandContext ctx, [RemainingText] string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string[] sentences = message.Split(',');
+            if (sentences.Length < 4)
+                sentences = new[] { $"{ctx.Member.DisplayName} opening discord", $"{ctx.Member.DisplayName} finding this channel",
+                $"{ctx.Member.DisplayName} typing", $"{ctx.Member.DisplayName} running this command without `,`'s"};
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+
+                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                }
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
             }
         }
     }

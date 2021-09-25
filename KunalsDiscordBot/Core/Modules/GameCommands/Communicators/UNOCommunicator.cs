@@ -97,6 +97,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
 
         public async Task<bool> CheckUNO(InteractivityExtension interactivity, InputData inputData)
         {
+            await SendMessage("Umm you forgetting something?");
             var message = await WaitForMessage(interactivity, inputData.Conditions, inputData.Span);
 
             return !message.TimedOut;
@@ -114,7 +115,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
                     Title = title,
                     ImageUrl = Card.GetLink(card.fileName).link + ".png",
                     Color = UNOGame.UNOColor
-                }.WithFooter($"{index}/{cards.Count}. (You can view your cards using this message for {UNOGame.timeLimit} minute(s))")
+                }.WithFooter($"{index}/{cards.Count}. (You can view the following cards using this message for {UNOGame.timeLimit} minute(s))")
                  .AddField("Card", card.cardName);
 
                 pages.Add(new Page(null, embed));

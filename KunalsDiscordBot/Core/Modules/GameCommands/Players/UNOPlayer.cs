@@ -108,8 +108,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             while(!comepleted)
             {
-                var message = await communicator.SendMessage("Which Card would you like to play?.\nEnter the index number of the card to play it " +
-                    "and use `,` to split (without spaces) the index' if you're playing 2 or more cards. Enter `leave` to leave the game. Enter `draw` to draw a card");
+                var message = await communicator.SendMessage("Which Card(s) would you like to play?.\n Use the select component to choose the index' of the cards" +
+                    ", you can play a maximum of 4 cards per turn. Choose `leave` to leave the game. Choose `draw` to draw a card");
                 var options = new Dictionary<string, (string, string)>();
                 for (int i = 0; i < cards.Count; i++)
                 {
@@ -213,11 +213,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 };
             }
 
-            await communicator.SendMessage("The drawed card can be played, type `y` to play the card. Anything else and the card will be kept.\nTime - 10 seconds");
-            var interactivity = client.GetInteractivity();
-
             string yesReturn = "yes";
-            var result = await communicator.QuestionInput(interactivity, "The drawed card can be played, type `y` to play the card. Anything else and the card will be kept.\nTime - 10 seconds", member, new InputData
+            var result = await communicator.QuestionInput(client.GetInteractivity(), "The drawed card can be played, Do you want to play it?.\nTime - 10 seconds", member, new InputData
             {               
                 ExtraInputValues = new Dictionary<string, (string, string)>
                 {
@@ -230,6 +227,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             if (result == yesReturn)
             {
                 await communicator.SendMessage("Playing card");
+                cards.RemoveAt(cards.Count - 1);
 
                 return new InputResult
                 {

@@ -3,17 +3,17 @@ namespace KunalsDiscordBot.Core.Configurations
 {
     public class DiscordConfig
     {
-        public string token { get; set; }
-        public string[] prefixes { get; set; }
+        public string Token { get; set; }
+        public string[] Prefixes { get; set; }
 
-        public bool dms { get; set; }
+        public bool Dms { get; set; }
 
-        public int timeOut { get; set; }
-        public int shardCount { get; set; }
+        public int TimeOut { get; set; }
+        public int ShardCount { get; set; }
 
-        public int activityType { get; set; }
-        public string activityText { get; set; }
+        public int ActivityType { get; set; }
+        public string ActivityText { get; set; }
 
-        public string errorLink { get; set; }
+        public string ErrorLink { get; set; }
     }
 }

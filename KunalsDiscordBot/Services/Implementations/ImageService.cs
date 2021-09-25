@@ -17,7 +17,7 @@ namespace KunalsDiscordBot.Services.Images
     {
         private readonly EditData[] edits;
 
-        public ImageService(PepperConfigurationManager configManager) => edits = configManager.imageData.edits;
+        public ImageService(PepperConfigurationManager configManager) => edits = configManager.ImageData.edits;
 
         public EditData GetEditData(string fileName) => edits.FirstOrDefault(x => x.fileName == fileName);
 

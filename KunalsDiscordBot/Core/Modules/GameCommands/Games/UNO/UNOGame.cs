@@ -187,7 +187,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             else if (cardStacks != null)
                 embed.AddField("Number of cards that will be drawed:", cardStacks.Value.ToString());
 
-            embed.AddField("Current Card:", "** **");
+            embed.AddField("Current Card:",  currentCard.cardName);
             await SendMessageToAllPlayers(null, embed);
 
             await CurrentPlayer.PrintAllCards();

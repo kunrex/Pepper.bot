@@ -12,9 +12,9 @@ namespace KunalsDiscordBot
 
         public PepperBotClientManager(IServiceProvider services)
         {
-            var botConfiguration = ((PepperConfigurationManager)services.GetService(typeof(PepperConfigurationManager))).botConfig;
+            var botConfiguration = (PepperConfigurationManager)services.GetService(typeof(PepperConfigurationManager));
 
-            int shardCount = botConfiguration.discordConfig.shardCount;
+            int shardCount = botConfiguration.BotConfig.DiscordConfig.ShardCount;
             if (shardCount <= 0)
                 throw new Exception("Invalid Shard Count");
 

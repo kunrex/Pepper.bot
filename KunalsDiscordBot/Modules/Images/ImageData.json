@@ -83,6 +83,30 @@
       "length": [ 339 ],
       "breadth": [ 95 ],
       "size": [ 20 ]
+    },
+    {
+      "fileName": "scary.jpg",
+      "x": [ 141, 141, 141, 190 ],
+      "y": [ 4, 190, 375, 568 ],
+      "length": [ 108, 108, 108, 120 ],
+      "breadth": [ 121, 121, 121, 124 ],
+      "size": [ 15, 15, 15, 15 ]
+    },
+    {
+      "fileName": "headache.png",
+      "x": [ 257 ],
+      "y": [ 380 ],
+      "length": [ 232 ],
+      "breadth": [ 32 ],
+      "size": [ 15 ]
+    },
+    {
+      "fileName": "lightning.png",
+      "x": [ 97 ],
+      "y": [ 337 ],
+      "length": [ 158 ],
+      "breadth": [ 82 ],
+      "size": [ 15 ]
     }
   ]
 }

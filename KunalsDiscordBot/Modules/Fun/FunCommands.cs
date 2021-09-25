@@ -45,7 +45,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         public FunCommands(PepperConfigurationManager configManager, RedditApp reddit, IServerService _serverService, IFunService _funService, IModuleService moduleService)
         {
-            funData = configManager.funData;
+            funData = configManager.FunData;
             redditApp = reddit;
             serverService = _serverService;
             funService = _funService;
@@ -262,7 +262,8 @@ namespace KunalsDiscordBot.Modules.Fun
             other = other == null ? ctx.Member : other;
 
             var pp = "8";
-            Enumerable.Range(0, new Random().Next(0, 15)).Select(x => pp += '=');
+            for (int i = 0; i < new Random().Next(1, 15); i++)
+                pp += '=';
             pp += "D";
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
