@@ -141,7 +141,7 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 1. `appId` : The app Id of your reddit app
 2. `appSecret` : The app secret of your reddit app
 3. `refreshToken`: The refresh token of your reddit app
-4. `postLimit` : The maximum amount of posts the bot collects from each of the filter types (Top, Hot and New) from registered subreddits (r/memes, r/animals and r/aww). These posts are stored when the bot starts and accessed when a command is executed. 
+4. `postLimit` : The maximum amount of posts the bot collects from registered subreddits.
 
 ### • Setting up the Database
 The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo as its used in the currency system and for general server configurations..
