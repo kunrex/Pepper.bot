@@ -84,30 +84,30 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 5. Come back to the project on your system and find the folder called `KunalsDiscordBot` and create a new json file called `Config.json` exactly. You can change this name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
 ```json
 {
-  "version": 1,
+  "Version": 1,
 
-  "discordConfig": {
-    "token": "your discord bot token here, the same on you copied from the discord developers portal",
-    "prefixes": [ "prefixes here" ],
-    "dms": false,
-    "timeOut": 60,
-    "shardCount": 1,
-    "activityType": 0,
-    "activityText": "whatever should show up in your bots activity",
-    "errorLink": "Any image link, this image is used when an error occurs."
+  "DiscordConfig": {
+    "Token": "your discord bot token here, the same on you copied from the discord developers portal",
+    "Prefixes": [ "prefixes here" ],
+    "Dms": false,
+    "TimeOut": 60,
+    "ShardCount": 1,
+    "ActivityType": 0,
+    "ActivityText": "whatever should show up in your bots activity",
+    "ErrorLink": "Any image link, this image is used when an error occurs."
   },
 
-  "lavalinkConfig": {
-    "hostname": "127.0.0.1",
-    "port": 2333,
-    "password": "pepperrocks"
+  "LavalinkConfig": {
+    "Hostname": "127.0.0.1",
+    "Port": 2333,
+    "Password": "pepperrocks"
   },
 
-  "redditConfig": {
-    "appId": "your reddit app id here",
-    "appSecret": "your reddit app secret here",
-    "refreshToken": "your reddit app refresh token here",
-    "postLimit": 50
+  "RedditConfig": {
+    "AppId": "your reddit app id here",
+    "AppSecret": "your reddit app secret here",
+    "RefreshToken": "your reddit app refresh token here",
+    "PostLimit": 50
   }
 }
 
@@ -141,7 +141,7 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 1. `appId` : The app Id of your reddit app
 2. `appSecret` : The app secret of your reddit app
 3. `refreshToken`: The refresh token of your reddit app
-4. `postLimit` : The maximum amount of posts the bot collects from each of the filter types (Top, Hot and New) from registered subreddits (r/memes, r/animals and r/aww). These posts are stored when the bot starts and accessed when a command is executed. 
+4. `postLimit` : The maximum amount of posts the bot collects from registered subreddits.
 
 ### • Setting up the Database
 The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo as its used in the currency system and for general server configurations..
