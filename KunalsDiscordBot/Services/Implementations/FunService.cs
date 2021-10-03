@@ -25,14 +25,13 @@ namespace KunalsDiscordBot.Services.Fun
 
             Presences.Add(index, new GhostData { guildId = guildId, userID = memberId, presence = presence });
             presence.OnPresenceEnded.WithEvent(() => Presences.Remove(index));
-            await Task.Run(async() => await presence.BegineGhostPresence());
 
             return presence;
         }
 
         public Task<GhostData> GetPresence(ulong guildId, ulong memberId) => Task.FromResult(Presences.Values.FirstOrDefault(x => x.guildId == guildId || x.userID == memberId));
 
-        public async Task<Spammer> CreateSpammer(ulong guildId, string message, int timer, DiscordChannel channel)
+        public Task<Spammer> CreateSpammer(ulong guildId, string message, int timer, DiscordChannel channel)
         {
             if (Spammers.ContainsKey(guildId))
                 return null;
@@ -41,9 +40,8 @@ namespace KunalsDiscordBot.Services.Fun
 
             Spammers.Add(guildId, spammer);
             spammer.OnSpamEnded.WithEvent(() => Spammers.Remove(guildId));
-            await Task.Run(async() =>  await spammer.Spam());
 
-            return spammer;
+            return Task.FromResult(spammer);
         }
 
         public Task<bool> StopSpammer(ulong guildId)

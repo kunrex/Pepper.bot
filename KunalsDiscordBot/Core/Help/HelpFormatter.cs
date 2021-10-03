@@ -85,7 +85,7 @@ namespace KunalsDiscordBot.Core.Help
             Title += $" {(decor == null ? "" : decor.emoji)}";
             Color = decor == null ? DiscordColor.Blurple : decor.color;
 
-            Overloads = new FieldData { name = "__Overloads (Same command with different parameters)__", value = command.GetFormattedOverloads(), inline = false };
+            Overloads = new FieldData { name = "__Overloads (Same command with different arguments)__", value = command.GetFormattedOverloads(), inline = false };
 
             var perms = command.GetPermissions();
             UserPerms = perms[0];

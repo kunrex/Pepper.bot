@@ -2,11 +2,14 @@
 {
     public class EditData
     {
-        public string fileName { get; set; }
-        public int[] x { get; set; }
-        public int[] y { get; set; }
-        public int[] length { get; set; }
-        public int[] breadth { get; set; }
-        public int[] size { get; set; }
+        public string FileName { get; set; }
+        public int[] X { get; set; }
+        public int[] Y { get; set; }
+        public int[] Length { get; set; }
+        public int[] Breadth { get; set; }
+        public int[] Size { get; set; }
+
+        public string Font { get; set; }
+        public int FontStyle { get; set; }
     }
 }

@@ -18,11 +18,11 @@ using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
-using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 
 namespace KunalsDiscordBot.Modules.Images
 {
@@ -61,8 +61,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -91,8 +91,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -124,9 +124,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
@@ -162,9 +162,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
@@ -196,10 +196,10 @@ namespace KunalsDiscordBot.Modules.Images
                 {
                     for (int i = 0; i < images.Count; i++)
                     {
-                        await images[i].Resize(editData.size[i], editData.size[i]);
+                        await images[i].Resize(editData.Size[i], editData.Size[i]);
 
-                        RectangleF srcRect = new RectangleF(0, 0, editData.size[i], editData.size[i]);
-                        await graphicalImage.DrawImage(images[i], editData.x[i], editData.y[i], srcRect, GraphicsUnit.Pixel);
+                        RectangleF srcRect = new RectangleF(0, 0, editData.Size[i], editData.Size[i]);
+                        await graphicalImage.DrawImage(images[i], editData.X[i], editData.Y[i], srcRect, GraphicsUnit.Pixel);
                     }
 
                     using (var ms = await graphicalImage.ToMemoryStream())
@@ -236,9 +236,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
@@ -274,9 +274,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
@@ -648,8 +648,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -678,8 +678,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -714,9 +714,9 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
@@ -747,10 +747,10 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 using (var graphicalImage = new ImageGraphic(filePath))
                 {
-                    await images[0].Resize(editData.size[0], editData.size[0]);
+                    await images[0].Resize(editData.Size[0], editData.Size[0]);
 
-                    RectangleF srcRect = new RectangleF(0, 0, editData.size[0], editData.size[0]);
-                    await graphicalImage.DrawImage(images[0], editData.x[0], editData.y[0], srcRect, GraphicsUnit.Pixel);
+                    RectangleF srcRect = new RectangleF(0, 0, editData.Size[0], editData.Size[0]);
+                    await graphicalImage.DrawImage(images[0], editData.X[0], editData.Y[0], srcRect, GraphicsUnit.Pixel);
 
                     using (var ms = await graphicalImage.ToMemoryStream())
                         await new DiscordMessageBuilder()
@@ -780,8 +780,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -810,8 +810,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                service.GetFontAndBrush("Arial", editData.size[0], Color.Black, out Font drawFont, out SolidBrush drawBrush);
-                await graphicalImage.DrawString(message, editData.x[0], editData.y[0], editData.length[0], editData.breadth[0], drawFont, drawBrush);
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -847,10 +847,41 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
-                    service.GetFontAndBrush("Arial", editData.size[i], Color.Black, out Font drawFont, out SolidBrush drawBrush);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
 
-                    await graphicalImage.DrawString(sentences[i], editData.x[i], editData.y[i], editData.length[i], editData.breadth[i], drawFont, drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
                 }
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("What")]
+        [Description("**THE WHAT**")]
+        [WithFile("what.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task What(CommandContext ctx, [RemainingText] string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()

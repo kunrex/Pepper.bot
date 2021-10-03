@@ -1,112 +1,159 @@
 ﻿{
   "edits": [
     {
-      "fileName": "abandon.png",
-      "x": [ 32 ],
-      "y": [ 424 ],
-      "length": [ 302 ],
-      "breadth": [ 94 ],
-      "size": [ 17 ]
+      "FileName": "abandon.png",
+      "X": [ 32 ],
+      "Y": [ 424 ],
+      "Length": [ 302 ],
+      "Breadth": [ 94 ],
+      "Size": [ 17 ],
+
+      "Font": "Arial",
+      "FontStyle" :  0
     },
     {
-      "fileName": "right.png",
-      "x": [ 42, 682, 682 ],
-      "y": [ 558, 558, 1195 ],
-      "length": [ 548, 548, 548 ],
-      "breadth": [ 65, 65, 65 ],
-      "size": [ 23, 23, 23 ]
+      "FileName": "right.png",
+      "X": [ 42, 682, 682 ],
+      "Y": [ 558, 558, 1195 ],
+      "Length": [ 548, 548, 548 ],
+      "Breadth": [ 65, 65, 65 ],
+      "Size": [ 23, 23, 23 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "violence.png",
-      "x": [ 362 ],
-      "y": [ 16 ],
-      "length": [ 243 ],
-      "breadth": [ 103 ],
-      "size": [ 23 ]
+      "FileName": "violence.png",
+      "X": [ 362 ],
+      "Y": [ 16 ],
+      "Length": [ 243 ],
+      "Breadth": [ 103 ],
+      "Size": [ 23 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "yesno.png",
-      "x": [ 358, 358 ],
-      "y": [ 12, 295 ],
-      "length": [ 324, 324 ],
-      "breadth": [ 243, 243 ],
-      "size": [ 30, 30 ]
+      "FileName": "yesno.png",
+      "X": [ 358, 358 ],
+      "Y": [ 12, 295 ],
+      "Length": [ 324, 324 ],
+      "Breadth": [ 243, 243 ],
+      "Size": [ 30, 30 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "yesnoPewds.png",
-      "x": [ 613, 613 ],
-      "y": [ 22, 515 ],
-      "length": [ 560, 560 ],
-      "breadth": [ 420, 420 ],
-      "size": [ 30, 30 ]
+      "FileName": "yesnoPewds.png",
+      "X": [ 613, 613 ],
+      "Y": [ 22, 515 ],
+      "Length": [ 560, 560 ],
+      "Breadth": [ 420, 420 ],
+      "Size": [ 30, 30 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "brother.jpeg",
-      "x": [ 24, 24, 93, 93 ],
-      "y": [ 127, 485, 794, 1003 ],
-      "size": [ 154, 154, 91, 91 ]
+      "FileName": "brother.jpeg",
+      "X": [ 24, 24, 93, 93 ],
+      "Y": [ 127, 485, 794, 1003 ],
+      "Size": [ 154, 154, 91, 91 ]
     },
     {
-      "fileName": "billy.png",
-      "x": [ 30 ],
-      "y": [ 351 ],
-      "length": [ 220 ],
-      "breadth": [ 70 ],
-      "size": [ 20 ]
+      "FileName": "billy.png",
+      "X": [ 30 ],
+      "Y": [ 351 ],
+      "Length": [ 220 ],
+      "Breadth": [ 70 ],
+      "Size": [ 20 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "wanted.jpg",
-      "x": [ 118 ],
-      "y": [ 206 ],
-      "size": [ 185 ]
+      "FileName": "wanted.jpg",
+      "X": [ 118 ],
+      "Y": [ 206 ],
+      "Size": [ 185 ]
     },
     {
-      "fileName": "dinoJoke.png",
-      "x": [ 48, 414 ],
-      "y": [ 28, 19 ],
-      "length": [ 216, 248 ],
-      "breadth": [ 107, 66 ],
-      "size": [ 15, 15 ]
+      "FileName": "dinoJoke.png",
+      "X": [ 48, 414 ],
+      "Y": [ 28, 19 ],
+      "Length": [ 216, 248 ],
+      "Breadth": [ 107, 66 ],
+      "Size": [ 15, 15 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "changeMyMind.jpeg",
-      "x": [ 301 ],
-      "y": [ 565 ],
-      "length": [ 495 ],
-      "breadth": [ 212 ],
-      "size": [ 30 ]
+      "FileName": "changeMyMind.jpeg",
+      "X": [ 301 ],
+      "Y": [ 565 ],
+      "Length": [ 495 ],
+      "Breadth": [ 212 ],
+      "Size": [ 30 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "sleep.png",
-      "x": [ 29 ],
-      "y": [ 388 ],
-      "length": [ 339 ],
-      "breadth": [ 95 ],
-      "size": [ 20 ]
+      "FileName": "sleep.png",
+      "X": [ 29 ],
+      "Y": [ 388 ],
+      "Length": [ 339 ],
+      "Breadth": [ 95 ],
+      "Size": [ 20 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "scary.jpg",
-      "x": [ 141, 141, 141, 190 ],
-      "y": [ 4, 190, 375, 568 ],
-      "length": [ 108, 108, 108, 120 ],
-      "breadth": [ 121, 121, 121, 124 ],
-      "size": [ 15, 15, 15, 15 ]
+      "FileName": "scary.jpg",
+      "X": [ 141, 141, 141, 190 ],
+      "Y": [ 4, 190, 375, 568 ],
+      "Length": [ 108, 108, 108, 120 ],
+      "Breadth": [ 121, 121, 121, 124 ],
+      "Size": [ 15, 15, 15, 15 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     },
     {
-      "fileName": "headache.png",
-      "x": [ 257 ],
-      "y": [ 380 ],
-      "length": [ 232 ],
-      "breadth": [ 32 ],
-      "size": [ 15 ]
+      "FileName": "headache.png",
+      "X": [ 257 ],
+      "Y": [ 380 ],
+      "Length": [ 232 ],
+      "Breadth": [ 32 ],
+      "Size": [ 15 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
     },
     {
-      "fileName": "lightning.png",
-      "x": [ 97 ],
-      "y": [ 337 ],
-      "length": [ 158 ],
-      "breadth": [ 82 ],
-      "size": [ 15 ]
+      "FileName": "lightning.png",
+      "X": [ 97 ],
+      "Y": [ 337 ],
+      "Length": [ 158 ],
+      "Breadth": [ 82 ],
+      "Size": [ 15 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
+    },
+    {
+      "FileName": "what.png",
+      "X": [ 23 ],
+      "Y": [ 23 ],
+      "Length": [ 1740 ],
+      "Breadth": [ 433 ],
+      "Size": [ 50 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
     }
   ]
 }

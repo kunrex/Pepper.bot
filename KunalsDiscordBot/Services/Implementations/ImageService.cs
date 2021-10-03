@@ -19,7 +19,7 @@ namespace KunalsDiscordBot.Services.Images
 
         public ImageService(PepperConfigurationManager configManager) => edits = configManager.ImageData.edits;
 
-        public EditData GetEditData(string fileName) => edits.FirstOrDefault(x => x.fileName == fileName);
+        public EditData GetEditData(string fileName) => edits.FirstOrDefault(x => x.FileName == fileName);
 
         public string GetFileByCommand(in Command command)
         {
@@ -31,9 +31,9 @@ namespace KunalsDiscordBot.Services.Images
             return ((WithFileAttribute)attribute).fileName;
         }
 
-        public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, out Font font, out SolidBrush brush)
+        public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, int fontStyles, out Font font, out SolidBrush brush)
         {
-            font = new Font(fontName, fontSize);
+            font = new Font(fontName, fontSize, (FontStyle)fontStyles);
             brush = new SolidBrush(fontColor);
         }
 

@@ -20,7 +20,6 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics
             var messageStep = new MessageStep(title, content, time).WithMesssageData(MessageData);
             var result = await messageStep.ProcessStep(channel, member, client, useEmbed, previousResult);
 
-            //any of the return cases
             if (!result.WasCompleted)
                 return result;
             else if (ValidResponses.Find(x => x.ToLower() == result.Result.ToLower()) != null)

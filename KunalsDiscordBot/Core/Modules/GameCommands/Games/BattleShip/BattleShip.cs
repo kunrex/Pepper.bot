@@ -166,8 +166,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await RemovePlayers();
             }
 
-            if (OnGameOver != null)
-                OnGameOver();
+            OnGameOver.Invoke();
         }
 
         protected override async Task PrintBoard()

@@ -281,6 +281,15 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.Channel.SendMessageAsync("Started").ConfigureAwait(false);
         }
 
+        [Command("Penalty")]
+        public async Task Penalty(CommandContext ctx)
+        {
+            var penalty = await gameService.StartGame<Penalty>(ctx.Member.Id, new List<DiscordMember>() { ctx.Member }, ctx.Client, ctx.Channel, ctx.Message.Id );
+
+            if (penalty == null)
+                await ctx.RespondAsync("You're already playing a match of penalty, finish that first");
+        }
+
         [Command("Spectate")]
         [Description("Spectate an ongoing match")]
         public async Task Spectate(CommandContext ctx, DiscordUser user, [RemainingText]string game)

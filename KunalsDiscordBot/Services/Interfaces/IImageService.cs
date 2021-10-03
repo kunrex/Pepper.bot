@@ -13,7 +13,7 @@ namespace KunalsDiscordBot.Services.Images
 
         public string GetFileByCommand(in Command ctx);
 
-        public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, out Font font, out SolidBrush brush);
+        public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, int fontStyles, out Font font, out SolidBrush brush);
 
         public ImageCollection DownLoadImages(TupleBag<string, int> urls);
     }

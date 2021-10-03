@@ -168,8 +168,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await SendMessageToAllPlayers("All players ready");
             }
 
-            if (OnGameOver != null)
-                OnGameOver();
+            OnGameOver.Invoke();
         }
 
         protected async override Task PrintBoard()

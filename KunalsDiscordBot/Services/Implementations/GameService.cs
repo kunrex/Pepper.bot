@@ -17,6 +17,8 @@ namespace KunalsDiscordBot.Services.Games
         public Dictionary<ulong, TicTacToe> TicTacToeMatches { get; private set; } = new Dictionary<ulong, TicTacToe>();
         public Dictionary<ulong, ConnectFour> Connect4Matches { get; private set; } = new Dictionary<ulong, ConnectFour>();
 
+        public Dictionary<ulong, Penalty> PenaltyMatches { get; private set; } = new Dictionary<ulong, Penalty>();
+
         public GameService()
         {
 
@@ -30,14 +32,14 @@ namespace KunalsDiscordBot.Services.Games
                     var battleShipMatch = new BattleShip(client, players);
 
                     BattleShipMatches.Add(battleShipMatch);
-                    battleShipMatch.OnGameOver += () => BattleShipMatches.Remove(battleShipMatch);
+                    battleShipMatch.OnGameOver.WithEvent(() => BattleShipMatches.Remove(battleShipMatch));
 
                     return Task.FromResult((Game)battleShipMatch);
                 case var x when x == typeof(UNOGame):
                     var unoMatch = new UNOGame(client, players);
 
                     UNOMatches.Add(unoMatch);
-                    unoMatch.OnGameOver += () => UNOMatches.Remove(unoMatch);
+                    unoMatch.OnGameOver.WithEvent(() => UNOMatches.Remove(unoMatch));
 
                     return Task.FromResult((Game)unoMatch);
                 default:
@@ -56,7 +58,7 @@ namespace KunalsDiscordBot.Services.Games
                     var connect = new ConnectFour(client, players, channel, cellCount);
 
                     Connect4Matches.Add(guildid, connect);
-                    connect.OnGameOver += () => Connect4Matches.Remove(guildid);
+                    connect.OnGameOver.WithEvent(() => Connect4Matches.Remove(guildid));
                     return connect;
 
                 case var x when x == typeof(TicTacToe):
@@ -66,13 +68,30 @@ namespace KunalsDiscordBot.Services.Games
                     var tictactoe = new TicTacToe(client, players, channel);
 
                     TicTacToeMatches.Add(guildid, tictactoe);
-                    tictactoe.OnGameOver += () => TicTacToeMatches.Remove(guildid);
+                    tictactoe.OnGameOver.WithEvent(() => TicTacToeMatches.Remove(guildid));
                     return tictactoe;
                 default:
                     return null;
             }
         }
-            
+
+        public async Task<Game> StartGame<T>(ulong memberId, List<DiscordMember> players, DiscordClient client, DiscordChannel channel, ulong messageId = 0) where T : Game
+        {
+            switch(typeof(T))
+            {
+                case var x when x == typeof(Penalty):
+                    if (await GetServerGame<T>(memberId) != null)
+                        return null;
+
+                    var penalty = new Penalty(client, players, channel, messageId);
+                    PenaltyMatches.Add(memberId, penalty);
+                    penalty.OnGameOver.WithEvent(() => PenaltyMatches.Remove(memberId));
+                    return penalty;
+                default:
+                    return null;
+            }
+        }
+
         public async Task<bool> AddSpectator<T>(ulong id, DiscordMember specator) where T : ISpectatorGame
         {
             switch (typeof(T))
@@ -108,6 +127,11 @@ namespace KunalsDiscordBot.Services.Games
                         return Task.FromResult<Game>(null);
 
                     return Task.FromResult((Game)TicTacToeMatches[id]);
+                case var x when x == typeof(Penalty):
+                    if (!PenaltyMatches.ContainsKey(id))
+                        return Task.FromResult<Game>(null);
+
+                    return Task.FromResult((Game)PenaltyMatches[id]);
                 default:
                     return Task.FromResult<Game>(null);
             }

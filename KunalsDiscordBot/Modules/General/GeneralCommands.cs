@@ -12,7 +12,6 @@ using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.EventHandling;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
@@ -136,13 +135,13 @@ namespace KunalsDiscordBot.Modules.General
             string roles = string.Concat(member.Roles.Select(x => $"<@&{x.Id}>\n"));
             embed.AddField("Roles: ", roles == string.Empty ? "None" : roles);
 
-            await ctx.Channel.SendMessageAsync(embed: embed);
+            await ctx.RespondAsync(embed: embed);
         }
 
         [Command("ServerInfo")]
         [Aliases("si")]
         [Description("Gives general information about the server")]
-        public async Task ServerInfo(CommandContext ctx) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        public async Task ServerInfo(CommandContext ctx) => await ctx.RespondAsync(new DiscordEmbedBuilder
         {
             Title = ctx.Guild.Name,
             Description = ctx.Guild.Description == string.Empty ? "None" : ctx.Guild.Description,
@@ -172,7 +171,7 @@ namespace KunalsDiscordBot.Modules.General
             var difference = DateTime.Now - time;
             await messsage.DeleteAsync();
 
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "Pong! :ping_pong:",
                 Color = ModuleInfo.Color
@@ -182,7 +181,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("AboutMe")]
         [Description("Allow me to intorduce myself :D")]
-        public async Task AboutMe(CommandContext ctx) => await ctx.Channel.SendMessageAsync((await configService.GetPepperBotInfo(ctx.Client.Guilds.Count, ctx.Client.ShardCount, ctx.Client.ShardId))
+        public async Task AboutMe(CommandContext ctx) => await ctx.RespondAsync((await configService.GetPepperBotInfo(ctx.Client.Guilds.Count, ctx.Client.ShardCount, ctx.Client.ShardId))
             .WithFooter($"User: {ctx.Member.DisplayName}").WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, Height, Width)).ConfigureAwait(false);
 
         [Command("Configuration")]
@@ -203,8 +202,8 @@ namespace KunalsDiscordBot.Modules.General
         {
             var builder = new DiscordEmbedBuilder()
             {
-                Title = "Enums in Pepper",
-                Description = "Enums are arguments with only specific values. If you see any of these as command paramaters, these are the valid values for each.",
+                Title = "Enums used in Pepper",
+                Description = "Enums are arguments with only specific values. If you see any of these as command arguments, these are the valid values you can pass in for each.",
                 Color = ModuleInfo.Color
             }.WithFooter($"User: {ctx.Member.DisplayName} at {DateTime.Now}");
 
@@ -277,7 +276,7 @@ namespace KunalsDiscordBot.Modules.General
         }
 
         [Command("RuleChannel")]
-        [Description("Assigns the log channel for a server")]
+        [Description("Assigns the rule channel for a server")]
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.RuleChannel)]
         public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
         {

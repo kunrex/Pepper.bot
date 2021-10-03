@@ -27,7 +27,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
         private readonly MusicModuleData moduleData;
 
-        private LavalinkTrack currentTrack { get => connection.CurrentState.CurrentTrack; }
+        public LavalinkTrack CurrentTrack { get => connection.CurrentState.CurrentTrack; }
+        private LavalinkTrack currentTrack;
+
         private string memberWhoRequested = string.Empty;
 
         private bool isPaused { get; set; }
@@ -131,7 +133,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         {
             var loadResult = await node.Rest.GetTracksAsync(search);
 
-            if (loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+            if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
                 return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}");
 
             if (queue.Count == moduleData.maxQueueLength)
@@ -142,10 +144,10 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             if (currentTrack == null)
             {
-                var track = loadResult.Tracks.First();
+                currentTrack = loadResult.Tracks.First();
                 memberWhoRequested = member;
 
-                await connection.PlayAsync(track);
+                await connection.PlayAsync(currentTrack);
 
                 return null;//handled by now playing function
             }

@@ -12,6 +12,7 @@ namespace KunalsDiscordBot.Services.Games
     {
         public Task<Game> StartGame<T>(ulong guildid, List<DiscordMember> players, DiscordClient client) where T : Game;
         public Task<Game> StartGame<T>(ulong guildid, List<DiscordMember> players, DiscordClient client, DiscordChannel channel, int cellCount) where T : Game;
+        public Task<Game> StartGame<T>(ulong memberId, List<DiscordMember> players, DiscordClient client, DiscordChannel channel, ulong messageId = 0) where T : Game;
 
         public Task<bool> AddSpectator<T>(ulong id, DiscordMember specator) where T : ISpectatorGame;
 

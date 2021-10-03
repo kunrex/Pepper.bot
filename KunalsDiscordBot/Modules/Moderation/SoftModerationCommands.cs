@@ -272,14 +272,16 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireBotPermissions(Permissions.ManageMessages), ModeratorNeeded]
         public async Task ClearChat(CommandContext ctx, int number)
         {
-            foreach (var message in await ctx.Channel.GetMessagesAsync(number))
-                await message.DeleteAsync();
+            await ctx.Channel.DeleteMessagesAsync(await ctx.Channel.GetMessagesAsync(number));
 
-            await ctx.Channel.SendMessageAsync("**Chat has been cleaned**").ConfigureAwait(false);
+            var message = await ctx.Channel.SendMessageAsync("**Chat has been cleaned**").ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(2));
+
+            await message.DeleteAsync();
         }
 
         [Command("Slowmode")]
-        [Aliases("slow"), Description("Sets the slow mode for the chat")]
+        [Aliases("slow"), Description("Sets the slow mode for a channel")]
         [RequireBotPermissions(Permissions.ManageChannels), ModeratorNeeded]
         public async Task SlowMode(CommandContext ctx, int seconds)
         {
@@ -293,7 +295,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
-                Description = $"{(seconds == 0 ? $"Disabled slow mode for {ctx.Channel.Mention}": "$Set Slow Mode for {ctx.Channel.Mention} to {seconds} seconds")}",
+                Description = $"{(seconds == 0 ? $"Disabled slow mode for {ctx.Channel.Mention}": $"Set Slow Mode for {ctx.Channel.Mention} to {seconds} seconds")}",
                 Color = ModuleInfo.Color
             }.WithFooter($"Moderator: {ctx.Member.DisplayName}")).ConfigureAwait(false);
         }

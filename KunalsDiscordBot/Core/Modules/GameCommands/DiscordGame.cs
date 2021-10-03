@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 
@@ -19,8 +20,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             Client = _client;
         }
 
-        public delegate void Event();
-        public Event OnGameOver { get; set; }
+        public SimpleBotEvent OnGameOver { get; set; }
 
         public DiscordClient Client { get; protected set; }
 

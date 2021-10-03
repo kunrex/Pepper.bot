@@ -126,8 +126,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             {
                 await CurrentPlayer.PrintCompleteBoard(Client, GameMessage, GameMessage.Content, Board, true);
 
-                if (OnGameOver != null)
-                    OnGameOver();
+                OnGameOver.Invoke();
             }
         }
 

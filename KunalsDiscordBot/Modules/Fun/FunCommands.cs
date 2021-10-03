@@ -159,6 +159,8 @@ namespace KunalsDiscordBot.Modules.Fun
                 await ctx.Channel.SendMessageAsync("There already is a spam going on in the this server");
                 return;
             }
+
+            await spammer.Spam();
         }
 
         [Command("StopSpam")]
@@ -465,16 +467,9 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 await ctx.Channel.SendMessageAsync("Failed to create presence, if a presence is already in the server or you have another presence then wait for it to finish or end it respectiveley");
                 return;
-            }    
+            }
 
-            try
-            {
-                await ctx.Message.DeleteAsync().ConfigureAwait(false);
-            }
-            catch
-            {
-                await dmChannel.SendMessageAsync("I can't delete messages in that server so you might want to?").ConfigureAwait(false);
-            }
+            await presence.BegineGhostPresence();
         }
 
         [Command("RockPaperScissor")]

@@ -41,7 +41,6 @@
     <Folder Include="Modules\Moderation\" />
     <Folder Include="Modules\Currency\" />
     <Folder Include="Core\" />
-    <Folder Include="Core\DialogueHandler\" />
     <Folder Include="Core\Modules\" />
     <Folder Include="Core\Modules\CurrencyCommands\" />
     <Folder Include="Core\Modules\CurrencyCommands\Attributes\" />
@@ -75,7 +74,6 @@
     <Folder Include="Core\Modules\FunCommands\Enums\" />
     <Folder Include="Core\Modules\ImageCommands\Enums\" />
     <Folder Include="Modules\Help\" />
-    <Folder Include="Core\DialogueHandler\Steps\Basics\" />
     <Folder Include="Core\Modules\CurrencyCommands\Models\" />
     <Folder Include="Core\Modules\GameCommands\Communicators\Interfaces\" />
     <Folder Include="Core\Modules\GameCommands\Interfaces\" />
@@ -147,7 +145,6 @@
     <None Remove="Core\Per Module\FunCommands\Enums\" />
     <None Remove="Core\Modules\ImageCommands\Enums\" />
     <None Remove="Modules\Help\" />
-    <None Remove="Core\DialogueHandler\Steps\Basics\" />
     <None Remove="Core\Modules\CurrencyCommands\CurrencyModels\" />
     <None Remove="Core\Modules\GameCommands\Communicators\Interfaces\" />
     <None Remove="Core\Modules\GameCommands\Interfaces\" />

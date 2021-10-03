@@ -138,8 +138,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await PrintBoard();
                 await GameMessage.ClearComponents();
 
-                if (OnGameOver != null)
-                    OnGameOver();
+                OnGameOver.Invoke();
             }
         }
 

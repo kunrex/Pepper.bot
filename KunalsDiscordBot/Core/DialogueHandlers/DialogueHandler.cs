@@ -50,7 +50,7 @@ namespace KunalsDiscordBot.Core.DialogueHandlers
                 previousResult = await currentStep.ProcessStep(Configuration.Channel, Configuration.Member, Configuration.Client, Configuration.UseEmbed, previousResult);
 
                 if (!previousResult.WasCompleted && Configuration.RequireFullCompletion)
-                    return results;
+                    return null;
 
                 stepIndex++;
                 results.Add(previousResult);
