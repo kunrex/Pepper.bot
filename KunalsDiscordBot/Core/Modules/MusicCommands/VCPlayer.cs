@@ -103,6 +103,8 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                     Description = "An error occured, this may lead to the current track getting skipped.",
                     Color = DiscordColor.Red
                 });
+
+                await PlayNext();
             });
 
             return Task.CompletedTask;
@@ -117,7 +119,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                     Description = "Current track got stuck",
                     Color = DiscordColor.Red
                 });
-             });
+
+                await PlayNext();
+            });
 
             return Task.CompletedTask;
         }
@@ -134,10 +138,10 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             var loadResult = await node.Rest.GetTracksAsync(search);
 
             if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
-                return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}");
+                return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}").WithColor(moduleData.color);
 
             if (queue.Count == moduleData.maxQueueLength)
-                return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.maxQueueLength}), remove tracks to add more");
+                return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.maxQueueLength}), remove tracks or wait to add more").WithColor(moduleData.color);
 
             if (inactivityCancellationToken != null)//inactivity check was started
                 inactivityCancellationToken.Cancel();
@@ -171,6 +175,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             if (queue.Count <= 0)
             {
                 await boundChannel.SendMessageAsync("Queue Finished");
+                currentTrack = null;
                 inactivityCancellationToken = new CancellationTokenSource();
 
                 await Task.Run(() => InactivityCheck());
@@ -182,6 +187,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             await connection.PlayAsync(search.track);
 
+            currentTrack = search.track;
             if (queueLoop)//re add the search
                 queue.Enqueue(search);
         }

@@ -35,6 +35,7 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.CurrencyModels;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts.Interfaces;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shop;
 
 namespace KunalsDiscordBot.Modules.Currency
 {
@@ -642,26 +643,19 @@ namespace KunalsDiscordBot.Modules.Currency
         public async Task ShowShop(CommandContext ctx)
         {
             var items = Shop.AllItems;
-            var embeds = new List<DiscordEmbedBuilder>();
-            DiscordEmbedBuilder current = null;
 
-            int index = 0, maxPerPage = 7;
-            foreach (var item in items)
+            var pages = ctx.Client.GetInteractivity().GetPages(items, x => ($"{x.Name}", $"Description: {x.Description}\nPrice: {x.Price}"), new EmbedSkeleton
             {
-                if (index % maxPerPage == 0)
-                {
-                    current = new DiscordEmbedBuilder().WithTitle($"Shop")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Message will remain active for 1 minute", ctx.User.AvatarUrl);
+                Title = "Shop",
+                Description = $"Stock is {(StockMarket.Instance.CurrentStockPrice > 0 ? "up" : "down")} by **{System.Math.Abs(StockMarket.Instance.CurrentStockPrice)}%**",
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }, 7, false);
 
-                    embeds.Add(current);
-                }
-
-                current.AddField($"{++index}. {item.Name}\n", $" Description: {item.Description}\nPrice: {item.Price}\n\n");
-            }
-
-            var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            if (pages.Count == 1)
+                await ctx.Channel.SendMessageAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Item")]
@@ -677,27 +671,13 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            var emoji = DiscordEmoji.FromName(ctx.Client, ":coin:");
-
-            var thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
-            {
-                Width = data.ThumbnailSize,
-                Height = data.ThumbnailSize,
-                Url = emoji.Url
-            };
-
-            var embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = item.Name,
                 Description = item.Description,
-                Thumbnail = thumbnail,
                 Color = ModuleInfo.Color
-            };
-
-            embed.AddField("Price: ", item.Price.ToString(), true);
-            embed.AddField("Owned: ", proilfeItem.Count.ToString(), true);
-
-            await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+            }.AddField("Price: ", item.Price.ToString(), true)
+            .AddField("Owned: ", proilfeItem.Count.ToString(), true)).ConfigureAwait(false);
         }
 
         [Command("Buy")]
@@ -820,33 +800,22 @@ namespace KunalsDiscordBot.Modules.Currency
         public async Task ShowInventory(CommandContext ctx)
         {
             var items = await service.GetItems(ctx.Member.Id);
-            var embeds = new List<DiscordEmbedBuilder>();
-            DiscordEmbedBuilder current = null;
 
-            int index = 0, maxPerPage = 7;
-            foreach (var item in items)
+            var pages = ctx.Client.GetInteractivity().GetPages(items, x => ($"{x.Name}", $" Count: {x.Count}"), new EmbedSkeleton
             {
-                if (index % maxPerPage == 0)
-                {
-                    current = new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Message will remain active for 1 minute")
-                        .WithAuthor(ctx.User.Username, ctx.User.AvatarUrl, ctx.User.AvatarUrl);
+                Title = $"{ctx.Member.Username}'s Inventory",
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }, 7, false);
 
-                    embeds.Add(current);
-                }
-
-                current.AddField($"{++index}. {item.Name}\n", $" Count: {item.Count}\n\n");
-            }
-
-            if (embeds.Count == 0)
-                embeds.Add(new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Message will remain active for 1 minute", ctx.User.AvatarUrl)
-                        .WithDescription("Inventory is empty"));
-
-            var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(embeds.Count == 1 ? TimeSpan.FromSeconds(1) : TimeSpan.FromMinutes(1)).Token);
+            if (pages == null)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
+                    .WithDescription("Inventory is empty")
+                    .WithColor(ModuleInfo.Color));
+            else if(pages.Count == 1)
+                await ctx.Channel.SendMessageAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Inventory"), NonXPCommand]
@@ -867,32 +836,21 @@ namespace KunalsDiscordBot.Modules.Currency
             }
 
             var items = await service.GetItems(member.Id);
-            var embeds = new List<DiscordEmbedBuilder>();
-            DiscordEmbedBuilder current = null;
-
-            int index = 0, maxPerPage = 7;
-            foreach (var item in items)
+            var pages = ctx.Client.GetInteractivity().GetPages(items, x => ($"{x.Name}", $" Count: {x.Count}"), new EmbedSkeleton
             {
-                if (index % maxPerPage == 0)
-                {
-                    current = new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Message will remain active for 1 minute", ctx.User.AvatarUrl);
+                Title = $"{member.Username}'s Inventory",
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }, 7, false);
 
-                    embeds.Add(current);
-                }
-
-                current.AddField($"{++index}. {item.Name}\n", $" Count: {item.Count}\n\n");
-            }
-
-            if (embeds.Count == 0)
-                embeds.Add(new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Message will remain active for 1 minute", ctx.User.AvatarUrl)
-                        .WithDescription("Inventory is empty"));
-
-            var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            if (pages == null)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle($"{member.Username}'s Inventory")
+                    .WithDescription("Inventory is empty")
+                    .WithColor(ModuleInfo.Color));
+            else if (pages.Count == 1)
+                await ctx.Channel.SendMessageAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Use")]
@@ -913,7 +871,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 return;
             }
 
-            var useResult = await item.Use(await service.GetProfile(ctx.Message.Id, ""), service);
+            var useResult = await item.Use(await service.GetProfile(ctx.Member.Id, ""), service);
             if (!useResult.UseComplete)
             {
                 await ctx.RespondAsync(useResult.Message).ConfigureAwait(false);
@@ -924,6 +882,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = "Item Successfully Used",
                 Description = useResult.Message,
+                Color = ModuleInfo.Color
             }.WithFooter($"Item: {itemData.Name}").WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)).ConfigureAwait(false);
             ExecutionRewards = true;
         }

@@ -59,6 +59,7 @@ namespace KunalsDiscordBot.Modules.Music
                 }
             }
 
+            Console.WriteLine("hii");
             var botVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is BotVCNeededAttribute) != null;
             var playerChannel = await service.GetPlayerChannel(ctx.Guild.Id);
             if (botVCCheck && playerChannel == null)
@@ -67,21 +68,24 @@ namespace KunalsDiscordBot.Modules.Music
                 throw new CustomCommandException();
             }
 
+            Console.WriteLine("hii");
             var userVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is UserVCNeededAttribute) != null;
             if(userVCCheck)
             {
-                var userChannel = ctx.Member.VoiceState.Channel;
-                if (userChannel == null || userChannel.Type != ChannelType.Voice)
+                var voiceState = ctx.Member.VoiceState;
+                Console.WriteLine(voiceState.Channel == null);
+
+                if (voiceState == null || voiceState.Channel == null || voiceState.Channel.Type != ChannelType.Voice)
                 {
                     await ctx.RespondAsync("You need to be in a Voice Channel to run this command");
                     throw new CustomCommandException();
                 }
-                else if(ctx.Member.VoiceState.IsSelfDeafened || ctx.Member.VoiceState.IsServerDeafened)
+                else if(voiceState.IsSelfDeafened || voiceState.IsServerDeafened)
                 {
                     await ctx.RespondAsync("You can't run this command while deafened");
                     throw new CustomCommandException();
                 }
-                else if (botVCCheck && userChannel.Id != playerChannel.Id)
+                else if (botVCCheck && voiceState.Channel.Id != playerChannel.Id)
                 {
                     await ctx.RespondAsync("You need to be in the same Voice Channel as Pepper to run this command");
                     throw new CustomCommandException();

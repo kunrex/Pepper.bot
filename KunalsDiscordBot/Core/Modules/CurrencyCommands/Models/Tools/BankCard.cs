@@ -34,8 +34,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Tools
         public async override Task<UseResult> Use(Profile profile, IProfileService profileService)
         {
             var coins = ((IValueModel)this).GetIncrease();
-
             await profileService.ModifyProfile(profile, x => x.CoinsBankMax += coins);
+
             return new UseResult
             {
                 UseComplete = true,

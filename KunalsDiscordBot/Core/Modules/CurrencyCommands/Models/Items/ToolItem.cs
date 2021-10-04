@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using DiscordBotDataBase.Dal.Models.Profile;
 using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Tools;
-using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items.ItemData;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 {
@@ -18,6 +19,12 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
             Tool = tool;
         }
 
-        public async override Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member) => await Tool.Use(service, client, channel, member);
+        public async override Task<UseResult> Use(Profile profile, IProfileService profileService)
+        {
+            var result = await Tool.Use(profile, profileService);
+            await profileService.AddOrRemoveItem(profile, Name, -1);
+
+            return result;
+        }
     }
 }

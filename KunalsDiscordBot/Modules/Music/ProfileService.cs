@@ -121,7 +121,8 @@ namespace KunalsDiscordBot.Services.Currency
 
         public async Task<bool> AddOrRemoveItem(Profile profile, string name, int quantity)
         {
-            var item = context.ProfileItems.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
+            var item = await GetItem((ulong)profile.Id, name);
+
             if (item != null)//item already exists
             {
                 item.Count += quantity;
@@ -183,7 +184,6 @@ namespace KunalsDiscordBot.Services.Currency
             var boost = context.ProfileBoosts.AsQueryable().Where(x => x.ProfileId == profile.Id).FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
             if (boost != null)//boost already exists
             {
-                Console.WriteLine(boost == null);
                 if (quantity > 0)
                     return false;//prevent more than one boost
                 else

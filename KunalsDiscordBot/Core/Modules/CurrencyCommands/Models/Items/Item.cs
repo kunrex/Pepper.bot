@@ -7,6 +7,7 @@ using KunalsDiscordBot.Services.Currency;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Interfaces;
 using DSharpPlus;
 using DiscordBotDataBase.Dal.Models.Profile;
+using KunalsDiscordBot.Core.Modules.CurrencyCommands.Shop;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 {
@@ -25,22 +26,26 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
     public abstract class Item : IDiscordUseableModel
     {
         public string Name { get; protected set; }
-        public int Price { get; protected set; }
-        public int SellingPrice { get; protected set; }
+
+        protected int price;
+        public int Price { get { Console.WriteLine(StockMarket.Instance.CalculatePrice(price)); return price + StockMarket.Instance.CalculatePrice(price); } }
+
+        protected int sellingPrice;
+        public int SellingPrice { get => sellingPrice - StockMarket.Instance.CalculatePrice(sellingPrice); }
 
         public string Description { get; protected set; }
 
         public UseType UseType { get; protected set; }
 
 
-        public Item(string name, int price, string description, UseType type)
+        public Item(string name, int _price, string description, UseType type)
         {
             Name = name;
-            Price = price;
+            price = _price;
             Description = description;
 
             UseType = type;
-            SellingPrice = Price / 2;
+            sellingPrice = price / 2;
         }
 
         public virtual Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member) => Task.FromResult(new UseResult { UseComplete = true, Message = "" });

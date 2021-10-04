@@ -16,7 +16,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
     public sealed class Penalty : DiscordGame<PenaltyPlayer, PenaltyCommunicator>
     {
         public static readonly TimeSpan totalTime = TimeSpan.FromMinutes(1);
-        private static readonly string goal = ":goal: :goal: :goal:", keeper = ":levitate:", blackBox = ":black_large_square:", football = ":soccer:";
+        private static readonly string goal = ":goal: :goal: :goal:", keeper = ":levitate:", blackBox = ":black_large_square:", football = ":soccer:",
+            scored = "https://thumbs.gfycat.com/OccasionalWealthyCuscus-size_restricted.gif", blocked = "https://i.makeagif.com/media/7-21-2015/8QjzoI.gif";
         private static readonly string[] line = new string[] { blackBox, blackBox, blackBox };
 
         private readonly DiscordChannel channel;
@@ -57,7 +58,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                .WithContent(message)
                .WithReply(ReplyMessageId, true)
                .WithEmbed(new DiscordEmbedBuilder()
-               .WithDescription($"{CurrentPlayer.member.Mention} Enter the column in which you want to shoot")));
+                .WithDescription($"{CurrentPlayer.member.Mention} Enter the column in which you want to shoot")
+                .WithColor(DiscordColor.White)));
 
             PlayGame();
         }
@@ -108,7 +110,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 GameMessage = await CurrentPlayer.EditMessage(GameMessage, new DiscordMessageBuilder()
                     .WithContent(message)
                     .WithEmbed(new DiscordEmbedBuilder()
-                    .WithDescription($"{CurrentPlayer.member.Mention} Enter the column in which you want to shoot")));
+                        .WithDescription($"{CurrentPlayer.member.Mention} Enter the column in which you want to shoot")
+                        .WithColor(DiscordColor.White)));
             }
         }
 
@@ -130,7 +133,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             Console.WriteLine(embedDescription);
 
             GameMessage = await CurrentPlayer.EditMessage(GameMessage, new DiscordMessageBuilder()
-                .WithEmbed(new DiscordEmbedBuilder().WithDescription(embedDescription))
+                .WithEmbed(new DiscordEmbedBuilder()
+                    .WithDescription(embedDescription)
+                    .WithImageUrl(won ? scored : blocked)
+                    .WithColor(DiscordColor.White))
                 .WithContent(message));
 
             Console.WriteLine("hi");
