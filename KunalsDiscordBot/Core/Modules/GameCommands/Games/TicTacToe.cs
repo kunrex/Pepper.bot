@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 
@@ -35,6 +36,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             
             Board = new int[numberOfCells, numberOfCells];
 
+            OnGameOver = new SimpleBotEvent();
             SetUp();
         }
 

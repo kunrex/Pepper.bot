@@ -3,8 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Core.Modules.MathCommands.Exceptions;
+
 namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
-{ 
+{
     public sealed class LinearEquationSolver
     {
         public char Variable { get; private set; }
@@ -20,103 +22,111 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             equation = _equation;
 
             Variable = LinearEquationLexer.GetVariable(equation);
-            var sides = equation.Split('=');
-
-            RHS = LinearEquationLexer.GetTokens(sides[1], Variable);
-            LHS = LinearEquationLexer.GetTokens(sides[0], Variable);
         }
 
         public Task<string> Solve()
         {
+            if (!equation.Contains('='))
+                throw new EvaluationException("no equal to sign detected");
+
+            var sides = equation.Split('=');
+
+            RHS = LinearEquationLexer.GetTokens(sides[1], Variable);
+            LHS = LinearEquationLexer.GetTokens(sides[0], Variable);
+
             Simplify();
-            Transfer();
-
-            if ((RHS[0].Type & TokenType.Operator) == RHS[0].Type)
-                RHS.Insert(0, new Token("0", TokenType.Constant, null));
-            if ((LHS[0].Type & TokenType.Operator) == LHS[0].Type)
-                LHS.Insert(0, new Token("0x", TokenType.Variable, null));
-
-            var rhs = new Token("1", TokenType.Constant, RHS).Simplyfy(Variable);
-            var lhs = new Token("1", TokenType.Constant, LHS).Simplyfy(Variable);
-
-            var rhsNumber = rhs.GetNumberPart();
-            var lhsNumber = lhs.GetNumberPart();
-
-            return Task.FromResult($"{Variable} is {rhsNumber / lhsNumber}");
+            return Task.FromResult($"{Variable} is {Transfer()}");
         }
 
         private void Simplify()
         {
-            var newTokens = new List<Token>();
-            for (int i = 0; i < RHS.Count; i++)
-                newTokens.Add(RHS[i].Simplyfy(Variable));
+            var rhs = new Token("1", TokenType.Constant, RHS).Simplyfy(Variable);
+            var lhs = new Token("1", TokenType.Constant, LHS).Simplyfy(Variable);
 
-            RHS = new List<Token>();
-            foreach (var token in newTokens)
-                if (token.HasSubTokens)
-                    RHS.AddRange(token.SubTokens);
-                else
-                    RHS.Add(token);
-
-            newTokens = new List<Token>();
-            for (int i = 0; i < LHS.Count; i++)
-                newTokens.Add(LHS[i].Simplyfy(Variable));
-
-            LHS = new List<Token>();
-            foreach (var token in newTokens)
-                if (token.HasSubTokens)
-                    LHS.AddRange(token.SubTokens);
-                else
-                    LHS.Add(token);
+            RHS = rhs.GetDeepestSubTokens();
+            LHS = lhs.GetDeepestSubTokens();
         }
 
-        private void Transfer()
+        private float Transfer()
         {
-            for (int i = 0; i < RHS.Count; i++)
+            while (RHS.Count > 1 || LHS.Count > 1)
             {
-                var token = RHS[i];
+                SegregateAndFlip(RHS, TokenType.Variable, out var numbers, out var toAddVariables, out var lhsM);
+                SegregateAndFlip(LHS, TokenType.Constant, out var toAddNumbers, out var variables, out var rhsM);
 
-                if (token.Type == TokenType.Variable)//wrong side
+                Token simplifiedLHS = new Token("1", TokenType.Constant, variables),
+                    simplifiedRHS = new Token("1", TokenType.Constant, numbers);
+
+                simplifiedRHS *= rhsM;
+                simplifiedLHS *= lhsM;
+
+                numbers = simplifiedRHS.GetDeepestSubTokens();
+                variables = simplifiedLHS.GetDeepestSubTokens();
+
+                if (toAddNumbers.Count != 1)
                 {
-                    Token operation = null;
-                    if (i == 0)
-                        operation = new Token("-", TokenType.Subtraction, null);
-                    else
-                    {
-                        operation = RHS[i - 1].Type == TokenType.Addition ? new Token("-", TokenType.Subtraction, null) : new Token("+", TokenType.Addition, null);
-                        RHS.RemoveAt(i - 1);
-                        i--;
-                    }
-
-                    RHS.Remove(token);
-                    i--;
-
-                    LHS.Add(operation);
-                    LHS.Add(token);
+                    toAddNumbers.Insert(0, LinearEquationLexer.Plus);
+                    numbers.AddRange(toAddNumbers);
                 }
+
+                if (toAddVariables.Count != 1)
+                {
+                    toAddVariables.Insert(0, LinearEquationLexer.Plus);
+                    variables.AddRange(toAddVariables);
+                }
+
+                var rhs = new Token("1", TokenType.Constant, numbers).Simplyfy(Variable);
+                var lhs = new Token("1", TokenType.Constant, variables).Simplyfy(Variable);
+
+                RHS = rhs.GetDeepestSubTokens();
+                LHS = lhs.GetDeepestSubTokens();
             }
 
-            for (int i = 0; i < LHS.Count; i++)
-            {
-                var token = LHS[i];
+            return RHS[0].GetNumberPart() / LHS[0].GetNumberPart();
+        }
 
-                if (token.Type == TokenType.Constant)//wrong side
+        private void SegregateAndFlip(List<Token> toCheck, TokenType typeToCheckFor, out List<Token> numbers, out List<Token> variables, out Token multiplicand)
+        {
+            multiplicand = LinearEquationLexer.One;
+            numbers = new List<Token>() { LinearEquationLexer.Zero };
+            variables = new List<Token>() { LinearEquationLexer.Zero };
+
+            for (int i = 0; i < toCheck.Count; i += 2)
+            {
+                var token = toCheck[i];
+                var prevOperator = i == 0 ? TokenType.Addition : toCheck[i - 1].Type;
+
+                if ((prevOperator & TokenType.SecondaryOperator) == prevOperator)
                 {
-                    Token operation = null;
-                    if (i == 0)
-                        operation = new Token("-", TokenType.Subtraction, null);
+                    if (token.Type == typeToCheckFor)
+                    {
+                        if (token.Type == TokenType.Constant)
+                        {
+                            numbers.Add(prevOperator == TokenType.Addition ? LinearEquationLexer.Minus : LinearEquationLexer.Plus);
+                            numbers.Add(token);
+                        }
+                        else
+                        {
+                            variables.Add(prevOperator == TokenType.Addition ? LinearEquationLexer.Minus : LinearEquationLexer.Plus);
+                            variables.Add(token);
+                        }
+                    }
                     else
                     {
-                        operation = LHS[i - 1].Type == TokenType.Addition ? new Token("-", TokenType.Subtraction, null) : new Token("+", TokenType.Addition, null);
-                        LHS.RemoveAt(i - 1);
-                        i--;
+                        if (token.Type == TokenType.Constant)
+                        {
+                            numbers.Add(prevOperator == TokenType.Addition ? LinearEquationLexer.Plus : LinearEquationLexer.Minus);
+                            numbers.Add(token);
+                        }
+                        else
+                        {
+                            variables.Add(prevOperator == TokenType.Addition ? LinearEquationLexer.Plus : LinearEquationLexer.Minus);
+                            variables.Add(token);
+                        }
                     }
-                    LHS.Remove(token);
-                    i--;
-
-                    RHS.Add(operation);
-                    RHS.Add(token);
                 }
+                else
+                    multiplicand *= token;
             }
         }
     }

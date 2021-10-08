@@ -10,6 +10,7 @@ using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.UNO.Cards;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
@@ -78,6 +79,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             Players = _players.Select(x => new UNOPlayer(x)).ToList();
             CurrentPlayer = Players[0];
 
+            OnGameOver = new SimpleBotEvent();
             SetUp();
         }
 

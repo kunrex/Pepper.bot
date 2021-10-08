@@ -41,7 +41,7 @@ namespace KunalsDiscordBot.Modules.Currency
 {
     [Group("Currency")]
     [Decor("Gold", ":coin:")]
-    [ModuleLifespan(ModuleLifespan.Transient)]
+    [ModuleLifespan(ModuleLifespan.Transient), Aliases("crncy", "c")]
     [Description("A currency system!"), ConfigData(ConfigValueSet.Currency)]
     [RequireBotPermissions(Permissions.SendMessages | Permissions.EmbedLinks | Permissions.AccessChannels)]
     public sealed partial class CurrencyCommands : PepperCommandModule
@@ -172,7 +172,13 @@ namespace KunalsDiscordBot.Modules.Currency
 
             var provideXP = ctx.Command.CustomAttributes.FirstOrDefault(x => x is NonXPCommandAttribute) == null;
             if (provideXP)
-                await service.ModifyProfile(profile, x => x.XP += new Random().Next(0, profile.Level * data.XPMultiplier));
+            {
+                await service.ModifyProfile(profile, x =>
+                {
+                    x.XP += new Random().Next(0, profile.Level * data.XPMultiplier);
+                    x.Level = (int)(data.LevelConstant * System.Math.Sqrt(x.XP)) + 1;
+                });
+            }
 
             var moneyCommandExecuted = ctx.Command.CustomAttributes.FirstOrDefault(x => x is MoneyCommandAttribute) != null;
             if (moneyCommandExecuted)
@@ -208,10 +214,10 @@ namespace KunalsDiscordBot.Modules.Currency
             }.WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)
              .AddField("ID: ", profile.Id.ToString())
              .AddField("Coins: ", $"{profile.Coins} {data.CoinsEmoji}")
-             .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})");
-
-            embed.AddField("Level: ", $"{profile.Level}");
-            embed.AddField("Job: ", profile.Job);
+             .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})")
+             .AddField("Level: ", $"{profile.Level}")
+             .AddField("XP: ", $"{profile.XP}", true)
+             .AddField("Job: ", profile.Job);
 
             string boosts = string.Empty;
             int index = 1;
@@ -252,10 +258,10 @@ namespace KunalsDiscordBot.Modules.Currency
             }.WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)
              .AddField("ID: ", profile.Id.ToString())
              .AddField("Coins: ", $"{profile.Coins} {data.CoinsEmoji}")
-             .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})");
-
-            embed.AddField("Level: ", $"{profile.Level}");
-            embed.AddField("Job: ", profile.Job);
+             .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})")
+             .AddField("Level: ", $"{profile.Level}")
+             .AddField("XP: ", $"{profile.XP}", true)
+             .AddField("Job: ", profile.Job);
 
             string boosts = string.Empty;
             int index = 1;
@@ -915,6 +921,8 @@ namespace KunalsDiscordBot.Modules.Currency
                     .AddComponents(new DiscordSelectComponent(options.CustomId, options.Placeholder, options.Options, true)));
 
             await result.Message.ModifyAsync(descripion).ConfigureAwait(false);
+
+            ExecutionRewards = true;
         }
 
         [Command("Sleep")]
@@ -937,6 +945,8 @@ namespace KunalsDiscordBot.Modules.Currency
             };
 
             await ctx.RespondAsync(descripion).ConfigureAwait(false);
+
+            ExecutionRewards = true;
         }
 
         [Command("Hug")]
@@ -1075,6 +1085,8 @@ namespace KunalsDiscordBot.Modules.Currency
                     .WithDescription($"**{ctx.User.Username} searched the {chosen.Name}**\n{chosen.SuccedMessage.Replace("{}", coins.ToString())}")
                     .WithColor(ModuleInfo.Color)));
             }
+
+            ExecutionRewards = true;
         }
     }
 }

@@ -15,6 +15,7 @@
   "MonthlyMax": 2500,
 
   "XPMultiplier": 5,
+  "LevelConstant": 0.25,
   "CoinMultiplier": 10,
 
   "Memes": [ "Classic", "Repost", "Wholesome", "Social Media", "Series", "Niche", "Obscurity", "Dark", "Slapstick Humour", "Fanbase", "Education" ]

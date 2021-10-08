@@ -7,6 +7,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 
@@ -37,6 +38,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             numberOfCells = Math.Clamp(_numberOfCells, 5, 8);
             board = new int[numberOfCells, numberOfCells];
 
+            OnGameOver = new SimpleBotEvent();
             SetUp();
         }
 
@@ -87,6 +89,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         protected async override void PlayGame()
         {
+            var printAtEnd = true;
+
             try
             {
                 while (!GameOver)
@@ -119,7 +123,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if (draw)
                     {
-                        await SendMessage($"The match between {Players[0].member.Username} and {Players[1].member.Username} ends in a draw").ConfigureAwait(false);
+                        await SendMessage($"The match between {Players[0].member.Username} and {Players[1].member.Username} ends in a draw", await GetBoard()).ConfigureAwait(false);
+                        printAtEnd = false;
 
                         GameOver = true;
                         continue;
@@ -135,9 +140,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             }
             finally
             {
-                await PrintBoard();
-                await GameMessage.ClearComponents();
+                if(printAtEnd)
+                    await PrintBoard();
 
+                await GameMessage.ClearComponents();
                 OnGameOver.Invoke();
             }
         }

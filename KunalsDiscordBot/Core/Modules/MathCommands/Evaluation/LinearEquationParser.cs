@@ -2,16 +2,26 @@
 using System.Linq;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Core.Modules.MathCommands.Exceptions;
+
 namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
 {
     public static class LinearEquationLexer
     {
+        public static Token Plus = new Token("+", TokenType.Addition, null);
+        public static Token Minus = new Token("-", TokenType.Subtraction, null);
+        public static Token Star = new Token("*", TokenType.Multiplication, null);
+        public static Token Slash = new Token("/", TokenType.Division, null);
+
+        public static Token One = new Token("1", TokenType.Constant, null);
+        public static Token Zero = new Token("0", TokenType.Constant, null);
+
         public static char GetVariable(string equation)
         {
             var characters = equation.Where(x => char.IsLetter(x)).Distinct().ToList();
 
             if (!characters.Any() || characters.Count > 1)
-                throw new InvalidOperationException();
+                throw new EvaluationException("A maximum and minimum of one character is needed for an equation");
 
             return characters[0];
         }
@@ -37,13 +47,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += '+';
                             break;
                         }
+
+                        if ((expected & TokenType.Addition) != TokenType.Addition)
+                            throw new InvalidCharacterException('+', expected);
+
                         if (current != null)
                         {
                             tokens.Add(current);
                             current = null;
                         }
 
-                        tokens.Add(new Token("+", TokenType.Addition, null));
+                        tokens.Add(Plus);
                         expected = TokenType.NonOperator;
                         break;
                     case '-':
@@ -52,13 +66,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += '-';
                             break;
                         }
+
+                        if ((expected & TokenType.Subtraction) != TokenType.Subtraction)
+                            throw new InvalidCharacterException('-', expected);
+
                         if (current != null)
                         {
                             tokens.Add(current);
                             current = null;
                         }
 
-                        tokens.Add(new Token("-", TokenType.Subtraction, null));
+                        tokens.Add(Minus);
                         expected = TokenType.NonOperator;
                         break;
                     case '/':
@@ -67,13 +85,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += '/';
                             break;
                         }
+
+                        if ((expected & TokenType.Division) != TokenType.Division)
+                            throw new InvalidCharacterException('/', expected);
+
                         if (current != null)
                         {
                             tokens.Add(current);
                             current = null;
                         }
 
-                        tokens.Add(new Token("/", TokenType.Division, null));
+                        tokens.Add(Slash);
                         expected = TokenType.NonOperator;
                         break;
                     case '*':
@@ -82,13 +104,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += '*';
                             break;
                         }
+
+                        if ((expected & TokenType.Multiplication) != TokenType.Multiplication)
+                            throw new InvalidCharacterException('*', expected);
+
                         if (current != null)
                         {
                             tokens.Add(current);
                             current = null;
                         }
 
-                        tokens.Add(new Token("*", TokenType.Multiplication, null));
+                        tokens.Add(Star);
                         expected = TokenType.NonOperator;
                         break;
                     case var x when x == variable:
@@ -97,6 +123,10 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += x;
                             break;
                         }
+
+                        if ((expected & TokenType.Variable) != TokenType.Variable)
+                            throw new InvalidCharacterException('x', expected);
+
                         var newToken = new Token(variable.ToString(), TokenType.Variable, null);
 
                         if (current == null)
@@ -105,6 +135,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             current.AddToValue(x);
                         else
                             current.SubTokens.Add(newToken);
+
+                        expected = TokenType.Operator | TokenType.Brackets;
                         break;
                     case var x when char.IsNumber(x):
                         if (complexFound)
@@ -112,12 +144,18 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             complex += x;
                             break;
                         }
+
+                        if ((expected & TokenType.Constant) != TokenType.Constant)
+                            throw new InvalidCharacterException('x', expected);
+
                         newToken = new Token(x.ToString(), TokenType.Constant, new List<Token>());
 
                         if (current == null)
                             current = newToken;
                         else if (current.Type == TokenType.Constant)
                             current.AddToValue(x);
+
+                        expected = TokenType.Any;
                         break;
                     case '.':
                         if (complexFound)
@@ -126,9 +164,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             break;
                         }
 
+                        if ((expected & TokenType.Constant) != TokenType.Constant)
+                            throw new InvalidCharacterException('.', expected);
+
                         current.AddToValue('.');
+
+                        expected = TokenType.Constant | TokenType.Variable;
                         break;
                     case '(':
+                        if (!complexFound && (expected & TokenType.Brackets) != TokenType.Brackets)
+                            throw new InvalidCharacterException('(', expected);
+
                         if (complexFound)
                         {
                             nested++;
@@ -143,8 +189,12 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             }
                         }
 
+                        expected = TokenType.NonOperator;
                         break;
                     case ')':
+                        if (!complexFound && (expected & TokenType.Brackets) != TokenType.Brackets)
+                            throw new InvalidCharacterException(')', expected);
+
                         if (complexFound)
                             nested--;
 
@@ -162,7 +212,11 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                         }
                         else
                             complex += ')';
+
+                        expected = TokenType.Operator;
                         break;
+                    default:
+                        throw new InvalidCharacterException(character, expected);
                 }
             }
 

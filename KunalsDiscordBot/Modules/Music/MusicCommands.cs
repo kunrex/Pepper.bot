@@ -59,7 +59,6 @@ namespace KunalsDiscordBot.Modules.Music
                 }
             }
 
-            Console.WriteLine("hii");
             var botVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is BotVCNeededAttribute) != null;
             var playerChannel = await service.GetPlayerChannel(ctx.Guild.Id);
             if (botVCCheck && playerChannel == null)
@@ -68,7 +67,6 @@ namespace KunalsDiscordBot.Modules.Music
                 throw new CustomCommandException();
             }
 
-            Console.WriteLine("hii");
             var userVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is UserVCNeededAttribute) != null;
             if(userVCCheck)
             {

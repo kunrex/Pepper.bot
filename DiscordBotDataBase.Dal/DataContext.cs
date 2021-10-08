@@ -29,10 +29,10 @@ namespace DiscordBotDataBase.Dal
 
         public DbSet<Rule> ServerRules { get; set; }
 
-        public DbSet<Infraction> ModInfractions { get; set; }
-        public DbSet<Endorsement> ModEndorsements { get; set; }
-        public DbSet<Ban> ModBans { get; set; }
-        public DbSet<Kick> ModKicks { get; set; }
-        public DbSet<Mute> ModMutes { get; set; }
+        public DbSet<Infraction> ModerationInfractions { get; set; }
+        public DbSet<Endorsement> ModerationEndorsements { get; set; }
+        public DbSet<Ban> ModerationBans { get; set; }
+        public DbSet<Kick> ModerationKicks { get; set; }
+        public DbSet<Mute> ModerationMutes { get; set; }
     }
 }

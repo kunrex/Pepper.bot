@@ -85,6 +85,7 @@
     <Folder Include="Core\Modules\CurrencyCommands\Models\Boosts\Interfaces\" />
     <Folder Include="Core\Modules\CurrencyCommands\Models\Jobs\" />
     <Folder Include="Core\Modules\MathCommands\Evaluation\" />
+    <Folder Include="Core\Modules\MathCommands\Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -156,6 +157,7 @@
     <None Remove="Core\Modules\CurrencyCommands\Models\Boosts\Interfaces\" />
     <None Remove="Core\Modules\CurrencyCommands\Models\Jobs\" />
     <None Remove="Core\Modules\MathCommands\Parser\" />
+    <None Remove="Core\Modules\MathCommands\Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

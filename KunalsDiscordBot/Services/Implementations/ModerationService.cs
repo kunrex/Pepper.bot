@@ -86,13 +86,13 @@ namespace KunalsDiscordBot.Services.Moderation
 
         public async Task<bool> ClearEndorsements(ulong id, ulong guildId)
         {
-            var endorsements = context.ModEndorsements.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList();
+            var endorsements = context.ModerationEndorsements.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList();
             if (endorsements.Count == 0)
                 return false;
 
             foreach (var endorse in endorsements)
             {
-                var updateEntry = context.ModEndorsements.Remove(endorse);
+                var updateEntry = context.ModerationEndorsements.Remove(endorse);
                 await context.SaveChangesAsync();
 
                 updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
@@ -103,13 +103,13 @@ namespace KunalsDiscordBot.Services.Moderation
 
         public async Task<bool> ClearInfractions(ulong id, ulong guildId)
         {
-            var infractions = context.ModInfractions.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList();
+            var infractions = context.ModerationInfractions.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList();
             if (infractions.Count == 0)
                 return false;
 
             foreach (var infraction in infractions)
             {
-                var updateEntry = context.ModInfractions.Remove(infraction);
+                var updateEntry = context.ModerationInfractions.Remove(infraction);
                 await context.SaveChangesAsync();
 
                 updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
@@ -118,31 +118,31 @@ namespace KunalsDiscordBot.Services.Moderation
             return true;
         }
 
-        public Task<Ban> GetBan(int banID) => Task.FromResult(context.ModBans.FirstOrDefault(x => x.Id == banID));
+        public Task<Ban> GetBan(int banID) => Task.FromResult(context.ModerationBans.FirstOrDefault(x => x.Id == banID));
 
-        public Task<List<Ban>> GetBans(ulong id, ulong guildId) => Task.FromResult(context.ModBans.AsQueryable().Where(x => x.ModerationDataId == (long)id).Where(x => x.UserId == (long)guildId).ToList());
+        public Task<List<Ban>> GetBans(ulong id, ulong guildId) => Task.FromResult(context.ModerationBans.AsQueryable().Where(x => x.ModerationDataId == (long)id).Where(x => x.UserId == (long)guildId).ToList());
 
-        public Task<Endorsement> GetEndorsement(int endorsementID) => Task.FromResult(context.ModEndorsements.FirstOrDefault(x => x.Id == endorsementID));
+        public Task<Endorsement> GetEndorsement(int endorsementID) => Task.FromResult(context.ModerationEndorsements.FirstOrDefault(x => x.Id == endorsementID));
 
-        public Task<List<Endorsement>> GetEndorsements(ulong id, ulong guildId) => Task.FromResult(context.ModEndorsements.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
+        public Task<List<Endorsement>> GetEndorsements(ulong id, ulong guildId) => Task.FromResult(context.ModerationEndorsements.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
 
-        public Task<Infraction> GetInfraction(int infractionID) => Task.FromResult(context.ModInfractions.FirstOrDefault(x => x.Id == infractionID));
+        public Task<Infraction> GetInfraction(int infractionID) => Task.FromResult(context.ModerationInfractions.FirstOrDefault(x => x.Id == infractionID));
 
-        public Task<List<Infraction>> GetInfractions(ulong id, ulong guildId) => Task.FromResult(context.ModInfractions.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
+        public Task<List<Infraction>> GetInfractions(ulong id, ulong guildId) => Task.FromResult(context.ModerationInfractions.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
 
-        public Task<Kick> GetKick(int kickID) => Task.FromResult(context.ModKicks.FirstOrDefault(x => x.Id == kickID));
+        public Task<Kick> GetKick(int kickID) => Task.FromResult(context.ModerationKicks.FirstOrDefault(x => x.Id == kickID));
 
-        public Task<List<Kick>> GetKicks(ulong id, ulong guildId) => Task.FromResult(context.ModKicks.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
+        public Task<List<Kick>> GetKicks(ulong id, ulong guildId) => Task.FromResult(context.ModerationKicks.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
 
-        public Task<Mute> GetMute(int muteId) => Task.FromResult(context.ModMutes.FirstOrDefault(x => x.Id == muteId));
+        public Task<Mute> GetMute(int muteId) => Task.FromResult(context.ModerationMutes.FirstOrDefault(x => x.Id == muteId));
 
-        public Task<List<Mute>> GetMutes(ulong id, ulong guildId) => Task.FromResult(context.ModMutes.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
+        public Task<List<Mute>> GetMutes(ulong id, ulong guildId) => Task.FromResult(context.ModerationMutes.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).Where(x => x.UserId == (long)id).ToList());
 
-        public Task<List<Mute>> GetMutes(ulong guildId) => Task.FromResult(context.ModMutes.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).ToList());
+        public Task<List<Mute>> GetMutes(ulong guildId) => Task.FromResult(context.ModerationMutes.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).ToList());
 
         public async Task<bool> ClearAllServerModerationData(ulong serverId)
         {
-            foreach (var ban in context.ModBans.Where(x => x.GuildID == (long)serverId).ToList())
+            foreach (var ban in context.ModerationBans.Where(x => x.GuildID == (long)serverId).ToList())
             {
                 var entry = context.Remove(ban);
                 await context.SaveChangesAsync();
@@ -150,7 +150,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             }
 
-            foreach (var infraction in context.ModInfractions.Where(x => x.GuildID == (long)serverId).ToList())
+            foreach (var infraction in context.ModerationInfractions.Where(x => x.GuildID == (long)serverId).ToList())
             {
                 var entry = context.Remove(infraction);
                 await context.SaveChangesAsync();
@@ -158,7 +158,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             }
 
-            foreach (var mute in context.ModMutes.Where(x => x.GuildID == (long)serverId).ToList())
+            foreach (var mute in context.ModerationMutes.Where(x => x.GuildID == (long)serverId).ToList())
             {
                 var entry = context.Remove(mute);
                 await context.SaveChangesAsync();
@@ -166,7 +166,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             }
 
-            foreach (var endorse in context.ModEndorsements.Where(x => x.GuildID == (long)serverId).ToList())
+            foreach (var endorse in context.ModerationEndorsements.Where(x => x.GuildID == (long)serverId).ToList())
             {
                 var entry = context.Remove(endorse);
                 await context.SaveChangesAsync();
@@ -174,7 +174,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
             }
 
-            foreach (var kick in context.ModKicks.Where(x => x.GuildID == (long)serverId).ToList())
+            foreach (var kick in context.ModerationKicks.Where(x => x.GuildID == (long)serverId).ToList())
             {
                 var entry = context.Remove(kick);
                 await context.SaveChangesAsync();

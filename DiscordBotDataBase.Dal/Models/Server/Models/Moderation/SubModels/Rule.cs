@@ -5,9 +5,9 @@ namespace DiscordBotDataBase.Dal.Models.Servers.Models.Moderation
 {
     public class Rule : Entity<int>
     {
-        [ForeignKey("ModerationDataId")]
-        public int ModerationDataId { get; set; }
-
         public string RuleContent { get; set; }
+
+        [ForeignKey("ModerationDataId")]
+        public long ModerationDataId { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players;
 using KunalsDiscordBot.Core.Modules.GameCommands.Communicators;
 using KunalsDiscordBot.Core.Modules.GameCommands.Players.Spectators;
@@ -36,6 +37,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             Players = _players.Select(x => new BattleShipPlayer(x)).ToList();
             Client = _client;
 
+            OnGameOver = new SimpleBotEvent();
             SetUp();
         }
 

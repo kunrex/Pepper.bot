@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             boundChannel = _boundChannel;
 
-            return $"Joined <#{_channel.Id}> and bound to <#{_boundChannel.Id}> \nUse the `play` command to play some music";
+            return $"Joined <#{_channel.Id}> and bound to <#{_boundChannel.Id}> \nUse the `music play` command to play some music";
         }
 
         public async Task<string> Disconnect()

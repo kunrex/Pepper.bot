@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
-{ 
+{
     public class OperationTask : IEvaluable
     {
         public IEvaluable RHS, LHS;
@@ -37,4 +37,3 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         }
     }
 }
-
