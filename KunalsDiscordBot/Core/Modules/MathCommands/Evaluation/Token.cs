@@ -323,6 +323,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 }
                 else
                 {
+                    if (simple == a)
+                        return new Token("1", TokenType.Constant, new List<Token>() { a, LinearEquationLexer.Slash, b });
+
                     var tokens = new List<Token>();
 
                     foreach (var token in complex.subTokens)
@@ -333,7 +336,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                             continue;
                         }
 
-                        tokens.Add(complex == a ? token / simple : simple / token);
+                        tokens.Add(token / simple);
                     }
 
                     return tokens.Count == 1 ? tokens[0] : new Token("()", TokenType.Brackets, tokens);

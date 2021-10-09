@@ -54,8 +54,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 SegregateAndFlip(RHS, TokenType.Variable, out var numbers, out var toAddVariables, out var lhsM);
                 SegregateAndFlip(LHS, TokenType.Constant, out var toAddNumbers, out var variables, out var rhsM);
 
-                Token simplifiedLHS = new Token("1", TokenType.Constant, variables),
-                    simplifiedRHS = new Token("1", TokenType.Constant, numbers);
+                Token simplifiedLHS = new Token("1", TokenType.Constant, variables).Simplyfy(Variable),
+                    simplifiedRHS = new Token("1", TokenType.Constant, numbers).Simplyfy(Variable);
 
                 simplifiedRHS *= rhsM;
                 simplifiedLHS *= lhsM;
