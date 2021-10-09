@@ -23,6 +23,7 @@ using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.MusicCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using DiscordBotDataBase.Dal.Models.Servers.Models;
 
 namespace KunalsDiscordBot.Modules.Music
 {
@@ -121,7 +122,7 @@ namespace KunalsDiscordBot.Modules.Music
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.DJEnfore)]
         public async Task ToggeDJ(CommandContext ctx, bool toChange)
         {
-            await serverService.ToggleDJOnly(ctx.Guild.Id, toChange).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetMusicData(ctx.Guild.Id), x => x.UseDJRoleEnforcement = toChange ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -143,7 +144,7 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await serverService.SetDJRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetMusicData(ctx.Guild.Id), x => x.DJRoleId = (long)role.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

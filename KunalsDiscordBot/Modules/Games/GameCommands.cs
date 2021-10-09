@@ -89,7 +89,7 @@ namespace KunalsDiscordBot.Modules.Games
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.Connect4Channel)]
         public async Task Connect4Channel(CommandContext ctx, DiscordChannel channel)
         {
-            await serverService.SetConnect4Channel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetGameData(ctx.Guild.Id), x => x.Connect4Channel = (long)channel.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -104,7 +104,7 @@ namespace KunalsDiscordBot.Modules.Games
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.TicTacToeChannel)]
         public async Task TicTacToeChannel(CommandContext ctx, DiscordChannel channel)
         {
-            await serverService.SetTicTacToeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetGameData(ctx.Guild.Id), x => x.TicTacToeChannel = (long)channel.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

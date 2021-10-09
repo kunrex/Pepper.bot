@@ -9,13 +9,14 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
     [Flags]
     public enum TokenType
     {
-        Addition = 0,
-        Subtraction = 1,
-        Multiplication = 2,
-        Division = 4,
-        Variable = 8,
-        Constant = 16,
-        Brackets = 32,
+        None = 0,
+        Addition = 1,
+        Subtraction = 2,
+        Multiplication = 4,
+        Division = 8,
+        Variable = 16,
+        Constant = 32,
+        Brackets = 64,
         Operator = Addition | Subtraction | Multiplication | Division,
         PrimaryOperator = Multiplication | Division,
         SecondaryOperator = Addition | Subtraction,

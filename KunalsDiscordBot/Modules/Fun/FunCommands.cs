@@ -101,13 +101,13 @@ namespace KunalsDiscordBot.Modules.Fun
             await base.BeforeExecutionAsync(ctx);
         }
 
-        [Command("ToggleNSFW")]
+        [Command("AllowNSFW")]
         [Aliases("NSFW")]
         [Description("Changes wether or not NSFW content is allowed in the server")]
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowNSFW)]
         public async Task ToggleNSFW(CommandContext ctx, bool toChange)
         {
-            await serverService.ToggleNSFW(ctx.Guild.Id, toChange).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetFunData(ctx.Guild.Id), x => x.AllowNSFW = toChange ? 1 : 0 ).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -122,7 +122,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowSpamCommand)]
         public async Task AllowSpam(CommandContext ctx, bool toSet)
         {
-            await serverService.ToggleSpamCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetFunData(ctx.Guild.Id), x => x.AllowSpamCommand = toSet ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -137,7 +137,7 @@ namespace KunalsDiscordBot.Modules.Fun
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowGhostCommand)]
         public async Task AllowGhost(CommandContext ctx, bool toSet)
         {
-            await serverService.ToggleGhostCommand(ctx.Guild.Id, toSet).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetFunData(ctx.Guild.Id), x => x.AllowGhostCommand = toSet ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

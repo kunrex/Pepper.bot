@@ -220,7 +220,7 @@ namespace KunalsDiscordBot.Modules.General
         [ConfigData(ConfigValue.EnforcePermissions)]
         public async Task ToggleAdminPermission(CommandContext ctx, bool toChange)
         {
-            await serverService.TogglePermissions(ctx.Guild.Id, toChange).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetServerProfile(ctx.Guild.Id), x => x.RestrictPermissionsToAdmin = toChange ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -235,7 +235,7 @@ namespace KunalsDiscordBot.Modules.General
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.LogErrors)]
         public async Task LogErrors(CommandContext ctx, bool toSet)
         {
-            await serverService.ToggleLogErrors(ctx.Guild.Id, toSet).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetServerProfile(ctx.Guild.Id), x => x.LogErrors = toSet ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -250,7 +250,7 @@ namespace KunalsDiscordBot.Modules.General
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.LogMembers)]
         public async Task LogNewMembers(CommandContext ctx, bool toSet)
         {
-            await serverService.ToggleNewMemberLog(ctx.Guild.Id, toSet).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetServerProfile(ctx.Guild.Id), x => x.LogNewMembers = toSet ? 1 : 0).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -265,7 +265,7 @@ namespace KunalsDiscordBot.Modules.General
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.WelcomeChannel)]
         public async Task WelcomeChannel(CommandContext ctx, DiscordChannel channel)
         {
-            await serverService.SetWelcomeChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetServerProfile(ctx.Guild.Id), x => x.WelcomeChannel = (long)channel.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -280,7 +280,7 @@ namespace KunalsDiscordBot.Modules.General
         [CheckConfigigurationPermissions, ConfigData(ConfigValue.RuleChannel)]
         public async Task RuleChannel(CommandContext ctx, DiscordChannel channel)
         {
-            await serverService.SetRuleChannel(ctx.Guild.Id, channel.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetServerProfile(ctx.Guild.Id), x => x.RulesChannelId = (long)channel.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

@@ -25,5 +25,8 @@ namespace KunalsDiscordBot.Services.Currency
         public Task<List<Boost>> GetBoosts(ulong id);
         public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity);
         public Task<bool> AddOrRemoveBoost(Profile profile, string name, int value, TimeSpan time, string startTime, int quantity);
+
+        public Task<bool> KillProfile(ulong id);
+        public Task<bool> KillProfile(Profile profile);
     }
 }

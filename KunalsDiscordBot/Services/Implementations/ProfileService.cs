@@ -12,23 +12,11 @@ using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts;
 
 namespace KunalsDiscordBot.Services.Currency
 {
-    public class ProfileService : BotService, IProfileService
+    public class ProfileService : DatabaseService, IProfileService
     {
-        private readonly DataContext context;
-
-        public ProfileService(DataContext _context)
+        public ProfileService(DataContext _context) : base(_context)
         {
-            context = _context;
-        }
-
-
-        private async Task<bool> RemoveEntity<T>(T entityToRemove)
-        {
-            var removeEntry = context.Remove(entityToRemove);
-            await context.SaveChangesAsync();
-
-            removeEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
+            
         }
 
         public async Task<Profile> GetProfile(ulong id, string name, bool defaultCreate = false)
@@ -68,24 +56,7 @@ namespace KunalsDiscordBot.Services.Currency
             return profile;
         }
 
-        private async Task<bool> UpdateEntity<T>(T entityToUpdate)
-        {
-            if (entityToUpdate == null)
-                return false;
-
-            var updateEntry = context.Update(entityToUpdate);
-
-            await context.SaveChangesAsync();
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            return true;
-        }
-
-        public async Task<bool> ModifyProfile(Profile profileToModify, Action<Profile> modification)
-        {
-            modification.Invoke(profileToModify);
-
-            return await UpdateEntity(profileToModify);
-        }
+        public async Task<bool> ModifyProfile(Profile profileToModify, Action<Profile> modification) => await ModifyEntity(profileToModify, modification);
 
         public async Task<bool> ModifyProfile(ulong id, Action<Profile> modification)
         {
@@ -194,6 +165,31 @@ namespace KunalsDiscordBot.Services.Currency
             profile.Boosts.Add(boost);
 
             return await UpdateEntity(profile);
+        }
+
+        public async Task<bool> KillProfile(ulong id)
+        {
+            var profile = await GetProfile(id, "", false);
+
+            return await KillProfile(profile);
+        }
+
+        public async Task<bool> KillProfile(Profile profile)
+        {
+            var casted = (ulong)profile.Id;
+            var boosts = await GetBoosts(casted);
+
+            if (boosts.FirstOrDefault(x => x is InvincibilityBoost) != null)
+                return false;
+            
+            await ModifyProfile(profile, async(x) =>
+            {
+                x.Coins = 0;
+                foreach (var boost in boosts)
+                    await AddOrRemoveBoost(casted, boost.Name, 0, TimeSpan.FromSeconds(0), "", -1);
+            });
+
+            return true;
         }
     }
 }

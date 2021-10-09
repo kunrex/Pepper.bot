@@ -8,79 +8,52 @@ using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
 
 namespace KunalsDiscordBot.Services.Moderation
 {
-    public class ModerationService : IModerationService
+    public class ModerationService : DatabaseService, IModerationService
     {
-        private readonly DataContext context;
-
-        public ModerationService(DataContext _context) => context = _context;
+        public ModerationService(DataContext _context) : base(_context) { }
 
         public async Task<int> AddBan(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-
             var ban = new Ban { Reason = reason, Time = time , ModeratorID = (long)moderatorID, UserId = (long)id };
-            profile.Bans.Add(ban);
 
-            var update = context.Update(profile);
-            await context.SaveChangesAsync();
-
-            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await ModifyEntity(profile, x => x.Bans.Add(ban));
             return ban.Id;
         }
 
         public async Task<int> AddEndorsement(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-
             var endorsement = new Endorsement { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
-            profile.Endorsements.Add(endorsement);
 
-            var update = context.Update(profile);
-            await context.SaveChangesAsync();
-
-            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await ModifyEntity(profile, x => x.Endorsements.Add(endorsement));
             return endorsement.Id;
         }
 
         public async Task<int> AddInfraction(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-
             var infraction = new Infraction { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
-            profile.Infractions.Add(infraction);
 
-            var update = context.Update(profile);
-            await context.SaveChangesAsync();
-
-            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await ModifyEntity(profile, x => x.Infractions.Add(infraction));
             return infraction.Id;
         }
 
         public async Task<int> AddKick(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-
             var kick = new Kick { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
-            profile.Kicks.Add(kick);
 
-            var update = context.Update(profile);
-            await context.SaveChangesAsync();
-
-            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await ModifyEntity(profile, x => x.Kicks.Add(kick));
             return kick.Id;
         }
 
         public async Task<int> AddMute(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-
             var mute = new Mute { Reason = reason, Time = time, StartTime = DateTime.Now.ToString("dddd, dd MMMM yyyy"), ModeratorID = (long)moderatorID, UserId = (long)id };
-            profile.Mutes.Add(mute);
 
-            var update = context.Update(profile);
-            await context.SaveChangesAsync();
-
-            update.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await ModifyEntity(profile, x => x.Mutes.Add(mute));
             return mute.Id;
         }
 
@@ -91,12 +64,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 return false;
 
             foreach (var endorse in endorsements)
-            {
-                var updateEntry = context.ModerationEndorsements.Remove(endorse);
-                await context.SaveChangesAsync();
-
-                updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(endorse);
 
             return true;
         }
@@ -108,12 +76,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 return false;
 
             foreach (var infraction in infractions)
-            {
-                var updateEntry = context.ModerationInfractions.Remove(infraction);
-                await context.SaveChangesAsync();
-
-                updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(infraction);
 
             return true;
         }
@@ -143,44 +106,19 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<bool> ClearAllServerModerationData(ulong serverId)
         {
             foreach (var ban in context.ModerationBans.Where(x => x.GuildID == (long)serverId).ToList())
-            {
-                var entry = context.Remove(ban);
-                await context.SaveChangesAsync();
-
-                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(ban);
 
             foreach (var infraction in context.ModerationInfractions.Where(x => x.GuildID == (long)serverId).ToList())
-            {
-                var entry = context.Remove(infraction);
-                await context.SaveChangesAsync();
-
-                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(infraction);
 
             foreach (var mute in context.ModerationMutes.Where(x => x.GuildID == (long)serverId).ToList())
-            {
-                var entry = context.Remove(mute);
-                await context.SaveChangesAsync();
-
-                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(mute);
 
             foreach (var endorse in context.ModerationEndorsements.Where(x => x.GuildID == (long)serverId).ToList())
-            {
-                var entry = context.Remove(endorse);
-                await context.SaveChangesAsync();
-
-                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(endorse);
 
             foreach (var kick in context.ModerationKicks.Where(x => x.GuildID == (long)serverId).ToList())
-            {
-                var entry = context.Remove(kick);
-                await context.SaveChangesAsync();
-
-                entry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-            }
+                await RemoveEntity(kick);
 
             return true;
         }

@@ -51,16 +51,9 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Boosts
 
             if (failed)
             {
-                var casted = (ulong)robberProfile.Id;
+                await profileService.KillProfile(robberProfile);
 
-                await profileService.ModifyProfile(robberProfile, async (x) =>
-                {
-                    x.Coins = 0;
-                    foreach (var boost in await profileService.GetBoosts(casted))
-                        await profileService.AddOrRemoveBoost(casted, boost.Name, 0, TimeSpan.FromSeconds(0), "", -1);
-                });
-
-                message = $"Well you tried to rob someone, who was smart enough to place a landmin down. Long story short, ya died";
+                message = $"Well you tried to rob someone who was smart enough to place a landmin down. Long story short, ya died";
             }
 
             await profileService.AddOrRemoveBoost(userProfile, Name, 0, TimeSpan.FromSeconds(0), "", -1);

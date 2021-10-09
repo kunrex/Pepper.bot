@@ -27,7 +27,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         public Task<string> Solve()
         {
             if (!equation.Contains('='))
-                throw new EvaluationException("no equal to sign detected");
+                throw new EvaluationException("No `=` detected");
 
             var sides = equation.Split('=');
 
@@ -35,7 +35,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             LHS = LinearEquationLexer.GetTokens(sides[0], Variable);
 
             Simplify();
-            return Task.FromResult($"{Variable} is {Transfer()}");
+            return Task.FromResult($"{Variable} is {TransferAndSolve()}");
         }
 
         private void Simplify()
@@ -47,7 +47,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             LHS = lhs.GetDeepestSubTokens();
         }
 
-        private float Transfer()
+        private float TransferAndSolve()
         {
             while (RHS.Count > 1 || LHS.Count > 1)
             {

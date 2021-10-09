@@ -86,7 +86,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.ModRole)]
         public async Task SetModRole(CommandContext ctx, DiscordRole role)
         {
-            await serverService.SetModeratorRole(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetModerationData(ctx.Guild.Id), x => x.ModeratorRoleId = (long)role.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -112,7 +112,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            await serverService.SetMuteRoleId(ctx.Guild.Id, role.Id).ConfigureAwait(false);
+            await serverService.ModifyData(await serverService.GetModerationData(ctx.Guild.Id), x => x.MutedRoleId = (long)role.Id).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

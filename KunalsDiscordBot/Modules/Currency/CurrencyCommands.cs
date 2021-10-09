@@ -1058,17 +1058,16 @@ namespace KunalsDiscordBot.Modules.Currency
             var rng = new Random();
 
             var chosen = first3.First(x => result.Result == x.Name);
-            var die = rng.Next(0, 100) > 95;
-            var profile = await service.GetProfile(ctx.Guild.Id, "");
+
+            var luckBoost = (await service.GetBoosts(ctx.Member.Id)).FirstOrDefault(x => x is LuckBoost);
+            var luck = luckBoost == null ? 0 : luckBoost.PercentageIncrease;
+            var die = (rng.Next(0, 100) + luck) > 85;
+
+            var profile = await service.GetProfile(ctx.Member.Id, "");
 
             if(die)
             {
-                await service.ModifyProfile(profile, async(x) =>
-                {
-                    x.Coins = 0;
-                    foreach (var boost in await service.GetBoosts(ctx.Member.Id))
-                        await service.AddOrRemoveBoost(ctx.Member.Id, boost.Name, 0, TimeSpan.FromSeconds(0), "", -1);
-                });
+                await service.KillProfile(profile);
 
                 await result.Message.ModifyAsync(new DiscordMessageBuilder()
                     .AddEmbed(new DiscordEmbedBuilder()
