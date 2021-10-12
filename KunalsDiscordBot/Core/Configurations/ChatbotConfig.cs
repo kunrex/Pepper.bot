@@ -8,5 +8,7 @@ namespace KunalsDiscordBot.Core.Configurations
 
         public string GoogleCreedentialsVariable { get; set; }
         public string GoogleCredentialsPath { get; set; }
+
+        public int TimeOutime { get; set; }
     }
 }

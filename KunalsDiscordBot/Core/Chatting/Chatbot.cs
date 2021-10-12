@@ -12,23 +12,22 @@ namespace KunalsDiscordBot.Core.Chatting
 {
     public sealed class Chatbot
     {
-        public string ProjectId { get; private set; }
+        public ChatbotConfig Config { get; private set; }
 
         public Chatbot(PepperConfigurationManager configManager)
         {
-            var chatbotConfig = configManager.BotConfig.ChatbotConfig;
+            Config = configManager.BotConfig.ChatbotConfig;
 
-            Environment.SetEnvironmentVariable(chatbotConfig.GoogleCreedentialsVariable, chatbotConfig.GoogleCredentialsPath);
-            ProjectId = chatbotConfig.ProjectId;
+            Environment.SetEnvironmentVariable(Config.GoogleCreedentialsVariable, Config.GoogleCredentialsPath);
         }
 
         public async Task<string> GetRepsonse(string sentence)
         {
-            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(Config.TimeOutime));
             var client = await SessionsClient.CreateAsync(cancellationTokenSource.Token);
 
             var dialogFlow = client.DetectIntent(
-                new SessionName("pepper-tqfv", "123456789"),
+                new SessionName(Config.ProjectId, "123456789"),
                 new QueryInput
                 {
                     Text = new TextInput
@@ -42,7 +41,8 @@ namespace KunalsDiscordBot.Core.Chatting
             if (cancellationTokenSource.IsCancellationRequested)
                 return "Time out";
 
-            return dialogFlow.QueryResult.FulfillmentText;
+            var messages = dialogFlow.QueryResult.FulfillmentMessages;
+            return messages[new Random().Next(0, messages.Count)].Text.Text_[0];
         }
     }
 }
