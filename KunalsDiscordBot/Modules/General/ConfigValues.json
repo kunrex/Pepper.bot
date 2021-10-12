@@ -88,6 +88,19 @@
         "FieldName": "TicTacToe Channel",
         "Description": "The channel in which TicTacToe matches are hosted"
       }
+    ],
+
+    "8": [
+      {
+        "ConfigData": 15,
+        "FieldName": "AI Chatting",
+        "Description": "Weather or not AI Chatting is enabled in the server"
+      },
+      {
+        "ConfigData": 16,
+        "FieldName": "AI Chatting Channel",
+        "Description": "The channel in which AI chats are conducted"
+      }
     ]
   }
 }

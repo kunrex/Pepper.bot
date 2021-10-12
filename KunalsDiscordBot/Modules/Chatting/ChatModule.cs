@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 using DSharpPlus;
@@ -8,11 +9,10 @@ using DSharpPlus.CommandsNext.Attributes;
 
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
-using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Configurations.Enums;
-using DiscordBotDataBase.Dal.Models.Servers.Models;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 
 namespace KunalsDiscordBot.Modules.Chatting
@@ -34,8 +34,25 @@ namespace KunalsDiscordBot.Modules.Chatting
             serverService = _serverService;
         }
 
+        public async override Task BeforeExecutionAsync(CommandContext ctx)
+        {
+            var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
+
+            if (configPermsCheck)
+            {
+                var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
+                {
+                    await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+        }
+
         [Command("ToggleAIChat")]
-        [Description("Enables or Disables AI chatting in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        [Description("Enables or Disables AI chatting in the server"), ConfigData(ConfigValue.AIChatEnabled)]
         public async Task AIChatChannel(CommandContext ctx, bool toSet)
         {
             await serverService.ModifyData(await serverService.GetChatData(ctx.Guild.Id), x => x.Enabled = toSet ? 1 : 0).ConfigureAwait(false);
@@ -49,7 +66,8 @@ namespace KunalsDiscordBot.Modules.Chatting
         }
 
         [Command("SetAIChatChannel")]
-        [Description("Sets the channel used for AI chatting")]
+        [CheckConfigigurationPermissions]
+        [Description("Sets the channel used for AI chatting"), ConfigData(ConfigValue.AIChatEnabled)]
         public async Task AIChatChannel(CommandContext ctx, DiscordChannel channel)
         {
             var profile = await serverService.GetChatData(ctx.Guild.Id);
@@ -57,7 +75,7 @@ namespace KunalsDiscordBot.Modules.Chatting
             {
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
-                    Description = "AI chatting must be enabled to run this command. You can do so by running the `aichat toggleaichat command",
+                    Description = "AI chatting must be enabled to run this command. You can do so by running the `aichat toggleaichat` command",
                     Color = ModuleInfo.Color
                 });
             }
