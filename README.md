@@ -24,6 +24,7 @@ Music | Commands to play music on discord. |
 Images | Image Manipulation! Make memes with pre-built and and manipulate user profiles! |
 Math | Simple math commands such as solving and graphing equations. |
 Currency | A currency system! |
+AIChat | An AI chat module for small talk and more! |
 
 Does not have seperate prefix', Im not planning on adding it anytime soon either. The bot is in developement, things I'm working on right now is
 1. The Currency System.
@@ -38,7 +39,8 @@ Does not have seperate prefix', Im not planning on adding it anytime soon either
 * <a href="https://github.com/DSharpPlus/DSharpPlus/tree/master/DSharpPlus.Lavalink" target="_blank">DSharpPlus.LavaLink</a> 
 * SQlite
 * <a href="https://github.com/sirkris/Reddit.NET" target="_blank">Reddit.NET</a>
-* <a href="https://denzven.pythonanywhere.com/" target="_blacnk">Denzven Graphing API</a>
+* <a href="https://denzven.pythonanywhere.com/" target="_blank">Denzven Graphing API</a>
+* <a href = "https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a>
 
 (I honestly don't know what goes here so I just put everything)
 
@@ -80,8 +82,11 @@ We need 2 things from here, your `client app id` (The set of characters under `p
 
 You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on the Reddit implementation.
 
+### • Setting up Dialogflow
+Pepper uses <a href = "https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a> for <a href="https://www.ibm.com/cloud/learn/natural-language-processing" target="_blank">NLP</a> used in the AI chat module. You can follow the instructions to set up Dialogflow and to create a <a href = "https://cloud.google.com/dialogflow/es/docs/agents-overview" target="_blank">`Dialogflow Agent`</a> <a href = "https://cloud.google.com/dialogflow/es/docs/quick/setup" target="_blank">here</a>. Pepper does use the API so make sure to install `Cloud SDK` as well. Keep track of the JSON file downloaded containing the KEY of your project and the project ID of your Dialogflow agent as they are used in the primary config file
+  
 ### • Creating the Primary Config File
-5. Come back to the project on your system and find the folder called `KunalsDiscordBot` and create a new json file called `Config.json` exactly. You can change this name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
+Come back to the project on your system and find the folder called `KunalsDiscordBot` and create a new json file called `Config.json` exactly. You can change this name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
 ```json
 {
   "Version": 1,
@@ -108,6 +113,13 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
     "AppSecret": "your reddit app secret here",
     "RefreshToken": "your reddit app refresh token here",
     "PostLimit": 50
+  },
+
+ "ChatbotConfig": {
+    "ProjectId": "Your Dialogflow project ID",
+    "GoogleCreedentialsVariable": "GOOGLE_APPLICATION_CREDENTIALS",
+    "GoogleCredentialsPath": "The path to your Dialogflow Key JSON",
+    "TimeOutime" : 30
   }
 }
 
@@ -116,12 +128,12 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 ### What these values are
 
 **Discord Config**
-1. `token`: The client token for your bot.
-2. `prefixes`: The default prefixes for your bot.
-3. `dms`: Are commands sent through direct messages are processed or not
-4. `timeOut`: The default timeout (in seconds) for the interactivity for your bot. The value be overriden wherever nececarry but defaults to the value here.
-5. `shardCount`: The number of shards for your bot.
-6. `activityType` : The activity type that appears for your bot in discord, this is later converted to an enum `ActivityType`. 
+1. `Token`: The client token for your bot.
+2. `Prefixes`: The default prefixes for your bot.
+3. `Dms`: Are commands sent through direct messages are processed or not
+4. `TimeOut`: The default timeout (in seconds) for the interactivity for your bot. The value be overriden wherever nececarry but defaults to the value here.
+5. `ShardCount`: The number of shards for your bot.
+6. `ActivityType` : The activity type that appears for your bot in discord, this is later converted to an enum `ActivityType`. 
     The valid values for the activity types are below
     * 0 : Playing
     * 1 : Streaming
@@ -129,19 +141,25 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
     * 3 : Watching
     * 4 : Custom
     * 5 : Competing
-7. `activityText` : The text that appears as your bots activity
-8. `errorLink` : The image that appears in the footer when an error occurs
+7. `ActivityText` : The text that appears as your bots activity
+8. `ErrorLink` : The image that appears in the footer when an error occurs
 
 **LavaLink Config**
-1. `hostname`: The name of the host used to host lava link
-2. `port` : the port number on which to host lavalink
-3. `password` : The LavaLink password, note changing the password here also requires you to change the password in the `application.yaml` file at `KunalsDiscordBot/Modules/Music`
+1. `Hostname`: The name of the host used to host lava link
+2. `Port` : the port number on which to host lavalink
+3. `Password` : The LavaLink password, note changing the password here also requires you to change the password in the `application.yaml` file at `KunalsDiscordBot/Modules/Music`
 
 **Reddit Config**
-1. `appId` : The app Id of your reddit app
-2. `appSecret` : The app secret of your reddit app
-3. `refreshToken`: The refresh token of your reddit app
-4. `postLimit` : The maximum amount of posts the bot collects from registered subreddits.
+1. `AppId` : The app Id of your reddit app
+2. `AppSecret` : The app secret of your reddit app
+3. `RefreshToken`: The refresh token of your reddit app
+4. `PostLimit` : The maximum amount of posts the bot collects from registered subreddits.
+
+**Chatbot Config**
+1. `ProjectId` : The project ID of your Dialogflow project
+2. `GoogleCreedentialsVariable` : The name of the environment variable used by Dialogflow. Make sure this is `GOOGLE_APPLICATION_CREDENTIALS` **only**.
+3. `GoogleCredentialsPath` : The path to the JSON file contianing the key of your Dialogflow project (The one you downloaded from the service account).
+4. `TimeOutime` : The maximum time after which a Dialogflow sentence request is cancelled.
 
 ### • Setting up the Database
 The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo as its used in the currency system and for general server configurations..
