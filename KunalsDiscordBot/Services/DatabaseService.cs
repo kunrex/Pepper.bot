@@ -11,6 +11,15 @@ namespace KunalsDiscordBot.Services
 
         public DatabaseService(DataContext _context) => context = _context;
 
+        protected async Task<bool> AddEntity<T>(T entityToAdd)
+        {
+            var addEntry = await context.AddAsync(entityToAdd);
+            await context.SaveChangesAsync();
+
+            addEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            return true;
+        }
+
         protected async Task<bool> RemoveEntity<T>(T entityToRemove)
         {
             var removeEntry = context.Remove(entityToRemove);

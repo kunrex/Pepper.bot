@@ -10,6 +10,7 @@ namespace KunalsDiscordBot.Core.Configurations.Enums
         Fun,
         Math,
         Games,
-        Currency
+        Currency,
+        AIChat
     }
 }

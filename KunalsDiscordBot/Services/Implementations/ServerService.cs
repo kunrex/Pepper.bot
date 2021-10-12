@@ -38,6 +38,7 @@ namespace KunalsDiscordBot.Services.General
                 FunData = new FunData { Id = cached },
                 MusicData = new MusicData { Id = cached },
                 GameData = new GameData { Id = cached },
+                ChatData = new AIChatData {  Id = cached }
             };
 
             await context.AddAsync(serverProfile);
@@ -65,6 +66,15 @@ namespace KunalsDiscordBot.Services.General
         public Task<ModerationData> GetModerationData(ulong guildId) => Task.FromResult(context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId));
 
         public Task<GameData> GetGameData(ulong guildId) => Task.FromResult(context.GameDatas.FirstOrDefault(x => x.Id == (long)guildId));
+
+        public async Task<AIChatData> GetChatData(ulong guildId)
+        {
+            var chatData = context.ChatDatas.FirstOrDefault(x => x.Id == (long)guildId);
+            if (chatData == null)
+                await AddEntity(new AIChatData { Id = (long)guildId, ServerProfileId = (long)guildId });
+
+            return context.ChatDatas.FirstOrDefault(x => x.Id == (long)guildId);
+        }
 
         public Task<Rule> GetRule(ulong guildId, int index)
         {

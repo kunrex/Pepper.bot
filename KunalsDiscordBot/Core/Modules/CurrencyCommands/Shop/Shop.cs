@@ -20,11 +20,9 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
                 return new BuyResult { completed = false, message = "The given item not found" };
 
             if(profile.Coins >= item.Price * quantity)
-            {
-                return new BuyResult { completed = true, message = $"Successfully bought {quantity} {itemName}(s) for {quantity * item.Price}", item = item};
-            }
-            else
-                return new BuyResult { completed = false, message = "You don't have enough coins to buy this item" };
+                return new BuyResult { completed = true, message = $"Successfully bought {quantity} {item.Name}(s) for {quantity * item.Price}", item = item };
+
+            return new BuyResult { completed = false, message = $"You don't have enough coins to buy {quantity}  of this item" };
         }
 
         public static Item GetItem(string itemName) => AllItems.Find(x => x.Name.ToLower().Replace(" ", "") == itemName.ToLower().Replace(" ",""));

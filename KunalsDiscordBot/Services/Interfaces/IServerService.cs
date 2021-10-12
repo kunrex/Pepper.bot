@@ -25,5 +25,6 @@ namespace KunalsDiscordBot.Services.General
         public Task<FunData> GetFunData(ulong guildId);
         public Task<ModerationData> GetModerationData(ulong guildId);
         public Task<GameData> GetGameData(ulong guildId);
+        public Task<AIChatData> GetChatData(ulong guildId);
     }
 }

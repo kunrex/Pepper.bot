@@ -10,6 +10,7 @@ using DiscordBotDataBase.Dal;
 using KunalsDiscordBot.Core.Help;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services.Fun;
+using KunalsDiscordBot.Core.Chatting;
 using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Services.Games;
 using KunalsDiscordBot.Services.Images;
@@ -38,6 +39,7 @@ namespace KunalsDiscordBot
 
             services.AddSingleton(configManager)
                 .AddSingleton(new RedditApp(configManager))
+                .AddSingleton(new Chatbot(configManager))
                 .AddSingleton<IModuleService, ModuleService>()
                 .AddScoped<IProfileService, ProfileService>()
                 .AddScoped<IModerationService, ModerationService>()

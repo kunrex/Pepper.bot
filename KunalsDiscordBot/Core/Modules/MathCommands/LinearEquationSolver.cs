@@ -3,11 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Core.Modules.MathCommands.Evaluation;
 using KunalsDiscordBot.Core.Modules.MathCommands.Exceptions;
 
-namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
+namespace KunalsDiscordBot.Core.Modules.MathCommands
 {
-    public sealed class LinearEquationSolver
+    public sealed class LinearEquationSolver : IMathEvaluator
     {
         public char Variable { get; private set; }
 
@@ -40,8 +41,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
 
         private void Simplify()
         {
-            var rhs = new Token("1", TokenType.Constant, RHS).Simplyfy(Variable);
-            var lhs = new Token("1", TokenType.Constant, LHS).Simplyfy(Variable);
+            var rhs = new Token("1", TokenType.Constant, RHS).Simplyfy();
+            var lhs = new Token("1", TokenType.Constant, LHS).Simplyfy();
 
             RHS = rhs.GetDeepestSubTokens();
             LHS = lhs.GetDeepestSubTokens();
@@ -54,8 +55,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 SegregateAndFlip(RHS, TokenType.Variable, out var numbers, out var toAddVariables, out var lhsM);
                 SegregateAndFlip(LHS, TokenType.Constant, out var toAddNumbers, out var variables, out var rhsM);
 
-                Token simplifiedLHS = new Token("1", TokenType.Constant, variables).Simplyfy(Variable),
-                    simplifiedRHS = new Token("1", TokenType.Constant, numbers).Simplyfy(Variable);
+                Token simplifiedLHS = new Token("1", TokenType.Constant, variables).Simplyfy(),
+                    simplifiedRHS = new Token("1", TokenType.Constant, numbers).Simplyfy();
 
                 simplifiedRHS *= rhsM;
                 simplifiedLHS *= lhsM;
@@ -75,8 +76,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                     variables.AddRange(toAddVariables);
                 }
 
-                var rhs = new Token("1", TokenType.Constant, numbers).Simplyfy(Variable);
-                var lhs = new Token("1", TokenType.Constant, variables).Simplyfy(Variable);
+                var rhs = new Token("1", TokenType.Constant, numbers).Simplyfy();
+                var lhs = new Token("1", TokenType.Constant, variables).Simplyfy();
 
                 RHS = rhs.GetDeepestSubTokens();
                 LHS = lhs.GetDeepestSubTokens();

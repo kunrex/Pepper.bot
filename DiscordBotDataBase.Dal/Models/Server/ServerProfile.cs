@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
 using DiscordBotDataBase.Dal.Models.Servers.Models;
 
 namespace DiscordBotDataBase.Dal.Models.Servers
@@ -18,5 +19,6 @@ namespace DiscordBotDataBase.Dal.Models.Servers
         public FunData FunData { get; set; }
         public MusicData MusicData { get; set; }
         public GameData GameData { get; set; }
+        public AIChatData ChatData { get; set; }
     }
 }

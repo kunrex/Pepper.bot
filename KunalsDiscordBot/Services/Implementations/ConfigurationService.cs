@@ -44,6 +44,8 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.AllowGhostCommand, async(id) => (await serverService.GetFunData(id)).AllowGhostCommand == 1},
                  { ConfigValue.Connect4Channel, async(id) => (ulong)(await serverService.GetGameData(id)).Connect4Channel},
                  { ConfigValue.TicTacToeChannel, async(id) => (ulong)(await serverService.GetGameData(id)).TicTacToeChannel},
+                 { ConfigValue.AIChatEnabled, async(id) => (ulong)(await serverService.GetChatData(id)).Enabled == 1},
+                 { ConfigValue.AIChatChannel, async(id) => (ulong)(await serverService.GetChatData(id)).AIChatChannelID},
             };
         }
 
@@ -64,6 +66,8 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.AllowGhostCommand, (s) => $"`{(bool)s}`"},
             { ConfigValue.Connect4Channel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
             { ConfigValue.TicTacToeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.AIChatEnabled,(s) => $"`{(bool)s}`"},
+            { ConfigValue.AIChatChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
         };
 
         public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms)

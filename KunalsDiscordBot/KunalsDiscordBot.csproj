@@ -29,6 +29,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.7" />
     <PackageReference Include="Reddit" Version="1.5.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
+    <PackageReference Include="Google.Cloud.Dialogflow.V2" Version="3.5.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -86,6 +87,8 @@
     <Folder Include="Core\Modules\CurrencyCommands\Models\Jobs\" />
     <Folder Include="Core\Modules\MathCommands\Evaluation\" />
     <Folder Include="Core\Modules\MathCommands\Exceptions\" />
+    <Folder Include="Core\Chatting\" />
+    <Folder Include="Modules\Chatting\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -158,6 +161,10 @@
     <None Remove="Core\Modules\CurrencyCommands\Models\Jobs\" />
     <None Remove="Core\Modules\MathCommands\Parser\" />
     <None Remove="Core\Modules\MathCommands\Exceptions\" />
+    <None Remove="Google.Cloud.Dialogflow.V2" />
+    <None Remove="Google.Cloud.Storage.V1" />
+    <None Remove="Core\Chatting\" />
+    <None Remove="Modules\Chatting\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

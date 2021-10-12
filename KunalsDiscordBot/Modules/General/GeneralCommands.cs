@@ -10,7 +10,6 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
-using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;

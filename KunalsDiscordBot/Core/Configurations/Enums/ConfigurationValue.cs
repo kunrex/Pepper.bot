@@ -17,6 +17,8 @@ namespace KunalsDiscordBot.Core.Configurations.Enums
         AllowSpamCommand,
         AllowGhostCommand,
         Connect4Channel,
-        TicTacToeChannel
+        TicTacToeChannel,
+        AIChatEnabled,
+        AIChatChannel
     }
 }

@@ -167,19 +167,19 @@ namespace KunalsDiscordBot.Services.Currency
             return await UpdateEntity(profile);
         }
 
-        public async Task<bool> KillProfile(ulong id)
+        public async Task<bool> KillProfile(ulong id, bool checkInvincibilityBoots = true)
         {
             var profile = await GetProfile(id, "", false);
 
-            return await KillProfile(profile);
+            return await KillProfile(profile, checkInvincibilityBoots);
         }
 
-        public async Task<bool> KillProfile(Profile profile)
+        public async Task<bool> KillProfile(Profile profile, bool checkInvincibilityBoots = true)
         {
             var casted = (ulong)profile.Id;
             var boosts = await GetBoosts(casted);
 
-            if (boosts.FirstOrDefault(x => x is InvincibilityBoost) != null)
+            if (checkInvincibilityBoots && boosts.FirstOrDefault(x => x is InvincibilityBoost) != null)
                 return false;
             
             await ModifyProfile(profile, async(x) =>

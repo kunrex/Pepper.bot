@@ -86,7 +86,7 @@ namespace KunalsDiscordBot.Modules.Currency
                     {
                         Description = "You need a job to run this command",
                         Color = ModuleInfo.Color
-                    }.WithFooter("Use the \"currency hire\" command to get a job")).ConfigureAwait(false);
+                    }.WithFooter("Use the \"currency apply\" command to get a job")).ConfigureAwait(false);
 
                     throw new CustomCommandException();
                 }
@@ -386,8 +386,8 @@ namespace KunalsDiscordBot.Modules.Currency
             ExecutionRewards = true;
         }
 
-        [Command("Lend")]
-        [Description("Lend another user money"), RequireProfile, MoneyCommand]
+        [Command("Give")]
+        [Description("Give another user money free of interest"), RequireProfile, MoneyCommand]
         public async Task Lend(CommandContext ctx, DiscordMember member, string amount)
         {
             if (member.Id == ctx.Member.Id)
@@ -523,32 +523,24 @@ namespace KunalsDiscordBot.Modules.Currency
             var jobs = Job.AllJobs;
             int level = (await service.GetProfile(ctx.Member.Id, ctx.Member.Username)).Level;
 
-            var embeds = new List<DiscordEmbedBuilder>();
-            DiscordEmbedBuilder current = null;
-
-            int index = 0, maxPerPage = 7;
-            foreach (var job in jobs)
+            var pages = ctx.Client.GetInteractivity().GetPages(jobs.ToList(), x => ($"{(level < x.minLvlNeeded ? data.Cross : data.Tick)} **{x.Name}** {x.emoji}",
+            $"`Min Level:` { x.minLvlNeeded}\n `Avg wage:` { (x.SucceedMax + x.SucceedMin) / 2}"), new EmbedSkeleton
             {
-                if (index % maxPerPage == 0)
-                {
-                    current = new DiscordEmbedBuilder().WithTitle($"Job List")
-                        .WithColor(ModuleInfo.Color)
-                        .WithFooter("Use the \"currency hire\" command to get a job, Message will remain active for 1 minute", ctx.User.AvatarUrl);
+                Title = "Joblist",
+                Color = ModuleInfo.Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter { IconUrl = ctx.User.AvatarUrl, Text = "Use the \"currency apply\" command to get a job, Message will remain active for 1 minute" }
+            }, 7, false);
 
-                    embeds.Add(current);
-                }
-
-                current.AddField($"{++index}. {(level < job.minLvlNeeded ? data.Cross : data.Tick)} **{job.Name}** {job.emoji}", $"`Min Level:` { job.minLvlNeeded}\n `Avg wage:` { (job.SucceedMax + job.SucceedMin) / 2}");
-            }
-
-            var pages = embeds.Select(x => new Page(null, x));
-            await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+            if (pages.Count == 1)
+                await ctx.Channel.SendMessageAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.Ignore, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("Apply")]
         [Description("Apply for a job")]
         [RequireProfile, RequireJob(false), CheckWorkDate]
-        public async Task Hire(CommandContext ctx, string jobName)
+        public async Task Apply(CommandContext ctx, string jobName)
         {
             var job = Job.AllJobs.FirstOrDefault(x => x.Name.ToLower() == jobName.ToLower());
             if (job == null)
@@ -612,7 +604,10 @@ namespace KunalsDiscordBot.Modules.Currency
                 Width = data.ThumbnailSize
             };
 
-            var steps = await job.GetWork(ModuleInfo.Color, thumbnail);
+            var steps = await job.GetWork();
+
+            var messageData = new MessageData { Reply = true, ReplyId = ctx.Message.Id , Thumbnail = thumbnail , Color = ModuleInfo.Color};
+            steps.ForEach(x => x.WithMesssageData(messageData));
 
             DialogueHandler handler = new DialogueHandler(new DialogueHandlerConfig
             {
@@ -1084,6 +1079,112 @@ namespace KunalsDiscordBot.Modules.Currency
                     .WithDescription($"**{ctx.User.Username} searched the {chosen.Name}**\n{chosen.SuccedMessage.Replace("{}", coins.ToString())}")
                     .WithColor(ModuleInfo.Color)));
             }
+
+            ExecutionRewards = true;
+        }
+
+        [Command("SimpleBet")]
+        [Description("Roll a a random number from 1 - 20 against the bot and bet a sum of money. If you win you get as much money as you bet without losing any, if you lose you lose all the money you bet")]
+        [RequireProfile, Cooldown(1, 20, CooldownBucketType.User), MoneyCommand, Aliases("Bet")]
+        public async Task SimpleBet(CommandContext ctx, string amount)
+        {
+            var profile = await service.GetProfile(ctx.Member.Id, "");
+            if (profile.Coins < 200)
+            {
+                await ctx.RespondAsync("You need at least 200 coins to bet");
+                return;
+            }
+
+            int coins = 0;
+            if (amount.ToLowerInvariant().Equals("max"))
+                coins = profile.Coins;
+            else if (int.TryParse(amount, out var x))
+            {
+                coins = int.Parse(amount);
+
+                if (coins <= 0)
+                {
+                    await ctx.RespondAsync("Enter a positive number to bet");
+                    return;
+                }
+                else if(coins > profile.Coins)
+                {
+                    await ctx.RespondAsync("You can't bet more coins than you have?");
+                    return;
+                }
+            }
+            else
+            {
+                await ctx.RespondAsync("You do know coins are measured in numbers right?");
+                return;
+            }
+
+            var rng = new Random();
+            int playerRoll = rng.Next(1, 21), botRoll = rng.Next(1, 21), reward =  playerRoll == botRoll ? 0 : (playerRoll > botRoll ? coins : - coins );
+
+            if (reward != 0)
+                await service.ModifyProfile(profile, x => x.Coins += reward);
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder()
+                    .WithColor(ModuleInfo.Color)
+                    .WithTitle($"{ctx.Member.Username}'s bet")
+                    .AddField($"{ctx.Member.DisplayName} rolls", playerRoll.ToString(), true)
+                    .AddField("I roll", botRoll.ToString(), true)
+                    .AddField("Result", $"{(reward == 0 ? "Is a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {coins} {data.CoinsEmoji}" : $"You lose {coins} {data.CoinsEmoji}"))}"));
+
+            ExecutionRewards = true;
+        }
+
+        [Command("ExtremeBet")]
+        [Description("Roll a a random number from 1 - 20 against the bot and bet a sum of money. If you win you get double the money, if you lose you die regardless of any boosts")]
+        [RequireProfile, Cooldown(1, 20, CooldownBucketType.User), MoneyCommand]
+        public async Task ExtremeBet(CommandContext ctx, string amount)
+        {
+            var profile = await service.GetProfile(ctx.Member.Id, "");
+            if(profile.Coins < 200)
+            {
+                await ctx.RespondAsync("You need at least 200 coins to bet");
+                return;
+            }
+
+            int coins = 0;
+            if (amount.ToLowerInvariant().Equals("max"))
+                coins = profile.Coins;
+            else if (int.TryParse(amount, out var x))
+            {
+                coins = int.Parse(amount);
+
+                if (coins <= 0)
+                {
+                    await ctx.RespondAsync("Enter a positive number to bet");
+                    return;
+                }
+                else if (coins > profile.Coins)
+                {
+                    await ctx.RespondAsync("You can't bet more coins than you have?");
+                    return;
+                }
+            }
+            else
+            {
+                await ctx.RespondAsync("You do know coins are measured in numbers right?");
+                return;
+            }
+
+            var rng = new Random();
+            int playerRoll = rng.Next(1, 21), botRoll = rng.Next(1, 21), reward = playerRoll == botRoll ? 0 : (playerRoll > botRoll ? coins * 2 : -1);
+
+            if (reward > 0)
+                await service.ModifyProfile(profile, x => x.Coins += reward);
+            else if (reward < 0)
+                await service.KillProfile(profile, false);
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder()
+                    .WithColor(ModuleInfo.Color)
+                    .WithTitle($"{ctx.Member.Username}'s bet")
+                    .AddField($"{ctx.Member.DisplayName} rolls", playerRoll.ToString(), true)
+                    .AddField("I roll", botRoll.ToString(), true)
+                    .AddField("Result", $"{(reward == 0 ? "Is a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {reward} {data.CoinsEmoji}" : "Welp time to die"))}"));
 
             ExecutionRewards = true;
         }

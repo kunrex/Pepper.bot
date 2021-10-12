@@ -19,6 +19,7 @@ using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.Events;
+using KunalsDiscordBot.Core.Chatting;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
@@ -45,6 +46,9 @@ namespace KunalsDiscordBot
         public IServiceProvider Services { get; private set; }
         public PepperBotConfig Configuration { get; private set; }
 
+        public Chatbot Chatbot { get; private set; }
+        public IServerService ServerService { get; private set; }
+
         public int ShardId { get; private set; }
 
         public PepperBot (IServiceProvider _services, PepperConfigurationManager _configManager, int _shardId)
@@ -52,6 +56,9 @@ namespace KunalsDiscordBot
             Configuration = _configManager.BotConfig;
             Services = _services;
             ShardId = _shardId;
+
+            Chatbot = (Chatbot)_services.GetService(typeof(Chatbot));
+            ServerService = (IServerService)_services.GetService(typeof(IServerService));
 
             Client = new DiscordClient(new DiscordConfiguration
             {
@@ -86,6 +93,7 @@ namespace KunalsDiscordBot
             Client.GuildDeleted += OnGuildDeleted;
             Client.GuildMemberAdded += OnGuildMemberAdded;
             Client.GuildMemberRemoved += OnGuildMemberRemoved;
+            Client.MessageCreated += CheckAIChatMessage;
 
             var endPoint = new ConnectionEndpoint
             {
@@ -282,8 +290,7 @@ namespace KunalsDiscordBot
                 await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId))
                     .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
 
-                var serverService = (IServerService)Services.GetService(typeof(IServerService));
-                await serverService.CreateServerProfile(e.Guild.Id);
+                await ServerService.CreateServerProfile(e.Guild.Id);
             });
 
             return Task.CompletedTask;
@@ -293,10 +300,9 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)Services.GetService(typeof(IServerService));
                 var modService = (IModerationService)Services.GetService(typeof(IModerationService));
 
-                var profile = await serverService.GetServerProfile(e.Guild.Id);
+                var profile = await ServerService.GetServerProfile(e.Guild.Id);
           
                 var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
                 if (channel == null)
@@ -307,7 +313,7 @@ namespace KunalsDiscordBot
                     .ConfigureAwait(false);
 
                 await modService.ClearAllServerModerationData(e.Guild.Id);
-                await serverService.RemoveServerProfile(e.Guild.Id);
+                await ServerService.RemoveServerProfile(e.Guild.Id);
             });
 
             return Task.CompletedTask;
@@ -317,8 +323,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)Services.GetService(typeof(IServerService));
-                var profile = await serverService.GetServerProfile(e.Guild.Id);
+                var profile = await ServerService.GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
                     return;
@@ -346,8 +351,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var serverService = (IServerService)Services.GetService(typeof(IServerService));
-                var profile = await serverService.GetServerProfile(e.Guild.Id);
+                var profile = await ServerService.GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
                     return;
@@ -366,6 +370,25 @@ namespace KunalsDiscordBot
                     Color = DiscordColor.CornflowerBlue
                 }.WithThumbnail(e.Member.AvatarUrl, 10, 10)
                  .WithFooter($"At {DateTime.Now}")).ConfigureAwait(false);
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private Task CheckAIChatMessage(DiscordClient s, MessageCreateEventArgs e)
+        {
+            _ = Task.Run(async () =>
+            {
+                var profile = await ServerService.GetChatData(e.Guild.Id);
+                if (profile == null || profile.Enabled == 0)
+                    return;
+
+                if(profile.AIChatChannelID == (long)e.Channel.Id && !e.Author.IsBot)
+                {
+                    var result = await Chatbot.GetRepsonse(e.Message.Content);
+
+                    await e.Message.RespondAsync(result);
+                }
             });
 
             return Task.CompletedTask;

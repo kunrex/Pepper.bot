@@ -19,8 +19,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
         public static readonly Item BankCard = new ToolItem("Bank Card", 125, "Provides extra bank space", UseType.Tool, Tool.BankCard);
 
         public static readonly Item Alcohol = new BoostItem("Alcohol", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Alcohol));
-        public static readonly Item Landmine = new BoostItem("Landmine", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Landmine));
-        public static readonly Item Padlock = new BoostItem("Padlock", 10, "Boosts your luck!", UseType.Boost, new BoostData(Boost.Padlock));
+        public static readonly Item Landmine = new BoostItem("Landmine", 10, "If anyone tries to rob you when you have a landmine down they have a 50% chance of dieing", UseType.Boost, new BoostData(Boost.Landmine));
+        public static readonly Item Padlock = new BoostItem("Padlock", 10, "If anyone tries to rob you when you have a padlock they instantly fail", UseType.Boost, new BoostData(Boost.Padlock));
 
         public static readonly List<Item> AllItems = new List<Item> { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow, Landmine, Padlock };
     }

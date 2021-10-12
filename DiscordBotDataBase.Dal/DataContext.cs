@@ -26,6 +26,7 @@ namespace DiscordBotDataBase.Dal
         public DbSet<FunData> FunDatas { get; set; }
         public DbSet<GameData> GameDatas { get; set; }
         public DbSet<MusicData> MusicDatas { get; set; }
+        public DbSet<AIChatData> ChatDatas { get; set; }
 
         public DbSet<Rule> ServerRules { get; set; }
 
