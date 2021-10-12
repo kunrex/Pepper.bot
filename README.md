@@ -85,6 +85,8 @@ You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on t
 ### • Setting up Dialogflow
 Pepper uses <a href = "https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a> for <a href="https://www.ibm.com/cloud/learn/natural-language-processing" target="_blank">NLP</a> used in the AI chat module. You can follow the instructions to set up Dialogflow and to create a <a href = "https://cloud.google.com/dialogflow/es/docs/agents-overview" target="_blank">`Dialogflow Agent`</a> <a href = "https://cloud.google.com/dialogflow/es/docs/quick/setup" target="_blank">here</a>. Pepper does use the API so make sure to install `Cloud SDK` as well. Keep track of the JSON file downloaded containing the KEY of your project and the project ID of your Dialogflow agent as they are used in the primary config file
   
+After you have Dialogflow set up, you can enable small talk for the agent. Go to the home page of your agent. On the sidebar in the left, scroll down till you find `Small Talk`. Click it and enable it by checking the toggle called `Enable`. You can now fill in various small talk responses that you want your agent to have.
+
 ### • Creating the Primary Config File
 Come back to the project on your system and find the folder called `KunalsDiscordBot` and create a new json file called `Config.json` exactly. You can change this name later if needed. This is gonna be the config file for the bot. Open the file and paste the following lines and fill in the appropriate values.
 ```json
