@@ -158,8 +158,8 @@ Come back to the project on your system and find the folder called `KunalsDiscor
 **Chatbot Config**
 1. `ProjectId` : The project ID of your Dialogflow project
 2. `GoogleCreedentialsVariable` : The name of the environment variable used by Dialogflow. Make sure this is `GOOGLE_APPLICATION_CREDENTIALS` **only**.
-3. `GoogleCredentialsPath` : The path to the JSON file contianing the key of your Dialogflow project (The one you downloaded from the service account).
-4. `TimeOutime` : The maximum time after which a Dialogflow sentence request is cancelled.
+3. `GoogleCredentialsPath` : The path to the JSON file contianing the key of your Dialogflow project (The one you downloaded while creating the service account for your Dialgflow agent).
+4. `TimeOutime` : The maximum time (in seconds) after which a Dialogflow processing request is cancelled.
 
 ### • Setting up the Database
 The github repo does not include the Migrations folder nor does it include the Database itself. So you need to create them when you clone the repo as its used in the currency system and for general server configurations..
