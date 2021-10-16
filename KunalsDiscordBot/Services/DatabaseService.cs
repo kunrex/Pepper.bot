@@ -13,7 +13,10 @@ namespace KunalsDiscordBot.Services
 
         protected async Task<bool> AddEntity<T>(T entityToAdd)
         {
-            var addEntry = await context.AddAsync(entityToAdd);
+            if (entityToAdd == null)
+                return false;
+
+            var addEntry = context.Add(entityToAdd);
             await context.SaveChangesAsync();
 
             addEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
@@ -22,6 +25,9 @@ namespace KunalsDiscordBot.Services
 
         protected async Task<bool> RemoveEntity<T>(T entityToRemove)
         {
+            if (entityToRemove == null)
+                return false;
+
             var removeEntry = context.Remove(entityToRemove);
             await context.SaveChangesAsync();
 

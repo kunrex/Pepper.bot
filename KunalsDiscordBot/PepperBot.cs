@@ -14,6 +14,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
+using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
@@ -24,11 +25,9 @@ using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
-using DSharpPlus.Interactivity.EventHandling;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.FunCommands;
-using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 
@@ -47,7 +46,6 @@ namespace KunalsDiscordBot
         public PepperBotConfig Configuration { get; private set; }
 
         public Chatbot Chatbot { get; private set; }
-        public IServerService ServerService { get; private set; }
 
         public int ShardId { get; private set; }
 
@@ -58,7 +56,6 @@ namespace KunalsDiscordBot
             ShardId = _shardId;
 
             Chatbot = (Chatbot)_services.GetService(typeof(Chatbot));
-            ServerService = (IServerService)_services.GetService(typeof(IServerService));
 
             Client = new DiscordClient(new DiscordConfiguration
             {
@@ -70,7 +67,7 @@ namespace KunalsDiscordBot
                 ShardId = ShardId,
 
                 LargeThreshold = 250,
-                GatewayCompressionLevel = GatewayCompressionLevel.Stream
+                GatewayCompressionLevel = GatewayCompressionLevel.Stream, 
                 /*LogLevel = LogLevel.Debug,
                 UseInternalLogHandler = true*/
             });
@@ -114,6 +111,7 @@ namespace KunalsDiscordBot
             {
                 StringPrefixes = Configuration.DiscordConfig.Prefixes,
                 EnableDms = Configuration.DiscordConfig.Dms,
+
                 EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = _services,
@@ -282,15 +280,17 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
+                await serverService.CreateServerProfile(e.Guild.Id);
+
                 var channel = e.Guild.GetDefaultChannel();
                 if (channel == null)
                     return;
 
                 var configService = (IConfigurationService)Services.GetService(typeof(IConfigurationService));
-                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId))
-                    .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
 
-                await ServerService.CreateServerProfile(e.Guild.Id);
+                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId))
+                .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
             });
 
             return Task.CompletedTask;
@@ -302,7 +302,8 @@ namespace KunalsDiscordBot
             {
                 var modService = (IModerationService)Services.GetService(typeof(IModerationService));
 
-                var profile = await ServerService.GetServerProfile(e.Guild.Id);
+                var serverService = (IServerService)Services.GetService(typeof(IServerService));
+                var profile = await serverService.GetServerProfile(e.Guild.Id);
           
                 var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
                 if (channel == null)
@@ -313,7 +314,7 @@ namespace KunalsDiscordBot
                     .ConfigureAwait(false);
 
                 await modService.ClearAllServerModerationData(e.Guild.Id);
-                await ServerService.RemoveServerProfile(e.Guild.Id);
+                await serverService.RemoveServerProfile(e.Guild.Id);
             });
 
             return Task.CompletedTask;
@@ -323,7 +324,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var profile = await ServerService.GetServerProfile(e.Guild.Id);
+                var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
                     return;
@@ -351,7 +352,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var profile = await ServerService.GetServerProfile(e.Guild.Id);
+                var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
                     return;
@@ -379,15 +380,20 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var profile = await ServerService.GetChatData(e.Guild.Id);
+                var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetChatData(e.Guild.Id);
                 if (profile == null || profile.Enabled == 0)
                     return;
 
                 if(profile.AIChatChannelID == (long)e.Channel.Id && !e.Author.IsBot)
                 {
-                    var result = await Chatbot.GetRepsonse(e.Message.Content);
+                    foreach (var prefix in Configuration.DiscordConfig.Prefixes)
+                        if (e.Message.GetStringPrefixLength(prefix) != -1)
+                        {
+                            await e.Message.RespondAsync("This channel is used for AI chatting, preferably don't use commands here");
+                            return;
+                        }
 
-                    await e.Message.RespondAsync(result);
+                    await e.Message.RespondAsync(await Chatbot.GetRepsonse(e.Message.Content));
                 }
             });
 

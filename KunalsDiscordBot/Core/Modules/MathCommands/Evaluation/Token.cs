@@ -221,6 +221,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
 
                 return LinearEquationLexer.CreateBrackets(new List<Token>() { a, LinearEquationLexer.Minus, b });
             }
+            else if(a.Value == b.Value)
+                return LinearEquationLexer.Zero;
             else if (a.Type == TokenType.Constant)
                 return new Token($"{a.GetNumberPart() - b.GetNumberPart()}", TokenType.Constant, null);
             else
@@ -233,6 +235,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 return a;
             else if ((b.Type & TokenType.Operator) == b.Type)
                 return b;
+            else if (a == LinearEquationLexer.Zero || b == LinearEquationLexer.Zero)
+                return LinearEquationLexer.Zero;
 
             if (!a.HasSubTokens && !b.HasSubTokens)
             {
@@ -266,10 +270,17 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 return a;
             else if ((b.Type & TokenType.Operator) == b.Type)
                 return b;
+            else if (a == LinearEquationLexer.Zero)
+                return LinearEquationLexer.Zero;
+            else if (b == LinearEquationLexer.Zero)
+                throw new EvaluationException("Division by 0 detected");
 
             if (!a.HasSubTokens && !b.HasSubTokens)
             {
                 var value = $"{a.GetNumberPart() / b.GetNumberPart()}";
+
+                 if (a.Value == b.Value)
+                    return LinearEquationLexer.Zero;
 
                 if (a.Type == TokenType.Variable)
                 {

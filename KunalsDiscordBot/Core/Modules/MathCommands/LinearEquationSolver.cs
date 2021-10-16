@@ -83,6 +83,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands
                 LHS = lhs.GetDeepestSubTokens();
             }
 
+            if(RHS[0].Type == LHS[0].Type)
+                throw new EvaluationException(RHS[0].Value == LHS[0].Value ? "Equation has infinetly many solutions" : "Equation has no solutions");
+
             return RHS[0].GetNumberPart() / LHS[0].GetNumberPart();
         }
 

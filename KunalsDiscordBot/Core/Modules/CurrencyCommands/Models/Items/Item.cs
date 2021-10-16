@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
         public string Name { get; protected set; }
 
         protected int price;
-        public int Price { get { Console.WriteLine(StockMarket.Instance.CalculatePrice(price)); return price + StockMarket.Instance.CalculatePrice(price); } }
+        public int Price { get => price + StockMarket.Instance.CalculatePrice(price); }
 
         protected int sellingPrice;
         public int SellingPrice { get => sellingPrice - StockMarket.Instance.CalculatePrice(sellingPrice); }
@@ -36,7 +36,6 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
         public string Description { get; protected set; }
 
         public UseType UseType { get; protected set; }
-
 
         public Item(string name, int _price, string description, UseType type)
         {
