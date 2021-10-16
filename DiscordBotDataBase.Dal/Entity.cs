@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Reflection;
 using System.ComponentModel.DataAnnotations;
 
 namespace DiscordBotDataBase.Dal
 {
-    public abstract class Entity<T>  
+    public abstract class Entity<T>  : IEntity
     {
         public Entity()
         {

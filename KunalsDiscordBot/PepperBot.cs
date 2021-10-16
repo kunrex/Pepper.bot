@@ -380,21 +380,16 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
+                foreach (var prefix in Configuration.DiscordConfig.Prefixes)
+                    if (e.Message.GetStringPrefixLength(prefix) != -1)
+                        return;
+
                 var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetChatData(e.Guild.Id);
                 if (profile == null || profile.Enabled == 0)
                     return;
 
                 if(profile.AIChatChannelID == (long)e.Channel.Id && !e.Author.IsBot)
-                {
-                    foreach (var prefix in Configuration.DiscordConfig.Prefixes)
-                        if (e.Message.GetStringPrefixLength(prefix) != -1)
-                        {
-                            await e.Message.RespondAsync("This channel is used for AI chatting, preferably don't use commands here");
-                            return;
-                        }
-
                     await e.Message.RespondAsync(await Chatbot.GetRepsonse(e.Message.Content));
-                }
             });
 
             return Task.CompletedTask;

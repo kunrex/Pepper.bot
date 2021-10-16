@@ -47,7 +47,7 @@ namespace KunalsDiscordBot.Services
             return true;
         }
 
-        protected async Task<bool> ModifyEntity<T>(T entity, Action<T> modification) where T : Entity<long>
+        protected async Task<bool> ModifyEntity<T>(T entity, Action<T> modification) where T : IEntity
         {
             modification.Invoke(entity);
 

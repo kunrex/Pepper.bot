@@ -33,7 +33,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         {
             var tokens = new List<Token>();
             Token currentToken = null;
-            TokenType expected = TokenType.NonOperator;
+            TokenType expected = TokenType.Subtraction | TokenType.NonOperator;
             string complex = string.Empty; int nested = 0; bool complexFound = false;
 
             for (int i = 0; i < equation.Length; i++)
@@ -73,7 +73,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                         if ((expected & TokenType.Subtraction) != TokenType.Subtraction)
                             throw new InvalidCharacterException('-', expected);
 
-                        if (currentToken != null)
+                        if (tokens.Count == 0)
+                            tokens.Add(Zero);
+                        else if (currentToken != null)
                         {
                             tokens.Add(currentToken);
                             currentToken = null;
@@ -222,16 +224,16 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             return tokens;
         }
 
-        public static List<Token> GetTokens(string equation)
+        public static List<Token> GetTokens(string expression)
         {
             var tokens = new List<Token>();
             Token current = null;
-            TokenType expected = TokenType.NonOperator;
+            TokenType expected = TokenType.Subtraction | TokenType.NonOperator;
             string complex = string.Empty; int nested = 0; bool complexFound = false;
 
-            for (int i = 0; i < equation.Length; i++)
+            for (int i = 0; i < expression.Length; i++)
             {
-                var character = equation[i];
+                var character = expression[i];
 
                 switch (character)
                 {
@@ -266,7 +268,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                         if ((expected & TokenType.Subtraction) != TokenType.Subtraction)
                             throw new InvalidCharacterException('-', expected);
 
-                        if (current != null)
+                        if(tokens.Count == 0)
+                            tokens.Add(Zero);
+                        else if (current != null)
                         {
                             tokens.Add(current);
                             current = null;
