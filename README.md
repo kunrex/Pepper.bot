@@ -26,9 +26,7 @@ Math | Simple math commands such as solving and graphing equations. |
 Currency | A currency system! |
 AIChat | An AI chat module for small talk and more! |
 
-Does not have seperate prefix', Im not planning on adding it anytime soon either. The bot is in developement, things I'm working on right now is
-1. The Currency System.
-
+Does not have seperate prefix', Im not planning on adding it anytime soon either.
 ## Technologies
 
 * C# 8
