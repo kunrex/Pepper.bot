@@ -257,9 +257,9 @@ namespace KunalsDiscordBot.Modules.Games
                     players.Add(await ctx.Guild.GetMemberAsync(result.Result.User.Id));
                     await ctx.Channel.SendMessageAsync($"{result.Result.User.Username} has joined!");
 
-                    if(players.Count == UNOGame.maxPlayers)
+                    if(players.Count == UNOGame.maxPlayersPerGame)
                     {
-                        await ctx.Channel.SendMessageAsync($"Max limit ({UNOGame.maxPlayers}) reached");
+                        await ctx.Channel.SendMessageAsync($"Max limit ({UNOGame.maxPlayersPerGame}) reached");
                     }
                 }
             }

@@ -268,7 +268,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                         if ((expected & TokenType.Subtraction) != TokenType.Subtraction)
                             throw new InvalidCharacterException('-', expected);
 
-                        if(tokens.Count == 0)
+                        if (tokens.Count == 0)
                             tokens.Add(Zero);
                         else if (current != null)
                         {

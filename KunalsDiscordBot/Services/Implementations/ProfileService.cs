@@ -49,9 +49,7 @@ namespace KunalsDiscordBot.Services.Currency
                 SafeMode = 0,
             };
 
-            var entityEntry = await context.UserProfiles.AddAsync(profile).ConfigureAwait(false);
-            await context.SaveChangesAsync().ConfigureAwait(false);
-            entityEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await AddEntity(profile);
 
             return profile;
         }
@@ -74,11 +72,11 @@ namespace KunalsDiscordBot.Services.Currency
             return items.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public Task<List<ItemDBData>> GetItems(ulong id)
+        public Task<IEnumerable<ItemDBData>> GetItems(ulong id)
         {
             long casted = (long)id;
 
-            return Task.FromResult(context.ProfileItems.AsQueryable().Where(x => x.ProfileId == casted).ToList());
+            return Task.FromResult(context.ProfileItems.AsEnumerable().Where(x => x.ProfileId == casted));
         }
 
         public async Task<bool> AddOrRemoveItem(ulong id, string name, int quantity)
@@ -116,11 +114,10 @@ namespace KunalsDiscordBot.Services.Currency
             if (boosts == null)
                 return null;
 
-            Console.WriteLine(boosts.Count);
             return boosts.FirstOrDefault(x => x.Name.ToLower() == name.ToLower());
         }
 
-        public async Task<List<Boost>> GetBoosts(ulong id)
+        public async Task<IEnumerable<Boost>> GetBoosts(ulong id)
         {
             var casted = (long)id;
 
@@ -138,7 +135,7 @@ namespace KunalsDiscordBot.Services.Currency
                 }
             }
 
-            return boosts.Select(x => (Boost)x).ToList();
+            return boosts.Select(x => (Boost)x);
         }
 
         public async Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity)

@@ -219,14 +219,9 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("XP: ", $"{profile.XP}", true)
              .AddField("Job: ", profile.Job);
 
-            string boosts = string.Empty;
             int index = 1;
-            foreach (var boost in await service.GetBoosts(ctx.Member.Id))
-            {
-                boosts += $"{index}. {boost.Name}\n";
-                index++;
-            }
-            embed.AddField("Boosts:\n", boosts == string.Empty ? "None" : boosts);
+            var boosts = await service.GetBoosts(ctx.Member.Id);
+            embed.AddField("Boosts:\n", boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"{index++}. {x.Name}")));
 
             await ctx.RespondAsync(embed).ConfigureAwait(false);
         }
@@ -255,7 +250,7 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = profile.Name,
                 Color = DiscordColor.Gold
-            }.WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)
+            }.WithThumbnail(member.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)
              .AddField("ID: ", profile.Id.ToString())
              .AddField("Coins: ", $"{profile.Coins} {data.CoinsEmoji}")
              .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})")
@@ -263,14 +258,9 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("XP: ", $"{profile.XP}", true)
              .AddField("Job: ", profile.Job);
 
-            string boosts = string.Empty;
             int index = 1;
-            foreach (var boost in await service.GetBoosts(ctx.Member.Id))
-            {
-                boosts += $"{index}. {boost.Name}\n";
-                index++;
-            }
-            embed.AddField("Boosts:\n", boosts == string.Empty ? "None" : boosts);
+            var boosts = await service.GetBoosts(ctx.Member.Id);
+            embed.AddField("Boosts:\n", boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"{index++}. {x.Name}")));
 
             await ctx.RespondAsync(embed).ConfigureAwait(false);
         }
@@ -529,7 +519,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = "Joblist",
                 Color = ModuleInfo.Color,
                 Footer = new DiscordEmbedBuilder.EmbedFooter { IconUrl = ctx.User.AvatarUrl, Text = "Use the \"currency apply\" command to get a job, Message will remain active for 1 minute" }
-            }, 7, false);
+            }, 7, false).ToList(); ;
 
             if (pages.Count == 1)
                 await ctx.Channel.SendMessageAsync(pages[0].Embed);
@@ -651,7 +641,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Description = $"Stock is {(StockMarket.Instance.CurrentStockPrice > 0 ? "up" : "down")} by **{System.Math.Abs(StockMarket.Instance.CurrentStockPrice)}%**",
                 Color = ModuleInfo.Color,
                 Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
-            }, 7, false);
+            }, 7, false).ToList(); ;
 
             if (pages.Count == 1)
                 await ctx.Channel.SendMessageAsync(pages[0].Embed);
@@ -807,7 +797,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = $"{ctx.Member.Username}'s Inventory",
                 Color = ModuleInfo.Color,
                 Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
-            }, 7, false);
+            }, 7, false).ToList();
 
             if (pages == null)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle($"{ctx.Member.Username}'s Inventory")
@@ -842,7 +832,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Title = $"{member.Username}'s Inventory",
                 Color = ModuleInfo.Color,
                 Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
-            }, 7, false);
+            }, 7, false).ToList(); 
 
             if (pages == null)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithTitle($"{member.Username}'s Inventory")

@@ -9,7 +9,7 @@ namespace KunalsDiscordBot.Extensions
 {
     public static partial class PepperBotExtensions
     {
-        public static List<Page> GetPages<T>(this InteractivityExtension interactivity, List<T> list, Func<T, (string, string)> func, EmbedSkeleton skeleton, int perPage = 7, bool newLine = default)
+        public static IEnumerable<Page> GetPages<T>(this InteractivityExtension interactivity, IEnumerable<T> list, Func<T, (string, string)> func, EmbedSkeleton skeleton, int perPage = 7, bool newLine = default)
         {
             var embeds = new List<DiscordEmbedBuilder>();
             DiscordEmbedBuilder current = null;
@@ -41,7 +41,7 @@ namespace KunalsDiscordBot.Extensions
             if (embeds.Count == 0)
                 return null;
 
-            return embeds.Select(x => new Page(null, x)).ToList();
+            return embeds.Select(x => new Page(null, x));
         }
     }
 }

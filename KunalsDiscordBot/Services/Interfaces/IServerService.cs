@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Servers;
 using DiscordBotDataBase.Dal.Models.Servers.Models;
 using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
-using KunalsDiscordBot.Core.Attributes;
+
 
 namespace KunalsDiscordBot.Services.General
 {
@@ -19,7 +20,7 @@ namespace KunalsDiscordBot.Services.General
  
         public Task<bool> AddOrRemoveRule(ulong id, string ruleToAdd, bool add);
         public Task<Rule> GetRule(ulong guildId, int index);
-        public Task<List<Rule>> GetAllRules(ulong guildId);
+        public Task<IEnumerable<Rule>> GetAllRules(ulong guildId);
 
         public Task<MusicData> GetMusicData(ulong guildId);
         public Task<FunData> GetFunData(ulong guildId);

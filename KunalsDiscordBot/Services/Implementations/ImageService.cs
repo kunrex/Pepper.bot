@@ -21,7 +21,7 @@ namespace KunalsDiscordBot.Services.Images
 
         public EditData GetEditData(string fileName) => edits.FirstOrDefault(x => x.FileName == fileName);
 
-        public string GetFileByCommand(in Command command)
+        public string GetFileByCommand(Command command)
         {
             var attribute = command.CustomAttributes.FirstOrDefault(x => x is WithFileAttribute);
 

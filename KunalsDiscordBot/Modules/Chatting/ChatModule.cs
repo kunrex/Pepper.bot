@@ -67,7 +67,7 @@ namespace KunalsDiscordBot.Modules.Chatting
 
         [Command("SetAIChatChannel")]
         [CheckConfigigurationPermissions]
-        [Description("Sets the channel used for AI chatting"), ConfigData(ConfigValue.AIChatEnabled)]
+        [Description("Sets the channel used for AI chatting"), ConfigData(ConfigValue.AIChatChannel)]
         public async Task AIChatChannel(CommandContext ctx, DiscordChannel channel)
         {
             var profile = await serverService.GetChatData(ctx.Guild.Id);

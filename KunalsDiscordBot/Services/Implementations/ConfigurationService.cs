@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -36,7 +37,7 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.RuleChannel, async(id) => (ulong)(await serverService.GetServerProfile(id)).RulesChannelId},
                  { ConfigValue.ModRole, async(id) => (ulong)(await serverService.GetModerationData(id)).ModeratorRoleId},
                  { ConfigValue.MutedRole, async(id) => (ulong)(await serverService.GetModerationData(id)).MutedRoleId},
-                 { ConfigValue.RuleCount, async(id) => (await serverService.GetAllRules(id)).Count },
+                 { ConfigValue.RuleCount, async(id) => (await serverService.GetAllRules(id)).Count()},
                  { ConfigValue.DJEnfore, async(id) => (await serverService.GetMusicData(id)).UseDJRoleEnforcement == 1},
                  { ConfigValue.DJRole, async(id) => (ulong)(await serverService.GetMusicData(id)).DJRoleId},
                  { ConfigValue.AllowNSFW, async(id) => (await serverService.GetFunData(id)).AllowNSFW == 1},

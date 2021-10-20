@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 
 using DiscordBotDataBase.Dal;
+using DiscordBotDataBase.Dal.Models.Servers.Models;
 using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
 
 namespace KunalsDiscordBot.Services.Moderation

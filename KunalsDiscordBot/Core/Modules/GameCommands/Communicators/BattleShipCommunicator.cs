@@ -21,7 +21,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
         private Regex inputExpression;
         public Regex InputExpression { get => inputExpression; }
 
-        public BattleShipCommunicator(DiscordChannel _DMChannel, Regex _inputExpression, Regex _battleShipInputExpression)  
+        public BattleShipCommunicator(DiscordChannel _DMChannel, Regex _inputExpression, Regex _battleShipInputExpression)
         {
             DMChannel = _DMChannel;
 

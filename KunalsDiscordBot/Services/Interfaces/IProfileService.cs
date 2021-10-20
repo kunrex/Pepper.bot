@@ -17,12 +17,12 @@ namespace KunalsDiscordBot.Services.Currency
         public Task<bool> ModifyProfile(ulong id, Action<Profile> modification);
 
         public Task<ItemDBData> GetItem(ulong id, string name);
-        public Task<List<ItemDBData>> GetItems(ulong id);
+        public Task<IEnumerable<ItemDBData>> GetItems(ulong id);
         public Task<bool> AddOrRemoveItem(ulong id, string name, int quantity);
         public Task<bool> AddOrRemoveItem(Profile profile, string name, int quantity);
 
         public Task<Boost> GetBoost(ulong id, string name);
-        public Task<List<Boost>> GetBoosts(ulong id);
+        public Task<IEnumerable<Boost>> GetBoosts(ulong id);
         public Task<bool> AddOrRemoveBoost(ulong id, string name, int value, TimeSpan time, string startTime, int quantity);
         public Task<bool> AddOrRemoveBoost(Profile profile, string name, int value, TimeSpan time, string startTime, int quantity);
 

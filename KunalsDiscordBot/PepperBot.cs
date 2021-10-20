@@ -35,6 +35,9 @@ namespace KunalsDiscordBot
 {
     public class PepperBot
     {
+        public int ShardId { get; private set; }
+        public bool IsOnline { get; private set; }
+
         public DiscordClient Client { get; private set; }
         public CommandsNextExtension Commands { get; private set; }
         public InteractivityExtension Interactivity { get; private set; }
@@ -46,8 +49,6 @@ namespace KunalsDiscordBot
         public PepperBotConfig Configuration { get; private set; }
 
         public Chatbot Chatbot { get; private set; }
-
-        public int ShardId { get; private set; }
 
         public PepperBot (IServiceProvider _services, PepperConfigurationManager _configManager, int _shardId)
         {
@@ -153,6 +154,7 @@ namespace KunalsDiscordBot
             finally
             {
                 Console.WriteLine("Lavalink connection section complete");
+                IsOnline = true;
             }
 
             await CheckModerationMutes();

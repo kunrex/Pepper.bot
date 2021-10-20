@@ -23,7 +23,6 @@ namespace KunalsDiscordBot.Core.Reddit
 
         private RedditPostCollection memes { get; set; } 
         private RedditPostCollection aww { get; set; }
-        private RedditPostCollection animals { get; set; }
 
         public RedditApp(PepperConfigurationManager configManager)
         {
@@ -44,7 +43,6 @@ namespace KunalsDiscordBot.Core.Reddit
 
             memes = await new RedditPostCollection("memes").Collect(client, filter);
             aww = await new RedditPostCollection("aww").Collect(client, filter);
-            animals = await new RedditPostCollection("Animals").Collect(client, filter);
 
             Online = true;
             Console.WriteLine("Reddit app online");
@@ -72,6 +70,5 @@ namespace KunalsDiscordBot.Core.Reddit
 
         public Post GetMeme(bool allowNSFW) => memes[new Random().Next(0, memes.count), allowNSFW];
         public Post GetAww() => aww[new Random().Next(0, aww.count)];
-        public Post GetAnimals() => animals[new Random().Next(0, animals.count)];
     }
 }

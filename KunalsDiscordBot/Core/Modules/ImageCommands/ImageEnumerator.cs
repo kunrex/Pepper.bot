@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
-    public class ImageEnumerator : IEnumerator
+    public class ImageEnumerator : IEnumerator<ImageGraphic>
     {
         private readonly ImageCollection collection;
         public ImageCollection Collection { get => collection; }
@@ -16,7 +16,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             collection = _collection;
         }
 
-        public object Current 
+        private ImageGraphic _Current
         {
             get
             {
@@ -24,12 +24,16 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 {
                     return collection[current];
                 }
-                catch(IndexOutOfRangeException)
+                catch (IndexOutOfRangeException)
                 {
                     throw new InvalidOperationException();
                 }
             }
         }
+
+        public object Current => _Current;
+
+        ImageGraphic IEnumerator<ImageGraphic>.Current => _Current;
 
         public bool MoveNext()
         {
@@ -38,5 +42,10 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         }
 
         public void Reset() => current = -1;
+
+        public void Dispose()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

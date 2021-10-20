@@ -11,7 +11,7 @@ namespace KunalsDiscordBot.Services.Images
     {
         public EditData GetEditData(string fileName);
 
-        public string GetFileByCommand(in Command ctx);
+        public string GetFileByCommand(Command ctx);
 
         public void GetFontAndBrush(string fontName, int fontSize, Color fontColor, int fontStyles, out Font font, out SolidBrush brush);
 

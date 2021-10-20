@@ -10,6 +10,8 @@ namespace KunalsDiscordBot
     {
         private static Dictionary<int, PepperBot> shards { get; set; }
 
+        public static PepperBot GetShard(int index) => shards[index];
+
         public PepperBotClientManager(IServiceProvider services)
         {
             var botConfiguration = (PepperConfigurationManager)services.GetService(typeof(PepperConfigurationManager));

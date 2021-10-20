@@ -30,7 +30,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         public static readonly string[] number = { ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:", ":eight:", ":nine:", ":keycap_ten:" };
         public static readonly int[] shipSizes = { 1, 1, 2, 2, 3 };
 
-        public List<DiscordSpectator> spectators { get; set; } = new List<DiscordSpectator>();
+        public List<DiscordSpectator> Spectators { get; set; } = new List<DiscordSpectator>();
 
         public BattleShip(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 await RemovePlayers();
                 return;
             }
-            else if(!player2Ships.Result.WasCompleted)
+            else if (!player2Ships.Result.WasCompleted)
             {
                 string message = $"{Players[1].member.Username} {(player2Ships.Result.Type == InputResult.ResultType.End ? "has ended the game." : "has gone AFK") }";
 
@@ -125,7 +125,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                         await CurrentPlayer.SendMessage($"{(isDead ? "A ship has been sunk!" : "A ship was hit!")}");
                         await otherPlayer.SendMessage($"{(isDead ? "Your ship has been sunk!" : "Your ship has hit!")}");
 
-                        await SendMessageToAllSpectators($"{(isDead ? $"{otherPlayer.member.Username}'s ship has been sunk": $"{otherPlayer.member.Username}'s ship has been hit")}");
+                        await SendMessageToAllSpectators($"{(isDead ? $"{otherPlayer.member.Username}'s ship has been sunk" : $"{otherPlayer.member.Username}'s ship has been hit")}");
                     }
                     else
                     {
@@ -137,7 +137,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     bool lose = await otherPlayer.CheckIfLost();
 
-                    if(lose)
+                    if (lose)
                     {
                         var winMessage = $"{CurrentPlayer.member.Username} Wins!";
 
@@ -159,7 +159,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                     CurrentPlayer = CurrentPlayer == Players[0] ? Players[1] : Players[0];
                 }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 await SendMessageToAllSpectators("Unknown error occured ending spectation");
                 await SendMessageToBoth($"Unkown error -  {e.Message}  occured").ConfigureAwait(false);
@@ -182,10 +182,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task RemovePlayers()
         {
-            foreach (var spectator in spectators)
+            foreach (var spectator in Spectators)
                 spectator.End();
 
-            spectators = null;
+            Spectators = null;
 
             await Task.CompletedTask;
         }
@@ -244,8 +244,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         private async Task SendMessageToAllSpectators(string message = null, DiscordEmbedBuilder embed = null)
         {
             List<Task> tasks = new List<Task>();
-            foreach(var spectator in spectators)
-            {             
+            foreach (var spectator in Spectators)
+            {
                 if (message != null)
                     tasks.Add(Task.Run(() => spectator.SendMessage(message)));
                 if (embed != null)
@@ -258,12 +258,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public async Task<bool> AddSpectator(DiscordMember _member)
         {
-            if (spectators.Count == maxSpectators || Players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
+            if (Spectators.Count == maxSpectators || Players.FirstOrDefault(x => x.member.Id == _member.Id) != null)
                 return false;
 
             var spectator = new DiscordSpectator(_member, Client, this);
 
-            spectators.Add(spectator);
+            Spectators.Add(spectator);
             var channel = await _member.CreateDmChannelAsync();
 
             await spectator.Ready(channel);

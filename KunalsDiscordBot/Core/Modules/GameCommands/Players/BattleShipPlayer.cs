@@ -73,12 +73,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                         continue;
                     else
                     {
-                       if(!TryParseAndAdd(result, numOfBlocks[i], i))
-                       {
+                        if (!TryParseAndAdd(result, numOfBlocks[i], i))
+                        {
                             await communicator.SendMessage("Invalid position, enter again");
 
                             continue;
-                       }
+                        }
 
                         isCompleted = true;
                     }
@@ -114,7 +114,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                     Conditions = x => x.Channel == communicator.DMChannel && x.Author == member,
                     Span = TimeSpan.FromSeconds(BattleShip.time),
                     LeaveMessage = "end",
-                     RegexMatchFailExpression = "Please use the appropriate input format"
+                    RegexMatchFailExpression = "Please use the appropriate input format"
                 });
 
                 if (result.Equals(DiscordCommunicator.afkInputvalue))
@@ -261,7 +261,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                         case 1:
                             boardToString += BattleShip.HIT;
                             break;
-                        case  var num when num == 2:
+                        case var num when num == 2:
                             if (ourPlayer)
                                 boardToString += BattleShip.SHIP;
                             else
@@ -285,7 +285,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
             board[battleShipCoOrdinate.y, battleShipCoOrdinate.x] = 1;
 
-            foreach(Ship ship in ships)
+            foreach (Ship ship in ships)
             {
                 (bool hit, bool isDead) = await ship.CheckForHit(battleShipCoOrdinate);
 

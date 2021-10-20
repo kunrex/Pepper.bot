@@ -1,25 +1,23 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading.Tasks;
 
 namespace KunalsDiscordBot.Core
 {
     public class CustomDisposable : IAsyncDisposable, IDisposable
     {
-        protected bool disposed { get; set; } = false;
+        protected bool disposed = false;
 
         public CustomDisposable() { }
 
-        public void Dispose() => Dispose(true);
-
-        protected virtual void Dispose(bool disposing)
+        public void Dispose()
         {
             if (!disposed)
-            {
-                disposed = true;
-                GC.SuppressFinalize(this);
-            }
+                Dispose(true);
+
+            GC.SuppressFinalize(this);
         }
+
+        protected virtual void Dispose(bool disposing) => disposed = true;
 
         ~CustomDisposable() => Dispose(false);
 

@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Servers;
 using DiscordBotDataBase.Dal.Models.Servers.Models;
 using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
-using KunalsDiscordBot.Core.Attributes;
 
 namespace KunalsDiscordBot.Services.General
 {
@@ -41,12 +41,10 @@ namespace KunalsDiscordBot.Services.General
                 ChatData = new AIChatData {  Id = cached }
             };
 
-            await context.AddAsync(serverProfile);
-            await context.SaveChangesAsync();
+            await AddEntity(serverProfile);
 
             return serverProfile;
         }
-
 
         public async Task RemoveServerProfile(ulong id)
         {
@@ -55,8 +53,7 @@ namespace KunalsDiscordBot.Services.General
             if (profile == null)
                 return;
 
-            context.ServerProfiles.Remove(profile);
-            await context.SaveChangesAsync();
+            await RemoveEntity(profile);
         }
 
         public Task<MusicData> GetMusicData(ulong guildId) => Task.FromResult(context.MusicDatas.FirstOrDefault(x => x.Id == (long)guildId));
@@ -122,13 +119,13 @@ namespace KunalsDiscordBot.Services.General
             return Task.FromResult(rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null);
         }
 
-        public async Task<List<Rule>> GetAllRules(ulong guildId)
+        public async Task<IEnumerable<Rule>> GetAllRules(ulong guildId)
         {
             var profile = context.ServerProfiles.FirstOrDefault(x => x.Id == (long)guildId);
             if (profile == null)
                 profile = await CreateServerProfile(guildId);
 
-            return context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == profile.Id).ToList();
+            return context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == profile.Id);
         }
 
         public async Task<bool> ModifyData<T>(T data, Action<T> modification) where T : Entity<long> => await ModifyEntity(data, modification);

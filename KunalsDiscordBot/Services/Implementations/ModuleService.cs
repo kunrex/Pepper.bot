@@ -18,10 +18,11 @@ namespace KunalsDiscordBot.Services.Modules
 {
     public sealed class ModuleService : IModuleService
     {
-        private List<Type> modules;
-        public List<string> ModuleNames { get => modules.Select(x => x.GetCustomAttribute<GroupAttribute>().Name).ToList(); }
+        private readonly List<Type> modules;
+        public IEnumerable<string> ModuleNames { get => modules.Select(x => x.GetCustomAttribute<GroupAttribute>().Name); }
 
-        public Dictionary<ConfigValueSet, PepperCommandModuleInfo> ModuleInfo { get; } 
+        public Dictionary<ConfigValueSet, PepperCommandModuleInfo> ModuleInfo { get; }
+
         public int TotalCommands { get; }
 
         public ModuleService()

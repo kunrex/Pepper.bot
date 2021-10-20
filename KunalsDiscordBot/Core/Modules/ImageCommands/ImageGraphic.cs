@@ -29,7 +29,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush)
         {
-            using(var graphics = Graphics.FromImage(image))
+            using (var graphics = Graphics.FromImage(image))
                 graphics.DrawString(message, font, brush, new RectangleF(x, y, length, breadth));
 
             return Task.CompletedTask;
@@ -55,8 +55,8 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         {
             var bmap = (Bitmap)image;
 
-            for(int i =0;i<bmap.Width;i++)
-                for(int k = 0;k<bmap.Height;k++)
+            for (int i = 0; i < bmap.Width; i++)
+                for (int k = 0; k < bmap.Height; k++)
                 {
                     var color = bmap.GetPixel(i, k);
                     var newColor = Color.FromArgb(opacity, color);
@@ -120,7 +120,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                     bmap.SetPixel(i, j, Color.FromArgb(255 - c.R, 255 - c.G, 255 - c.B));
                 }
 
-            image =  new Bitmap(bmap);
+            image = new Bitmap(bmap);
             bmap.Dispose();
 
             return Task.CompletedTask;
@@ -204,12 +204,12 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             Bitmap bmap = (Bitmap)image;
             Color c;
 
-            for (int x = 0; x < bmap.Width; x+= pixelSize)
-                for (int y = 0; y < bmap.Width; y+= pixelSize)
+            for (int x = 0; x < bmap.Width; x += pixelSize)
+                for (int y = 0; y < bmap.Width; y += pixelSize)
                 {
                     int red = 0, blue = 0, green = 0, pixelCount = 0;
 
-                    for(int i = x; i< x + pixelSize && i < bmap.Width; i++)
+                    for (int i = x; i < x + pixelSize && i < bmap.Width; i++)
                         for (int k = y; k < y + pixelSize && k < bmap.Height; k++)
                         {
                             c = bmap.GetPixel(x, y);
@@ -243,10 +243,15 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             return Task.FromResult(ms);
         }
 
-        ~ImageGraphic()
+        protected override void Dispose(bool disposing)
         {
-            if(image != null)
-                image.Dispose();
+            if (disposing)
+            {
+                if (image != null)
+                    image.Dispose();            
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

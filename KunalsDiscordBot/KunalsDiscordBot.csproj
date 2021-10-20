@@ -30,6 +30,7 @@
     <PackageReference Include="Reddit" Version="1.5.0" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Google.Cloud.Dialogflow.V2" Version="3.5.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="8.3.3" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modules\" />
@@ -89,6 +90,7 @@
     <Folder Include="Core\Modules\MathCommands\Exceptions\" />
     <Folder Include="Core\Chatting\" />
     <Folder Include="Modules\Chatting\" />
+    <Folder Include="Core\Reddit\Exceptions\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -165,6 +167,10 @@
     <None Remove="Google.Cloud.Storage.V1" />
     <None Remove="Core\Chatting\" />
     <None Remove="Modules\Chatting\" />
+    <None Remove="Core\Reddit\Exceptions\" />
+    <None Remove="Magick.NET.Core" />
+    <None Remove="Magick.NET.SystemWindowsMedia" />
+    <None Remove="Magick.NET-Q16-AnyCPU" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

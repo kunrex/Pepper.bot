@@ -890,5 +890,22 @@ namespace KunalsDiscordBot.Modules.Images
                                  .SendAsync(ctx.Channel);
             }
         }
+
+        /*[Command]
+        public async Task Test(CommandContext ctx)
+        {
+            string filePath = Path.Combine("Modules", "Images", "Images", "communism.gif");
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                await graphicalImage.DrawString("hi", 0, 0, new Font("Arial", 20), new SolidBrush(Color.Black));
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { "communism.gif", ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
+            }
+        }*/
     }
 }

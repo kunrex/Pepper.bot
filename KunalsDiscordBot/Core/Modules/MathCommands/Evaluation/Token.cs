@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -26,7 +27,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
 
     public sealed class Token 
     {
-        public string Value { get; private set; }
+        private StringBuilder value;
+        public string Value { get => value.ToString(); }
         public TokenType Type { get; private set; }
 
         public bool HasSubTokens { get => subTokens != null && subTokens.Any(); }
@@ -34,8 +36,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         private List<Token> subTokens;
         public IList<Token> SubTokens { get => subTokens == null ? null : subTokens.AsReadOnly(); }
 
-        public char this[int index] => Value[index];
-        public int Length { get => Value.Length; }
+        public char this[int index] => value[index];
+        public string this[int index, int length] => value.ToString(index, length);
+        public int Length { get => value.Length; }
 
         public static Token Evaluate(Token rhs, Token lhs, TokenType _operator)
         {
@@ -54,9 +57,9 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             return null;
         }
 
-        public Token(string value, TokenType type, List<Token> tokens)
+        public Token(string tokenValue, TokenType type, List<Token> tokens)
         {
-            Value = value;
+            value = new StringBuilder(tokenValue);
             Type = type;
             subTokens = tokens;
         }
@@ -65,7 +68,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         {
             if (Type == TokenType.Constant)
             {
-                Value += toAdd;
+                value.Append(toAdd);
 
                 if (!float.TryParse(toAdd, out var x))
                     Type = TokenType.Variable;
@@ -77,7 +80,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
         {
             if (Type == TokenType.Constant)
             {
-                Value += toAdd;
+                value.Append(toAdd);
 
                 if (char.IsLetter(toAdd))
                     Type = TokenType.Variable;
@@ -124,35 +127,37 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
             return subTokens;
         }
 
-
         public Token Simplyfy()
         {
             if (HasSubTokens)
             {
-                var tokens = new List<Token>();
-
-                for (int i = 0; i < subTokens.Count; i++)
                 {
-                    var subToken = subTokens[i];
-                    if ((subToken.Type & TokenType.Operator) == subToken.Type)
+                    var tokens = new List<Token>();
+
+                    for (int i = 0; i < subTokens.Count; i++)
                     {
-                        tokens.Add(subToken);
-                        continue;
+                        var subToken = subTokens[i];
+                        if ((subToken.Type & TokenType.Operator) == subToken.Type)
+                        {
+                            tokens.Add(subToken);
+                            continue;
+                        }
+
+                        var prevOperation = i == 0 ? TokenType.Addition : subTokens[i - 1].Type;
+                        var nextOperation = i == subTokens.Count - 1 ? TokenType.Addition : subTokens[i + 1].Type;
+
+                        var simplified = subToken.Simplyfy();
+
+                        if (simplified.HasSubTokens && (prevOperation & TokenType.SecondaryOperator) != prevOperation
+                            && (nextOperation & TokenType.SecondaryOperator) != nextOperation)
+                            tokens.AddRange(simplified.GetDeepestSubTokens());
+                        else
+                            tokens.Add(simplified);
                     }
 
-                    var prevOperation = i == 0 ? TokenType.Addition : subTokens[i - 1].Type;
-                    var nextOperation = i == subTokens.Count - 1 ? TokenType.Addition : subTokens[i + 1].Type;
-
-                    var simplified = subToken.Simplyfy();
-
-                    if (simplified.HasSubTokens && prevOperation != TokenType.Division && prevOperation != TokenType.Multiplication
-                        && nextOperation != TokenType.Division && nextOperation != TokenType.Multiplication)
-                        tokens.AddRange(simplified.GetDeepestSubTokens());
-                    else
-                        tokens.Add(simplified);
+                    subTokens = tokens;
                 }
 
-                subTokens = tokens;
                 int prevCount = subTokens.Count;
 
                 while (subTokens.Count != 1)
@@ -177,11 +182,10 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                     prevCount = subTokens.Count;
                 }
 
-                var final = subTokens.Count == 1 ? subTokens[0] : new Token("()", TokenType.Brackets, subTokens);
+                var final = subTokens.Count == 1 ? subTokens[0] : LinearEquationLexer.CreateBrackets(subTokens);
                 subTokens = null;
 
-                var result = Evaluate(final, this, TokenType.Multiplication);
-                return result;
+                return Evaluate(final, this, TokenType.Multiplication);
             }
 
             return this;

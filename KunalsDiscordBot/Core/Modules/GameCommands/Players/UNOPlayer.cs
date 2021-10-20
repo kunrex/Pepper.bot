@@ -33,7 +33,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
 
         public async Task<bool> Ready(DiscordChannel channel, DiscordClient client)
         {
-            communicator = new UNOCommunicator(channel, TimeSpan.FromMinutes(UNOGame.timeLimit));
+            communicator = new UNOCommunicator(channel, TimeSpan.FromMinutes(UNOGame.inputTimeLimit));
             await communicator.SendMessage("Waiting for players to get ready...");
 
             await communicator.SendMessage("Cards recieved").ConfigureAwait(false);
@@ -121,7 +121,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
                 var result = await communicator.Input(interactivity, message, member,
                     new InputData
                     {
-                        Span = TimeSpan.FromMinutes(UNOGame.timeLimit),
+                        Span = TimeSpan.FromMinutes(UNOGame.inputTimeLimit),
                         LeaveMessage = "leave",
                         ExtraInputValues = options,
                         InputType = InputType.Dropdown

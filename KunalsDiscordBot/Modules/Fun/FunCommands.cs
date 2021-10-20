@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -9,9 +8,7 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Interactivity.Extensions;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.Core.Modules;
@@ -360,7 +357,7 @@ namespace KunalsDiscordBot.Modules.Fun
         public async Task Meme(CommandContext ctx)
         {
             var profile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
-            var post = redditApp.GetMeme(profile.AllowNSFW == 1);
+            var post = redditApp.GetMeme(profile.AllowNSFW == 1 && ctx.Channel.IsNSFW);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -372,25 +369,10 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("aww")]
-        [Description("Posts that make you go CUTE!, from r/aww"), RedditCommand]
+        [Description("Posts that make you go AWWW!, from r/aww"), RedditCommand]
         public async Task Awww(CommandContext ctx)
         {
             var post = redditApp.GetAww();
-
-            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
-            {
-                Title = post.Title,
-                ImageUrl = post.Listing.URL,
-                Url = "https://www.reddit.com" + post.Permalink,
-                Color = ModuleInfo.Color
-            }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
-        }
-
-        [Command("animals")]
-        [Description("Animal posts from r/Animals, :dog: :cat:"), RedditCommand]
-        public async Task Animals(CommandContext ctx)
-        {
-            var post = redditApp.GetAnimals();
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -439,18 +421,13 @@ namespace KunalsDiscordBot.Modules.Fun
                     Color = ModuleInfo.Color
                 }.WithFooter("The bot does not take into account all the posts only the a few from the top (like 50 or something, i donno)")).ConfigureAwait(false);
             else
-            {
-                if (post.NSFW)
-                    await ctx.Channel.SendMessageAsync("**THE FOLLOWING POST IS NSFW**").ConfigureAwait(false);
-
-                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                await ctx.RespondAsync(post.NSFW ? "**THE FOLLOWING POST IS NSFW**" : "", new DiscordEmbedBuilder
                 {
                     Title = post.Title,
                     ImageUrl = post.Listing.URL,
                     Url = "https://www.reddit.com" + post.Permalink,
                     Color = ModuleInfo.Color
                 }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
-            }
         }
 
         [Command("GhostPresence")]

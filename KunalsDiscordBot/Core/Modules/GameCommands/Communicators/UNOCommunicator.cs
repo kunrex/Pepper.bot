@@ -115,7 +115,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
                     Title = title,
                     ImageUrl = Card.GetLink(card.fileName).link + ".png",
                     Color = UNOGame.UNOColor
-                }.WithFooter($"{index}/{cards.Count}. (You can view the following cards using this message for {UNOGame.timeLimit} minute(s))")
+                }.WithFooter($"{index}/{cards.Count}. (You can view the following cards using this message for {UNOGame.inputTimeLimit} minute(s))")
                  .AddField("Card", card.cardName);
 
                 pages.Add(new Page(null, embed));

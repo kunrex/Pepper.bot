@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
-    public class ImageCollection : CustomDisposable, IEnumerable
+    public class ImageCollection : CustomDisposable, IEnumerable<ImageGraphic>
     {
         private List<ImageGraphic> Images { get; set; }
 
@@ -31,13 +31,33 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         public void Clear() => Images = new List<ImageGraphic>();
 
-        IEnumerator IEnumerable.GetEnumerator() => new ImageEnumerator(this);
-
-        ~ImageCollection()
+        public void DisposeAndClear()
         {
-           if(Images != null)
             foreach (var image in Images)
                 image.Dispose();
+
+            Images = new List<ImageGraphic>();
+        }
+
+        private IEnumerator<ImageGraphic> _GetEnumerator() => new ImageEnumerator(this);
+
+        IEnumerator IEnumerable.GetEnumerator() => _GetEnumerator();
+        public IEnumerator<ImageGraphic> GetEnumerator() => _GetEnumerator();
+
+        protected override void Dispose(bool disposing)
+        {
+            if(disposing)
+            {
+                if (Images != null)
+                {
+                    foreach (var image in Images)
+                        image.Dispose();
+
+                    Images = null;
+                }
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

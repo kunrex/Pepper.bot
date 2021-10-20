@@ -47,6 +47,15 @@ namespace KunalsDiscordBot.Modules.Music
 
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
+            var myInstance = PepperBotClientManager.GetShard(ctx.Client.ShardId);
+
+            var lava = ctx.Client.GetLavalink();
+            if (!myInstance.IsOnline || lava == null || !lava.ConnectedNodes.Any())
+            {
+                await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established");
+                throw new CustomCommandException();
+            }
+
             var configPermsCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckConfigigurationPermissionsAttribute) != null;
 
             if (configPermsCheck)
@@ -160,12 +169,6 @@ namespace KunalsDiscordBot.Modules.Music
         public async Task Join(CommandContext ctx)
         {
             var lava = ctx.Client.GetLavalink();
-            if (lava == null || !lava.ConnectedNodes.Any())
-            {
-                await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established");
-                return;
-            }
-
             if (await service.GetPlayerChannel(ctx.Guild.Id) != null)
             {
                 await ctx.RespondAsync("I'm already in a channel?").ConfigureAwait(false);
