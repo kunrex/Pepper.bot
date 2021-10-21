@@ -15,7 +15,6 @@
     <None Remove="Models\Server\" />
     <None Remove="Models\Server\Models\" />
     <None Remove="Models\Server\Models\Moderation\" />
-    <None Remove="Models\Server\Models\Partials\" />
     <None Remove="Models\Currency\Profile\Items\" />
   </ItemGroup>
   <ItemGroup>
@@ -34,7 +33,6 @@
     <Folder Include="Models\Server\" />
     <Folder Include="Models\Server\Models\" />
     <Folder Include="Models\Server\Models\Moderation\" />
-    <Folder Include="Models\Server\Models\Partials\" />
     <Folder Include="Models\Currency\Profile\Items\" />
   </ItemGroup>
 </Project>

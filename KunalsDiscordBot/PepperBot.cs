@@ -283,7 +283,7 @@ namespace KunalsDiscordBot
             _ = Task.Run(async () =>
             {
                 var serverService = (IServerService)Services.GetService(typeof(IServerService));
-                await serverService.CreateServerProfile(e.Guild.Id);
+                await serverService.GetServerProfile(e.Guild.Id);
 
                 var channel = e.Guild.GetDefaultChannel();
                 if (channel == null)
@@ -302,20 +302,7 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
-                var modService = (IModerationService)Services.GetService(typeof(IModerationService));
-
                 var serverService = (IServerService)Services.GetService(typeof(IServerService));
-                var profile = await serverService.GetServerProfile(e.Guild.Id);
-          
-                var channel = e.Guild.Channels.FirstOrDefault(x => x.Value.Id == ((ulong)profile.WelcomeChannel)).Value;
-                if (channel == null)
-                    channel = e.Guild.GetDefaultChannel();
-
-                if (channel != null)
-                    await channel.SendMessageAsync(BotService.GetLeaveEmbed().WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30))
-                    .ConfigureAwait(false);
-
-                await modService.ClearAllServerModerationData(e.Guild.Id);
                 await serverService.RemoveServerProfile(e.Guild.Id);
             });
 

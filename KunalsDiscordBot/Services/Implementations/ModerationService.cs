@@ -16,7 +16,7 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<int> AddBan(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-            var ban = new Ban { Reason = reason, Time = time , ModeratorID = (long)moderatorID, UserId = (long)id };
+            var ban = new Ban { Reason = reason, Time = time , ModeratorID = (long)moderatorID, UserId = (long)id, GuildID = (long)guildId };
 
             await ModifyEntity(profile, x => x.Bans.Add(ban));
             return ban.Id;
@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<int> AddEndorsement(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-            var endorsement = new Endorsement { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
+            var endorsement = new Endorsement { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id, GuildID = (long)guildId };
 
             await ModifyEntity(profile, x => x.Endorsements.Add(endorsement));
             return endorsement.Id;
@@ -34,7 +34,7 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<int> AddInfraction(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-            var infraction = new Infraction { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
+            var infraction = new Infraction { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id, GuildID = (long)guildId };
 
             await ModifyEntity(profile, x => x.Infractions.Add(infraction));
             return infraction.Id;
@@ -43,7 +43,7 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<int> AddKick(ulong id, ulong guildId, ulong moderatorID, string reason)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-            var kick = new Kick { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id };
+            var kick = new Kick { Reason = reason, ModeratorID = (long)moderatorID, UserId = (long)id, GuildID = (long)guildId };
 
             await ModifyEntity(profile, x => x.Kicks.Add(kick));
             return kick.Id;
@@ -52,7 +52,7 @@ namespace KunalsDiscordBot.Services.Moderation
         public async Task<int> AddMute(ulong id, ulong guildId, ulong moderatorID, string reason, string time)
         {
             var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)guildId);
-            var mute = new Mute { Reason = reason, Time = time, StartTime = DateTime.Now.ToString("dddd, dd MMMM yyyy"), ModeratorID = (long)moderatorID, UserId = (long)id };
+            var mute = new Mute { Reason = reason, Time = time, StartTime = DateTime.Now.ToString("dddd, dd MMMM yyyy"), ModeratorID = (long)moderatorID, UserId = (long)id, GuildID = (long)guildId };
 
             await ModifyEntity(profile, x => x.Mutes.Add(mute));
             return mute.Id;
@@ -122,6 +122,49 @@ namespace KunalsDiscordBot.Services.Moderation
                 await RemoveEntity(kick);
 
             return true;
+        }
+
+        public async Task<bool> AddOrRemoveCustomCommand(ulong id, string commandTitle, bool add, string commandContent = "Unspecified")
+        {
+            var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)id);
+            if (profile == null)
+                return false;
+
+            if (add)
+            {
+                if (await CheckIfCustomCommandExists(id, commandTitle))
+                    return false;
+
+                profile.CustomCommands.Add(new CustomCommand
+                {
+                    CommandName = commandTitle,
+                    CommandContent = commandContent
+                });
+            }
+            else
+            {
+                var command = context.ServerCustomCommands.AsQueryable().FirstOrDefault(x => x.ModerationDataId == profile.Id && x.CommandName == commandTitle);
+                await RemoveEntity(command);
+            }
+
+            await UpdateEntity(profile);
+            return true;
+        }
+
+        private Task<bool> CheckIfCustomCommandExists(ulong id, string commandTitle)
+        {
+            var rules = context.ServerCustomCommands.AsQueryable().Where(x => x.ModerationDataId == (long)id).ToList();
+
+            return Task.FromResult(rules.FirstOrDefault(x => x.CommandName == commandTitle) != null);
+        }
+
+        public async Task<CustomCommand> GetCustomCommand(ulong guildId, string commandTitle) => (await GetAllCustomCommands(guildId)).FirstOrDefault(x => x.CommandName == commandTitle);
+
+        public Task<IEnumerable<CustomCommand>> GetAllCustomCommands(ulong guildId)
+        {
+            var cached = (long)guildId;
+
+            return Task.FromResult(context.ServerCustomCommands.AsEnumerable().Where(x => x.ModerationDataId == cached));
         }
     }
 }

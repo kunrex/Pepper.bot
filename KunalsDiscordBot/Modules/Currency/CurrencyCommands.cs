@@ -219,9 +219,8 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("XP: ", $"{profile.XP}", true)
              .AddField("Job: ", profile.Job);
 
-            int index = 1;
             var boosts = await service.GetBoosts(ctx.Member.Id);
-            embed.AddField("Boosts:\n", boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"{index++}. {x.Name}")));
+            embed.AddField("Boosts:\n", !boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"`{x.Name}`")));
 
             await ctx.RespondAsync(embed).ConfigureAwait(false);
         }
@@ -258,9 +257,8 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("XP: ", $"{profile.XP}", true)
              .AddField("Job: ", profile.Job);
 
-            int index = 1;
             var boosts = await service.GetBoosts(ctx.Member.Id);
-            embed.AddField("Boosts:\n", boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"{index++}. {x.Name}")));
+            embed.AddField("Boosts:\n", !boosts.Any() ? "None" : string.Join(", ", boosts.Select(x => $"`{x.Name}`")));
 
             await ctx.RespondAsync(embed).ConfigureAwait(false);
         }

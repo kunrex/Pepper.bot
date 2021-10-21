@@ -29,6 +29,7 @@ namespace DiscordBotDataBase.Dal
         public DbSet<AIChatData> ChatDatas { get; set; }
 
         public DbSet<Rule> ServerRules { get; set; }
+        public DbSet<CustomCommand> ServerCustomCommands { get; set; }
 
         public DbSet<Infraction> ModerationInfractions { get; set; }
         public DbSet<Endorsement> ModerationEndorsements { get; set; }

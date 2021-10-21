@@ -6,7 +6,10 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Events;
@@ -267,7 +270,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         }
 
         [Command("GetBan")]
-        [Description("Gets a kick event using its ID")]
+        [Description("Gets a ban event using its ID")]
         public async Task GetBan(CommandContext ctx, int banID)
         {
             var ban = await modService.GetBan(banID);
@@ -368,7 +371,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         }
 
         [Command("RemoveRule")]
-        [Description("Add a rule in the server")]
+        [Description("Removes a rule in the server")]
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task RemoveRule(CommandContext ctx, int index)
         {
@@ -392,6 +395,106 @@ namespace KunalsDiscordBot.Modules.Moderation
                 Description = $"Rule {index} removed",
                 Color = ModuleInfo.Color
             }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+        }
+
+
+        [Command("AddCustomCommant")]
+        [Description("Add a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddCustomCommant(CommandContext ctx, [RemainingText] string newCommand)
+        {
+            var command = newCommand.Split(',').Select(x => x.Trim().ToLower()).ToArray();
+            if(command.Length != 2)
+            {
+                await ctx.RespondAsync("Split the name of the command and the content using a `,`");
+                return;
+            }
+
+            var completed = await modService.AddOrRemoveCustomCommand(ctx.Guild.Id, command[0], true, command[1]).ConfigureAwait(false);
+
+            if (!completed)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Custom Command already exists",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+            else
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = "Added Cuustom Command",
+                    Description = $"{command[0]}: {command[1]}",
+                    Color = ModuleInfo.Color
+                }).ConfigureAwait(false);
+        }
+
+        [Command("RemoveCustomCommand")]
+        [Description("Removes a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task RemoveRule(CommandContext ctx, string name)
+        {
+            name = name.ToLower();
+            var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);
+            if (customCommand == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Custom Command doesn't exist",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+                return;
+            }
+
+            await modService.AddOrRemoveCustomCommand(ctx.Guild.Id, name, false).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Removed Custom Command",
+                Description = $"Custom Command `{name}` removed",
+                Color = ModuleInfo.Color
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+        }
+
+        [Command("CustomCommandsList")]
+        [Description("Shows all custom commands in a server"), Aliases("cclist")]
+        public async Task CustomCommandsList(CommandContext ctx)
+        {
+            var customCommands = await modService.GetAllCustomCommands(ctx.Guild.Id);
+            if(!customCommands.Any())
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = "This server has no custom commands",
+                    Color = ModuleInfo.Color,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now}" }
+                });
+
+                return;
+            }
+
+            var pages = ctx.Client.GetInteractivity().GetPages(customCommands, x => (x.CommandName, x.CommandContent), new EmbedSkeleton
+            {
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }).ToArray();
+
+            if (pages.Length == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
+        }
+
+        [Command("CustomCommand"), GroupCommand]
+        [Description("Runs a custom command, note this is a `group command`")]
+        public async Task CustomCommand(CommandContext ctx, [RemainingText] string name)
+        {
+            name = name.ToLower();
+
+            var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);           
+            if(customCommand == null)
+                throw new CommandNotFoundException($"moderation {name}");
+
+            await ctx.RespondAsync(customCommand.CommandContent);
         }
     }
 }

@@ -300,16 +300,15 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             return (false, false);
         }
 
-        public async Task<bool> CheckIfLost()
+        public Task<bool> CheckIfLost()
         {
             foreach (var ship in ships)
             {
                 if (!ship.isDead)
-                    return false;
+                    return Task.FromResult(false);
             }
 
-            await Task.CompletedTask;
-            return true;
+            return Task.FromResult(true);
         }
 
         public async Task SendMessage(string message) => await communicator.SendMessage(message);

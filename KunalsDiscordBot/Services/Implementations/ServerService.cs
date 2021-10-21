@@ -38,17 +38,17 @@ namespace KunalsDiscordBot.Services.General
                 FunData = new FunData { Id = cached },
                 MusicData = new MusicData { Id = cached },
                 GameData = new GameData { Id = cached },
-                ChatData = new AIChatData {  Id = cached }
+                ChatData = new AIChatData {  Id = cached },
             };
 
             await AddEntity(serverProfile);
-
             return serverProfile;
         }
 
         public async Task RemoveServerProfile(ulong id)
         {
-            var profile = context.ServerProfiles.FirstOrDefault(x => x.Id == (long)id);
+            var cached = (long)id;
+            var profile = context.ServerProfiles.FirstOrDefault(x => x.Id == cached);
 
             if (profile == null)
                 return;
@@ -73,14 +73,13 @@ namespace KunalsDiscordBot.Services.General
             return context.ChatDatas.FirstOrDefault(x => x.Id == (long)guildId);
         }
 
-        public Task<Rule> GetRule(ulong guildId, int index)
+        public async Task<Rule> GetRule(ulong guildId, int index)
         {
             if (index < 0)
                 return null;
 
-            var rules = context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == (long)guildId).ToList();
-
-            return index >= rules.Count ? null : Task.FromResult(rules[index]);
+            var rules = (await GetAllRules(guildId)).ToList();
+            return index >= rules.Count ? null : rules[index];
         }
 
         public async Task<bool> AddOrRemoveRule(ulong id, string ruleContent, bool add)
@@ -105,27 +104,23 @@ namespace KunalsDiscordBot.Services.General
                 context.ServerRules.Remove(rule);
             }
 
-            var updateEntry = context.ModerationDatas.Update(profile);
-            await context.SaveChangesAsync();
-
-            updateEntry.State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+            await UpdateEntity(profile);
             return true;
         }
 
         private Task<bool> CheckIfRuleExists(ulong id, string ruleContent)
         {
-            var rules = context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == (long)id).ToList();
+            var cached = (long)id;
+            var rules = context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == cached).ToList();
 
             return Task.FromResult(rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null);
         }
 
-        public async Task<IEnumerable<Rule>> GetAllRules(ulong guildId)
+        public Task<IEnumerable<Rule>> GetAllRules(ulong guildId)
         {
-            var profile = context.ServerProfiles.FirstOrDefault(x => x.Id == (long)guildId);
-            if (profile == null)
-                profile = await CreateServerProfile(guildId);
+            var cached = (long)guildId;
 
-            return context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == profile.Id);
+            return Task.FromResult(context.ServerRules.AsEnumerable().Where(x => x.ModerationDataId == cached));
         }
 
         public async Task<bool> ModifyData<T>(T data, Action<T> modification) where T : Entity<long> => await ModifyEntity(data, modification);

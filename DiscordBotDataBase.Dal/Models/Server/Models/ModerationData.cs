@@ -14,7 +14,10 @@ namespace DiscordBotDataBase.Dal.Models.Servers.Models
         public long MutedRoleId { get; set; } = 0;
         public long ModeratorRoleId { get; set; } = 0;
 
+        public long RulesMessageId { get; set; } = 0;
+
         public List<Rule> Rules { get; set; } = new List<Rule>();
+        public List<CustomCommand> CustomCommands { get; set; } = new List<CustomCommand>();
 
         public List<Infraction> Infractions { get; set; } = new List<Infraction>();
         public List<Endorsement> Endorsements { get; set; } = new List<Endorsement>();

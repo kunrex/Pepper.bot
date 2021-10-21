@@ -28,6 +28,10 @@ namespace KunalsDiscordBot.Services.Moderation
         public Task<List<Mute>> GetMutes(ulong id, ulong guildId);
         public Task<List<Mute>> GetMutes(ulong guildId);
 
+        public Task<bool> AddOrRemoveCustomCommand(ulong id, string commandTitle, bool add, string commandContent = "Unspecified");
+        public Task<CustomCommand> GetCustomCommand(ulong guildId, string commandTitle);
+        public Task<IEnumerable<CustomCommand>> GetAllCustomCommands(ulong guildId);
+
         public Task<bool> ClearInfractions(ulong id, ulong guildId);
         public Task<bool> ClearEndorsements(ulong id, ulong guildId);
 
