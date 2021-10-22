@@ -147,8 +147,7 @@ namespace KunalsDiscordBot.Services.Moderation
                 await RemoveEntity(command);
             }
 
-            await UpdateEntity(profile);
-            return true;
+            return await UpdateEntity(profile); 
         }
 
         private Task<bool> CheckIfCustomCommandExists(ulong id, string commandTitle)

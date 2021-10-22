@@ -105,6 +105,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                             .ConfigureAwait(false);
 
                         GameOver = true;
+                        printAtEnd = false;
+
                         continue;
                     }
 

@@ -30,6 +30,7 @@ namespace KunalsDiscordBot.Services
 
             context.Remove(entityToRemove);
             await context.SaveChangesAsync();
+
             return true;
         }
 

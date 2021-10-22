@@ -93,25 +93,23 @@ namespace KunalsDiscordBot.Services.General
                 if (await CheckIfRuleExists(id, ruleContent))
                     return false;
 
-                profile.Rules.Add(new Rule
+                return await AddEntity(new Rule()
                 {
                     RuleContent = ruleContent,
+                    ModerationDataId = profile.Id
                 });
             }
             else
             {
-                var rule = context.ServerRules.AsQueryable().FirstOrDefault(x => x.ModerationDataId == profile.Id && x.RuleContent == ruleContent);
-                context.ServerRules.Remove(rule);
+                var rule = (await GetAllRules(id)).FirstOrDefault(x => x.RuleContent == ruleContent);
+                return await RemoveEntity(rule);
             }
-
-            await UpdateEntity(profile);
-            return true;
         }
 
         private Task<bool> CheckIfRuleExists(ulong id, string ruleContent)
         {
             var cached = (long)id;
-            var rules = context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == cached).ToList();
+            var rules = context.ServerRules.AsQueryable().Where(x => x.ModerationDataId == cached);
 
             return Task.FromResult(rules.FirstOrDefault(x => x.RuleContent == ruleContent) != null);
         }

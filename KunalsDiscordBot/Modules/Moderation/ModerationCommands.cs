@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.CommandsNext.Exceptions;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Extensions;
@@ -26,7 +24,7 @@ namespace KunalsDiscordBot.Modules.Moderation
     [Group("Moderation")]
     [Aliases("Mod")]
     [Decor("Blurple", ":scales:")]
-    [Description("Moderation Commands.")]
+    [Description("Moderation Commands."), ModuleLifespan(ModuleLifespan.Transient)]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class ModerationCommands : PepperCommandModule
     {
@@ -355,19 +353,23 @@ namespace KunalsDiscordBot.Modules.Moderation
         {
             var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
 
-            if(!completed)
+            if (!completed)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = $"Rule already exists",
                     Color = ModuleInfo.Color
                 }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
             else
+            {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = "Added Rule",
                     Description = $"Rule added: {rule}",
                     Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
+
+                await UpdateRuleMessage(ctx.Guild, ctx.Client);
+            }
         }
 
         [Command("RemoveRule")]
@@ -395,18 +397,155 @@ namespace KunalsDiscordBot.Modules.Moderation
                 Description = $"Rule {index} removed",
                 Color = ModuleInfo.Color
             }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+            await UpdateRuleMessage(ctx.Guild, ctx.Client);
         }
 
+        [Command("RemoveAllRules")]
+        [Description("Removes all rules in the server")]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
+        public async Task RemoveAllRule(CommandContext ctx)
+        {
+            var rules = (await serverService.GetAllRules(ctx.Guild.Id)).ToArray();
 
-        [Command("AddCustomCommant")]
-        [Description("Add a custom command in the server")]
+            if(!rules.Any())
+            {
+                await ctx.RespondAsync("There are no rules in this server");
+                return;
+            }
+
+            var count = rules.Length;
+            foreach (var rule in rules)
+                await serverService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Removed All Rules",
+                Description = $"{count} rule(s) removed",
+                Color = ModuleInfo.Color
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+            await UpdateRuleMessage(ctx.Guild, ctx.Client);
+        }
+
+        private async Task UpdateRuleMessage(DiscordGuild guild, DiscordClient client)
+        {
+            var channelID = (ulong)(await serverService.GetServerProfile(guild.Id)).RulesChannelId;
+            var channel = guild.GetChannel(channelID);
+            if (channel == null)
+                return;
+
+            var profile = await serverService.GetModerationData(guild.Id);
+            var messageId = (ulong)profile.RulesMessageId;
+
+            try
+            {
+                var message = await channel.GetMessageAsync(messageId);
+
+                var rules = (await serverService.GetAllRules(guild.Id));
+                if (!rules.Any())
+                    await message.DeleteAsync("No rules in server");
+                else
+                {
+                    var embeds = client.GetInteractivity().GetPages(rules, x => (string.Empty, x.RuleContent), new EmbedSkeleton
+                    {
+                        Color = ModuleInfo.Color
+                    }).Select(x => x.Embed);
+
+                    var builder = new DiscordMessageBuilder().WithContent("**READ THE RULES**")
+                        .AddEmbeds(embeds);
+
+                    await message.ModifyAsync(builder);
+                }
+            }
+            catch { }
+        }
+
+        [Command("CreateRuleMessage")]
+        [Description("Creats a dynamic rule message in the rule channel assigned")]
         [RequireUserPermissions(Permissions.Administrator)]
+        public async Task CreateRuleMessage(CommandContext ctx)
+        {
+            var channelID = (ulong)(await serverService.GetServerProfile(ctx.Guild.Id)).RulesChannelId;
+            var channel = ctx.Guild.GetChannel(channelID);
+            if(channel == null)
+            {
+                await ctx.RespondAsync("A valid rule channel nees to be assigned to create a rule message. You can do so using the `general rulechannel` command");
+                return;
+            }
+
+            var profile = await serverService.GetModerationData(ctx.Guild.Id);
+            var messageId = (ulong)profile.RulesMessageId;
+
+            try
+            {
+                if (await channel.GetMessageAsync(messageId) != null)
+                {
+                    await ctx.RespondAsync("There already is a rule message for this server");
+                    return;
+                }
+            }
+            catch
+            {
+                var rules = await serverService.GetAllRules(ctx.Guild.Id);
+                var embeds = ctx.Client.GetInteractivity().GetPages(rules, x => (string.Empty, x.RuleContent), new EmbedSkeleton
+                {
+                    Color = ModuleInfo.Color
+                }).Select(x => x.Embed);
+
+                var builder = new DiscordMessageBuilder().WithContent("**READ THE RULES**")
+                    .AddEmbeds(embeds);
+
+                messageId = (await builder.SendAsync(channel)).Id;
+                await serverService.ModifyData(profile, x => x.RulesMessageId = (long)messageId);
+
+                await ctx.RespondAsync($"Rule message created in {channel.Mention}");
+            }                  
+        }
+
+        [Command("DeleteRuleMessage")]
+        [Description("Deletes the rule message")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task DeleteRuleMessage(CommandContext ctx)
+        {
+            var channelID = (ulong)(await serverService.GetServerProfile(ctx.Guild.Id)).RulesChannelId;
+            var channel = ctx.Guild.GetChannel(channelID);
+            if (channel == null)
+            {
+                await ctx.RespondAsync("A valid rule channel nees to be assigned to create a rule message. You can do so using the `general rulechannel` command");
+                return;
+            }
+
+            try
+            {
+                var message = await channel.GetMessageAsync((ulong)(await serverService.GetModerationData(ctx.Guild.Id)).RulesMessageId);
+                await message.DeleteAsync("Rule message deletion");
+
+                await ctx.RespondAsync("Rule message deleted");
+            }
+            catch
+            {
+                await ctx.RespondAsync("There already is no rule message for this server");
+            }
+        }
+
+        [Command("AddCustomCommand")]
+        [Description("Add a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.CustomCommandCount)]
         public async Task AddCustomCommant(CommandContext ctx, [RemainingText] string newCommand)
         {
-            var command = newCommand.Split(',').Select(x => x.Trim().ToLower()).ToArray();
+            var command = newCommand.Split(':').Select(x => x.Trim()).ToArray();
             if(command.Length != 2)
             {
-                await ctx.RespondAsync("Split the name of the command and the content using a `,`");
+                await ctx.RespondAsync("Split the name of the command and the content using a `:`");
+                return;
+            }
+
+            command[0] = command[0].ToLower();
+
+            if(command[0].Contains(" "))
+            {
+                await ctx.RespondAsync("Custom command names cannot contain spaces");
                 return;
             }
 
@@ -421,7 +560,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             else
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
-                    Title = "Added Cuustom Command",
+                    Title = "Added Custom Command",
                     Description = $"{command[0]}: {command[1]}",
                     Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
@@ -429,7 +568,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
         [Command("RemoveCustomCommand")]
         [Description("Removes a custom command in the server")]
-        [RequireUserPermissions(Permissions.Administrator)]
+        [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.CustomCommandCount)]
         public async Task RemoveRule(CommandContext ctx, string name)
         {
             name = name.ToLower();
@@ -453,48 +592,6 @@ namespace KunalsDiscordBot.Modules.Moderation
                 Description = $"Custom Command `{name}` removed",
                 Color = ModuleInfo.Color
             }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
-        }
-
-        [Command("CustomCommandsList")]
-        [Description("Shows all custom commands in a server"), Aliases("cclist")]
-        public async Task CustomCommandsList(CommandContext ctx)
-        {
-            var customCommands = await modService.GetAllCustomCommands(ctx.Guild.Id);
-            if(!customCommands.Any())
-            {
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                {
-                    Description = "This server has no custom commands",
-                    Color = ModuleInfo.Color,
-                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now}" }
-                });
-
-                return;
-            }
-
-            var pages = ctx.Client.GetInteractivity().GetPages(customCommands, x => (x.CommandName, x.CommandContent), new EmbedSkeleton
-            {
-                Color = ModuleInfo.Color,
-                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
-            }).ToArray();
-
-            if (pages.Length == 1)
-                await ctx.RespondAsync(pages[0].Embed);
-            else
-                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
-        }
-
-        [Command("CustomCommand"), GroupCommand]
-        [Description("Runs a custom command, note this is a `group command`")]
-        public async Task CustomCommand(CommandContext ctx, [RemainingText] string name)
-        {
-            name = name.ToLower();
-
-            var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);           
-            if(customCommand == null)
-                throw new CommandNotFoundException($"moderation {name}");
-
-            await ctx.RespondAsync(customCommand.CommandContent);
         }
     }
 }

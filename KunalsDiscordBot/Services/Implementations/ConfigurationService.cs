@@ -11,6 +11,7 @@ using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Configurations.Enums;
+using KunalsDiscordBot.Services.Moderation;
 
 namespace KunalsDiscordBot.Services.Configuration
 {
@@ -22,7 +23,7 @@ namespace KunalsDiscordBot.Services.Configuration
         public readonly ServerConfigData configData;
         public readonly IModuleService moduleService;
 
-        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service, IModuleService _moduleService)
+        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service, IModuleService _moduleService, IModerationService moderationService)
         {
             serverService = service;
             configData = configurationManager.ServerConfigData;
@@ -47,6 +48,7 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.TicTacToeChannel, async(id) => (ulong)(await serverService.GetGameData(id)).TicTacToeChannel},
                  { ConfigValue.AIChatEnabled, async(id) => (ulong)(await serverService.GetChatData(id)).Enabled == 1},
                  { ConfigValue.AIChatChannel, async(id) => (ulong)(await serverService.GetChatData(id)).AIChatChannelID},
+                 { ConfigValue.CustomCommandCount, async(id) => (await moderationService.GetAllCustomCommands(id)).Count()},
             };
         }
 
@@ -69,6 +71,7 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.TicTacToeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
             { ConfigValue.AIChatEnabled,(s) => $"`{(bool)s}`"},
             { ConfigValue.AIChatChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
+            { ConfigValue.CustomCommandCount, (s) => $"`{(int)s}`"}
         };
 
         public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms)

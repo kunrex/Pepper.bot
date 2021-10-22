@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -409,7 +411,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var post = redditApp.GetRandomPost(subReddit, new RedditFilter
             {
-                AllowNSFW = serverProfile.AllowNSFW == 1,
+                AllowNSFW = serverProfile.AllowNSFW == 1 && ctx.Channel.IsNSFW,
                 ImagesOnly = useImage,
                 Filter = filter,
             });
@@ -488,6 +490,17 @@ namespace KunalsDiscordBot.Modules.Fun
                 await ctx.RespondAsync("You need to give me 2 or more options");
             else
                 await ctx.RespondAsync($"I choose: {choices[new Random().Next(0, choices.Length)]}");
+        }
+
+        [Command("Act")]
+        [Description("Send a message on behalf of another user")]
+        public async Task Act(CommandContext ctx, DiscordMember member, [RemainingText] string message)
+        {
+            var webhook = await ctx.Channel.CreateWebhookAsync(member.DisplayName, null, "act command execution");
+            await webhook.ExecuteAsync(new DiscordWebhookBuilder { AvatarUrl = member.AvatarUrl, Content = message });
+
+            foreach (var hook in await ctx.Channel.GetWebhooksAsync())
+                await hook.DeleteAsync();
         }
     }
 }

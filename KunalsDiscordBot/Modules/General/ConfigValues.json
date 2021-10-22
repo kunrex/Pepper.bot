@@ -43,6 +43,11 @@
         "ConfigData": 7,
         "FieldName": "Rule Count",
         "Description": "The number of rules in the server"
+      },
+      {
+        "ConfigData": 17,
+        "FieldName": "Custom Command Count",
+        "Description": "The number of custom commands in the server"
       }
     ],
 

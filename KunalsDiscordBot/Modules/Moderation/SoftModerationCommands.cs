@@ -2,16 +2,17 @@
 using System.IO;
 using System.Net;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.Net.Models;
 using DSharpPlus.CommandsNext;
+using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Exceptions;
+using DSharpPlus.Interactivity.Extensions;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Events;
 using KunalsDiscordBot.Core.Modules;
@@ -28,7 +29,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 {
     [Group("SoftModeration")]
     [Aliases("softmod", "sm"), Decor("Blurple", ":scales:")]
-    [Description("Soft Moderation commands.")]
+    [Description("Soft Moderation commands."), ModuleLifespan(ModuleLifespan.Transient)]
     [RequireBotPermissions(Permissions.Administrator), ConfigData(ConfigValueSet.Moderation)]
     public class SoftModerationCommands : PepperCommandModule
     {
@@ -301,7 +302,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         }
 
         [Command("SetNSFW")]
-        [Aliases("NSFW"), Description("Changes the NSFW status of a channel")]
+        [Description("Changes the NSFW status of a channel")]
         [RequireBotPermissions(Permissions.ManageChannels), ModeratorNeeded]
         public async Task NSFW(CommandContext ctx, bool toSet)
         {
@@ -474,6 +475,48 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             embed.AddField("Time: ", $"{span.Days} days, {span.Hours} hours, {span.Minutes} minutes, {span.Seconds} seconds");
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("CustomCommandsList")]
+        [Description("Shows all custom commands in a server"), Aliases("cclist")]
+        public async Task CustomCommandsList(CommandContext ctx)
+        {
+            var customCommands = await modService.GetAllCustomCommands(ctx.Guild.Id);
+            if (!customCommands.Any())
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = "This server has no custom commands",
+                    Color = ModuleInfo.Color,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now}" }
+                });
+
+                return;
+            }
+
+            var pages = ctx.Client.GetInteractivity().GetPages(customCommands, x => (x.CommandName, x.CommandContent), new EmbedSkeleton
+            {
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }).ToArray();
+
+            if (pages.Length == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
+        }
+
+        [Command("CustomCommand"), GroupCommand]
+        [Description("Runs a custom command, note this is a `group command`")]
+        public async Task CustomCommand(CommandContext ctx, string name)
+        {
+            name = name.ToLower();
+
+            var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);
+            if (customCommand == null)
+                throw new CommandNotFoundException($"moderation {name}");
+
+            await ctx.RespondAsync(customCommand.CommandContent);
         }
     }
 }
