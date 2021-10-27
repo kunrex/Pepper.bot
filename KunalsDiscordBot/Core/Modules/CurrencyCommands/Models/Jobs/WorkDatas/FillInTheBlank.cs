@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Core.DiscordModels;
+
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs.WorkDatas
 {
     public sealed class FillInTheBlank : WorkData<CustomTuple<string, string>>

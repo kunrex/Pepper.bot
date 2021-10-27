@@ -3,7 +3,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace KunalsDiscordBot.Core.Modules
+namespace KunalsDiscordBot.Core.DiscordModels
 {
     public class TupleBag<Item1, Item2> 
     {

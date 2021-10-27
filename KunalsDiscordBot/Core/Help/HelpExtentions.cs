@@ -6,8 +6,8 @@ using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using KunalsDiscordBot.Core.Help;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 
 namespace KunalsDiscordBot.Extensions
@@ -25,7 +25,7 @@ namespace KunalsDiscordBot.Extensions
             foreach (var command in commands.GetModules())//get all modules, ignore help command
             {
                 var decor = (DecorAttribute)command.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
-                yield return new FieldData { name = $"• **{command.Name.Format()}** {(decor == null ? "" : decor.emoji)}\n", value = $"Description: {command.Description}\n\n" };
+                yield return new FieldData { Name = $"• **{command.Name.Format()}** {(decor == null ? "" : decor.emoji)}\n", Value = $"Description: {command.Description}\n\n" };
             }
         }
 
@@ -54,8 +54,8 @@ namespace KunalsDiscordBot.Extensions
 
             return new FieldData[]
             {
-                new FieldData {name = "__User Permissions__", value = userPermsToString == string.Empty ? "None" : userPermsToString},
-                new FieldData {name = "__Bot Permissions__", value = botPerm == null ? "None" : botPerm.Permissions.FormatePermissions()}
+                new FieldData {Name = "__User Permissions__", Value = userPermsToString == string.Empty ? "None" : userPermsToString},
+                new FieldData {Name = "__Bot Permissions__", Value = botPerm == null ? "None" : botPerm.Permissions.FormatePermissions()}
             };
         }
 

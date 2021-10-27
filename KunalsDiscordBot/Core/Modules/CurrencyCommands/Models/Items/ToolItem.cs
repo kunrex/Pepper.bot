@@ -14,7 +14,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
     {
         public Tool Tool { get; private set; }
 
-        public ToolItem(string name, int price, string description, UseType type, Tool tool) :base(name, price, description, type)
+        public ToolItem(string name, int price, string description, UseType type, Tool tool, string icon = ":grey_question:") :base(name, price, description, type, icon)
         {
             Tool = tool;
         }

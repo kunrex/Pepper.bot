@@ -10,15 +10,14 @@ using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
-using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Images;
 using KunalsDiscordBot.Services.Modules;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
-using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;

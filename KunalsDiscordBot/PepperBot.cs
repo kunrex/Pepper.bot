@@ -270,7 +270,7 @@ namespace KunalsDiscordBot
                 embed = new DiscordEmbedBuilder
                 {
                     Title = "A problem occured while executing the command",
-                    Description = $"Exception: {exception.Message} at {Formatter.InlineCode(e.Command.QualifiedName)}",
+                    Description = $"Exception: `{exception.Message}` at {Formatter.InlineCode(e.Command.QualifiedName)}",
                     Color = DiscordColor.Red,
                 }.WithFooter("Well that wasn't supposed to happen", Configuration.DiscordConfig.ErrorLink);
             }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace KunalsDiscordBot.Core.Modules
+namespace KunalsDiscordBot.Core.DiscordModels
 {
     public struct CustomTuple<Item_1, Item_2>
     {

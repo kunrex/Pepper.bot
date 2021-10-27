@@ -91,6 +91,7 @@
     <Folder Include="Core\Chatting\" />
     <Folder Include="Modules\Chatting\" />
     <Folder Include="Core\Reddit\Exceptions\" />
+    <Folder Include="Core\DiscordModels\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -171,6 +172,7 @@
     <None Remove="Magick.NET.Core" />
     <None Remove="Magick.NET.SystemWindowsMedia" />
     <None Remove="Magick.NET-Q16-AnyCPU" />
+    <None Remove="Core\DiscordModels\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

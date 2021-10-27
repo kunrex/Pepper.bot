@@ -5,7 +5,7 @@ using System.Drawing;
 
 using DSharpPlus.CommandsNext;
 
-using KunalsDiscordBot.Core.Modules;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Attributes.ImageCommands;

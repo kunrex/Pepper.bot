@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Attributes;
+using KunalsDiscordBot.Core.DiscordModels;
 
 namespace KunalsDiscordBot.Core.Help
 {
@@ -46,24 +46,24 @@ namespace KunalsDiscordBot.Core.Help
             }.WithFooter(Footer);
 
             if (IsModule)
-                embed.AddField(Commands.name, Commands.value, false);
+                embed.AddField(Commands.Name, Commands.Value, false);
 
             if (IsGeneralHelp)
                 foreach (var field in Fields)
-                    embed.AddField(field.name, field.value, field.inline);
+                    embed.AddField(field.Name, field.Value, field.Inline);
             else
             {
-                embed.AddField(Aliases.name, Aliases.value, false);
-                embed.AddField(Module.name, Module.value, false);
+                embed.AddField(Aliases.Name, Aliases.Value, false);
+                embed.AddField(Module.Name, Module.Value, false);
 
-                embed.AddField(BotPerms.name, BotPerms.value, true);
-                embed.AddField(UserPerms.name, UserPerms.value, true);
+                embed.AddField(BotPerms.Name, BotPerms.Value, true);
+                embed.AddField(UserPerms.Name, UserPerms.Value, true);
             }
 
             if (IsCommand && !IsModule)
             {
-                embed.AddField(Cooldown.name, Cooldown.value, false);
-                embed.AddField(Overloads.name, Overloads.value, false);
+                embed.AddField(Cooldown.Name, Cooldown.Value, false);
+                embed.AddField(Overloads.Name, Overloads.Value, false);
             }
 
             return embed;
@@ -79,22 +79,22 @@ namespace KunalsDiscordBot.Core.Help
             Description = $"**Description**: {command.Description}\n**Regular Command Usage**: pep {parent} {command.Name} [comand parameters]" +
                 $"\n**Group Command Usage**: pep {parent} [command parameters] (only applicable to `group commands`)";
 
-            Aliases = new FieldData { name = "__Aliases__", value = command.Aliases.GetAliases(), inline = false};
+            Aliases = new FieldData { Name = "__Aliases__", Value = command.Aliases.GetAliases(), Inline = false};
 
             string module = command.Parent == null ? "None" : command.Parent.Name.Format();
-            Module = new FieldData { name = "__Module__", value = module, inline = false };
+            Module = new FieldData { Name = "__Module__", Value = module, Inline = false };
 
             var decor = command.Parent == null ? (DecorAttribute)command.CustomAttributes.FirstOrDefault(x => x is DecorAttribute) : (DecorAttribute)command.Parent.CustomAttributes.FirstOrDefault(x => x is DecorAttribute);
             Title += $" {(decor == null ? "" : decor.emoji)}";
             Color = decor == null ? DiscordColor.Blurple : decor.color;
 
-            Overloads = new FieldData { name = "__Overloads (Same command with different arguments)__", value = command.GetFormattedOverloads(), inline = false };
+            Overloads = new FieldData { Name = "__Overloads (Same command with different arguments)__", Value = command.GetFormattedOverloads(), Inline = false };
 
             var perms = command.GetPermissions();
             UserPerms = perms[0];
             BotPerms = perms[1];
 
-            Cooldown = new FieldData { name = "__Cool Down__", value = command.GetCoolDown() };
+            Cooldown = new FieldData { Name = "__Cool Down__", Value = command.GetCoolDown() };
             return this;
         }
 
@@ -117,10 +117,10 @@ namespace KunalsDiscordBot.Core.Help
                 Title += $" {(decor == null ? "" : decor.emoji)}";
                 Color = decor == null ? DiscordColor.Blurple : decor.color;
 
-                Commands = new FieldData { name = "__Commands__", value = commands.GetAllCommands(isHighlited), inline = false };
+                Commands = new FieldData { Name = "__Commands__", Value = commands.GetAllCommands(isHighlited), Inline = false };
 
-                Aliases = new FieldData { name = "__Aliases__", value = parent.GetAliases(), inline = false};
-                Module = new FieldData { name = "__Module__", value = "None", inline = false};
+                Aliases = new FieldData { Name = "__Aliases__", Value = parent.GetAliases(), Inline = false};
+                Module = new FieldData { Name = "__Module__", Value = "None", Inline = false};
 
                 var perms = parent.GetPermissions();
                 UserPerms = perms[0];
@@ -135,15 +135,15 @@ namespace KunalsDiscordBot.Core.Help
 
                 Color = DiscordColor.Blurple;
 
-                Fields.Add(new FieldData { name = "__Modules__", value = "** **", inline = false });
+                Fields.Add(new FieldData { Name = "__Modules__", Value = "** **", Inline = false });
                 foreach (var command in commands.FormatModules())
-                    Fields.Add(new FieldData { name = command.name, value = command.value, inline = false });
+                    Fields.Add(new FieldData { Name = command.Name, Value = command.Value, Inline = false });
 
-                Fields.Add(new FieldData { name = "** **", value = "** **", inline = false });
-                Fields.Add(new FieldData { name = "__Commands__", value = "** **", inline = false });
+                Fields.Add(new FieldData { Name = "** **", Value = "** **", Inline = false });
+                Fields.Add(new FieldData { Name = "__Commands__", Value = "** **", Inline = false });
 
                 foreach (var command in commands.GetCommands())
-                    Fields.Add(new FieldData { name = $"• {command.Name.Format()}", value = $"Description: {command.Description}", inline = false });
+                    Fields.Add(new FieldData { Name = $"• {command.Name.Format()}", Value = $"Description: {command.Description}", Inline = false });
             }
 
             return this;

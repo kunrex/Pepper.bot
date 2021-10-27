@@ -103,7 +103,7 @@ namespace KunalsDiscordBot.Modules.Help
                         helpBuilder.WithSubcommands(executables.OrderBy(xc => xc.Name));
                 }
 
-                await ctx.Channel.SendMessageAsync(helpBuilder.Build());
+                await ctx.RespondAsync(helpBuilder.Build());
             }
         }
     }

@@ -14,18 +14,19 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
     [Flags]
     public enum UseType
     {
-        Presence = 0,
-        Decoration = 1,
-        Boost = 2,
-        Tool = 4,
-        Offensive = 8,
-        Defensive = 16,
-        NonBuyable = 32
+        Presence = 1,
+        Decoration = 2,
+        Boost = 4,
+        Tool = 8,
+        Offensive = 16,
+        Defensive = 32,
+        NonBuyable = 64
     }
 
     public abstract class Item : IDiscordUseableModel
     {
         public string Name { get; protected set; }
+        public string EmojiIcon { get; protected set; }
 
         protected int price;
         public int Price { get => price + StockMarket.Instance.CalculatePrice(price); }
@@ -37,7 +38,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 
         public UseType UseType { get; protected set; }
 
-        public Item(string name, int _price, string description, UseType type)
+        public Item(string name, int _price, string description, UseType type, string icon)
         {
             Name = name;
             price = _price;
@@ -45,6 +46,8 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
 
             UseType = type;
             sellingPrice = price / 2;
+
+            EmojiIcon = icon;
         }
 
         public virtual Task<UseResult> Use(IProfileService service, DiscordClient client, DiscordChannel channel, DiscordMember member) => Task.FromResult(new UseResult { UseComplete = true, Message = "" });

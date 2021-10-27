@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using DSharpPlus;
 using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
@@ -19,10 +18,10 @@ using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.Currency;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.DialogueHandlers;
 using KunalsDiscordBot.Core.Configurations.Enums;
-using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.Attributes.CurrencyCommands;
@@ -478,7 +477,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
         [Command("Monthly")]
         [Description("Log in monthly to collect some coins, for simplcity a month is averegaed to 30 days"), MoneyCommand]
-        [RequireProfile, Cooldown(1, (int)TimeSpanEnum.Day, CooldownBucketType.User)]
+        [RequireProfile, Cooldown(1, ((int)TimeSpanEnum.Day) * 30, CooldownBucketType.User)]
         public async Task Monthly(CommandContext ctx)
         {
             var coins = new Random().Next(data.MonthlyMin, data.MonthlyMax);
@@ -487,7 +486,7 @@ namespace KunalsDiscordBot.Modules.Currency
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "Monthly Coins",
-                Description = $"{coins} {data.CoinsEmoji}, Here are your coins for the monthly.",
+                Description = $"{coins} {data.CoinsEmoji}, Here are your coins for the monthl.",
                 Color = ModuleInfo.Color,
             }.WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)).ConfigureAwait(false);
             ExecutionRewards = true;
@@ -594,7 +593,7 @@ namespace KunalsDiscordBot.Modules.Currency
 
             var steps = await job.GetWork();
 
-            var messageData = new MessageData { Reply = true, ReplyId = ctx.Message.Id , Thumbnail = thumbnail , Color = ModuleInfo.Color};
+            var messageData = new MessageData { Reply = true, ReplyId = ctx.Message.Id, EmbedSkeleton = new EmbedSkeleton { Thumbnail = thumbnail, Color = ModuleInfo.Color } };
             steps.ForEach(x => x.WithMesssageData(messageData));
 
             DialogueHandler handler = new DialogueHandler(new DialogueHandlerConfig
@@ -631,7 +630,7 @@ namespace KunalsDiscordBot.Modules.Currency
         [Description("Diaplays all items in the shop"), NonXPCommand]
         public async Task ShowShop(CommandContext ctx)
         {
-            var items = Shop.AllItems;
+            var items = Shop.AllBuyableItems;
 
             var pages = ctx.Client.GetInteractivity().GetPages(items, x => ($"{x.Name}", $"Description: {x.Description}\nPrice: {x.Price}"), new EmbedSkeleton
             {
@@ -928,6 +927,35 @@ namespace KunalsDiscordBot.Modules.Currency
             };
 
             await ctx.RespondAsync(descripion).ConfigureAwait(false);
+
+            ExecutionRewards = true;
+        }
+
+        [Command("Hunt")]
+        [Description("Hunting do be good unless its endagnered species, in which case you should feel bad about yourself")]
+        [RequireProfile, PresenceItem(PresenceData.PresenceCommand.Hunt), MoneyCommand]
+        public async Task Hunt(CommandContext ctx)
+        {
+            var rng = new Random();
+            string name;
+
+            if (rng.Next(0, 10) > 2)
+            {
+                var randomIndex = rng.Next(0, Shop.Animals.Length);
+                var animal = Shop.Animals[randomIndex];
+
+                await service.AddOrRemoveItem(ctx.Member.Id, animal.Name, 1);
+                name = $"a(n) {animal.Name} {animal.EmojiIcon}";
+            }
+            else
+                name = "NOTHING! :')";
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+            {
+                Title = $"{ctx.Member.Username} went hunting",
+                Description = $"You went hunting and found {name}",
+                Color = ModuleInfo.Color
+            }).ConfigureAwait(false);
 
             ExecutionRewards = true;
         }

@@ -79,6 +79,11 @@
         "ConfigData": 12,
         "FieldName": "Allow Ghost",
         "Description": "When set to true, members can run the `fun ghost` command"
+      },
+      {
+        "ConfigData": 18,
+        "FieldName": "Allow Act",
+        "Description": "When set to true, members can run the `fun act` command"
       }
     ],
 

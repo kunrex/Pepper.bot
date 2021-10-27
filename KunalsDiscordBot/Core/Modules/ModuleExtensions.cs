@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 
+using KunalsDiscordBot.Core.DiscordModels;
+
 namespace KunalsDiscordBot.Extensions
 {
     public static partial class PepperBotExtensions

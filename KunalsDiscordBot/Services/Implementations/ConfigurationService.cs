@@ -49,6 +49,7 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.AIChatEnabled, async(id) => (ulong)(await serverService.GetChatData(id)).Enabled == 1},
                  { ConfigValue.AIChatChannel, async(id) => (ulong)(await serverService.GetChatData(id)).AIChatChannelID},
                  { ConfigValue.CustomCommandCount, async(id) => (await moderationService.GetAllCustomCommands(id)).Count()},
+                 { ConfigValue.AllowActCommand, async(id) => (await serverService.GetFunData(id)).AllowActCommand == 1}
             };
         }
 
@@ -71,7 +72,8 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.TicTacToeChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
             { ConfigValue.AIChatEnabled,(s) => $"`{(bool)s}`"},
             { ConfigValue.AIChatChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
-            { ConfigValue.CustomCommandCount, (s) => $"`{(int)s}`"}
+            { ConfigValue.CustomCommandCount, (s) => $"`{(int)s}`"},
+            { ConfigValue.AllowActCommand, (s) => $"`{(bool)s}`"}
         };
 
         public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms)

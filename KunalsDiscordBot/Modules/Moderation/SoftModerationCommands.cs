@@ -20,6 +20,7 @@ using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;

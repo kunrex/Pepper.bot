@@ -18,16 +18,16 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         private static readonly int Height = 30;
         private static readonly int Width = 40;
 
-        public Queue<QueueData> queue { get; private set; }
-        public LavalinkGuildConnection connection { get; private set; }
-        public LavalinkExtension lava { get; private set; }
-        public LavalinkNodeConnection node { get; private set; }
+        public Queue<QueueData> Queue { get; private set; }
+        public LavalinkGuildConnection Connection { get; private set; }
+        public LavalinkExtension Lava { get; private set; }
+        public LavalinkNodeConnection Node { get; private set; }
 
         public SimpleBotEvent OnDisconnect { get; private set; } = new SimpleBotEvent();
 
         private readonly MusicModuleData moduleData;
 
-        public LavalinkTrack CurrentTrack { get => connection.CurrentState.CurrentTrack; }
+        public LavalinkTrack CurrentTrack { get => Connection.CurrentState.CurrentTrack; }
         private LavalinkTrack currentTrack;
 
         private string memberWhoRequested = string.Empty;
@@ -37,16 +37,16 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         private bool queueLoop { get; set; }
         private bool isConnected { get; set; } = false;
 
-        private DiscordChannel boundChannel { get; set; }
-        private CancellationTokenSource inactivityCancellationToken { get; set; }
+        private DiscordChannel BoundChannel { get; set; }
+        private CancellationTokenSource InactivityCancellationToken { get; set; }
 
         public VCPlayer(MusicModuleData _moduleData, LavalinkNodeConnection nodeConnection, LavalinkExtension extension)
         {
             moduleData = _moduleData;
-            queue = new Queue<QueueData>();
+            Queue = new Queue<QueueData>();
 
-            node = nodeConnection;
-            lava = extension;
+            Node = nodeConnection;
+            Lava = extension;
         }
 
         public async Task<string> Connect(DiscordChannel _channel, DiscordChannel _boundChannel)
@@ -56,14 +56,14 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             isConnected = true;
 
-            connection = await node.ConnectAsync(_channel);
+            Connection = await Node.ConnectAsync(_channel);
 
-            connection.PlaybackFinished += OnSongFinish;
-            connection.TrackException += OnTrackError;
-            connection.TrackStuck += OnTrackStuck;
-            connection.PlaybackStarted += OnSongStart;
+            Connection.PlaybackFinished += OnSongFinish;
+            Connection.TrackException += OnTrackError;
+            Connection.TrackStuck += OnTrackStuck;
+            Connection.PlaybackStarted += OnSongStart;
 
-            boundChannel = _boundChannel;
+            BoundChannel = _boundChannel;
 
             return $"Joined <#{_channel.Id}> and bound to <#{_boundChannel.Id}> \nUse the `music play` command to play some music";
         }
@@ -75,16 +75,16 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             isConnected = false;
 
-            await connection.DisconnectAsync();
+            await Connection.DisconnectAsync();
             OnDisconnect.Invoke();
 
-            if (inactivityCancellationToken != null && !inactivityCancellationToken.IsCancellationRequested)
+            if (InactivityCancellationToken != null && !InactivityCancellationToken.IsCancellationRequested)
             {
-                inactivityCancellationToken.Cancel();
-                inactivityCancellationToken.Dispose();
+                InactivityCancellationToken.Cancel();
+                InactivityCancellationToken.Dispose();
             }
 
-            return $"Left {connection.Channel.Mention} succesfully";
+            return $"Left {Connection.Channel.Mention} succesfully";
         }
 
         private Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args)
@@ -98,13 +98,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         {
             Task.Run(async () =>
             {
-                await boundChannel.SendMessageAsync(new DiscordEmbedBuilder
+                await BoundChannel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = "An error occured, this may lead to the current track getting skipped.",
                     Color = DiscordColor.Red
                 });
-
-                await PlayNext();
             });
 
             return Task.CompletedTask;
@@ -114,13 +112,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         {
             Task.Run(async () =>
             {
-                await boundChannel.SendMessageAsync(new DiscordEmbedBuilder
+                await BoundChannel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Description = "Current track got stuck",
                     Color = DiscordColor.Red
                 });
-
-                await PlayNext();
             });
 
             return Task.CompletedTask;
@@ -128,38 +124,38 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
         private Task OnSongStart(LavalinkGuildConnection connect, TrackStartEventArgs args)
         {
-            Task.Run(async () => await boundChannel.SendMessageAsync(await NowPlaying()));
+            Task.Run(async () => await BoundChannel.SendMessageAsync(await NowPlaying()));
 
             return Task.CompletedTask;
         }
 
         public async Task<DiscordEmbedBuilder> StartPlaying(string search, string member, ulong id)
         {
-            var loadResult = await node.Rest.GetTracksAsync(search);
+            var loadResult = await Node.Rest.GetTracksAsync(search);
 
             if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
                 return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}").WithColor(moduleData.color);
 
-            if (queue.Count == moduleData.maxQueueLength)
+            if (Queue.Count == moduleData.maxQueueLength)
                 return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.maxQueueLength}), remove tracks or wait to add more").WithColor(moduleData.color);
 
-            if (inactivityCancellationToken != null)//inactivity check was started
-                inactivityCancellationToken.Cancel();
+            if (InactivityCancellationToken != null)//inactivity check was started
+                InactivityCancellationToken.Cancel();
 
             if (currentTrack == null)
             {
                 currentTrack = loadResult.Tracks.First();
                 memberWhoRequested = member;
 
-                await connection.PlayAsync(currentTrack);
+                await Connection.PlayAsync(currentTrack);
 
                 return null;//handled by now playing function
             }
             else
             {
                 var track = loadResult.Tracks.First();
-                queue.Enqueue(new QueueData { userName = member , id = id, track = track });
-                return new DiscordEmbedBuilder().WithDescription($"Queued [{track.Title}]({track.Uri}) at index `{queue.Count}`").WithColor(moduleData.color);
+                Queue.Enqueue(new QueueData { userName = member , id = id, track = track });
+                return new DiscordEmbedBuilder().WithDescription($"Queued [{track.Title}]({track.Uri}) at index `{Queue.Count}`").WithColor(moduleData.color);
             }
         }
 
@@ -167,45 +163,45 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         {
             if (isLooping && considerLoop)
             {
-                await connection.PlayAsync(currentTrack);
+                await Connection.PlayAsync(currentTrack);
  
                 return;
             }
 
-            if (queue.Count <= 0)
+            if (Queue.Count <= 0)
             {
-                await boundChannel.SendMessageAsync("Queue Finished");
+                await BoundChannel.SendMessageAsync("Queue Finished");
                 currentTrack = null;
-                inactivityCancellationToken = new CancellationTokenSource();
+                InactivityCancellationToken = new CancellationTokenSource();
 
                 await Task.Run(() => InactivityCheck());
                 return;
             }
 
-            var search = queue.Dequeue();
+            var search = Queue.Dequeue();
             memberWhoRequested = search.userName;
 
-            await connection.PlayAsync(search.track);
+            await Connection.PlayAsync(search.track);
 
             currentTrack = search.track;
             if (queueLoop)//re add the search
-                queue.Enqueue(search);
+                Queue.Enqueue(search);
         }
 
         private async Task InactivityCheck()
         {
-            if (inactivityCancellationToken == null || inactivityCancellationToken.IsCancellationRequested)
+            if (InactivityCancellationToken == null || InactivityCancellationToken.IsCancellationRequested)
                 return;
 
-            await Task.Delay(TimeSpan.FromMinutes(moduleData.inactivityLength), inactivityCancellationToken.Token);
+            await Task.Delay(TimeSpan.FromMinutes(moduleData.inactivityLength), InactivityCancellationToken.Token);
 
-            if (inactivityCancellationToken.IsCancellationRequested)
+            if (InactivityCancellationToken.IsCancellationRequested)
             {
-                inactivityCancellationToken = null;
+                InactivityCancellationToken = null;
                 return;
             }
 
-            await boundChannel.SendMessageAsync("Leaving due to inactivity").ConfigureAwait(false);
+            await BoundChannel.SendMessageAsync("Leaving due to inactivity").ConfigureAwait(false);
             await Disconnect();
         }
 
@@ -214,9 +210,12 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             if (isPaused)
                 return "Player already paused";
 
-            await connection.PauseAsync();
+            await Connection.PauseAsync();
             isPaused = true;
 
+            InactivityCancellationToken = new CancellationTokenSource();
+
+            await Task.Run(() => InactivityCheck());
             return "Player Paused";
         }
 
@@ -225,28 +224,24 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             if (!isPaused)
                 return "Player in't paused";
 
-            await connection.ResumeAsync();
+            await Connection.ResumeAsync();
             isPaused = false;
             return "Player Resumed";
         }
 
         public Task<string> Remove(int index)
         {
-            if (queue.Count > 0)
+            if (Queue.Count > 0)
             {
-                var queueToList = queue.ToList();
+                var queueToList = Queue.ToList();
 
                 if ((index - 1) >= queueToList.Count || (index - 1) < 0)
                     return Task.FromResult("Index does not exist");
 
                 queueToList.RemoveAt(index - 1);
 
-                var newQueue = new Queue<QueueData>();
-
-                foreach (var value in queueToList)
-                    newQueue.Enqueue(value);
-
-                queue = newQueue;
+                Queue.Clear();
+                queueToList.ForEach(x => Queue.Enqueue(x));
                 return Task.FromResult($"Removed at {index}");
             }
             else
@@ -261,12 +256,12 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         {
             List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
             int index = 0;
-            var title = $"Queue For __{connection.Channel.Guild.Name}__";
+            var title = $"Queue For __{Connection.Channel.Guild.Name}__";
 
             embeds.Add(new DiscordEmbedBuilder().WithTitle("Now Playing").WithColor(moduleData.color).WithDescription($"[{currentTrack.Title}]({currentTrack.Uri})"));
             DiscordEmbedBuilder currentEmbed = null;
 
-            foreach(var value in queue)
+            foreach(var value in Queue)
             {
                 if (index % moduleData.queuePageLimit == 0)
                 {
@@ -300,8 +295,8 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                 Description = $"`Length:` {currentTrack.Length}\n `Author:` {currentTrack.Author}\n",
                 Url = currentTrack.Uri.AbsoluteUri
             }.AddField("`Requested By:` ", memberWhoRequested)
-             .AddField("`Position`", $"{connection.CurrentState.PlaybackPosition:mm\\:ss}")
-             .AddField("`Next Track:` ", queue.TryPeek(out QueueData result) ? $"[{queue.Peek().track.Title}]({queue.Peek().track.Uri})" : "Nothing", true)
+             .AddField("`Position`", $"{Connection.CurrentState.PlaybackPosition:mm\\:ss}")
+             .AddField("`Next Track:` ", Queue.TryPeek(out QueueData result) ? $"[{Queue.Peek().track.Title}]({Queue.Peek().track.Uri})" : "Nothing", true)
              .AddField("`Paused`", isPaused.ToString(), true)
              .AddField("`Looping`", isLooping.ToString(), true)
              .AddField("`Queue Loop`", queueLoop.ToString(), true)
@@ -313,71 +308,63 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
         public Task<string> Move(int trackToMove, int newIndex)
         {
-            List<QueueData> tracks = queue.ToList();
-
-            if(queue.Count <= 1)
+            if(Queue.Count <= 1)
                 return Task.FromResult("Queue only has 1 elemant");
-            if (trackToMove < 1 || trackToMove > queue.Count || newIndex == trackToMove || newIndex < 1 || newIndex > queue.Count)
+            if (trackToMove < 1 || trackToMove > Queue.Count || newIndex == trackToMove || newIndex < 1 || newIndex > Queue.Count)
                 return Task.FromResult("Invalid position(s), use the `queue` command to view the queue and enter valid position(s)");
+
+            var tracks = Queue.ToList();
 
             var track = tracks[trackToMove - 1];
             tracks.RemoveAt(trackToMove - 1);
 
             tracks.Insert(newIndex - 1, track);
 
-            Queue<QueueData> newQueue = new Queue<QueueData>();
-            foreach (var _track in tracks)
-                newQueue.Enqueue(_track);
-
-            queue = newQueue;
+            Queue.Clear();
+            tracks.ForEach(x => Queue.Enqueue(x));
 
             return Task.FromResult("Moved Track");
         }
 
         public Task<string> ClearQueue()
         {
-            if (queue.Count == 0)
+            if (Queue.Count == 0)
                 return Task.FromResult("Queue is already empty");
 
-            queue = new Queue<QueueData>();
-
+            Queue.Clear();
             return Task.FromResult("Queue cleared");
         }
 
-        public async Task Skip() => await connection.StopAsync();
+        public async Task Skip() => await Connection.StopAsync();
 
         public async Task<string> Seek(TimeSpan span, bool relative = false)
         {
-            if (span > TimeSpan.FromSeconds(0) ? (relative ? span + connection.CurrentState.PlaybackPosition > currentTrack.Length  : span > currentTrack.Length) : (relative ? span + connection.CurrentState.PlaybackPosition < TimeSpan.FromSeconds(0) : span < TimeSpan.FromSeconds(0)))
+            if (span > TimeSpan.FromSeconds(0) ? (relative ? span + Connection.CurrentState.PlaybackPosition > currentTrack.Length  : span > currentTrack.Length) : (relative ? span + Connection.CurrentState.PlaybackPosition < TimeSpan.FromSeconds(0) : span < TimeSpan.FromSeconds(0)))
                 return "Cannot play from specified position";
 
-            var newSpan = relative ? connection.CurrentState.PlaybackPosition + span : span;
+            var newSpan = relative ? Connection.CurrentState.PlaybackPosition + span : span;
             if (relative)
-                await connection.SeekAsync(newSpan);
+                await Connection.SeekAsync(newSpan);
             else
-                await connection.SeekAsync(newSpan);
+                await Connection.SeekAsync(newSpan);
 
             return $"Playing from {newSpan:mm\\:ss}";
         }
 
         public Task<string> Clean()
         {
-            var queueToList = queue.ToList();
+            var queueToList = Queue.ToList();
             int removed = 0;
 
             foreach (var value in queueToList)
-                if(connection.Channel.Users.FirstOrDefault(x => x.Id == value.id) == null)
+                if(Connection.Channel.Users.FirstOrDefault(x => x.Id == value.id) == null)
                 {
                     queueToList.Remove(value);
                     removed++;
                 }
 
-            var newQueue = new Queue<QueueData>();
-
-            foreach (var value in queueToList)
-                newQueue.Enqueue(value);
-
-            queue = newQueue;
+            Queue.Clear();
+            queueToList.ForEach(x => Queue.Enqueue(x));
             return Task.FromResult($"Removed {removed} track(s)");
         }
     }

@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Core.Reddit
             filter.Take = configuration.PostLimit;
             var filtered = subreddit.Posts.FilterPosts(filter);
 
-            return filtered == null ? null : filtered[new Random().Next(0, filtered.Count)];
+            return filtered == null || filtered.Count == 0  ? null : filtered[new Random().Next(0, filtered.Count)];
         }
 
         public Post GetMeme(bool allowNSFW) => memes[new Random().Next(0, memes.count), allowNSFW];

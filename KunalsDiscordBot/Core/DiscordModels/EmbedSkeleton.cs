@@ -2,7 +2,7 @@
 
 using DSharpPlus.Entities;
 
-namespace KunalsDiscordBot.Extensions
+namespace KunalsDiscordBot.Core.DiscordModels
 {
     public struct EmbedSkeleton
     {

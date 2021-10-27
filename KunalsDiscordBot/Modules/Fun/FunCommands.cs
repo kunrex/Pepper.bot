@@ -90,6 +90,18 @@ namespace KunalsDiscordBot.Modules.Fun
                 }
             }
 
+            var allowActCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is CheckAllowActAttribute) != null;
+            if (allowActCheck)
+            {
+                var profile = await serverService.GetFunData(ctx.Guild.Id).ConfigureAwait(false);
+
+                if (profile.AllowActCommand == 0)
+                {
+                    await ctx.RespondAsync(":x: This server doesn't allow act command execution").ConfigureAwait(false);
+                    throw new CustomCommandException();
+                }
+            }
+
             var redditCommand = ctx.Command.CustomAttributes.FirstOrDefault(x => x is RedditCommandAttribute) != null;
             if(redditCommand && !redditApp.Online)
             {
@@ -142,6 +154,21 @@ namespace KunalsDiscordBot.Modules.Fun
             {
                 Title = "Edited Configuration",
                 Description = $"Changed `Allow Ghost` to {toSet}",
+                Color = ModuleInfo.Color
+            }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+        }
+
+        [Command("AllowAct")]
+        [Description("If true, members of the server will be able to run the act command(don't recommend for large servers)")]
+        [CheckConfigigurationPermissions, ConfigData(ConfigValue.AllowActCommand)]
+        public async Task AllowAct(CommandContext ctx, bool toSet)
+        {
+            await serverService.ModifyData(await serverService.GetFunData(ctx.Guild.Id), x => x.AllowActCommand = toSet ? 1 : 0).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Configuration",
+                Description = $"Changed `Allow Act` to {toSet}",
                 Color = ModuleInfo.Color
             }.WithFooter($"User: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }
@@ -493,7 +520,7 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("Act")]
-        [Description("Send a message on behalf of another user")]
+        [Description("Send a message on behalf of another user"), CheckAllowAct]
         public async Task Act(CommandContext ctx, DiscordMember member, [RemainingText] string message)
         {
             var webhook = await ctx.Channel.CreateWebhookAsync(member.DisplayName, null, "act command execution");

@@ -13,5 +13,6 @@ namespace DiscordBotDataBase.Dal.Models.Servers.Models
 
         public int AllowSpamCommand { get; set; } = 0;
         public int AllowGhostCommand { get; set; } = 0;
+        public int AllowActCommand { get; set; } = 0;
     }
 }

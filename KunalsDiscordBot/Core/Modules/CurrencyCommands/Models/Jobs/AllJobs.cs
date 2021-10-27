@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs.WorkDatas;
 
 namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs

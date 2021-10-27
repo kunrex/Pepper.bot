@@ -14,7 +14,7 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Items
     {
         public BoostData Data { get; private set; }
 
-        public BoostItem(string name, int price, string description, UseType type, BoostData data) : base(name, price, description, type)
+        public BoostItem(string name, int price, string description, UseType type, BoostData data, string icon = ":grey_question:") : base(name, price, description, type, icon)
         {
             Data = data;
         }

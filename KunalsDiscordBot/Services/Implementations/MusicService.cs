@@ -28,7 +28,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.ClearQueue();
@@ -52,7 +52,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return new List<DiscordEmbedBuilder>()
                 {
                     new DiscordEmbedBuilder().WithDescription("There are no tracks currently loaded")
@@ -65,7 +65,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return $"Loop set to {await player.Loop()}";
@@ -75,7 +75,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Move(trackToMove, newIndex);
@@ -85,7 +85,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return new DiscordEmbedBuilder().WithDescription("There are no tracks currently loaded");
 
             return await player.NowPlaying();
@@ -95,7 +95,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Pause();
@@ -105,7 +105,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return $"Queue Loop set to {await player.QueueLoop()}";
@@ -115,7 +115,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Remove(index);
@@ -125,7 +125,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Resume();
@@ -135,7 +135,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Seek(span, relative);
@@ -147,7 +147,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             await player.Skip();
@@ -159,14 +159,14 @@ namespace KunalsDiscordBot.Services.Music
             if(!players.ContainsKey(id))
                 return Task.FromResult<DiscordChannel>(null);
 
-            return Task.FromResult(players[id].connection.Channel);
+            return Task.FromResult(players[id].Connection.Channel);
         }
 
         public async Task<string> Clean(ulong id)
         {
             var player = players[id];
 
-            if (player.connection.CurrentState.CurrentTrack == null)
+            if (player.Connection.CurrentState.CurrentTrack == null)
                 return "There are no tracks currently loaded";
 
             return await player.Clean();

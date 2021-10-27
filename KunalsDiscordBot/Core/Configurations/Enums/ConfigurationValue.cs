@@ -20,6 +20,7 @@ namespace KunalsDiscordBot.Core.Configurations.Enums
         TicTacToeChannel,
         AIChatEnabled,
         AIChatChannel,
-        CustomCommandCount
+        CustomCommandCount,
+        AllowActCommand
     }
 }

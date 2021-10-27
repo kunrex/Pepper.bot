@@ -15,6 +15,7 @@ using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
@@ -149,6 +150,13 @@ namespace KunalsDiscordBot.Modules.Moderation
                 }.AddField("Reason: ", reason)
                  .WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
                  .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
+
+                try
+                {
+                    await (await member.CreateDmChannelAsync()).SendMessageAsync($"You have been banned from `{ctx.Guild.Name}`");
+                }
+                catch
+                { }
             }
             catch
             {
@@ -185,6 +193,13 @@ namespace KunalsDiscordBot.Modules.Moderation
                 }.AddField("Reason: ", reason)
                  .WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")
                  .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)).ConfigureAwait(false);
+
+                try
+                {
+                    await (await member.CreateDmChannelAsync()).SendMessageAsync($"You have been banned from `{ctx.Guild.Name}`");
+                }
+                catch
+                { }
             }
             catch 
             {
@@ -231,6 +246,13 @@ namespace KunalsDiscordBot.Modules.Moderation
                 }.AddField("Reason: ", reason)
                  .WithThumbnail(member.AvatarUrl, ThumbnailSize, ThumbnailSize)
                  .WithFooter($"Admin: {ctx.Member.Discriminator} at {DateTime.Now}")).ConfigureAwait(false);
+
+                try
+                {
+                    await (await member.CreateDmChannelAsync()).SendMessageAsync($"You have been kicked from `{ctx.Guild.Name}`");
+                }
+                catch
+                { }
             }
             catch
             {
@@ -532,24 +554,9 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Command("AddCustomCommand")]
         [Description("Add a custom command in the server")]
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.CustomCommandCount)]
-        public async Task AddCustomCommant(CommandContext ctx, [RemainingText] string newCommand)
+        public async Task AddCustomCommant(CommandContext ctx, string commandName, [RemainingText] string commandContent)
         {
-            var command = newCommand.Split(':').Select(x => x.Trim()).ToArray();
-            if(command.Length != 2)
-            {
-                await ctx.RespondAsync("Split the name of the command and the content using a `:`");
-                return;
-            }
-
-            command[0] = command[0].ToLower();
-
-            if(command[0].Contains(" "))
-            {
-                await ctx.RespondAsync("Custom command names cannot contain spaces");
-                return;
-            }
-
-            var completed = await modService.AddOrRemoveCustomCommand(ctx.Guild.Id, command[0], true, command[1]).ConfigureAwait(false);
+            var completed = await modService.AddOrRemoveCustomCommand(ctx.Guild.Id, commandName, true, commandContent).ConfigureAwait(false);
 
             if (!completed)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -561,7 +568,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
                 {
                     Title = "Added Custom Command",
-                    Description = $"{command[0]}: {command[1]}",
+                    Description = $"**{commandName}**: `{commandContent}`",
                     Color = ModuleInfo.Color
                 }).ConfigureAwait(false);
         }

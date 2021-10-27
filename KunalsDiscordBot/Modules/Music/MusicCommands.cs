@@ -81,7 +81,6 @@ namespace KunalsDiscordBot.Modules.Music
             if(userVCCheck)
             {
                 var voiceState = ctx.Member.VoiceState;
-                Console.WriteLine(voiceState.Channel == null);
 
                 if (voiceState == null || voiceState.Channel == null || voiceState.Channel.Type != ChannelType.Voice)
                 {
@@ -105,11 +104,9 @@ namespace KunalsDiscordBot.Modules.Music
 
             if(DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
             {
-                var id = (ulong)(await serverService.GetMusicData(ctx.Guild.Id)).DJRoleId;
+                var id = (ulong)musicData.DJRoleId;
                 if (id == 0)
-                {
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithDescription("No DJ role is stored for the server, all users will be able to run DJ commands").WithColor(ModuleInfo.Color));
-                }
                 else
                 {
                     var role = ctx.Guild.GetRole(id);

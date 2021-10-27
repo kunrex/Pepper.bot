@@ -3,6 +3,8 @@
 using DSharpPlus;
 using DSharpPlus.Entities;
 
+using KunalsDiscordBot.Core.DiscordModels;
+
 namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
 {
     public abstract class Step
@@ -39,15 +41,15 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps
                 {
                     Title = title,
                     Description = content,
-                    Color = MessageData.Color,
+                    Color = MessageData.EmbedSkeleton.Color,
                 };
 
-                if (MessageData.Footer != null)
-                    embed.Footer = MessageData.Footer;
-                if (MessageData.Author != null)
-                    embed.Author = MessageData.Author;
-                if (MessageData.Thumbnail != null)
-                    embed.Thumbnail = MessageData.Thumbnail;
+                if (MessageData.EmbedSkeleton.Footer != null)
+                    embed.Footer = MessageData.EmbedSkeleton.Footer;
+                if (MessageData.EmbedSkeleton.Author != null)
+                    embed.Author = MessageData.EmbedSkeleton.Author;
+                if (MessageData.EmbedSkeleton.Thumbnail != null)
+                    embed.Thumbnail = MessageData.EmbedSkeleton.Thumbnail;
 
                 builder.AddEmbed(embed);
             }

@@ -34,15 +34,15 @@ namespace KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics
                     {
                         Title = title,
                         Description = editedvalue,
-                        Color = MessageData.Color,
+                        Color = MessageData.EmbedSkeleton.Color,
                     };
 
-                    if (MessageData.Footer != null)
-                        editedEmbed.Footer = MessageData.Footer;
-                    if (MessageData.Author != null)
-                        editedEmbed.Author = MessageData.Author;
-                    if (MessageData.Thumbnail != null)
-                        editedEmbed.Thumbnail = MessageData.Thumbnail;
+                    if (MessageData.EmbedSkeleton.Footer != null)
+                        editedEmbed.Footer = MessageData.EmbedSkeleton.Footer;
+                    if (MessageData.EmbedSkeleton.Author != null)
+                        editedEmbed.Author = MessageData.EmbedSkeleton.Author;
+                    if (MessageData.EmbedSkeleton.Thumbnail != null)
+                        editedEmbed.Thumbnail = MessageData.EmbedSkeleton.Thumbnail;
 
                     await sentMessage.ModifyAsync((DiscordEmbed)editedEmbed).ConfigureAwait(false);
                 }
