@@ -17,6 +17,7 @@ namespace DiscordBotDataBase.Dal.Models.Servers.Models
         public long RulesMessageId { get; set; } = 0;
 
         public List<Rule> Rules { get; set; } = new List<Rule>();
+        public List<FilteredWord> FilteredWords { get; set; } = new List<FilteredWord>();
         public List<CustomCommand> CustomCommands { get; set; } = new List<CustomCommand>();
 
         public List<Infraction> Infractions { get; set; } = new List<Infraction>();

@@ -423,6 +423,35 @@ namespace KunalsDiscordBot.Modules.Moderation
             await UpdateRuleMessage(ctx.Guild, ctx.Client);
         }
 
+        [Command("EditRule")]
+        [Description("Removes a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task EditRule(CommandContext ctx, int index, [RemainingText] string newRule)
+        {
+            var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
+            if (rule == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Rule doesn't exists",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+                return;
+            }
+
+            await serverService.ModifyData(rule, x => x.RuleContent = newRule);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = $"Edited Rule {index}",
+                Description = $"Rule {index} is now `{newRule}`",
+                Color = ModuleInfo.Color
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+            await UpdateRuleMessage(ctx.Guild, ctx.Client);
+        }
+
         [Command("RemoveAllRules")]
         [Description("Removes all rules in the server")]
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
@@ -576,9 +605,8 @@ namespace KunalsDiscordBot.Modules.Moderation
         [Command("RemoveCustomCommand")]
         [Description("Removes a custom command in the server")]
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.CustomCommandCount)]
-        public async Task RemoveRule(CommandContext ctx, string name)
+        public async Task RemoveCustomCommand(CommandContext ctx, string name)
         {
-            name = name.ToLower();
             var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);
             if (customCommand == null)
             {
@@ -597,6 +625,82 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 Title = "Removed Custom Command",
                 Description = $"Custom Command `{name}` removed",
+                Color = ModuleInfo.Color
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+        }
+
+        [Command("EditCustomCommand")]
+        [Description("Edits a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task EditCustomCommand(CommandContext ctx, string name, [RemainingText] string newContent)
+        {
+            var customCommand = await modService.GetCustomCommand(ctx.Guild.Id, name);
+            if (customCommand == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Custom Command doesn't exist",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+                return;
+            }
+
+            await serverService.ModifyData(customCommand, x => x.CommandContent = newContent);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Edited Custom Command",
+                Description = $"**{name}** now replies with `{newContent}`",
+                Color = ModuleInfo.Color
+            }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+        }
+
+        [Command("AddFilteredWord")]
+        [Description("Add a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task AddFilteredWord(CommandContext ctx, string word, bool addInfractionOnuse = false)
+        {
+            var completed = await modService.AddOrRemoveFilteredWord(ctx.Guild.Id, word, addInfractionOnuse, true).ConfigureAwait(false);
+
+            if (!completed)
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Filtered word already exists",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+            else
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Title = "Added filtered word",
+                    Description = $"||{word}||",
+                    Color = ModuleInfo.Color
+                }).ConfigureAwait(false);
+        }
+
+        [Command("RemoveFilteredWord")]
+        [Description("Removes a custom command in the server")]
+        [RequireUserPermissions(Permissions.Administrator)]
+        public async Task RemoveFilteredWord(CommandContext ctx, string wordToRemove)
+        {
+            var word = await modService.GetFilteredWord(ctx.Guild.Id, wordToRemove);
+            if (word == null)
+            {
+                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                {
+                    Description = $"Filtered word already exists",
+                    Color = ModuleInfo.Color
+                }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
+
+                return;
+            }
+
+            await modService.AddOrRemoveFilteredWord(ctx.Guild.Id, wordToRemove, false, false).ConfigureAwait(false);
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Removed Filtered Word",
+                Description = $"||`{wordToRemove}`|| removed from filtered words list",
                 Color = ModuleInfo.Color
             }.WithFooter($"Admin: {ctx.Member.DisplayName}, at {DateTime.Now}")).ConfigureAwait(false);
         }

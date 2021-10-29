@@ -6,6 +6,15 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands.Enums
     {
         Red,
         Blue,
-        Green
+        Green,
+        Magenta,
+        Yellow,
+        Cyan,
+        Purple,
+        Orange,
+        Brown,
+        Silver,
+        Gold,
+        CandyRed
     }
 }

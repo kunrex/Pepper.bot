@@ -519,5 +519,34 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
 
             await ctx.RespondAsync(customCommand.CommandContent);
         }
+
+        [Command("FilteredWordList")]
+        [Description("Shows all filtered words in a server"), ModeratorNeeded, Aliases("wordslist")]
+        public async Task FilteredWordList(CommandContext ctx)
+        {
+            var words = await modService.GetAllFilteredWords(ctx.Guild.Id);
+            if (!words.Any())
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Description = "This server has no filtered words",
+                    Color = ModuleInfo.Color,
+                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User: {ctx.Member.DisplayName}, at {DateTime.Now}" }
+                });
+
+                return;
+            }
+
+            var pages = ctx.Client.GetInteractivity().GetPages(words, x => ("", $"||{x.Word}||"), new EmbedSkeleton
+            {
+                Color = ModuleInfo.Color,
+                Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
+            }).ToArray();
+
+            if (pages.Length == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
+        }
     }
 }

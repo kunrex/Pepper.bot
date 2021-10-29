@@ -121,6 +121,6 @@ namespace KunalsDiscordBot.Services.General
             return Task.FromResult(context.ServerRules.AsEnumerable().Where(x => x.ModerationDataId == cached));
         }
 
-        public async Task<bool> ModifyData<T>(T data, Action<T> modification) where T : Entity<long> => await ModifyEntity(data, modification);
+        public async Task<bool> ModifyData<T>(T data, Action<T> modification) where T : IEntity => await ModifyEntity(data, modification);
     }
 }

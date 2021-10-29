@@ -663,9 +663,9 @@ namespace KunalsDiscordBot.Modules.Currency
             {
                 Title = item.Name,
                 Description = item.Description,
-                Color = ModuleInfo.Color
-            }.AddField("Price: ", item.Price.ToString(), true)
-            .AddField("Owned: ", proilfeItem.Count.ToString(), true)).ConfigureAwait(false);
+                Color = ModuleInfo.Color,
+            }.AddField("Price: ", (item.UseType & UseType.NonBuyable) == UseType.NonBuyable ? "Not buyable" : item.Price.ToString(), true)
+             .AddField("Owned: ", proilfeItem.Count.ToString(), true)).ConfigureAwait(false);
         }
 
         [Command("Buy")]

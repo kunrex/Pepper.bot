@@ -121,12 +121,8 @@ namespace KunalsDiscordBot.Modules.Images
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                for (int i = 0; i < sentences.Length; i++)
-                {
-                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
-
-                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
-                }
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
@@ -148,7 +144,7 @@ namespace KunalsDiscordBot.Modules.Images
                 return;
             }
 
-            string[] sentences = message.Split(',');
+            string[] sentences = message.Split(',').Select(x => x.Trim()).ToArray();
             if (sentences.Length < 3)
                 sentences = new[] { "Im going to use this command", "You're gonna split the 3 sentences with ,'s right?", "You will split them right?" };
 
@@ -222,7 +218,7 @@ namespace KunalsDiscordBot.Modules.Images
                 return;
             }
 
-            string[] sentences = message.Split(',');
+            string[] sentences = message.Split(',').Select(x => x.Trim()).ToArray();
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
@@ -260,7 +256,7 @@ namespace KunalsDiscordBot.Modules.Images
                 return;
             }
 
-            string[] sentences = message.Split(',');
+            string[] sentences = message.Split(',').Select(x => x.Trim()).ToArray();
             if (sentences.Length < 2)
                 sentences = new[] { "Splitting sentences using comas", "Using the command anyway" };
 
@@ -297,6 +293,7 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 using (var graphicalImage = new ImageGraphic(new MemoryStream(client.DownloadData(member.AvatarUrl))))
                 {
+                    await graphicalImage.Resize(600, 600);
                     await graphicalImage.Invert();
 
                     using (var ms = await graphicalImage.ToMemoryStream())
@@ -369,7 +366,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Command("ColorScale")]
         [Description("ColorScale an user avatur")]
         [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task ColorScale(CommandContext ctx, DiscordMember member = null, Colors color = Colors.Red)
+        public async Task ColorScale(CommandContext ctx, DiscordMember member, Colors color = Colors.Red)
         {
             member = member == null ? ctx.Member : member;
 
@@ -404,6 +401,29 @@ namespace KunalsDiscordBot.Modules.Images
                     using (var ms = await graphicalImage.ToMemoryStream())
                         await new DiscordMessageBuilder()
                                   .WithFiles(new Dictionary<string, Stream>() { { $"Colorscaled_{ctx.Member.DisplayName}.png", ms } })
+                                  .WithReply(ctx.Message.Id)
+                                  .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("ColorScale")]
+        [Description("ColorScale an user avatur")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task ColorScale(CommandContext ctx, int red, int green, int blue, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            using (var client = new WebClient())
+            {
+                using (var graphicalImage = new ImageGraphic(new MemoryStream(client.DownloadData(member.AvatarUrl))))
+                {
+                    await graphicalImage.Resize(600, 600);
+                    await graphicalImage.ColorScale(red, green, blue);
+
+                    using (var ms = await graphicalImage.ToMemoryStream())
+                        await new DiscordMessageBuilder()
+                                  .WithFiles(new Dictionary<string, Stream>() { { $"Colorscaled_{member.DisplayName}.png", ms } })
                                   .WithReply(ctx.Message.Id)
                                   .SendAsync(ctx.Channel);
                 }
@@ -622,9 +642,48 @@ namespace KunalsDiscordBot.Modules.Images
 
                 using (var ms = await images[0].ToMemoryStream())
                     await new DiscordMessageBuilder()
-                              .WithFiles(new Dictionary<string, Stream>() { { $"Combined.png", ms } })
+                              .WithFiles(new Dictionary<string, Stream>() { { "Combined.png", ms } })
                               .WithReply(ctx.Message.Id)
                               .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Rotate")]
+        [Description("Rotate a user pfp")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Hate(CommandContext ctx, DiscordMember member, int angle)
+        {
+            angle %= 360;
+
+            using(var collection = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)> { (member.AvatarUrl, 1)})))
+            {
+                await collection[0].Resize(600, 600);
+                await collection[0].Rotate(angle);
+
+                using(var stream = await collection[0].ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { "Rotated.png", stream } })
+                             .WithReply(ctx.Message.Id)
+                             .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Rotate")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Hate(CommandContext ctx ,int angle)
+        {
+            angle %= 360;
+
+            using (var collection = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)> { (ctx.Member.AvatarUrl, 1) })))
+            {
+                await collection[0].Resize(600, 600);
+                await collection[0].Rotate(angle);
+
+                using (var stream = await collection[0].ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                             .WithFiles(new Dictionary<string, Stream>() { { "Rotated.png", stream } })
+                             .WithReply(ctx.Message.Id)
+                             .SendAsync(ctx.Channel);
             }
         }
 
@@ -700,7 +759,7 @@ namespace KunalsDiscordBot.Modules.Images
                 return;
             }
 
-            string[] sentences = message.Split(',');
+            string[] sentences = message.Split(',').Select(x => x.Trim()).ToArray();
             if (sentences.Length < 2)
                 sentences = new[] { $"{ctx.Member.DisplayName} used this command", "But they didn't split the sentences with commas" };
 
@@ -832,7 +891,7 @@ namespace KunalsDiscordBot.Modules.Images
                 return;
             }
 
-            string[] sentences = message.Split(',');
+            string[] sentences = message.Split(',').Select(x => x.Trim()).ToArray();
             if (sentences.Length < 4)
                 sentences = new[] { $"{ctx.Member.DisplayName} opening discord", $"{ctx.Member.DisplayName} finding this channel",
                 $"{ctx.Member.DisplayName} typing", $"{ctx.Member.DisplayName} running this command without `,`'s"};
@@ -890,21 +949,103 @@ namespace KunalsDiscordBot.Modules.Images
             }
         }
 
-        /*[Command]
-        public async Task Test(CommandContext ctx)
+        [Command("Googlesearch")]
+        [Description("google do know everything")]
+        [WithFile("googlesearch.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Googlesearch(CommandContext ctx, [RemainingText] string message)
         {
-            string filePath = Path.Combine("Modules", "Images", "Images", "communism.gif");
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            List<string> sentences = message.Split(',').Select(x => x.Trim()).ToList();
+            if (sentences.Count < 3)
+                sentences = new List<string> { $"How should {ctx.Member.DisplayName} use this command", "They split the search and the result by a ','", "Using Image commands in Pepper"};
+
+            sentences.Add(sentences[2]);
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
 
             using (var graphicalImage = new ImageGraphic(filePath))
             {
-                await graphicalImage.DrawString("hi", 0, 0, new Font("Arial", 20), new SolidBrush(Color.Black));
+                for (int i = 0; i < sentences.Count; i++)
+                {
+                    var color = Color.FromName(editData.Colors[i]);
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], color, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
+                }
 
                 using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
-                                 .WithFiles(new Dictionary<string, Stream>() { { "communism.gif", ms } })
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
                                  .WithReply(ctx.Message.Id)
                                  .SendAsync(ctx.Channel);
             }
-        }*/
+        }
+
+        [Command("SBC")]
+        [Description("This nub")]
+        [WithFile("sbc.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task SBC(CommandContext ctx, [RemainingText] string message)
+        {
+            if (string.IsNullOrEmpty(message))
+            {
+                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+
+                await graphicalImage.DrawString(message, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                                 .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                 .WithReply(ctx.Message.Id)
+                                 .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Hate")]
+        [Description("I hate this more")]
+        [WithFile("hate.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Hate(CommandContext ctx, DiscordMember member)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)> { (member.AvatarUrl, 1) })))
+                {
+                    await list[0].Resize(editData.Breadth[0], editData.Length[0]);
+                    await graphicalImage.DrawImageRotated(list[0], editData.Size[0], editData.X[0], editData.Y[0], new Rectangle(0, 0, editData.Length[0], editData.Breadth[0]), GraphicsUnit.Pixel);
+
+                    using (var ms = await graphicalImage.ToMemoryStream())
+                        await new DiscordMessageBuilder()
+                                    .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                                    .WithReply(ctx.Message.Id)
+                                    .SendAsync(ctx.Channel);
+                }
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@
       "Size": [ 17 ],
 
       "Font": "Arial",
-      "FontStyle" :  0
+      "FontStyle": 0
     },
     {
       "FileName": "right.png",
@@ -151,6 +151,40 @@
       "Length": [ 1740 ],
       "Breadth": [ 433 ],
       "Size": [ 50 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
+    },
+    {
+      "FileName": "googlesearch.png",
+      "X": [ 41, 40, 159, 40 ],
+      "Y": [ 32, 181, 354, 384 ],
+      "Length": [ 536, 648, 197, 648 ],
+      "Breadth": [ 40, 243, 20, 40 ],
+      "Size": [ 14, 15, 10, 15 ],
+
+      "Font": "Arial",
+      "FontStyle": 1,
+      "Colors": [ "Black", "Black", "Gray", "Blue" ]
+    },
+    {
+      "FileName": "sbc.png",
+      "X": [ 7 ],
+      "Y": [ 6 ],
+      "Length": [ 695 ],
+      "Breadth": [ 108 ],
+      "Size": [ 20 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
+    },
+    {
+      "FileName": "hate.png",
+      "X": [ 7 ],
+      "Y": [ 351 ],
+      "Length": [ 49 ],
+      "Breadth": [ 49 ],
+      "Size": [ -3 ],
 
       "Font": "Arial",
       "FontStyle": 1

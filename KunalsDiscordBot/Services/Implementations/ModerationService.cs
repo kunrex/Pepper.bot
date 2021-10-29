@@ -150,11 +150,11 @@ namespace KunalsDiscordBot.Services.Moderation
             return await UpdateEntity(profile); 
         }
 
-        private Task<bool> CheckIfCustomCommandExists(ulong id, string commandTitle)
+        private async Task<bool> CheckIfCustomCommandExists(ulong id, string commandTitle)
         {
-            var rules = context.ServerCustomCommands.AsQueryable().Where(x => x.ModerationDataId == (long)id).ToList();
+            var rules = await GetAllCustomCommands(id);
 
-            return Task.FromResult(rules.FirstOrDefault(x => x.CommandName == commandTitle) != null);
+            return rules.FirstOrDefault(x => x.CommandName == commandTitle) != null;
         }
 
         public async Task<CustomCommand> GetCustomCommand(ulong guildId, string commandTitle) => (await GetAllCustomCommands(guildId)).FirstOrDefault(x => x.CommandName == commandTitle);
@@ -164,6 +164,48 @@ namespace KunalsDiscordBot.Services.Moderation
             var cached = (long)guildId;
 
             return Task.FromResult(context.ServerCustomCommands.AsEnumerable().Where(x => x.ModerationDataId == cached));
+        }
+
+        public async Task<bool> AddOrRemoveFilteredWord(ulong id, string word, bool addInfraction, bool add)
+        {
+            var profile = context.ModerationDatas.FirstOrDefault(x => x.Id == (long)id);
+            if (profile == null)
+                return false;
+
+            if (add)
+            {
+                if (await CheckIfFilteredWordExists(id, word))
+                    return false;
+
+                profile.FilteredWords.Add(new FilteredWord
+                {
+                    Word = word,
+                    AddInfraction = addInfraction
+                });
+            }
+            else
+            {
+                var command = context.ServerFilteredWords.AsQueryable().FirstOrDefault(x => x.ModerationDataId == profile.Id && x.Word == word);
+                await RemoveEntity(command);
+            }
+
+            return await UpdateEntity(profile);
+        }
+
+        private async Task<bool> CheckIfFilteredWordExists(ulong id, string word)
+        {
+            var words = await GetAllFilteredWords(id);
+
+            return words.FirstOrDefault(x => x.Word == word) != null;
+        }
+
+        public async Task<FilteredWord> GetFilteredWord(ulong guildId, string word) => (await GetAllFilteredWords(guildId)).FirstOrDefault(x => x.Word == word);
+
+        public Task<IEnumerable<FilteredWord>> GetAllFilteredWords(ulong guildId)
+        {
+            var cached = (long)guildId;
+
+            return Task.FromResult(context.ServerFilteredWords.AsEnumerable().Where(x => x.ModerationDataId == cached));
         }
     }
 }

@@ -16,7 +16,7 @@ namespace KunalsDiscordBot.Services.General
         public Task<ServerProfile> CreateServerProfile(ulong id);
         public Task RemoveServerProfile(ulong id);
 
-        public Task<bool> ModifyData<T>(T data, Action<T> modification) where T : Entity<long>;
+        public Task<bool> ModifyData<T>(T data, Action<T> modification) where T : IEntity;
  
         public Task<bool> AddOrRemoveRule(ulong id, string ruleToAdd, bool add);
         public Task<Rule> GetRule(ulong guildId, int index);

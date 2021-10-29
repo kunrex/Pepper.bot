@@ -1,15 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Drawing.Drawing2D;
+
+using BumpKit;
 
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
-    public class ImageGraphic : CustomDisposable
+    public class ImageGraphic : CustomDisposable, IImage
     {
         public Image image { get; private set; }
 
@@ -27,6 +30,8 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         public ImageGraphic(Stream stream) => image = Bitmap.FromStream(stream);
 
+        public ImageGraphic(Image imageToSet) => image = imageToSet;
+
         public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush)
         {
             using (var graphics = Graphics.FromImage(image))
@@ -39,6 +44,18 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         {
             using (var graphics = Graphics.FromImage(image))
                 graphics.DrawString(message, font, brush, new PointF(x, y));
+
+            return Task.CompletedTask;
+        }
+
+        public Task DrawImageRotated(ImageGraphic other, int angle, int x, int y, RectangleF rect, GraphicsUnit unit)
+        {
+            using (var graphics = Graphics.FromImage(image))
+            {
+                graphics.RotateTransform(angle);
+
+                graphics.DrawImage(other.image, x, y, rect, unit);
+            }
 
             return Task.CompletedTask;
         }
@@ -98,7 +115,33 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 }
             }
 
+            image.Dispose();
             return newImage;
+        }
+
+        public Task Rotate(int angle)
+        {
+            image = RotateImage(image, angle);
+
+            return Task.CompletedTask;
+        }
+
+        private Image RotateImage(Image image, int angle)
+        {
+            Bitmap rotatedImage = new Bitmap(image.Width, image.Height);
+            rotatedImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (Graphics graphics = Graphics.FromImage(rotatedImage))
+            {
+                graphics.TranslateTransform(image.Width / 2, image.Height / 2);
+                graphics.RotateTransform(angle);
+                graphics.TranslateTransform(-image.Width / 2, -image.Height / 2);
+
+                graphics.DrawImage(image, new Point(0, 0));
+            }
+
+            image.Dispose();
+            return rotatedImage;
         }
 
         public Task RotateFlip(RotateFlipType rotateFlipType)
@@ -136,6 +179,30 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 {
                     c = bmap.GetPixel(i, j);
                     Color newColor = c.ColorScale(color);
+                    bmap.SetPixel(i, j, newColor);
+                }
+
+            image = new Bitmap(bmap);
+            bmap.Dispose();
+
+            return Task.CompletedTask;
+        }
+
+        public Task ColorScale(int r, int g, int b)
+        {
+            Bitmap bmap = (Bitmap)image;
+            Color c;
+
+            r = 255 - r;
+            g = 255 - g;
+            b = 255 - b;
+
+            for (int i = 0; i < bmap.Width; i++)
+                for (int j = 0; j < bmap.Height; j++)
+                {
+                    c = bmap.GetPixel(i, j);
+                    Color newColor = Color.FromArgb(Math.Clamp(c.R - r, 0 ,255), Math.Clamp(c.G - g, 0, 255), Math.Clamp(c.B - b, 0, 255));
+
                     bmap.SetPixel(i, j, newColor);
                 }
 
@@ -205,7 +272,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             Color c;
 
             for (int x = 0; x < bmap.Width; x += pixelSize)
-                for (int y = 0; y < bmap.Width; y += pixelSize)
+                for (int y = 0; y < bmap.Height; y += pixelSize)
                 {
                     int red = 0, blue = 0, green = 0, pixelCount = 0;
 

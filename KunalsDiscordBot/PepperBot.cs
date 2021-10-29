@@ -91,7 +91,7 @@ namespace KunalsDiscordBot
             Client.GuildDeleted += OnGuildDeleted;
             Client.GuildMemberAdded += OnGuildMemberAdded;
             Client.GuildMemberRemoved += OnGuildMemberRemoved;
-            Client.MessageCreated += CheckAIChatMessage;
+            Client.MessageCreated += OnMessageCreated;
 
             var endPoint = new ConnectionEndpoint
             {
@@ -365,7 +365,7 @@ namespace KunalsDiscordBot
             return Task.CompletedTask;
         }
 
-        private Task CheckAIChatMessage(DiscordClient s, MessageCreateEventArgs e)
+        private Task OnMessageCreated(DiscordClient s, MessageCreateEventArgs e)
         {
             _ = Task.Run(async () =>
             {
@@ -373,15 +373,49 @@ namespace KunalsDiscordBot
                     if (e.Message.GetStringPrefixLength(prefix) != -1)
                         return;
 
-                var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetChatData(e.Guild.Id);
-                if (profile == null || profile.Enabled == 0)
-                    return;
-
-                if(profile.AIChatChannelID == (long)e.Channel.Id && !e.Author.IsBot)
-                    await e.Message.RespondAsync(await Chatbot.GetRepsonse(e.Message.Content));
+                if(!await CheckFilteredWord(s, e))
+                    await CheckAIChatMessage(s, e);
             });
 
             return Task.CompletedTask;
+        }
+
+        private async Task<bool> CheckFilteredWord(DiscordClient s, MessageCreateEventArgs e)
+        {
+            if (e.Author.IsBot || (((DiscordMember)e.Author).Permissions & Permissions.Administrator) == Permissions.Administrator)
+                return false;
+
+            var modService = (IModerationService)Services.GetService(typeof(IModerationService));
+            var words = await modService.GetAllFilteredWords(e.Guild.Id);
+            if (!words.Any())
+                return false;
+
+            foreach (var word in words)
+                if (e.Message.Content.Contains(word.Word))
+                {
+                    if (word.AddInfraction)
+                        await modService.AddInfraction(e.Author.Id, e.Guild.Id, s.CurrentUser.Id, "Use of filtered word");
+
+                    await e.Message.DeleteAsync($"Use of filtered word: {word.Word}");
+
+                    var message = await e.Channel.SendMessageAsync($"Hey there {e.Author.Mention}, your message contained a filtered word. Be careful next time");
+                    await Task.Delay(TimeSpan.FromSeconds(2));
+
+                    await message.DeleteAsync();
+                    return true;
+                }
+
+            return false;
+        }
+
+        private async Task CheckAIChatMessage(DiscordClient s, MessageCreateEventArgs e)
+        {
+            var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetChatData(e.Guild.Id);
+            if (profile == null || profile.Enabled == 0)
+                return;
+
+            if (profile.AIChatChannelID == (long)e.Channel.Id && !e.Author.IsBot)
+                await e.Message.RespondAsync(await Chatbot.GetRepsonse(e.Message.Content));
         }
     }
 }
