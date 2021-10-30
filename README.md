@@ -1,6 +1,7 @@
 # Pepper.bot
 
 Pepper is a discord bot I made a while back to learn. Its written in C#. It's not a public bot ~~yet~~, but has shards implemented.
+Its got everything I wanted it to have when I started to work on it so I've haulted progress on it. I may come back to add a few things here and there.
 
 <img src="Images/Logo.jpg" width=200>
 
@@ -27,6 +28,18 @@ Currency | A currency system! |
 AIChat | An AI chat module for small talk and more! |
 
 Does not have seperate prefix', Im not planning on adding it anytime soon either.
+
+### Features
+* Each server has a configuration and modules can be configured based on the needs of the server.
+* Moderation and Soft Moderation modules connected to a database. All moderation events (bans, kicks, mutes etc.) are stored in a database and can be accessed at any time. Pepper contains server configureable filtered words, custom commands and rules. Moderators and Administrators are enforced at different levels.
+* Music Module to play songs from Youtube or Soundcloud using Lavalink. Each server has its own player to handle music. Only one player can be registered for a server.
+* A Dynamic Games module set up in a way which makes it easy to add new games and maintain scalability.
+* An Image module which can be built open to manipulate gifs and videos and more and set up in a way which makes migration from one package to another easy.
+* Fun module with configurable and Reddit based commands. All reddit commands are NSFW enforced.
+* An AIChat module which uses Dialogflow to create an enhanced AI chat experiance.
+* Commands to perform basic mathematical operations such as solving and graphic equations.
+* An expandable currency system connected to a database. Boosts, items, tools, jobs and more are set up dynamically and can be scaled easily. More features can also be added to the database with ease.
+
 ## Technologies
 
 * C# 8
