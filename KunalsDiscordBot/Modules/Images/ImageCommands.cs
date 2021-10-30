@@ -31,7 +31,7 @@ namespace KunalsDiscordBot.Modules.Images
     [RequireBotPermissions(Permissions.SendMessages | Permissions.AttachFiles | Permissions.EmbedLinks), ConfigData(ConfigValueSet.Images)]
     public class ImageCommands : PepperCommandModule
     {
-        public override PepperCommandModuleInfo ModuleInfo { get; protected set; } 
+        public override PepperCommandModuleInfo ModuleInfo { get; protected set; }
 
         private readonly IImageService service;
 
@@ -47,7 +47,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Abandon(CommandContext ctx, [RemainingText] string message)
         {
-            if(string.IsNullOrEmpty(message))
+            if (string.IsNullOrEmpty(message))
             {
                 await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
                 return;
@@ -265,7 +265,7 @@ namespace KunalsDiscordBot.Modules.Images
 
             EditData editData = service.GetEditData(fileName);
 
-            using (var graphicalImage = new ImageGraphic(filePath)) 
+            using (var graphicalImage = new ImageGraphic(filePath))
             {
                 for (int i = 0; i < sentences.Length; i++)
                 {
@@ -310,7 +310,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Pixelate(CommandContext ctx, int scale, DiscordMember member = null)
         {
-            if(scale < 0 || scale > 15)
+            if (scale < 0 || scale > 15)
             {
                 await ctx.Channel.SendMessageAsync("How about you limit the scale from 0 => 15 next time?");
                 return;
@@ -514,7 +514,7 @@ namespace KunalsDiscordBot.Modules.Images
                     if (invert)
                         await graphicalImage.Invert();
 
-                    switch(deform)
+                    switch (deform)
                     {
                         case Deforms.Pixelate:
                             await graphicalImage.Pixelate(scale);
@@ -655,12 +655,12 @@ namespace KunalsDiscordBot.Modules.Images
         {
             angle %= 360;
 
-            using(var collection = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)> { (member.AvatarUrl, 1)})))
+            using (var collection = service.DownLoadImages(new TupleBag<string, int>(new List<(string, int)> { (member.AvatarUrl, 1) })))
             {
                 await collection[0].Resize(600, 600);
                 await collection[0].Rotate(angle);
 
-                using(var stream = await collection[0].ToMemoryStream())
+                using (var stream = await collection[0].ToMemoryStream())
                     await new DiscordMessageBuilder()
                              .WithFiles(new Dictionary<string, Stream>() { { "Rotated.png", stream } })
                              .WithReply(ctx.Message.Id)
@@ -670,7 +670,7 @@ namespace KunalsDiscordBot.Modules.Images
 
         [Command("Rotate")]
         [Cooldown(1, 10, CooldownBucketType.User)]
-        public async Task Hate(CommandContext ctx ,int angle)
+        public async Task Hate(CommandContext ctx, int angle)
         {
             angle %= 360;
 
@@ -963,7 +963,7 @@ namespace KunalsDiscordBot.Modules.Images
 
             List<string> sentences = message.Split(',').Select(x => x.Trim()).ToList();
             if (sentences.Count < 3)
-                sentences = new List<string> { $"How should {ctx.Member.DisplayName} use this command", "They split the search and the result by a ','", "Using Image commands in Pepper"};
+                sentences = new List<string> { $"How should {ctx.Member.DisplayName} use this command", "They split the search and the result by a ','", "Using Image commands in Pepper" };
 
             sentences.Add(sentences[2]);
 

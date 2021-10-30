@@ -2,6 +2,8 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 
+using ImageMagick;
+
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 
 namespace KunalsDiscordBot.Extensions
@@ -31,7 +33,7 @@ namespace KunalsDiscordBot.Extensions
                 case Colors.Brown:
                     return Color.FromArgb(Math.Clamp(color.R - 63, 0, 255), Math.Clamp(color.G / 2 - 53, 0, 255), 0);
                 case Colors.Silver:
-                    return Color.FromArgb(Math.Clamp(color.R - 115, 0, 255), Math.Clamp(color.R - 63, 0, 255), Math.Clamp(color.R - 63, 0, 255));
+                    return Color.FromArgb(Math.Clamp(color.R - 63, 0, 255), Math.Clamp(color.G - 63, 0, 255), Math.Clamp(color.B - 63, 0, 255));
                 case Colors.Gold:
                     return Color.FromArgb(color.R, Math.Clamp(color.G - 40, 0 , 255), 0);
                 case Colors.CandyRed:

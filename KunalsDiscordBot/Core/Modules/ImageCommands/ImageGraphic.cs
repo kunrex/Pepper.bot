@@ -5,14 +5,12 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Drawing.Drawing2D;
 
-using BumpKit;
-
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
-    public class ImageGraphic : CustomDisposable, IImage
+    public class ImageGraphic : CustomDisposable
     {
         public Image image { get; private set; }
 
@@ -26,9 +24,35 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             get => image.Height;
         }
 
-        public ImageGraphic(string filePath) => image = Bitmap.FromFile(filePath);
+        public ImageGraphic(string filePath)
+        {
+            var bmap = Bitmap.FromFile(filePath);
+            if (bmap.IsIndexed())
+            {
+                image = new Bitmap(bmap.Width, bmap.Height);
+                using (Graphics g = Graphics.FromImage(image))
+                    g.DrawImage(bmap, new Point(0, 0));
 
-        public ImageGraphic(Stream stream) => image = Bitmap.FromStream(stream);
+                bmap.Dispose();
+            }
+            else
+                image = bmap;
+        }
+
+        public ImageGraphic(Stream stream)
+        {
+            var bmap = Bitmap.FromStream(stream);
+            if (bmap.IsIndexed())
+            {
+                image = new Bitmap(bmap.Width, bmap.Height);
+                using (Graphics g = Graphics.FromImage(image))
+                    g.DrawImage(bmap, new Point(0, 0));
+
+                bmap.Dispose();
+            }
+            else
+                image = bmap;
+        }
 
         public ImageGraphic(Image imageToSet) => image = imageToSet;
 
@@ -201,7 +225,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 for (int j = 0; j < bmap.Height; j++)
                 {
                     c = bmap.GetPixel(i, j);
-                    Color newColor = Color.FromArgb(Math.Clamp(c.R - r, 0 ,255), Math.Clamp(c.G - g, 0, 255), Math.Clamp(c.B - b, 0, 255));
+                    Color newColor = Color.FromArgb(Math.Clamp(c.R - r, 0, 255), Math.Clamp(c.G - g, 0, 255), Math.Clamp(c.B - b, 0, 255));
 
                     bmap.SetPixel(i, j, newColor);
                 }
@@ -315,7 +339,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             if (disposing)
             {
                 if (image != null)
-                    image.Dispose();            
+                    image.Dispose();
             }
 
             base.Dispose(disposing);
