@@ -520,6 +520,7 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("Act")]
+        [RequireBotPermissions(Permissions.ManageWebhooks)]
         [Description("Send a message on behalf of another user"), CheckAllowAct]
         public async Task Act(CommandContext ctx, DiscordMember member, [RemainingText] string message)
         {

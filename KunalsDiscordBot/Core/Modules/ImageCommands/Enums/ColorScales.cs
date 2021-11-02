@@ -3,7 +3,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands.Enums
 {
     public enum ColorScales
     {
-        GreyScale,
+        GrayScale,
         ColorScale,
         None
     }

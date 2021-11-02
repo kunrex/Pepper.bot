@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 using System.Text.Json;
-using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -10,7 +9,6 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
-using KunalsDiscordBot.Services;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Services.Modules;
@@ -41,18 +39,32 @@ namespace KunalsDiscordBot.Modules.Math
         [Description("Solves a linear equation")]
         public async Task Solve(CommandContext ctx, [RemainingText] string equation)
         {
-            var solver = new LinearEquationSolver(equation);
+            try
+            {
+                var solver = new LinearEquationSolver(equation);
 
-            await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
+                await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                await ctx.RespondAsync(e.Message);
+            }
         }
 
         [Command("Evaluate")]
         [Description("Evaluate a math expression"), Aliases("Eval")]
         public async Task Evaluate(CommandContext ctx, [RemainingText] string expression)
         {
-            var solver = new Evaluator(expression);
+            try
+            {
+                var solver = new Evaluator(expression);
 
-            await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
+                await ctx.RespondAsync(await solver.Solve()).ConfigureAwait(false);
+            }
+            catch(Exception e)
+            {
+                await ctx.RespondAsync(e.Message);
+            }
         }
 
         [Command("Graph")]

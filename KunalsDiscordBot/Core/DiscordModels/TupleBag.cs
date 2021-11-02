@@ -14,6 +14,11 @@ namespace KunalsDiscordBot.Core.DiscordModels
             Values = new List<CustomTuple<Item1, Item2>>();
         }
 
+        public TupleBag(params (Item1, Item2)[] values)
+        {
+            Values = values.Select(x => new CustomTuple<Item1, Item2>(x.Item1, x.Item2)).ToList();
+        }
+
         public TupleBag(List<(Item1, Item2)> values)
         {
             Values = values.Select(x => new CustomTuple<Item1, Item2>(x.Item1, x.Item2)).ToList();

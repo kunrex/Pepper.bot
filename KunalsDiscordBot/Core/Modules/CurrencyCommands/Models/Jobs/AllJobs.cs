@@ -23,16 +23,14 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs
                }),
 
            new FillInTheBlank(15, 3,
-               new TupleBag<string, string>(new List<(string, string)>
-               {
+               new TupleBag<string, string>(
                     ("Children", "Time For the School Prayer --------"),
                     ("Theorum", "You need to specify the ------- used to prove the answer"),
-                    ("Homework", "The due date for the -------- is next monday")
-               })),
+                    ("Homework", "The due date for the -------- is next monday"))),
 
            new WordsInAnOrder(
                10, 1,
-               new string[] { "pencil", "eraser", "duster", "chalk", "Texbook", "physics", "science", "HW", "chemistry", "math", "biology", "strict", "marks" })
+               new string[] { "pencil", "eraser", "duster", "chalk", "Textbook", "physics", "science", "HW", "chemistry", "math", "biology", "strict", "marks" })
            );
 
 
@@ -52,16 +50,14 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs
                }),
 
            new FillInTheBlank( 15, 3,
-               new TupleBag<string, string>(new List<(string, string)>
-               {
+               new TupleBag<string, string>(
                     ("PHP", "Why would anyone use ---"),
                     ("8", "No you genius, a byte is - bits"),
                     ("Github", "Will you make the ------ repository?"),
-                    ("Python", "Ml training in ------ is peacefull" ),
-                    ("Unity", "Unreal engine or -----?" ),
-                    ("binary", "Assembly is just readable ------" ),
-                    ("Steve Jobs", "Apple was co-founded by ----------" )
-               })),
+                    ("Python", "Ml training in ------ is peacefull"),
+                    ("Unity", "Unreal engine or -----?"),
+                    ("binary", "Assembly is just readable ------"),
+                    ("Steve Jobs", "Apple was co-founded by ----------"))),
 
            new WordsInAnOrder( 10, 1,
                new string[] { "C#", "Java", "Python", "TypeScript", "Game Development", "Databases", "ML", "No Sleep", "Unity", "Unreal", "Ryder", "Visual Studio", "Bytes", "bits", "int", "string" })
@@ -84,15 +80,13 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Models.Jobs
                }),
 
             new FillInTheBlank( 15, 3,
-               new TupleBag<string, string>(new List<(string, string)>
-               {
+               new TupleBag<string, string>(
                     ("Salt", "Add some ----for taste"),
                     ("Lasagne", "No no its pronounced -------"),
                     ("Sunny side up", "A ------------- is actually a very complicated dish"),
-                    ("Subway", "A ------ is just a fancy sandwich" ),
-                    ("KFC", "--- or McDonalds?" ),
-                    ("Pizza Hut", "I feel dominos is better than ---------")
-               })),
+                    ("Subway", "A ------ is just a fancy sandwich"),
+                    ("KFC", "--- or McDonalds?"),
+                    ("Pizza Hut", "I feel dominos is better than ---------"))),
 
             new WordsInAnOrder( 10, 1,
                 new string[] { "KFC", "McDonalds", "BurgerKing", "Idli", "Dosa", "Salad", "Vegan", "Fruits", "Vegeies", "Duck", "Ckicken", "Turkey", "Meat", "Salmon", "Pomfret", "Shrimp", "Cavelier" })

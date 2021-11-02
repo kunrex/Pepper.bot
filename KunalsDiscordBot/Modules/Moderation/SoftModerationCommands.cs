@@ -495,7 +495,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 return;
             }
 
-            var pages = ctx.Client.GetInteractivity().GetPages(customCommands, x => (x.CommandName, x.CommandContent), new EmbedSkeleton
+            var pages = ctx.Client.GetInteractivity().GetPages(customCommands, x => (x.CommandName, "** **"), new EmbedSkeleton
             {
                 Color = ModuleInfo.Color,
                 Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }

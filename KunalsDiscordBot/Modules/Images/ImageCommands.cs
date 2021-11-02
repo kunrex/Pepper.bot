@@ -526,7 +526,7 @@ namespace KunalsDiscordBot.Modules.Images
 
                     switch (color)
                     {
-                        case ColorScales.GreyScale:
+                        case ColorScales.GrayScale:
                             await graphicalImage.GrayScale();
                             break;
                         case ColorScales.ColorScale:
@@ -607,7 +607,7 @@ namespace KunalsDiscordBot.Modules.Images
 
                     switch (color)
                     {
-                        case ColorScales.GreyScale:
+                        case ColorScales.GrayScale:
                             await graphicalImage.GrayScale();
                             break;
                         case ColorScales.ColorScale:
@@ -1044,6 +1044,134 @@ namespace KunalsDiscordBot.Modules.Images
                                     .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
                                     .WithReply(ctx.Message.Id)
                                     .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Gifify")]
+        [Description("Combine user pfps into a gif")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Gifify(CommandContext ctx, params DiscordMember[] members)
+        {
+            if(members.Length > 5)
+            {
+                await ctx.RespondAsync("Keep the maximum to 5 members");
+                return;
+            }
+
+            using (var list = service.DownLoadImages(new TupleBag<string, int>(members.Select(x => (x.AvatarUrl, 1)).ToList())))
+            {
+                await list.Resize(600, 600);
+
+                using (var ms = await list.ToMemoryStream(100))
+                    await new DiscordMessageBuilder()
+                                .WithFiles(new Dictionary<string, Stream>() { { "gifified.gif", ms } })
+                                .WithReply(ctx.Message.Id)
+                                .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Spin")]
+        [Description("Spinni boi go brr")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Spin(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            using (var list = service.DownLoadImages(new TupleBag<string, int>(Enumerable.Range(1, 4).Select(x => (member.AvatarUrl, 1)).ToList())))
+            {
+                await list.Resize(600, 600);
+
+                for (int angle = 45, i = 0; angle < 360; angle += 90, i++)
+                    await list[i].Rotate(angle);
+
+                using (var ms = await list.ToMemoryStream(10, true))
+                    await new DiscordMessageBuilder()
+                                .WithFiles(new Dictionary<string, Stream>() { { "spin.gif", ms } })
+                                .WithReply(ctx.Message.Id)
+                                .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Communism")]
+        [WithFile("communism.gif")]
+        [Description("Our gif command")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Communism(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            using (var collection = new ImageCollection(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((member.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(collection.Width, collection.Height);
+                    await list[0].SetOpcaity(150);
+
+                    await collection.DrawImage(list[0], 0, 0, new RectangleF(0, 0, collection.Width, collection.Height), GraphicsUnit.Pixel);
+
+                    using (var ms = await collection.ToMemoryStream(13, false))
+                        await new DiscordMessageBuilder()
+                                    .WithFiles(new Dictionary<string, Stream>() { { "communism.gif", ms } })
+                                    .WithReply(ctx.Message.Id)
+                                    .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Cancer")]
+        [Description("its true, its cancer")]
+        [WithFile("cancer.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Cancer(CommandContext ctx, DiscordMember member)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((member.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(editData.Size[0], editData.Size[0]);
+                    await graphicalImage.DrawImage(list[0], editData.X[0], editData.Y[0], new RectangleF(0, 0, editData.Size[0], editData.Size[0]), GraphicsUnit.Pixel);
+
+                    using (var ms = await graphicalImage.ToMemoryStream())
+                        await new DiscordMessageBuilder()
+                            .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                            .WithReply(ctx.Message.Id)
+                            .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Rainbow")]
+        [Description("colorfull colorscales")]
+        [WithFile("rainbow.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Rainbow(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((member.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(graphicalImage.Width, graphicalImage.Height);
+                    await list[0].DrawImage(graphicalImage, 0, 0, new RectangleF(0, 0, graphicalImage.Width, graphicalImage.Height), GraphicsUnit.Pixel);
+
+                    using (var ms = await list[0].ToMemoryStream())
+                        await new DiscordMessageBuilder()
+                            .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                            .WithReply(ctx.Message.Id)
+                            .SendAsync(ctx.Channel);
                 }
             }
         }

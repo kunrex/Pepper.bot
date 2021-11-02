@@ -11,7 +11,7 @@ namespace KunalsDiscordBot.Extensions
 {
     public static partial class PepperBotExtensions
     {
-        public static IEnumerable<Page> GetPages<T>(this InteractivityExtension interactivity, IEnumerable<T> list, Func<T, (string, string)> func, EmbedSkeleton skeleton, int perPage = 7, bool newLine = default)
+        public static IEnumerable<Page> GetPages<T>(this InteractivityExtension interactivity, IEnumerable<T> list, Func<T, (string, string)> func, EmbedSkeleton skeleton, int perPage = 7, bool inLine = default)
         {
             var embeds = new List<DiscordEmbedBuilder>();
             DiscordEmbedBuilder current = null;
@@ -37,7 +37,7 @@ namespace KunalsDiscordBot.Extensions
                 }
 
                 (string _heading, string _value) = func.Invoke(elemant);
-                current.AddField($"{++index}. {_heading}", _value, newLine);
+                current.AddField($"{++index}. {_heading}", _value, inLine);
             }
 
             if (embeds.Count == 0)

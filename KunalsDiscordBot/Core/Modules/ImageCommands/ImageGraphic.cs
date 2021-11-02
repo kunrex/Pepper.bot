@@ -5,24 +5,19 @@ using System.Drawing.Imaging;
 using System.Threading.Tasks;
 using System.Drawing.Drawing2D;
 
+using ImageMagick;
+
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 
 namespace KunalsDiscordBot.Core.Modules.ImageCommands
 {
-    public class ImageGraphic : CustomDisposable
+    public class ImageGraphic : CustomDisposable, IImage
     {
         public Image image { get; private set; }
 
-        public int Width
-        {
-            get => image.Width;
-        }
-
-        public int Height
-        {
-            get => image.Height;
-        }
+        public int Width => image.Width;
+        public int Height => image.Height;
 
         public ImageGraphic(string filePath)
         {
@@ -113,12 +108,12 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         public Task Resize(int width, int height)
         {
-            image = ResizeImage(image, width, height);
+            image = ResizeImage(width, height);
 
             return Task.CompletedTask;
         }
 
-        private Image ResizeImage(Image image, int width, int height)
+        private Image ResizeImage(int width, int height)
         {
             var rect = new Rectangle(0, 0, width, height);
             var newImage = new Bitmap(width, height);
@@ -145,12 +140,12 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         public Task Rotate(int angle)
         {
-            image = RotateImage(image, angle);
+            image = RotateImage(angle);
 
             return Task.CompletedTask;
         }
 
-        private Image RotateImage(Image image, int angle)
+        private Image RotateImage(int angle)
         {
             Bitmap rotatedImage = new Bitmap(image.Width, image.Height);
             rotatedImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
@@ -255,6 +250,23 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             return Task.CompletedTask;
         }
 
+        public Task ClearTransperency()
+        {
+            Bitmap nonTransperentImage = new Bitmap(image.Width, image.Height);
+            nonTransperentImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (var graphics = Graphics.FromImage(nonTransperentImage))
+            {
+                graphics.Clear(Color.Black);
+                graphics.DrawImage(image, new Point(0, 0));
+            }
+
+            image.Dispose();
+            image = nonTransperentImage;
+
+            return Task.CompletedTask;
+        }
+
         public Task Blur(int blurSize)
         {
             Bitmap bmap = (Bitmap)image;
@@ -344,5 +356,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
             base.Dispose(disposing);
         }
+
+        public static explicit operator MagickImage(ImageGraphic graphic) => new MagickImage(graphic.ToMemoryStream().GetAwaiter().GetResult());
     }
 }

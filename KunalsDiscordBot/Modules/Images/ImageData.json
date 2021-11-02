@@ -163,7 +163,7 @@
       "Breadth": [ 40, 243, 20, 40 ],
       "Size": [ 14, 15, 10, 15 ],
 
-      "Font": "Arial",
+      "Font": "Sans-serif",
       "FontStyle": 1,
       "Colors": [ "Black", "Black", "Gray", "Blue" ]
     },
@@ -188,6 +188,12 @@
 
       "Font": "Arial",
       "FontStyle": 1
+    },
+    {
+      "FileName": "cancer.png",
+      "X": [ 760 ],
+      "Y": [ 454 ],
+      "Size": [ 278 ]
     }
   ]
 }

@@ -11,11 +11,13 @@ using DSharpPlus.Interactivity.Enums;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Interactivity.Extensions;
 
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Modules;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.Configurations.Enums;
@@ -199,17 +201,18 @@ namespace KunalsDiscordBot.Modules.General
         [Description("Displays different values for enum argument types used by Pepper")]
         public async Task EnumValues(CommandContext ctx)
         {
-            var builder = new DiscordEmbedBuilder()
+            var pages = ctx.Client.GetInteractivity().GetPages(enumTypes, x => (x.Name, $"Values: {string.Join(", ", Enum.GetNames(x).Select(x => $"`{x}`"))}"), new EmbedSkeleton
             {
-                Title = "Enums used in Pepper",
+                Title = "Enums in Pepper",
                 Description = "Enums are arguments with only specific values. If you see any of these as command arguments, these are the valid values you can pass in for each.",
-                Color = ModuleInfo.Color
-            }.WithFooter($"User: {ctx.Member.DisplayName} at {DateTime.Now}");
+                Color = ModuleInfo.Color,
+                Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User: {ctx.Member.DisplayName} at {DateTime.Now}" }
+            }, 7, false).ToList();
 
-            foreach (var type in enumTypes)
-                builder.AddField(type.Name, $"Values: {string.Join(", ", Enum.GetNames(type).Select(x => $"`{x}`"))}");
-
-            await ctx.RespondAsync(builder);
+            if (pages.Count == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages,  PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
 
         [Command("ChangeEditPermissions")]
