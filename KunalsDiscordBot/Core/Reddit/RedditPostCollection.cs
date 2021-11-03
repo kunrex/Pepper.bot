@@ -31,10 +31,19 @@ namespace KunalsDiscordBot.Core.Reddit
             return this;
         }
 
-        public Post this[int index, bool allowNSFW = true]
+        public Post GetRandomPost(bool nsfw)
         {
-            get => allowNSFW ? Posts[index] : Posts.Where(x => !x.NSFW).ToList()[index];
+            if (nsfw)
+                return this[new Random().Next(0, Posts.Count)];
+            else
+            {
+                var filtered = Posts.Where(x => !x.NSFW).ToList();
+
+                return filtered[new Random().Next(0, filtered.Count)];
+            }
         }
+
+        public Post this[int index] => Posts[index];
 
         private Task SetUp(RedditClient client, EventHandler<PostsUpdateEventArgs> action, RedditFilter filter)
         {

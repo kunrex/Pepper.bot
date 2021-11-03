@@ -361,6 +361,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 Color = ModuleInfo.Color,
             }.AddField("Infractions: ", (await modService.GetInfractions(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("Endorsements: ", (await modService.GetEndorsements(member.Id, ctx.Guild.Id)).Count.ToString(), true)
+             .AddField("Mutes: ", (await modService.GetMutes(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("** **", "** **")
              .AddField("Bans: ", (await modService.GetBans(member.Id, ctx.Guild.Id)).Count.ToString(), true)
              .AddField("Kicks: ", (await modService.GetKicks(member.Id, ctx.Guild.Id)).Count.ToString(), true)

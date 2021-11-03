@@ -16,18 +16,19 @@ namespace KunalsDiscordBot.Core.Reddit
 
     public sealed class RedditApp
     {
-        public RedditClient client { get; private set; }
+        public RedditClient Client { get; private set; }
         public bool Online { get; private set; }
 
         private readonly RedditAppConfig configuration;
 
-        private RedditPostCollection memes { get; set; } 
-        private RedditPostCollection aww { get; set; }
+        private RedditPostCollection Memes { get; set; } 
+        private RedditPostCollection Aww { get; set; }
+        private RedditPostCollection Showerthoughts { get; set; }
 
         public RedditApp(PepperConfigurationManager configManager)
         {
             configuration = configManager.BotConfig.RedditConfig;
-            client = new RedditClient(appId: configuration.AppId, appSecret: configuration.AppSecret, refreshToken: configuration.RefreshToken);
+            Client = new RedditClient(appId: configuration.AppId, appSecret: configuration.AppSecret, refreshToken: configuration.RefreshToken);
 
             Task.Run(() => SetUpCollections());
         }
@@ -38,11 +39,15 @@ namespace KunalsDiscordBot.Core.Reddit
             {
                 AllowNSFW = true,
                 ImagesOnly = true,
-                Take = configuration.PostLimit
+                Take = configuration.PostLimit,
+                Filter = RedditPostFilter.New
             };
 
-            memes = await new RedditPostCollection("memes").Collect(client, filter);
-            aww = await new RedditPostCollection("aww").Collect(client, filter);
+            Memes = await new RedditPostCollection("memes").Collect(Client, filter);
+            Aww = await new RedditPostCollection("aww").Collect(Client, filter);
+
+            filter.ImagesOnly = false;
+            Showerthoughts = await new RedditPostCollection("Showerthoughts").Collect(Client, filter);
 
             Online = true;
             Console.WriteLine("Reddit app online");
@@ -52,7 +57,7 @@ namespace KunalsDiscordBot.Core.Reddit
         {
             try
             {
-                return client.Subreddit(subreddit)?.About();
+                return Client.Subreddit(subreddit)?.About();
             }
             catch
             {
@@ -68,7 +73,8 @@ namespace KunalsDiscordBot.Core.Reddit
             return filtered == null || filtered.Count == 0  ? null : filtered[new Random().Next(0, filtered.Count)];
         }
 
-        public Post GetMeme(bool allowNSFW) => memes[new Random().Next(0, memes.count), allowNSFW];
-        public Post GetAww() => aww[new Random().Next(0, aww.count)];
+        public Post GetMeme(bool allowNSFW) => Memes.GetRandomPost(allowNSFW);
+        public Post GetAww() => Aww[new Random().Next(0, Aww.count)];
+        public Post GetShowerthought() => Showerthoughts[new Random().Next(0, Showerthoughts.count)];
     }
 }

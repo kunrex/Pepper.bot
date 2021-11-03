@@ -49,7 +49,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -79,7 +79,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -109,7 +109,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -140,7 +140,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -214,7 +214,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -252,7 +252,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -695,7 +695,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -725,7 +725,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -755,7 +755,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -827,7 +827,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -857,7 +857,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -887,7 +887,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -926,7 +926,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -957,7 +957,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -998,7 +998,7 @@ namespace KunalsDiscordBot.Modules.Images
         {
             if (string.IsNullOrEmpty(message))
             {
-                await ctx.Channel.SendMessageAsync("At least give me a valid sentence");
+                await ctx.RespondAsync("At least give me a valid sentence");
                 return;
             }
 
@@ -1173,6 +1173,74 @@ namespace KunalsDiscordBot.Modules.Images
                             .WithReply(ctx.Message.Id)
                             .SendAsync(ctx.Channel);
                 }
+            }
+        }
+
+        [Command("Hell")]
+        [Description("colorfull colorscales")]
+        [WithFile("hell.png")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Hell(CommandContext ctx, [RemainingText] string sentence)
+        {
+            if (string.IsNullOrEmpty(sentence))
+            {
+                await ctx.RespondAsync("At least give me a valid sentence");
+                return;
+            }
+
+            sentence = sentence.Insert(0, "How about ");
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out var font, out var brush);
+                await graphicalImage.DrawString(sentence, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], font, brush);
+
+                using (var ms = await graphicalImage.ToMemoryStream())
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Chad")]
+        [Description("An absolute chad")]
+        [WithFile("chad.gif")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Chad(CommandContext ctx, [RemainingText] string sentence)
+        {
+            if (string.IsNullOrEmpty(sentence))
+            {
+                await ctx.RespondAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string[] sentences = sentence.Split(',').Select(x => x.Trim()).ToArray();
+            if (sentences.Length < 2)
+                sentences = new[] { $"Using this command without splitting sentences", "Using this command properly" };
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                for (int i = 0; i < sentences.Length; i++)
+                {
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
+                }
+
+                using (var ms = await graphicalImage.ToMemoryStream(10, false))
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
             }
         }
     }

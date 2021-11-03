@@ -194,17 +194,6 @@ namespace KunalsDiscordBot.Modules.Fun
         [CheckAllowSpam]
         public async Task StopSpam(CommandContext ctx) => await ctx.Channel.SendMessageAsync(await funService.StopSpammer(ctx.Guild.Id) ? "Stopped Spam" : "There is no spam to stop");
 
-        [Command("describe")]
-        [Description("Random charecter dexcription in one word")]
-        public async Task charecter(CommandContext ctx)
-        {
-            string[] replies = { "sweat", "memes", "god", "assasin", "simp", "trash", "legend" };
-            Random r = new Random();
-            int rand = r.Next(0, replies.Length - 1);
-
-            await ctx.Channel.SendMessageAsync(replies[rand]).ConfigureAwait(false);
-        }
-
         [Command("ask")]
         [Aliases("8ball")]
         [Description("Ask the bot something")]
@@ -225,21 +214,52 @@ namespace KunalsDiscordBot.Modules.Fun
         [Description("cool rate")]
         public async Task CoolRate(CommandContext ctx, DiscordMember member = null)
         {
-            Random random = new Random();
-            int number = random.Next(0, 100);
+            member = member == null ? ctx.Member : member;
 
-            if (member == null)
-                member = ctx.Member;
-
-            var Embed = new DiscordEmbedBuilder
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Cool Rate",
-                Description = $"Hey {member.DisplayName}, you are **{number}% cool** 😎",
+                Description = $"Hey {member.Mention}, you are **{new Random().Next(0, 100)}% cool** 😎",
                 Color = ModuleInfo.Color
-            };
-
-            await ctx.Channel.SendMessageAsync(embed: Embed);
+            });
         }
+
+        [Command("Simprate")]
+        [Description("simp rate")]
+        public async Task Simprate(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Simp Rate",
+                Description = $"{member.Mention} is a {new Random().Next(0, 100)}% simp",
+                Color = ModuleInfo.Color
+            });
+        }
+
+        [Command("Waifurate")]
+        [Description("waifu rate, 100% fact")]
+        public async Task Waifurate(CommandContext ctx, DiscordMember member = null)
+        {
+            member = member == null ? ctx.Member : member;
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = "Waifu Rate",
+                Description = $"{member.Mention} is a {new Random().Next(0, 100)}% waifu :heart:",
+                Color = ModuleInfo.Color
+            });
+        }
+
+        [Command("Loverate")]
+        [Description("displays how much 2 people love each other, 100% fact")]
+        public async Task Simprate(CommandContext ctx, DiscordMember member1, DiscordMember member2) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        {
+            Title = "Love Rate",
+            Description = $"{member1.Mention} and {member2.Mention} are {new Random().Next(0, 100)}% in love",
+            Color = ModuleInfo.Color
+        });
 
         [Command("BeatBox")]
         [Description("beatboxes")]
@@ -412,6 +432,20 @@ namespace KunalsDiscordBot.Modules.Fun
             }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
         }
 
+        [Command("Showerthoughts")]
+        [Description("Things to think about while taking a shower :thinking:, from r/Showerthoughts"), RedditCommand]
+        public async Task Showerthought(CommandContext ctx)
+        {
+            var post = redditApp.GetShowerthought();
+
+            await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+            {
+                Title = post.Title,
+                Url = "https://www.reddit.com" + post.Permalink,
+                Color = ModuleInfo.Color
+            }.WithFooter($"⬆️ : {post.UpVotes}")).ConfigureAwait(false);
+        }
+
         [Command("post")]
         [Description("Get a random post from any subredddit"), RedditCommand]
         public async Task Post(CommandContext ctx, string subRedditname, RedditPostFilter filter = RedditPostFilter.New, bool useImage = false)
@@ -529,6 +563,19 @@ namespace KunalsDiscordBot.Modules.Fun
 
             foreach (var hook in await ctx.Channel.GetWebhooksAsync())
                 await hook.DeleteAsync();
+        }
+
+        [Command("Say")]
+        [Description("I repeat what you say")]
+        public async Task Say(CommandContext ctx, [RemainingText] string message)
+        {
+            if(string.IsNullOrEmpty(message))
+            {
+                await ctx.RespondAsync("At least give me something to say");
+                return;
+            }
+
+            await ctx.Channel.SendMessageAsync(message);
         }
     }
 }

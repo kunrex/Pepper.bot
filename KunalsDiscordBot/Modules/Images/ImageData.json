@@ -194,6 +194,28 @@
       "X": [ 760 ],
       "Y": [ 454 ],
       "Size": [ 278 ]
+    },
+    {
+      "FileName": "hell.png",
+      "X": [ 12 ],
+      "Y": [ 277 ],
+      "Length": [ 318 ],
+      "Breadth": [ 36 ],
+      "Size": [ 13 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
+    },
+    {
+      "FileName": "chad.gif",
+      "X": [ 2, 223 ],
+      "Y": [ 2, 2 ],
+      "Length": [ 195, 195 ],
+      "Breadth": [ 68, 68 ],
+      "Size": [ 13, 13 ],
+
+      "Font": "Arial",
+      "FontStyle": 1
     }
   ]
 }
