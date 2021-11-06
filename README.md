@@ -51,7 +51,8 @@ Does not have seperate prefix', Im not planning on adding it anytime soon either
 * SQlite
 * <a href="https://github.com/sirkris/Reddit.NET" target="_blank">Reddit.NET</a>
 * <a href="https://denzven.pythonanywhere.com/" target="_blank">Denzven Graphing API</a>
-* <a href = "https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a>
+* <a href ="https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a>
+* <a href ="https://github.com/dlemstra/Magick.NET" target="_blank">Magick.NET</a>
 
 (I honestly don't know what goes here so I just put everything)
 
