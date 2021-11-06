@@ -211,7 +211,7 @@ You can look into the <a href="https://docs.microsoft.com/en-us/ef/core/get-star
 
 ## Plans for the future
 
-I'm not quite done with the bot. Right now my goal is to finish the currency system. I can add more games, images and modules. After all this is just to learn.
+I'm not quite done with the bot. I can add more games, images and modules. After all this is just to learn.
 
 For More info you can contact me on Discord
 
