@@ -254,7 +254,7 @@ namespace KunalsDiscordBot
                     var casted = (CooldownAttribute)cfe.FailedChecks.First(x => x is CooldownAttribute);
                     var cooldown = casted.GetRemainingCooldown(e.Context);
 
-                    description = $"You just used this command and can use it after this much time:\n {cooldown.Days} days, {cooldown.Hours} hours, {cooldown.Minutes} minutes {cooldown.Seconds} seconds";
+                    description = $"You just used this command and can use it after this much time:\n {cooldown.Days} days, {cooldown.Hours} hours, {cooldown.Minutes} minutes, {cooldown.Seconds} seconds and {cooldown.Milliseconds} milliseconds";
                     footer = "Spam ain't cool";
                 }
 
@@ -291,7 +291,7 @@ namespace KunalsDiscordBot
 
                 var configService = (IConfigurationService)Services.GetService(typeof(IConfigurationService));
 
-                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId))
+                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId, Commands.GetCommandCount()))
                 .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
             });
 

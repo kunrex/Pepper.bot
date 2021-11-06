@@ -182,7 +182,7 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("AboutMe")]
         [Description("Allow me to intorduce myself :D")]
-        public async Task AboutMe(CommandContext ctx) => await ctx.RespondAsync((await configService.GetPepperBotInfo(ctx.Client.Guilds.Count, ctx.Client.ShardCount, ctx.Client.ShardId))
+        public async Task AboutMe(CommandContext ctx) => await ctx.RespondAsync((await configService.GetPepperBotInfo(ctx.Client.Guilds.Count, ctx.Client.ShardCount, ctx.Client.ShardId, ctx.CommandsNext.GetCommandCount()))
             .WithFooter($"User: {ctx.Member.DisplayName}").WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, Height, Width)).ConfigureAwait(false);
 
         [Command("Configuration")]

@@ -247,7 +247,7 @@ namespace KunalsDiscordBot.Modules.Fun
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
                 Title = "Waifu Rate",
-                Description = $"{member.Mention} is a {new Random().Next(0, 100)}% waifu :heart:",
+                Description = $"{member.Mention} is a {new Random().Next(0, 100)}% waifu :weary:",
                 Color = ModuleInfo.Color
             });
         }
@@ -257,7 +257,16 @@ namespace KunalsDiscordBot.Modules.Fun
         public async Task Simprate(CommandContext ctx, DiscordMember member1, DiscordMember member2) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
         {
             Title = "Love Rate",
-            Description = $"{member1.Mention} and {member2.Mention} are {new Random().Next(0, 100)}% in love",
+            Description = $"{member1.Mention} and {member2.Mention} are {new Random().Next(0, 100)}% in love :heart:",
+            Color = ModuleInfo.Color
+        });
+
+        [Command("Loverate")]
+        [Description("displays how much 2 people love each other, 100% fact")]
+        public async Task Simprate(CommandContext ctx, string item1, string item2) => await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+        {
+            Title = "Love Rate",
+            Description = $"{item1} and {item2} are {new Random().Next(0, 100)}% in love :heart:",
             Color = ModuleInfo.Color
         });
 

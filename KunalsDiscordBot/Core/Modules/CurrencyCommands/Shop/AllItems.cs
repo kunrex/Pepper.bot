@@ -22,17 +22,19 @@ namespace KunalsDiscordBot.Core.Modules.CurrencyCommands.Shops
         public static readonly Item Landmine = new BoostItem("Landmine", 10, "If anyone tries to rob you when you have a landmine down they have a 50% chance of dieing", UseType.Boost, new BoostData(Boost.Landmine));
         public static readonly Item Padlock = new BoostItem("Padlock", 10, "If anyone tries to rob you when you have a padlock they instantly fail", UseType.Boost, new BoostData(Boost.Padlock));
 
-        public static readonly Item Deer = new DecoritiveItem("Deer", "Just a deer", ":deer:");
-        public static readonly Item Rabbit = new DecoritiveItem("Rabbit", "Just a Rabbit", ":rabbit2:");
-        public static readonly Item Fish = new DecoritiveItem("Fish", "Just a fish", " :fish:");
+        public static readonly Item Deer = new AnimalItem("Deer", "Just a deer", ":deer:");
+        public static readonly Item Rabbit = new AnimalItem("Rabbit", "Just a Rabbit", ":rabbit2:");
+        public static readonly Item Fish = new AnimalItem("Fish", "Just a fish", ":fish:");
+        public static readonly Item Dragon = new AnimalItem("Dragon", "Just a Dragon", ":dragon_face:", "HOLY SHIT THATS A DRAGON", "dragons are just living flamethrowers", "haha dragon go brrr");
 
-        public static readonly Item Portrait = new DecoritiveItem("Portrait", "Peppers portrait", 20000, " :pepper:");
+        public static readonly Item Portrait = new DecoritiveItem("Portrait", 20000, "Peppers portrait", UseType.Decoration, ":pepper:");
 
         public static readonly Item[] AllItems = new Item[] { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow, Landmine, Padlock,
-            Deer, Rabbit, Fish };
+            Deer, Rabbit, Fish, Portrait };
 
-        public static readonly Item[] AllBuyableItems = new Item[] { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow, Landmine, Padlock };
+        public static readonly Item[] AllBuyableItems = new Item[] { Laptop, HuntingKit, BankCard, Alcohol, BodyPillow, Landmine, Padlock, Portrait };
 
         public static readonly Item[] Animals = new Item[] { Deer, Rabbit, Fish };
+        public static readonly Item[] RareAnimals = new Item[] { Dragon };
     }
 }

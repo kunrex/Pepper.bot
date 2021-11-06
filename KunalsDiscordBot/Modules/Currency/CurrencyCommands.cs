@@ -214,8 +214,7 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("ID: ", profile.Id.ToString())
              .AddField("Coins: ", $"{profile.Coins} {data.CoinsEmoji}")
              .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})")
-             .AddField("Level: ", $"{profile.Level}")
-             .AddField("XP: ", $"{profile.XP}", true)
+             .AddField("Level: ", $"{profile.Level} ({profile.XP})")
              .AddField("Job: ", profile.Job);
 
             var boosts = await service.GetBoosts(ctx.Member.Id);
@@ -252,8 +251,7 @@ namespace KunalsDiscordBot.Modules.Currency
              .AddField("ID: ", profile.Id.ToString())
              .AddField("Coins: ", $"{profile.Coins} {data.CoinsEmoji}")
              .AddField("Bank: ", $"{profile.CoinsBank} {data.CoinsEmoji} (max: {profile.CoinsBankMax})")
-             .AddField("Level: ", $"{profile.Level}")
-             .AddField("XP: ", $"{profile.XP}", true)
+             .AddField("Level: ", $"{profile.Level} ({profile.XP})")
              .AddField("Job: ", profile.Job);
 
             var boosts = await service.GetBoosts(ctx.Member.Id);
@@ -547,7 +545,7 @@ namespace KunalsDiscordBot.Modules.Currency
             await ctx.RespondAsync(new DiscordEmbedBuilder
             {
                 Title = "Cogratulations",
-                Description = $"{ctx.Member.Mention} you have been hired. \nUse the work command to earn some money.",
+                Description = $"{ctx.Member.Mention} you have been hired as a {job.Name} {job.emoji}. \nUse the work command to earn some money.",
                 Color = ModuleInfo.Color,
             }.WithThumbnail(ctx.User.AvatarUrl, data.ThumbnailSize, data.ThumbnailSize)).ConfigureAwait(false);
             ExecutionRewards = true;
@@ -638,7 +636,7 @@ namespace KunalsDiscordBot.Modules.Currency
                 Description = $"Stock is {(StockMarket.Instance.CurrentStockPrice > 0 ? "up" : "down")} by **{System.Math.Abs(StockMarket.Instance.CurrentStockPrice)}%**",
                 Color = ModuleInfo.Color,
                 Author = new DiscordEmbedBuilder.EmbedAuthor { IconUrl = ctx.Member.AvatarUrl, Name = ctx.Member.DisplayName }
-            }, 7, false).ToList(); ;
+            }, 7, false).ToList(); 
 
             if (pages.Count == 1)
                 await ctx.Channel.SendMessageAsync(pages[0].Embed);
@@ -939,10 +937,39 @@ namespace KunalsDiscordBot.Modules.Currency
             var rng = new Random();
             string name;
 
-            if (rng.Next(0, 10) > 2)
+            if (rng.Next(0, 10) > 2)//failure or not
             {
-                var randomIndex = rng.Next(0, Shop.Animals.Length);
-                var animal = Shop.Animals[randomIndex];
+                var animals = rng.Next(0, 100) > 90 ? Shop.RareAnimals : Shop.Animals;//rare animal or not
+
+                var randomIndex = rng.Next(0, animals.Length);
+                var animal = animals[randomIndex] as AnimalItem;
+
+                if (animal.IsRareItem)
+                {
+                    var sentence = animal.GetSentence();
+
+                    var step = await new ReplyStep($"Holy shit you found a `{animal.Name}`, quick rewrite this sentence in 10 seconds", $"` {sentence}` ", 10, sentence)
+                        .WithMesssageData(new MessageData
+                        {
+                            Reply = true,
+                            ReplyId = ctx.Message.Id
+                        })
+                        .ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+                    if(!step.WasCompleted)
+                    {
+                        await service.KillProfile(ctx.Member.Id);
+
+                        await ctx.RespondAsync(new DiscordEmbedBuilder
+                        {
+                            Title = $"{ctx.Member.Username} went hunting",
+                            Description = $"Welp you didn't respond in time and died",
+                            Color = ModuleInfo.Color
+                        }).ConfigureAwait(false);
+
+                        return;
+                    }
+                }
 
                 await service.AddOrRemoveItem(ctx.Member.Id, animal.Name, 1);
                 name = $"a(n) {animal.Name} {animal.EmojiIcon}";
@@ -1032,7 +1059,7 @@ namespace KunalsDiscordBot.Modules.Currency
                         coins = 0;
                         message = "Yeah you didn't steal anything lmfao";
                         break;
-                    case var x when x < 100:
+                    case var x when x < 95:
                         coins = random.Next(0, (int)(x / 100f * victimProfile.Coins));
                         message = coins < victimProfile.Coins / 2 ? "You stole a decent amount coins" : "Holy crap you stole more coins than I expected";
                         break;
@@ -1142,11 +1169,12 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.ModifyProfile(profile, x => x.Coins += reward);
 
             await ctx.RespondAsync(new DiscordEmbedBuilder()
+                    .WithAuthor($"{ctx.Member.Username}'s bet", null, ctx.Member.AvatarUrl)
+                    .WithDescription($"{(reward == 0 ? "Its a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {coins} {data.CoinsEmoji}" : $"You lose {coins} {data.CoinsEmoji}"))}")
                     .WithColor(ModuleInfo.Color)
-                    .WithTitle($"{ctx.Member.Username}'s bet")
-                    .AddField($"{ctx.Member.DisplayName} rolls", playerRoll.ToString(), true)
-                    .AddField("I roll", botRoll.ToString(), true)
-                    .AddField("Result", $"{(reward == 0 ? "Is a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {coins} {data.CoinsEmoji}" : $"You lose {coins} {data.CoinsEmoji}"))}"));
+                    .AddField($"{ctx.Member.Username}", $"Rolled: {playerRoll}", true)
+                    .AddField($"Pepper rolls", $"Rolled: {botRoll}", true)
+                    .AddField($"New balance", $"{profile.Coins} {data.CoinsEmoji}", true));
 
             ExecutionRewards = true;
         }
@@ -1196,11 +1224,12 @@ namespace KunalsDiscordBot.Modules.Currency
                 await service.KillProfile(profile, false);
 
             await ctx.RespondAsync(new DiscordEmbedBuilder()
+                    .WithAuthor($"{ctx.Member.Username}'s bet", null, ctx.Member.AvatarUrl)
+                    .WithDescription($"{(reward == 0 ? "Is a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {reward} {data.CoinsEmoji}" : "Welp time to die"))}")
                     .WithColor(ModuleInfo.Color)
-                    .WithTitle($"{ctx.Member.Username}'s bet")
-                    .AddField($"{ctx.Member.DisplayName} rolls", playerRoll.ToString(), true)
-                    .AddField("I roll", botRoll.ToString(), true)
-                    .AddField("Result", $"{(reward == 0 ? "Is a draw, you neither lose nor gain money" : (reward > 0 ? $"You get {reward} {data.CoinsEmoji}" : "Welp time to die"))}"));
+                    .AddField($"{ctx.Member.Username}", $"Rolled: {playerRoll}", true)
+                    .AddField($"Pepper rolls", $"Rolled: {botRoll}", true)
+                    .AddField($"New balance", $"{profile.Coins} {data.CoinsEmoji}", true));
 
             ExecutionRewards = true;
         }

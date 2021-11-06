@@ -76,8 +76,7 @@ namespace KunalsDiscordBot.Core.Help
             Title = command.Name.Format();
             var parent = command.Parent == null ? "" : command.Parent.Name;
 
-            Description = $"**Description**: {command.Description}\n**Regular Command Usage**: pep {parent} {command.Name} [comand parameters]" +
-                $"\n**Group Command Usage**: pep {parent} [command parameters] (only applicable to `group commands`)";
+            Description = $"**Description**: {command.Description}\n**Command Usage**: pep {parent} {command.Name} [comand parameters]";
 
             Aliases = new FieldData { Name = "__Aliases__", Value = command.Aliases.GetAliases(), Inline = false};
 

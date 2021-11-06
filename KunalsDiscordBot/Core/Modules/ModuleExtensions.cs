@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
+using DSharpPlus.CommandsNext;
 using DSharpPlus.Interactivity;
 
 using KunalsDiscordBot.Core.DiscordModels;
@@ -44,6 +45,28 @@ namespace KunalsDiscordBot.Extensions
                 return null;
 
             return embeds.Select(x => new Page(null, x));
+        }
+
+        public static int GetCommandCount(this CommandsNextExtension commandNext)
+        {
+            int count = 0;
+            var commands = commandNext.FilteredRegisteredCommands().ToArray();
+
+            foreach (var command in commands)
+                count += command.GetSubCommandsCount();
+
+            return count;
+        }
+
+        public static int GetSubCommandsCount(this Command command)
+        {
+            if(command is CommandGroup group)
+            {
+                int count = group.Children.Select(x => x.GetSubCommandsCount()).Sum();
+                return count;
+            }
+
+            return 1;
         }
     }
 }

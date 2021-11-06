@@ -23,8 +23,6 @@ namespace KunalsDiscordBot.Services.Modules
 
         public Dictionary<ConfigValueSet, PepperCommandModuleInfo> ModuleInfo { get; }
 
-        public int TotalCommands { get; }
-
         public ModuleService()
         {
             ModuleInfo = new Dictionary<ConfigValueSet, PepperCommandModuleInfo>();
@@ -33,7 +31,6 @@ namespace KunalsDiscordBot.Services.Modules
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract && x.GetCustomAttribute<GroupAttribute>() != null))
             {
                 modules.Add(type);
-                TotalCommands += type.GetMethods().Where(x => x.GetCustomAttribute<CommandAttribute>() != null).Count();
 
                 var attribute = type.GetCustomAttribute<ConfigDataAttribute>();
                 if (attribute == null || ModuleInfo.ContainsKey(attribute.set))

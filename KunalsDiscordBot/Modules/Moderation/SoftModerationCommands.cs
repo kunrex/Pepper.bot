@@ -329,13 +329,13 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         {
             if(ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name.ToLower() == name) != null)
             {
-                await ctx.Channel.SendMessageAsync("emoji with this name already exists").ConfigureAwait(false);
+                await ctx.RespondAsync("emoji with this name already exists").ConfigureAwait(false);
                 return;
             }
 
             if (ctx.Guild.Emojis.Count == 50 + (((int)ctx.Guild.PremiumTier) * 50))
             {
-                await ctx.Channel.SendMessageAsync($"Emoji cap reached ({((int)ctx.Guild.PremiumTier) * 50})");
+                await ctx.RespondAsync($"Emoji cap reached ({((int)ctx.Guild.PremiumTier) * 50})");
                 return;
             }
 
@@ -369,7 +369,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
             var emoji = ctx.Guild.Emojis.Values.FirstOrDefault(x => x.Name == name);
             if (emoji == null)
             {
-                await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
+                await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Description = "Emoji not found",
                     Color = ModuleInfo.Color
@@ -507,8 +507,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
                 await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable);
         }
 
-        [Command("CustomCommand"), GroupCommand]
-        [Description("Runs a custom command, note this is a `group command`")]
+        [GroupCommand, Hidden]
         public async Task CustomCommand(CommandContext ctx, string name)
         {
             name = name.ToLower();

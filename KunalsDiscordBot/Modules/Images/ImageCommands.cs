@@ -1243,5 +1243,36 @@ namespace KunalsDiscordBot.Modules.Images
                         .SendAsync(ctx.Channel);
             }
         }
+
+        [Command("Youre")]
+        [WithFile("youre.gif")]
+        [Description("Spelling mistake = instant argument win")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Youre(CommandContext ctx, string word)
+        {
+            if (string.IsNullOrEmpty(word))
+            {
+                await ctx.RespondAsync("At least give me a valid word");
+                return;
+            }
+
+            word += '*';
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(word, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
+            }
+        }
     }
 }

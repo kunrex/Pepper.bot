@@ -103,12 +103,12 @@ namespace KunalsDiscordBot.Services.Configuration
             return embeds;
         }
 
-        public Task<DiscordEmbedBuilder> GetPepperBotInfo(int guildCount, int shardCount, int shardId)
+        public Task<DiscordEmbedBuilder> GetPepperBotInfo(int guildCount, int shardCount, int shardId, int commandCount)
         {
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Hi! I'm Pepper",
-                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {moduleService.TotalCommands} (+ 1 help command) commands and have {shardCount} shard(s)." +
+                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {commandCount} commands and have {shardCount} shard(s)." +
                 $"The shard ID for this server is {shardId}.",
                 Color = DiscordColor.Blurple,
             }.AddField("__The Modules I offer:__", "** **");

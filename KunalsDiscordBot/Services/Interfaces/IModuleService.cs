@@ -13,7 +13,5 @@ namespace KunalsDiscordBot.Services.Modules
     {
         public IEnumerable<string> ModuleNames { get; }
         public Dictionary<ConfigValueSet, PepperCommandModuleInfo> ModuleInfo { get; }
-
-        public int TotalCommands { get; }
     }
 }

@@ -78,12 +78,13 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             await Connection.DisconnectAsync();
             OnDisconnect.Invoke();
 
-            if (InactivityCancellationToken != null && !InactivityCancellationToken.IsCancellationRequested)
+            if (InactivityCancellationToken != null)
             {
-                InactivityCancellationToken.Cancel();
+                if(!InactivityCancellationToken.IsCancellationRequested)
+                    InactivityCancellationToken.Cancel();
+
                 InactivityCancellationToken.Dispose();
             }
-
             return $"Left {Connection.Channel.Mention} succesfully";
         }
 
@@ -172,9 +173,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             {
                 await BoundChannel.SendMessageAsync("Queue Finished");
                 currentTrack = null;
-                InactivityCancellationToken = new CancellationTokenSource();
 
-                await Task.Run(() => InactivityCheck());
+                InactivityCancellationToken = new CancellationTokenSource();
+                BeginInactivityCheck();
                 return;
             }
 
@@ -188,21 +189,34 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                 Queue.Enqueue(search);
         }
 
-        private async Task InactivityCheck()
+        private async void BeginInactivityCheck()
         {
             if (InactivityCancellationToken == null || InactivityCancellationToken.IsCancellationRequested)
                 return;
 
-            await Task.Delay(TimeSpan.FromMinutes(moduleData.inactivityLength), InactivityCancellationToken.Token);
-
-            if (InactivityCancellationToken.IsCancellationRequested)
+            try
             {
-                InactivityCancellationToken = null;
+                await Task.Delay(TimeSpan.FromMinutes(moduleData.inactivityLength), InactivityCancellationToken.Token);
+            }
+            catch
+            { }
+
+            if (InactivityCancellationToken != null && InactivityCancellationToken.IsCancellationRequested)
+            {
+                if (isConnected)
+                {
+                    InactivityCancellationToken.Dispose();
+                    InactivityCancellationToken = null;
+                }
+
                 return;
             }
 
-            await BoundChannel.SendMessageAsync("Leaving due to inactivity").ConfigureAwait(false);
-            await Disconnect();
+            if (isConnected)
+            {
+                await BoundChannel.SendMessageAsync("Leaving due to inactivity").ConfigureAwait(false);
+                await Disconnect();
+            }
         }
 
         public async Task<string> Pause()
@@ -215,7 +229,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             InactivityCancellationToken = new CancellationTokenSource();
 
-            await Task.Run(() => InactivityCheck());
+            BeginInactivityCheck();
             return "Player Paused";
         }
 
