@@ -1,0 +1,9 @@
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/bin/Debug/netstandard2.1/DiscordBotDataBase.Dal.deps.json
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/bin/Debug/netstandard2.1/DiscordBotDataBase.Dal.dll
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/bin/Debug/netstandard2.1/DiscordBotDataBase.Dal.pdb
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.AssemblyInfoInputs.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.AssemblyInfo.cs
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.csproj.CoreCompileInputs.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.dll
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.pdb
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.csprojAssemblyReference.cache

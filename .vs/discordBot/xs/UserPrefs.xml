@@ -1,0 +1,43 @@
+﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
+  <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/Chatting/ChatModule.cs">
+    <Files>
+      <File FileName="KunalsDiscordBot/PepperBot.cs" Line="380" Column="39" />
+      <File FileName="KunalsDiscordBot/Modules/Moderation/SoftModerationCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Games/GameCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Music/MusicCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Math/MathCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Currency/CurrencyCommands.cs" Line="10" Column="22" />
+      <File FileName="KunalsDiscordBot/Config.json" Line="9" Column="21" />
+      <File FileName="KunalsDiscordBot/Modules/General/GeneralCommands.cs" Line="229" Column="48" />
+      <File FileName="KunalsDiscordBot/Modules/Chatting/ChatModule.cs" Line="54" Column="9" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="discordBot" expanded="True">
+            <Node name="DiscordBot.Bot" expanded="True">
+              <Node name="KunalsDiscordBot" expanded="True">
+                <Node name="Modules" expanded="True">
+                  <Node name="Chatting" expanded="True">
+                    <Node name="ChatModule.cs" selected="True" />
+                  </Node>
+                  <Node name="General" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+            <Node name="DiscordBot.DataBase" expanded="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>

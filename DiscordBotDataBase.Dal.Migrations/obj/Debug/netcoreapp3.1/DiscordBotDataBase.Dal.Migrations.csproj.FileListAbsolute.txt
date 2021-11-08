@@ -1,0 +1,12 @@
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/bin/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.deps.json
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/bin/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.dll
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/bin/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.pdb
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/bin/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.dll
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/bin/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.pdb
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.csprojAssemblyReference.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.AssemblyInfoInputs.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.AssemblyInfo.cs
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.csproj.CoreCompileInputs.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.csproj.CopyComplete
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.dll
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/Debug/netcoreapp3.1/DiscordBotDataBase.Dal.Migrations.pdb
