@@ -14,10 +14,11 @@
         "outputPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder",
           "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/Users/kunalkashyap/.nuget/NuGet/NuGet.Config"
+          "/Users/kunalkashyap/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netcoreapp3.1"
@@ -73,10 +74,11 @@
         "outputPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
+          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder",
           "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "/Users/kunalkashyap/.nuget/NuGet/NuGet.Config"
+          "/Users/kunalkashyap/.config/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
