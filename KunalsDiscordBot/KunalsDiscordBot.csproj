@@ -95,6 +95,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
+    <Content Remove="Modules\Chatting\ApiConfig.json" />
+    <Content Remove="Modules\Chatting\ApiConfig.json" />
+    <Content Remove="Core\Chatting\ApiConfig.json" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="DSharpPlus.Lavalink" />
