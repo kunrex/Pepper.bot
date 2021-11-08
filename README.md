@@ -1,6 +1,6 @@
 # Pepper.bot
 
-Pepper is a discord bot I made a while back to learn. Its written in C#. It's not a public bot ~~yet~~, but has shards implemented.
+<a href="https://kunrex.github.io/Pepper.bot/" target="blank">Pepper</a> is a discord bot I made a while back to learn. Its written in C#. It's not a public bot ~~yet~~, but has shards implemented.
 Its got everything I wanted it to have when I started to work on it so I've haulted progress on it. I may come back to add a few things here and there.
 
 <img src="Images/Logo.jpg" width=200>
@@ -45,14 +45,14 @@ Does not have seperate prefix', Im not planning on adding it anytime soon either
 * C# 8
 * .NETCore 3.1
 * .NETStandard 2.1
-* <a href="https://github.com/DSharpPlus/DSharpPlus" target="_blank">DSharpPlus 4.0.1</a>
+* <a href="https://github.com/DSharpPlus/DSharpPlus" target="blank">DSharpPlus 4.0.1</a>
 * Microsoft.EntityFrameWorkCore 5.0.7
-* <a href="https://github.com/DSharpPlus/DSharpPlus/tree/master/DSharpPlus.Lavalink" target="_blank">DSharpPlus.LavaLink</a> 
+* <a href="https://github.com/DSharpPlus/DSharpPlus/tree/master/DSharpPlus.Lavalink" target="blank">DSharpPlus.LavaLink</a> 
 * SQlite
-* <a href="https://github.com/sirkris/Reddit.NET" target="_blank">Reddit.NET</a>
-* <a href="https://denzven.pythonanywhere.com/" target="_blank">Denzven Graphing API</a>
-* <a href ="https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a>
-* <a href ="https://github.com/dlemstra/Magick.NET" target="_blank">Magick.NET</a>
+* <a href="https://github.com/sirkris/Reddit.NET" target="blank">Reddit.NET</a>
+* <a href="https://denzven.pythonanywhere.com/" target="blank">Denzven Graphing API</a>
+* <a href ="https://cloud.google.com/dialogflow/docs" target="blank">Dialogflow</a>
+* <a href ="https://github.com/dlemstra/Magick.NET" target="blank">Magick.NET</a>
 
 (I honestly don't know what goes here so I just put everything)
 
@@ -66,36 +66,36 @@ $ git clone https://github.com/kunrex/Pepper.bot
 
 ### • Creating and Setting up The Bot
 
-1. Open a new Browser window and search <a href="https://discord.com/developers/docs/intro" target="_blank">Discord Developer Portal</a>. 
+1. Open a new Browser window and search <a href="https://discord.com/developers/docs/intro" target="blank">Discord Developer Portal</a>. 
 2. Navigate to the Applications window and select `New Application`. This application is your bot
 3. Give the application a name and hit `Create`. You can now fill in the other details of the bot like the description and give the bot a pfp.
 4. Navigate to `Bot` tab, click `Click To Reveal Token` and copy whatever appears. This is the token for your discord bot and is used in code. **DO NOT** show anyone this token.
 
 ### • Setting up Music Commands with LavaLink
-Pepper uses <a href="https://github.com/DSharpPlus/DSharpPlus/tree/master/DSharpPlus.Lavalink" target="_blank">DSharpPlus.LavaLink</a>  for music commands. 
+Pepper uses <a href="https://github.com/DSharpPlus/DSharpPlus/tree/master/DSharpPlus.Lavalink" target="blank">DSharpPlus.LavaLink</a>  for music commands. 
 Find the LavaLink.jar file at `KunalsDiscordBot/Modules/Music`. open a cmd prompt or terminal instance at this path and run
 ```
 java -jar Lavalink.jar
 ```
 This runs the jar file.
-The bot comes with a set up `application.yaml` file to configure LavaLink so it should run locally on your device. You can look into <a href="https://github.com/DSharpPlus/DSharpPlus" target="_blank">LavaLinks repository</a> or the <a href="https://dsharpplus.github.io/articles/audio/lavalink/setup.html" target="_blank">DSharpPlus tutorial</a> for more info.
+The bot comes with a set up `application.yaml` file to configure LavaLink so it should run locally on your device. You can look into <a href="https://github.com/DSharpPlus/DSharpPlus" target="blank">LavaLinks repository</a> or the <a href="https://dsharpplus.github.io/articles/audio/lavalink/setup.html" target="blank">DSharpPlus tutorial</a> for more info.
 
 ### • Reddit Services
-Pepper uses <a href="https://github.com/sirkris/Reddit.NET" target="_blank">Reddit.NET</a> for all things reddit. This is primarily used in the FunModule but can be built upon for more complex Reddit related commands.
+Pepper uses <a href="https://github.com/sirkris/Reddit.NET" target="blank">Reddit.NET</a> for all things reddit. This is primarily used in the FunModule but can be built upon for more complex Reddit related commands.
 #### __Settings Up the Reddit App__
-1. Open up the <a href="https://www.reddit.com/prefs/apps" target="_blank">Apps</a> page on Reddit and hit `create an app` at the bottom.
+1. Open up the <a href="https://www.reddit.com/prefs/apps" target="blank">Apps</a> page on Reddit and hit `create an app` at the bottom.
 2. Give the app a name and a description. Under `App Type` choose `script`. The `Redirect URL` can really be any valid URL. After that you can just hit `Create App`.
 3. Its gonna redirect your page that looks something like this.
 <img src="Images/RedditExample.png" width = 400> 
 
 We need 2 things from here, your `client app id` (The set of characters under `personal use script`) and `client secret`.
 
-4. Apart from those 2 we also need a `refreshToken`. Now I have to admit getting this is a bit trickier than the appId and secret. You can either follow the instructions at <a href="https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization" target="_blank">here</a> or just use this simple <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/" target="_blank">link</a>. 
+4. Apart from those 2 we also need a `refreshToken`. Now I have to admit getting this is a bit trickier than the appId and secret. You can either follow the instructions at <a href="https://github.com/reddit-archive/reddit/wiki/OAuth2#authorization" target="blank">here</a> or just use this simple <a href="https://not-an-aardvark.github.io/reddit-oauth-helper/" target="blank">link</a>. 
 
 You can look into the Readme.md at `KunalsDiscordBot/Reddit/` for more info on the Reddit implementation.
 
 ### • Setting up Dialogflow
-Pepper uses <a href = "https://cloud.google.com/dialogflow/docs" target="_blank">Dialogflow</a> for <a href="https://www.ibm.com/cloud/learn/natural-language-processing" target="_blank">NLP</a> used in the AI chat module. You can follow the instructions to set up Dialogflow and to create a <a href = "https://cloud.google.com/dialogflow/es/docs/agents-overview" target="_blank">`Dialogflow Agent`</a> <a href = "https://cloud.google.com/dialogflow/es/docs/quick/setup" target="_blank">here</a>. Pepper does use the API so make sure to install `Cloud SDK` as well. Keep track of the JSON file downloaded containing the KEY of your project and the project ID of your Dialogflow agent as they are used in the primary config file
+Pepper uses <a href = "https://cloud.google.com/dialogflow/docs" target="blank">Dialogflow</a> for <a href="https://www.ibm.com/cloud/learn/natural-language-processing" target="blank">NLP</a> used in the AI chat module. You can follow the instructions to set up Dialogflow and to create a <a href = "https://cloud.google.com/dialogflow/es/docs/agents-overview" target="blank">`Dialogflow Agent`</a> <a href = "https://cloud.google.com/dialogflow/es/docs/quick/setup" target="blank">here</a>. Pepper does use the API so make sure to install `Cloud SDK` as well. Keep track of the JSON file downloaded containing the KEY of your project and the project ID of your Dialogflow agent as they are used in the primary config file
   
 After you have Dialogflow set up, you can enable small talk for the agent. Go to the home page of your agent. On the sidebar in the left, scroll down till you find `Small Talk`. Click it and enable it by checking the toggle called `Enable`. You can now fill in various small talk responses that you want your agent to have.
 
@@ -207,7 +207,7 @@ If you do then great work! The databse has been set up succesfully.
 
 Any time you make any chages to the Database Models you will be needed to run these last 2 commands in that specific order to add the new migrations and update the database
 Although you would change the names of the Migrations on each update. for this example we used `InitialCreate`. You would put in a different value every time you create something new.
-You can look into the <a href="https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli" target="_blank">Microsoft Docs</a> for SQLite for more info.
+You can look into the <a href="https://docs.microsoft.com/en-us/ef/core/get-started/overview/first-app?tabs=netcore-cli" target="blank">Microsoft Docs</a> for SQLite for more info.
 
 ## Plans for the future
 
