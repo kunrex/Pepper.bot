@@ -1,8 +1,8 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/General/GeneralCommands.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/ModuleExtensions.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/PepperBot.cs" Line="383" Column="58" />
+      <File FileName="KunalsDiscordBot/PepperBot.cs" Line="268" Column="25" />
       <File FileName="KunalsDiscordBot/Modules/Moderation/SoftModerationCommands.cs" />
       <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" />
       <File FileName="KunalsDiscordBot/Modules/Games/GameCommands.cs" />
@@ -10,8 +10,10 @@
       <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
       <File FileName="KunalsDiscordBot/Modules/Math/MathCommands.cs" />
       <File FileName="KunalsDiscordBot/Modules/Currency/CurrencyCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/General/GeneralCommands.cs" Line="66" Column="1" />
+      <File FileName="KunalsDiscordBot/Modules/General/GeneralCommands.cs" Line="68" Column="10" />
       <File FileName="KunalsDiscordBot/Modules/Chatting/ChatModule.cs" />
+      <File FileName="KunalsDiscordBot/Commands.json" Line="3" Column="2" />
+      <File FileName="KunalsDiscordBot/Core/Modules/ModuleExtensions.cs" Line="72" Column="30" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -20,13 +22,8 @@
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
-                  <Node name="Chatting" expanded="True" />
-                  <Node name="Reddit" expanded="True" />
-                </Node>
-                <Node name="Modules" expanded="True">
-                  <Node name="Chatting" expanded="True" />
-                  <Node name="General" expanded="True">
-                    <Node name="GeneralCommands.cs" selected="True" />
+                  <Node name="Modules" expanded="True">
+                    <Node name="ModuleExtensions.cs" selected="True" />
                   </Node>
                 </Node>
               </Node>
