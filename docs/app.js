@@ -2,6 +2,7 @@
 const mobileMenu = document.querySelector('#mobile-menu')
 const menuLink = document.querySelector('.navbar__menu')
 const navLogo = document.querySelector('#navbar__logo')
+const moduleSection = document.querySelector('.modules__group')
 
 //Mobile Menu
 const mobileMenuAnimation = () => 
@@ -26,3 +27,13 @@ const mobileMenuDisable = () =>
 
 menuLink.addEventListener('click', mobileMenuDisable)
 navLogo.addEventListener('click', mobileMenuDisable)
+
+const changeTab = (e) => 
+{
+    if(!e.target.id || e.target.id === "")
+        return;
+
+    window.open("module.html?currentModule=".concat(e.target.id), "_self");
+}
+
+moduleSection.addEventListener('click', changeTab)
