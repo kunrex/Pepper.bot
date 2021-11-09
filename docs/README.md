@@ -1,4 +1,4 @@
 # Pepper.bot
 
-Website Code. 
+Website Stuff. 
 The site is written using HTML, CSS and Javascript.
