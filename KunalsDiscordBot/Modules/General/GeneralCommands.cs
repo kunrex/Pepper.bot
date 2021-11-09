@@ -69,7 +69,11 @@ namespace KunalsDiscordBot.Modules.General
 
         [Command("Github")]
         [Description("Source Code for Pepper.bot")]
-        public async Task GitHub(CommandContext ctx) => await ctx.Channel.SendMessageAsync("Heres my source code!\nhttps://github.com/kunrex/Pepper.bot");
+        public async Task GitHub(CommandContext ctx) => await ctx.RespondAsync("Heres my source code!\nhttps://github.com/kunrex/Pepper.bot");
+
+        [Command("Website")]
+        [Description("Official website for Pepper.bot")]
+        public async Task Website(CommandContext ctx) => await ctx.RespondAsync("Heres my official website!\nhttps://kunrex.github.io/Pepper.bot/");
 
         [Command("poll")]
         [Description("Conducts a poll **DEMOCRACY**")]
