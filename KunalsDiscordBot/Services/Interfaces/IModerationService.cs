@@ -36,6 +36,10 @@ namespace KunalsDiscordBot.Services.Moderation
         public Task<FilteredWord> GetFilteredWord(ulong guildId, string word);
         public Task<IEnumerable<FilteredWord>> GetAllFilteredWords(ulong guildId);
 
+        public Task<bool> AddOrRemoveRule(ulong id, string ruleToAdd, bool add);
+        public Task<Rule> GetRule(ulong guildId, int index);
+        public Task<IEnumerable<Rule>> GetAllRules(ulong guildId);
+
         public Task<bool> ClearInfractions(ulong id, ulong guildId);
         public Task<bool> ClearEndorsements(ulong id, ulong guildId);
 

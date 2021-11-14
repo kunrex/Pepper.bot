@@ -259,7 +259,7 @@ namespace KunalsDiscordBot.Modules.Moderation.SoftModeration
         [Description("Displays a rule by its index")]
         public async Task AddRule(CommandContext ctx, int index)
         {
-           var rule =  await serverService.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
+           var rule =  await modService.GetRule(ctx.Guild.Id, index - 1).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {

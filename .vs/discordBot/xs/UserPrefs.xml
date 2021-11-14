@@ -1,18 +1,16 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/ModuleExtensions.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/Music/MusicCommands.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/PepperBot.cs" Line="121" Column="16" />
-      <File FileName="KunalsDiscordBot/Modules/Moderation/SoftModerationCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Games/GameCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Music/MusicCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Math/MathCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Currency/CurrencyCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/General/GeneralCommands.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Chatting/ChatModule.cs" />
-      <File FileName="KunalsDiscordBot/Core/Modules/ModuleExtensions.cs" Line="69" Column="22" />
+      <File FileName="KunalsDiscordBot/Services/Interfaces/IPlaylistService.cs" Line="26" Column="2" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/PlaylistService.cs" Line="82" Column="44" />
+      <File FileName="KunalsDiscordBot/Services/Interfaces/IServerService.cs" Line="19" Column="1" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/ServerService.cs" Line="4" Column="34" />
+      <File FileName="KunalsDiscordBot/Modules/Music/MusicCommands.cs" Line="379" Column="24" />
+      <File FileName="KunalsDiscordBot/Services/Interfaces/IMusicService.cs" Line="25" Column="46" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/MusicService.cs" Line="159" Column="49" />
+      <File FileName="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs" Line="303" Column="18" />
+      <File FileName="KunalsDiscordBot/StartUp.cs" Line="45" Column="68" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -22,12 +20,32 @@
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
                   <Node name="Modules" expanded="True">
-                    <Node name="ModuleExtensions.cs" selected="True" />
+                    <Node name="MusicCommands" expanded="True" />
+                  </Node>
+                </Node>
+                <Node name="Modules" expanded="True">
+                  <Node name="Moderation" expanded="True" />
+                  <Node name="Music" expanded="True">
+                    <Node name="MusicCommands.cs" selected="True" />
+                  </Node>
+                </Node>
+                <Node name="Services" expanded="True">
+                  <Node name="Implementations" expanded="True" />
+                  <Node name="Interfaces" expanded="True" />
+                </Node>
+              </Node>
+            </Node>
+            <Node name="DiscordBot.DataBase" expanded="True">
+              <Node name="DiscordBotDataBase.Dal" expanded="True">
+                <Node name="Models" expanded="True">
+                  <Node name="Server" expanded="True">
+                    <Node name="Models" expanded="True">
+                      <Node name="Music" expanded="True" />
+                    </Node>
                   </Node>
                 </Node>
               </Node>
             </Node>
-            <Node name="DiscordBot.DataBase" expanded="True" />
           </Node>
         </State>
       </Pad>

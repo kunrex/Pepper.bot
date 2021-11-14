@@ -374,7 +374,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task AddRule(CommandContext ctx, [RemainingText] string rule)
         {
-            var completed = await serverService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
+            var completed = await modService.AddOrRemoveRule(ctx.Guild.Id, rule, true).ConfigureAwait(false);
 
             if (!completed)
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -400,7 +400,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task RemoveRule(CommandContext ctx, int index)
         {
-            var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
+            var rule = await modService.GetRule(ctx.Guild.Id, index - 1);
             if(rule == null)
             {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -412,7 +412,7 @@ namespace KunalsDiscordBot.Modules.Moderation
                 return;
             }
 
-            await serverService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
+            await modService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -429,7 +429,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator)]
         public async Task EditRule(CommandContext ctx, int index, [RemainingText] string newRule)
         {
-            var rule = await serverService.GetRule(ctx.Guild.Id, index - 1);
+            var rule = await modService.GetRule(ctx.Guild.Id, index - 1);
             if (rule == null)
             {
                 await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
@@ -458,7 +458,7 @@ namespace KunalsDiscordBot.Modules.Moderation
         [RequireUserPermissions(Permissions.Administrator), ConfigData(ConfigValue.RuleCount)]
         public async Task RemoveAllRule(CommandContext ctx)
         {
-            var rules = (await serverService.GetAllRules(ctx.Guild.Id)).ToArray();
+            var rules = (await modService.GetAllRules(ctx.Guild.Id)).ToArray();
 
             if(!rules.Any())
             {
@@ -468,7 +468,7 @@ namespace KunalsDiscordBot.Modules.Moderation
 
             var count = rules.Length;
             foreach (var rule in rules)
-                await serverService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
+                await modService.AddOrRemoveRule(ctx.Guild.Id, rule.RuleContent, false).ConfigureAwait(false);
 
             await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder
             {
@@ -494,7 +494,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             {
                 var message = await channel.GetMessageAsync(messageId);
 
-                var rules = (await serverService.GetAllRules(guild.Id));
+                var rules = await modService.GetAllRules(guild.Id);
                 if (!rules.Any())
                     await message.DeleteAsync("No rules in server");
                 else
@@ -539,7 +539,7 @@ namespace KunalsDiscordBot.Modules.Moderation
             }
             catch
             {
-                var rules = await serverService.GetAllRules(ctx.Guild.Id);
+                var rules = await modService.GetAllRules(ctx.Guild.Id);
                 var embeds = ctx.Client.GetInteractivity().GetPages(rules, x => (string.Empty, x.RuleContent), new EmbedSkeleton
                 {
                     Color = ModuleInfo.Color

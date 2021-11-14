@@ -16,6 +16,7 @@
     <None Remove="Models\Server\Models\" />
     <None Remove="Models\Server\Models\Moderation\" />
     <None Remove="Models\Currency\Profile\Items\" />
+    <None Remove="Models\Server\Models\Music\" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.7">
@@ -34,5 +35,6 @@
     <Folder Include="Models\Server\Models\" />
     <Folder Include="Models\Server\Models\Moderation\" />
     <Folder Include="Models\Currency\Profile\Items\" />
+    <Folder Include="Models\Server\Models\Music\" />
   </ItemGroup>
 </Project>

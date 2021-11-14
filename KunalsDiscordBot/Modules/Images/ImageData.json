@@ -227,6 +227,17 @@
 
       "Font": "Arial",
       "FontStyle": 0
+    },
+    {
+      "FileName": "burn.jpeg",
+      "X": [ 52 ],
+      "Y": [ 91 ],
+      "Length": [ 174 ],
+      "Breadth": [ 174 ],
+      "Size": [ 20 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     }
   ]
 }

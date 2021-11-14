@@ -46,6 +46,7 @@ namespace KunalsDiscordBot
                 .AddScoped<IImageService, ImageService>()
                 .AddScoped<IServerService, ServerService>()
                 .AddScoped<IConfigurationService, ConfigurationService>()
+                .AddScoped<IPlaylistService, PlaylistService>()
                 .AddSingleton<IMusicService, MusicService>()
                 .AddSingleton<IGameService, GameService>()
                 .AddSingleton<IFunService, FunService>();

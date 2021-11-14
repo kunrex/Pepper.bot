@@ -67,6 +67,44 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             return Task.CompletedTask;
         }
 
+        public Task DrawString(string message, int x, int y, Font font, Brush brush, Color outlineColor)
+        {
+            using (var graphics = Graphics.FromImage(image))
+            {
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+                using (var path = new GraphicsPath())
+                {
+                    path.AddString(message, font.FontFamily, (int)FontStyle.Regular, font.Size, new Point(x, y), new StringFormat());
+
+                    graphics.FillPath(brush, path);
+                    using (var pen = new Pen(outlineColor, 3))
+                        graphics.DrawPath(pen, path);            
+                }               
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush, Color outlineColor)
+        {
+            using (var graphics = Graphics.FromImage(image))
+            {
+                graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+                using (var path = new GraphicsPath())
+                {
+                    path.AddString(message, font.FontFamily, (int)FontStyle.Regular, font.Size, new RectangleF(x, y, length, breadth), new StringFormat());
+
+                    graphics.FillPath(brush, path);
+                    using (var pen = new Pen(outlineColor))
+                        graphics.DrawPath(pen, path);
+                }
+            }
+
+            return Task.CompletedTask; 
+        }
+
         public Task DrawImageRotated(ImageGraphic other, int angle, int x, int y, RectangleF rect, GraphicsUnit unit)
         {
             using (var graphics = Graphics.FromImage(image))

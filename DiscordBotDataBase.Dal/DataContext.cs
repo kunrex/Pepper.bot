@@ -7,6 +7,7 @@ using DiscordBotDataBase.Dal.Models.Profile.Boosts;
 using DiscordBotDataBase.Dal.Models.Servers;
 using DiscordBotDataBase.Dal.Models.Servers.Models;
 using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
+using DiscordBotDataBase.Dal.Models.Servers.Models.Music;
 
 namespace DiscordBotDataBase.Dal
 {
@@ -19,7 +20,7 @@ namespace DiscordBotDataBase.Dal
         public DbSet<ItemDBData> ProfileItems { get; set; }
         public DbSet<BoostData> ProfileBoosts { get; set; }
 
-        //Server Configuration and Moderation
+        //Server Related
         public DbSet<ServerProfile> ServerProfiles { get; set; }
 
         public DbSet<ModerationData> ModerationDatas { get; set; }
@@ -37,5 +38,8 @@ namespace DiscordBotDataBase.Dal
         public DbSet<Ban> ModerationBans { get; set; }
         public DbSet<Kick> ModerationKicks { get; set; }
         public DbSet<Mute> ModerationMutes { get; set; }
+
+        public DbSet<Playlist> ServerPlaylists { get; set; }
+        public DbSet<PlaylistTrack> ServerPlaylistTracks { get; set; }
     }
 }

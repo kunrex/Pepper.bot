@@ -14,16 +14,18 @@ using DSharpPlus.Interactivity.Extensions;
 using DSharpPlus.Interactivity.EventHandling;
 
 using KunalsDiscordBot.Services;
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Modules;
 using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Core.Attributes;
 using KunalsDiscordBot.Core.Exceptions;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Services.Modules;
+using KunalsDiscordBot.Core.DiscordModels;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Attributes.MusicCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
-using DiscordBotDataBase.Dal.Models.Servers.Models;
+using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
 
 namespace KunalsDiscordBot.Modules.Music
 {
@@ -37,11 +39,13 @@ namespace KunalsDiscordBot.Modules.Music
 
         private readonly IMusicService service;
         private readonly IServerService serverService;
+        private readonly IPlaylistService playlistService;
 
-        public MusicCommands(IMusicService _service, IServerService _serverService, IModuleService moduleService)
+        public MusicCommands(IMusicService _service, IServerService _serverService, IModuleService moduleService, IPlaylistService _playlistService)
         {
             service = _service;
             serverService = _serverService;
+            playlistService = _playlistService;
             ModuleInfo = moduleService.ModuleInfo[ConfigValueSet.Music];
         }
 
@@ -78,7 +82,7 @@ namespace KunalsDiscordBot.Modules.Music
             }
 
             var userVCCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is UserVCNeededAttribute) != null;
-            if(userVCCheck)
+            if (userVCCheck)
             {
                 var voiceState = ctx.Member.VoiceState;
 
@@ -87,7 +91,7 @@ namespace KunalsDiscordBot.Modules.Music
                     await ctx.RespondAsync("You need to be in a Voice Channel to run this command");
                     throw new CustomCommandException();
                 }
-                else if(voiceState.IsSelfDeafened || voiceState.IsServerDeafened)
+                else if (voiceState.IsSelfDeafened || voiceState.IsServerDeafened)
                 {
                     await ctx.RespondAsync("You can't run this command while deafened");
                     throw new CustomCommandException();
@@ -102,8 +106,11 @@ namespace KunalsDiscordBot.Modules.Music
             var musicData = await serverService.GetMusicData(ctx.Guild.Id);
             var DJCheck = ctx.Command.CustomAttributes.FirstOrDefault(x => x is DJCheckAttribute) != null && musicData.UseDJRoleEnforcement == 1;
 
-            if(DJCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count > 2)//if one person is in the VC, don't enforce
+            if (DJCheck)
             {
+                if (userVCCheck && ctx.Member.VoiceState.Channel.Users.ToList().Count == 2)
+                    return;
+
                 var id = (ulong)musicData.DJRoleId;
                 if (id == 0)
                     await ctx.Channel.SendMessageAsync(new DiscordEmbedBuilder().WithDescription("No DJ role is stored for the server, all users will be able to run DJ commands").WithColor(ModuleInfo.Color));
@@ -211,7 +218,7 @@ namespace KunalsDiscordBot.Modules.Music
 
         [Command("Pause")]
         [Description("Pauses the player")]
-        [DJCheck, UserVCNeeded,BotVCNeeded]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
         public async Task Pause(CommandContext ctx) => await ctx.RespondAsync(await service.Pause(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("Resume")]
@@ -275,5 +282,221 @@ namespace KunalsDiscordBot.Modules.Music
         [Description("Cleans the queue. If a track is in the queue and the user who requested is not in the channel, the track is removed")]
         [DJCheck, UserVCNeeded, BotVCNeeded]
         public async Task Clean(CommandContext ctx) => await ctx.RespondAsync(await service.Clean(ctx.Guild.Id)).ConfigureAwait(false);
+
+        [Command("CreatePlaylist")]
+        [Description("Creates a new playlist"), DJCheck]
+        public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string links)
+        {
+            if((await playlistService.GetPlaylists(ctx.Guild.Id)).Count() > 3)
+            {
+                await ctx.RespondAsync("This server already has 3 playlists");
+                return;
+            }
+
+            var reply = await new MessageStep("What is the name of the playlist", string.Empty, 30)
+                .WithMesssageData(new MessageData
+                {
+                    Reply = true,
+                    ReplyId = ctx.Message.Id
+                }).ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+            var split = links.Split(',').Select(x => x.Trim()).ToArray();
+            if(split.Length > service.ModuleData.maxQueueLength)
+            {
+                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.maxQueueLength}");
+                return;
+            }
+            if(split.Length == 0)
+            {
+                await ctx.RespondAsync($"A playlist must have at least 1 track");
+                return;
+            }
+
+            var completed = await playlistService.CreatePlaylist(ctx.Guild.Id, ctx.Member.Id, reply.Result, split);
+
+            if(completed)
+                await ctx.RespondAsync($"Playlist: `{reply.Result}` created!");
+            else
+                await ctx.RespondAsync($"Something went wrong while creating the playlist");
+        }
+
+        [Command("GetPlaylists")]
+        [Description("Gets all server playlist")]
+        public async Task GetPlaylists(CommandContext ctx)
+        {
+            var playlists = await playlistService.GetPlaylists(ctx.Guild.Id);
+
+            if (playlists.Count() == 0)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = "Server has no playlists"
+                });
+
+                return;
+            }
+
+            var pages = ctx.Client.GetInteractivity().GetPages(playlists, x => (x.PlaylistName, $"Created by: <@{(ulong)x.AuthorId}>"), new EmbedSkeleton
+            {
+                Color = ModuleInfo.Color,
+                Title = $"Playlists in {ctx.Guild.Name}",
+                Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"Requested By: {ctx.Member.DisplayName} at {DateTime.Now}"}
+            }).ToArray();
+
+            if (pages.Length == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+        }
+
+        [Command("DeletePlaylist")]
+        [Description("Creates a new playlist"), DJCheck]
+        public async Task DeletePlaylist(CommandContext ctx, [RemainingText] string name)
+        {
+            await playlistService.DeletePlaylist(ctx.Guild.Id, name);
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+            {
+                Color = ModuleInfo.Color,
+                Description = $"Playlist: `{name}` deleted"
+            });
+        }
+
+        [Command("Playlist")]
+        [Description("Gets a playlist")]
+        public async Task Playlist(CommandContext ctx, [RemainingText] string name)
+        {
+            var tracks = await playlistService.GetTracks(ctx.Guild.Id, name);
+            if (tracks == null)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Playlist: {name} doesn't exist"
+                });
+
+                return;
+            }
+
+            if (tracks.Count() == 0)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Playlist {name} has no tracks"
+                });
+
+                return;
+            }
+
+            var pages = ctx.Client.GetInteractivity().GetPages(tracks, x => ("Track", $"Search: `{x.URI}`, Added by: <@{(ulong)x.AddedById}>"), new EmbedSkeleton
+            {
+                Color = ModuleInfo.Color,
+                Title = $"Tracks in {name}",
+                Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"Requested By: {ctx.Member.DisplayName} at {DateTime.Now}" }
+            }).ToArray();
+
+            if (pages.Length == 1)
+                await ctx.RespondAsync(pages[0].Embed);
+            else
+                await ctx.Channel.SendPaginatedMessageAsync(ctx.Member, pages, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
+        }
+
+        [Command("AddTrack")]
+        [Description("Adds a track to a playlist"), DJCheck]
+        public async Task AddTrack(CommandContext ctx, [RemainingText] string trackAndPlaylist)
+        {
+            var split = trackAndPlaylist.Split(',').Select(x => x.Trim()).ToArray();
+            if(split.Length != 2)
+            {
+                await ctx.RespondAsync("Split the search and the name of the playlist you want to add the track to with a ','");
+                return;
+            }
+
+            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, split[0]);
+
+            if(playlist == null)
+            {
+                await ctx.RespondAsync($"Playlist `{split[0]}` does not exist");
+                return;
+            }
+
+            var tracks = await playlistService.GetTracks(playlist);
+            if(tracks.Count() == service.ModuleData.maxQueueLength)
+            {
+                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.maxQueueLength}");
+                return;
+            }
+
+            var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[1]);
+
+            if(completed)
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Track `{split[1]}` added to playlist: {split[0]}"
+                });
+            else
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Track `{split[1]}` already exists in playlist: {split[0]}"
+                });
+        }
+
+        [Command("RemoveTrack")]
+        [Description("Removes a track from a playlist"), DJCheck]
+        public async Task RemoveTrack(CommandContext ctx, int index, [RemainingText] string playlistName)
+        {
+            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, playlistName);
+
+            if (playlist == null)
+            {
+                await ctx.RespondAsync($"Playlist `{playlistName}` does not exist");
+                return;
+            }
+
+            var completed = await playlistService.RemoveTrack(playlist, index - 1);
+
+            if (completed)
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Track `{index}` removed from playlist: {playlistName}"
+                });
+            else
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Track `{index}` doesn't exist in playlist: {playlistName}"
+                });
+        }
+
+        [Command("QueuePlaylist")]
+        [Description("Queues a playlist")]
+        [UserVCNeeded, BotVCNeeded]
+        public async Task QueuePlaylist(CommandContext ctx, [RemainingText] string playlistName)
+        {
+            var tracks = (await playlistService.GetTracks(ctx.Guild.Id, playlistName));
+            if (tracks == null)
+            {
+                await ctx.RespondAsync($"Playlist `{playlistName}` does not exist");
+                return;
+            }
+
+            if (tracks.Count() == 0)
+            {
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Playlist {playlistName} has no tracks"
+                });
+
+                return;
+            }
+
+            await ctx.RespondAsync(await service.Play(ctx.Guild.Id, ctx.Member.DisplayName, ctx.Member.Id, tracks.ToArray()));
+        }
     }
 }

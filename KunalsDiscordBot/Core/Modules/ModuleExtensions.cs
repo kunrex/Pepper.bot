@@ -18,7 +18,6 @@ namespace KunalsDiscordBot.Extensions
             DiscordEmbedBuilder current = null;
 
             int index = 0;
-
             foreach (var elemant in list)
             {
                 if (index % perPage == 0)
@@ -36,7 +35,6 @@ namespace KunalsDiscordBot.Extensions
 
                     embeds.Add(current);
                 }
-
                 (string _heading, string _value) = func.Invoke(elemant);
                 current.AddField($"{++index}. {_heading}", _value, inLine);
             }
@@ -61,10 +59,7 @@ namespace KunalsDiscordBot.Extensions
         public static int GetSubCommandsCount(this Command command)
         {
             if(command is CommandGroup group)
-            {
-                int count = group.Children.Select(x => x.GetSubCommandsCount()).Sum();
-                return count;
-            }
+                return group.Children.Select(x => x.GetSubCommandsCount()).Sum();
 
             return 1;
         }

@@ -59,11 +59,6 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
             }
         }
 
-        public int Count
-        {
-            get => Images.Count;
-        }
-
         public ImageGraphic this[int index]
         {
             get => Images[index];
@@ -116,6 +111,18 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         {
             foreach (var image in Images)
                 await image.DrawString(message, x, y, length, breadth, font, brush);
+        }
+
+        public async Task DrawString(string message, int x, int y, Font font, Brush brush, Color outlineColor)
+        {
+            foreach (var image in Images)
+                await image.DrawString(message, x, y, font, brush, outlineColor);
+        }
+
+        public async Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush, Color outlineColor)
+        {
+            foreach (var image in Images)
+                await image.DrawString(message, x, y, length, breadth, font, brush, outlineColor);
         }
 
         public async Task DrawImage(ImageGraphic other, int x, int y, RectangleF rect, GraphicsUnit unit)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using DiscordBotDataBase.Dal.Models.Servers.Models.Music;
 using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 
@@ -11,11 +11,14 @@ namespace KunalsDiscordBot.Services.Music
 {
     public interface IMusicService
     {
+        public MusicModuleData ModuleData { get; }
+
         public Task<string> CreatePlayer(ulong id, LavalinkNodeConnection nodeConnection, LavalinkExtension extension, DiscordChannel _channel, DiscordChannel _boundChannel);
         public Task<string> ConnnectPlayer(VCPlayer player, DiscordChannel _channel, DiscordChannel _boundChannel);
         public Task<string> DisconnectPlayer(ulong id);
 
         public Task<DiscordEmbedBuilder> Play(ulong id, string search, string member, ulong memberId);
+        public Task<DiscordEmbedBuilder> Play(ulong id, string member, ulong memberId, PlaylistTrack[] tracks);
         public Task<DiscordChannel> GetPlayerChannel(ulong id);
 
         public Task<string> Pause(ulong id);

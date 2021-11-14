@@ -189,7 +189,7 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 using (var graphicalImage = new ImageGraphic(filePath))
                 {
-                    for (int i = 0; i < images.Count; i++)
+                    for (int i = 0; i < images.FrameCount; i++)
                     {
                         await images[i].Resize(editData.Size[i], editData.Size[i]);
 
@@ -634,7 +634,7 @@ namespace KunalsDiscordBot.Modules.Images
                 (additiveProfile.AvatarUrl, 1),
             })))
             {
-                for (int i = 0; i < images.Count; i++)
+                for (int i = 0; i < images.FrameCount; i++)
                     await images[i].Resize(600, 600);
 
                 await images[1].SetOpcaity(150);
@@ -1266,6 +1266,63 @@ namespace KunalsDiscordBot.Modules.Images
             {
                 service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
                 await graphicalImage.DrawString(word, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Burn")]
+        [WithFile("burn.jpeg")]
+        [Description("Let it burn")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Burn(CommandContext ctx, DiscordMember other)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((other.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(editData.Length[0], editData.Breadth[0]);
+                    await graphicalImage.DrawImage(list[0], editData.X[0], editData.Y[0], new RectangleF(0, 0, editData.Length[0], editData.Breadth[0]), GraphicsUnit.Pixel);
+
+                    using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                        await new DiscordMessageBuilder()
+                            .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                            .WithReply(ctx.Message.Id)
+                            .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Burn")]
+        [WithFile("burn.jpeg")]
+        [Description("let it burn")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Burn(CommandContext ctx, [RemainingText] string sentence)
+        {
+            if (string.IsNullOrEmpty(sentence))
+            {
+                await ctx.RespondAsync("At least give me a valid word");
+                return;
+            }
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.Black, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString(sentence, editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream(5, false))
                     await new DiscordMessageBuilder()

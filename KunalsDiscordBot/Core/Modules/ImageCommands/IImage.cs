@@ -13,7 +13,9 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         public int Height { get; }
 
         public Task DrawString(string message, int x, int y, Font font, Brush brush);
+        public Task DrawString(string message, int x, int y, Font font, Brush brush, Color outlineColor);
         public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush);
+        public Task DrawString(string message, int x, int y, int length, int breadth, Font font, Brush brush, Color outlineColor);
 
         public Task DrawImage(ImageGraphic other, int x, int y, RectangleF rect, GraphicsUnit unit);
         public Task DrawImageRotated(ImageGraphic other, int angle, int x, int y, RectangleF rect, GraphicsUnit unit);

@@ -38,7 +38,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         public bool MoveNext()
         {
             current++;
-            return current < collection.Count;
+            return current < collection.FrameCount;
         }
 
         public void Reset() => current = -1;

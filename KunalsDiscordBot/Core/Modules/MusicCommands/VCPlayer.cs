@@ -10,6 +10,7 @@ using DSharpPlus.Lavalink.EventArgs;
 
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Events;
+using DiscordBotDataBase.Dal.Models.Servers.Models.Music;
 
 namespace KunalsDiscordBot.Core.Modules.MusicCommands
 {
@@ -160,6 +161,35 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             }
         }
 
+        public async Task<(bool, int)> QueuePlaylist(PlaylistTrack[] tracks, string member, ulong id)
+        {
+            for(int i = 0; i< tracks.Length;i++)
+            {
+                var loadResult = await Node.Rest.GetTracksAsync(tracks[i].URI);
+
+                if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
+                    return (false, i);
+
+                if (InactivityCancellationToken != null)//inactivity check was started
+                    InactivityCancellationToken.Cancel();
+
+                if (currentTrack == null)
+                {
+                    currentTrack = loadResult.Tracks.First();
+                    memberWhoRequested = member;
+
+                    await Connection.PlayAsync(currentTrack);
+                }
+                else
+                {
+                    var track = loadResult.Tracks.First();
+                    Queue.Enqueue(new QueueData { userName = member, id = id, track = track });
+                }
+            }
+
+            return (true, -1);
+        }
+
         private async Task PlayNext(bool considerLoop = true)
         {
             if (isLooping && considerLoop)
@@ -239,7 +269,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                 return "Player in't paused";
 
             await Connection.ResumeAsync();
+
             isPaused = false;
+            InactivityCancellationToken.Cancel();
             return "Player Resumed";
         }
 

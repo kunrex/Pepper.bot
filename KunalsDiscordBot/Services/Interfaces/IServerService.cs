@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using DiscordBotDataBase.Dal;
 using DiscordBotDataBase.Dal.Models.Servers;
 using DiscordBotDataBase.Dal.Models.Servers.Models;
-using DiscordBotDataBase.Dal.Models.Servers.Models.Moderation;
 
 
 namespace KunalsDiscordBot.Services.General
@@ -17,10 +16,6 @@ namespace KunalsDiscordBot.Services.General
         public Task RemoveServerProfile(ulong id);
 
         public Task<bool> ModifyData<T>(T data, Action<T> modification) where T : IEntity;
- 
-        public Task<bool> AddOrRemoveRule(ulong id, string ruleToAdd, bool add);
-        public Task<Rule> GetRule(ulong guildId, int index);
-        public Task<IEnumerable<Rule>> GetAllRules(ulong guildId);
 
         public Task<MusicData> GetMusicData(ulong guildId);
         public Task<FunData> GetFunData(ulong guildId);
