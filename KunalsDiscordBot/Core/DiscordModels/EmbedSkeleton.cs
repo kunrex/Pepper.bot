@@ -10,6 +10,7 @@ namespace KunalsDiscordBot.Core.DiscordModels
         public string Description { get; set; }
 
         public DiscordColor Color { get; set; }
+        public FieldData[] Fields { get; set; }
 
         public DiscordEmbedBuilder.EmbedFooter Footer { get; set; }
         public DiscordEmbedBuilder.EmbedThumbnail Thumbnail { get; set; }

@@ -40,6 +40,7 @@ namespace KunalsDiscordBot.Services.Modules
 
                 var decor = type.GetCustomAttribute<DecorAttribute>();
                 info.Color = decor == null ? DiscordColor.Blurple : decor.color;
+                info.Emoji = decor.emoji;
 
                 var botPermissions = type.GetCustomAttribute<RequireBotPermissionsAttribute>();
                 info.Permissions = botPermissions == null ? Permissions.None : botPermissions.Permissions;

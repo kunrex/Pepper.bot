@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 using DSharpPlus;
 using DSharpPlus.Lavalink;
@@ -408,40 +409,40 @@ namespace KunalsDiscordBot.Modules.Music
         public async Task AddTrack(CommandContext ctx, [RemainingText] string trackAndPlaylist)
         {
             var split = trackAndPlaylist.Split(',').Select(x => x.Trim()).ToArray();
-            if(split.Length != 2)
+            if (split.Length != 2)
             {
-                await ctx.RespondAsync("Split the search and the name of the playlist you want to add the track to with a ','");
+                await ctx.RespondAsync("Split the track and the name of the playlist you want to add the track to with a ','");
                 return;
             }
 
-            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, split[0]);
+            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, split[1]);
 
-            if(playlist == null)
+            if (playlist == null)
             {
-                await ctx.RespondAsync($"Playlist `{split[0]}` does not exist");
+                await ctx.RespondAsync($"Playlist `{split[1]}` does not exist");
                 return;
             }
 
             var tracks = await playlistService.GetTracks(playlist);
-            if(tracks.Count() == service.ModuleData.maxQueueLength)
+            if (tracks.Count() == service.ModuleData.maxQueueLength)
             {
                 await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.maxQueueLength}");
                 return;
             }
 
-            var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[1]);
+            var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[0]);
 
-            if(completed)
+            if (completed)
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Track `{split[1]}` added to playlist: {split[0]}"
+                    Description = $"Track `{split[0]}` added to playlist: {split[1]}"
                 });
             else
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Track `{split[1]}` already exists in playlist: {split[0]}"
+                    Description = $"Track `{split[0]}` already exists in playlist: {split[1]}"
                 });
         }
 

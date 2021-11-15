@@ -17,8 +17,8 @@ namespace KunalsDiscordBot.Services.Music
         public Task<IEnumerable<PlaylistTrack>> GetTracks(Playlist playlist);
         public Task<IEnumerable<PlaylistTrack>> GetTracks(ulong id, string playlistName);
 
-        public Task<bool> AddTrack(Playlist playlist, ulong authorId, string track);
-        public Task<bool> AddTrack(ulong id, string name, ulong authorId, string track);
+        public Task<bool> AddTrack(Playlist playlist, ulong authorId, string tracks);
+        public Task<bool> AddTrack(ulong id, string name, ulong authorId, string tracks);
 
         public Task<bool> RemoveTrack(Playlist playlist, int index);
         public Task<bool> RemoveTrack(ulong id, string name, int index);

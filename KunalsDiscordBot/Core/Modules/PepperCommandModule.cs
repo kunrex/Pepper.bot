@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
+
 using DSharpPlus.CommandsNext;
+using DSharpPlus.CommandsNext.Attributes;
 
 namespace KunalsDiscordBot.Core.Modules
 {
