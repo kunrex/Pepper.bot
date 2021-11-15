@@ -111,6 +111,7 @@ namespace KunalsDiscordBot.Services.Configuration
                 Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {commandCount} commands and have {shardCount} shard(s)." +
                 $"The shard ID for this server is {shardId}.",
                 Color = DiscordColor.Blurple,
+                Url = "https://kunrex.github.io/Pepper.bot/"
             }.AddField("__The Modules I offer:__", "** **");
 
             foreach (var module in moduleService.ModuleNames)
