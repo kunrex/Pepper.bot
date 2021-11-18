@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 using DSharpPlus;
 using DSharpPlus.Entities;
+using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Services.Modules;
@@ -103,29 +104,67 @@ namespace KunalsDiscordBot.Services.Configuration
             return embeds;
         }
 
-        public Task<DiscordEmbedBuilder> GetPepperBotInfo(int guildCount, int shardCount, int shardId, int commandCount)
+        public Task GeneratePepperInfoMessage(PepperBot shard, DiscordChannel channel)
+        {
+            Task.Run(async () =>
+            {
+                var messageBuilder = new DiscordMessageBuilder()
+                    .AddEmbed(GetPepperInfoEmbed(shard.Client.Guilds.Count, shard.Commands.GetCommandCount(), shard.Client.ShardCount, shard.ShardId)
+                                .WithFooter("Pepper").WithThumbnail(shard.Client.CurrentUser.AvatarUrl, 30, 30))
+                    .AddComponents(
+                        new DiscordLinkButtonComponent("https://kunrex.github.io/Pepper.bot/", "website", false, null),
+                        new DiscordLinkButtonComponent("https://github.com/kunrex/Pepper.bot", "github (src)", false, null)
+                    );
+
+                var message = await messageBuilder.SendAsync(channel);
+                var interactivity = shard.Client.GetInteractivity();
+            });
+
+            return Task.CompletedTask;
+        }
+
+        public Task GeneratePepperInfoMessage(PepperBot shard, DiscordChannel channel, ulong messageId, string userName)
+        {
+            Task.Run(async () =>
+            {
+                var messageBuilder = new DiscordMessageBuilder()
+                    .AddEmbed(GetPepperInfoEmbed(shard.Client.Guilds.Count, shard.Commands.GetCommandCount(), shard.Client.ShardCount, shard.ShardId)
+                                .WithFooter(userName).WithThumbnail(shard.Client.CurrentUser.AvatarUrl, 30, 30))
+                    .AddComponents(
+                        new DiscordLinkButtonComponent("https://kunrex.github.io/Pepper.bot/", "website", false, null),
+                        new DiscordLinkButtonComponent("https://github.com/kunrex/Pepper.bot", "github (src)", false, null)
+                    )
+                    .WithReply(messageId);
+
+                var message = await messageBuilder.SendAsync(channel);
+                var interactivity = shard.Client.GetInteractivity();
+            });
+
+            return Task.CompletedTask;
+        }
+
+        private DiscordEmbedBuilder GetPepperInfoEmbed(int guildCount, int commandCount, int shardCount, int shardId)
         {
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Hi! I'm Pepper",
-                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {commandCount} commands and have {shardCount} shard(s)." +
-                $"The shard ID for this server is {shardId}.",
+                Description = $"**About Me:** I'm a girl and I love sleeping and eating.\n I'm in {guildCount} server(s), have a total of {commandCount} commands and have {shardCount} shard(s)."
+               + $"The shard ID for this server is {shardId}.",
                 Color = DiscordColor.Blurple,
-                Url = "https://kunrex.github.io/Pepper.bot/"
-            }.AddField("__The Modules I offer:__", "** **");
+            };
 
+            embed.AddField("__The Modules I offer:__", "** **");
             foreach (var module in moduleService.ModuleNames)
                 embed.AddField($"• {module}", "** **", true);
 
             embed.AddField($"** **", "** **")
                  .AddField("__My Prefix'__", "`pep`, `pepper`", true)
                  .AddField("__My Help Command__", "`pep help`", true)
-                 .AddField("__Contribute (Source Code)__", "Use the `pep general github` command", true)
-                 .AddField("__Configuration__", "Use the `pep general configuration` command to view and edit my configuration for this server", true)
+                 .AddField("__Server Configuration__", "Use the `pep general configuration` command to view my configuration for this server")
                  .AddField("__Enabling and Disabling Modules__", "All the modules (except the general module) can be enabled and disabled depending on the permissions" +
-                 " I have. The permissions required for each module is explained the configuration command and are shown in the help command as well");
+                 " I have. The permissions required for each module is stated in the configuration command and are shown in the help command as well");
 
-            return Task.FromResult(embed);
+            return embed;
         }
     }
 }

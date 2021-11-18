@@ -738,7 +738,7 @@
 
 .module__navbar--container
 {
-    background: linear-gradient(to right, #161616, black);
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -839,4 +839,44 @@
     color: white;
     font-size: 15px;
     padding: 0 0;
+}
+
+@media screen and (max-width: 1200px) 
+{
+    .module__navbar--menu
+    {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+        row-gap: 20px;
+    }
+}
+
+@media screen and (max-width: 1100px) 
+{
+    .module__navbar--menu
+    {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        row-gap: 20px;
+        column-gap: 10px;
+    }
+}
+
+@media screen and (max-width: 1000px) 
+{
+    .module__navbar--menu
+    {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 20px;
+    }
+}
+
+@media screen and (max-width: 700px) 
+{
+    .module__navbar--menu
+    {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
 }

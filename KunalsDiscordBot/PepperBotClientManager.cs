@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
@@ -10,7 +11,7 @@ namespace KunalsDiscordBot
     {
         private static Dictionary<int, PepperBot> shards { get; set; }
 
-        public static PepperBot GetShard(int index) => shards[index];
+        public static PepperBot GetShard(int id) => shards[id];
 
         public PepperBotClientManager(IServiceProvider services)
         {

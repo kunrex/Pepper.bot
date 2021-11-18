@@ -284,6 +284,11 @@ namespace KunalsDiscordBot.Modules.Music
         [DJCheck, UserVCNeeded, BotVCNeeded]
         public async Task Clean(CommandContext ctx) => await ctx.RespondAsync(await service.Clean(ctx.Guild.Id)).ConfigureAwait(false);
 
+        [Command("Shuffle")]
+        [Description("Shuffle the queue")]
+        [DJCheck, UserVCNeeded, BotVCNeeded]
+        public async Task Shuffle(CommandContext ctx) => await ctx.RespondAsync(await service.Shuffle(ctx.Guild.Id)).ConfigureAwait(false);
+
         [Command("CreatePlaylist")]
         [Description("Creates a new playlist"), DJCheck]
         public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string links)
@@ -479,6 +484,24 @@ namespace KunalsDiscordBot.Modules.Music
         [UserVCNeeded, BotVCNeeded]
         public async Task QueuePlaylist(CommandContext ctx, [RemainingText] string playlistName)
         {
+            var reply = await new MessageStep("Do you want to shuffle the playlist?", string.Empty, 10)
+                .WithMesssageData(new MessageData
+                {
+                    Reply = true,
+                    ReplyId = ctx.Message.Id
+                }).ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
+
+            bool shuffle = false;
+            try
+            {
+                var converted = await ctx.CommandsNext.ConvertArgument(reply.Result, ctx, typeof(bool));
+                shuffle = (bool)converted;
+            }
+            catch
+            {
+                await ctx.RespondAsync("Invalid answer, defaulting to false");
+            }
+
             var tracks = (await playlistService.GetTracks(ctx.Guild.Id, playlistName));
             if (tracks == null)
             {
@@ -497,7 +520,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            await ctx.RespondAsync(await service.Play(ctx.Guild.Id, ctx.Member.DisplayName, ctx.Member.Id, tracks.ToArray()));
+            var playlist = shuffle ? tracks.ToArray().Shuffle() : tracks;
+            await ctx.RespondAsync(await service.Play(ctx.Guild.Id, ctx.Member.DisplayName, ctx.Member.Id, playlist.ToArray()));
         }
     }
 }

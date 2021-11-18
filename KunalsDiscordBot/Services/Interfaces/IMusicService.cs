@@ -37,5 +37,6 @@ namespace KunalsDiscordBot.Services.Music
         public Task<string> Seek(ulong id, TimeSpan span, bool relative = false);
         public Task<string> Skip(ulong id);
         public Task<string> Clean(ulong id);
+        public Task<string> Shuffle(ulong id);
     }
 }

@@ -413,5 +413,20 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             queueToList.ForEach(x => Queue.Enqueue(x));
             return Task.FromResult($"Removed {removed} track(s)");
         }
+
+        public Task<string> Shuffle()
+        {
+            if(Queue.Count == 0)
+                return Task.FromResult($"Queue is empty");
+
+            var queueToList = Queue.ToList();
+
+            for (int i = 0; i < 3; i++)
+                queueToList.Shuffle();
+
+            Queue.Clear();
+            queueToList.ForEach(x => Queue.Enqueue(x));
+            return Task.FromResult($"Shuffled queue");
+        }
     }
 }

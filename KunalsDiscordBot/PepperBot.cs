@@ -290,9 +290,7 @@ namespace KunalsDiscordBot
                     return;
 
                 var configService = (IConfigurationService)Services.GetService(typeof(IConfigurationService));
-
-                await channel.SendMessageAsync((await configService.GetPepperBotInfo(s.Guilds.Count, s.ShardCount, ShardId, Commands.GetCommandCount()))
-                .WithFooter("Pepper").WithThumbnail(s.CurrentUser.AvatarUrl, 30, 30)).ConfigureAwait(false);
+                await configService.GeneratePepperInfoMessage(this, channel);
             });
 
             return Task.CompletedTask;

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -25,9 +27,8 @@ namespace KunalsDiscordBot.Services.Modules
 
         public ModuleService()
         {
-            ModuleInfo = new Dictionary<ConfigValueSet, PepperCommandModuleInfo>();
             modules = new List<Type>();
-
+            ModuleInfo = new Dictionary<ConfigValueSet, PepperCommandModuleInfo>();
             foreach (var type in Assembly.GetExecutingAssembly().GetTypes().Where(x => x.IsSubclassOf(typeof(BaseCommandModule)) && !x.IsAbstract && x.GetCustomAttribute<GroupAttribute>() != null))
             {
                 modules.Add(type);

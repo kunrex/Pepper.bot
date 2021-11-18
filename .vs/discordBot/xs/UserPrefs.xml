@@ -1,15 +1,13 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Services/Implementations/ConfigurationService.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/Core/Modules/PepperCommandModule.cs" Line="7" Column="40" />
-      <File FileName="KunalsDiscordBot/Modules/Chatting/ChatModule.cs" />
+      <File FileName="KunalsDiscordBot/Core/Modules/PepperCommandModule.cs" Line="8" Column="66" />
       <File FileName="KunalsDiscordBot/Core/Modules/PepperCommandModuleInfo.cs" />
-      <File FileName="KunalsDiscordBot/Services/Implementations/ModuleService.cs" Line="43" Column="42" />
-      <File FileName="KunalsDiscordBot/Core/DiscordModels/EmbedSkeleton.cs" />
-      <File FileName="KunalsDiscordBot/Services/BotService.cs" Line="14" Column="6" />
-      <File FileName="KunalsDiscordBot/PepperBot.cs" Line="336" Column="1" />
-      <File FileName="KunalsDiscordBot/Services/Implementations/ConfigurationService.cs" Line="128" Column="43" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/ModuleService.cs" />
+      <File FileName="KunalsDiscordBot/StartUp.cs" />
+      <File FileName="KunalsDiscordBot/Core/Configurations/Enums/ConfigurationValueSet.cs" />
+      <File FileName="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs" Line="133" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -18,19 +16,24 @@
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
+                  <Node name="Configurations" expanded="True">
+                    <Node name="Enums" expanded="True" />
+                  </Node>
                   <Node name="DiscordModels" expanded="True" />
+                  <Node name="Events" expanded="True" />
                   <Node name="Modules" expanded="True">
-                    <Node name="MusicCommands" expanded="True" />
+                    <Node name="MusicCommands" expanded="True">
+                      <Node name="VCPlayer.cs" selected="True" />
+                    </Node>
                   </Node>
                 </Node>
                 <Node name="Modules" expanded="True">
                   <Node name="Chatting" expanded="True" />
+                  <Node name="General" expanded="True" />
                   <Node name="Music" expanded="True" />
                 </Node>
                 <Node name="Services" expanded="True">
-                  <Node name="Implementations" expanded="True">
-                    <Node name="ConfigurationService.cs" selected="True" />
-                  </Node>
+                  <Node name="Implementations" expanded="True" />
                   <Node name="Interfaces" expanded="True" />
                 </Node>
               </Node>

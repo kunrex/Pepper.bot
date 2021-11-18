@@ -189,5 +189,15 @@ namespace KunalsDiscordBot.Services.Music
 
             return await player.Clean();
         }
+
+        public async Task<string> Shuffle(ulong id)
+        {
+            var player = Players[id];
+
+            if (player.Connection.CurrentState.CurrentTrack == null)
+                return "There are no tracks currently loaded";
+
+            return await player.Shuffle();
+        }
     }
 }
