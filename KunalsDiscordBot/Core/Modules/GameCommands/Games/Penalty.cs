@@ -71,19 +71,22 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 while (!GameOver)
                 {
                     var input = await CurrentPlayer.Input(Client);
-                    Console.WriteLine("hi");
 
                     if (input.WasCompleted)
                     {
                         source.Cancel();
+                        if (input.Ordinate.x != currentColumn && new Random().Next(1, 10) > 5)//last second block
+                            currentColumn = input.Ordinate.x;
+
                         await EndMessage(input.Ordinate.x != currentColumn, input.Ordinate.x);
-                          
                         GameOver = true;
                     }
                 }
             }));
 
             await whenAny;
+
+            source.Dispose();
             OnGameOver.Invoke();
         }
 
@@ -117,7 +120,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         private async Task EndMessage(bool won, int columnPlayer)
         {
-            Console.WriteLine("hi");
             var _line = (string[])line.Clone();
             _line[currentColumn] = keeper;
             if (won)
@@ -129,8 +131,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
             var message = $"{goal}\n{string.Join(' ', _line)}\n{string.Join(' ', _line2)}\n{string.Join(' ', line)}";
             var embedDescription = won ? "Good job you scored a goal!" : "Yea you didn't score kek, basically just gave the keeper the ball lmao";
-            Console.WriteLine(message);
-            Console.WriteLine(embedDescription);
 
             GameMessage = await CurrentPlayer.EditMessage(GameMessage, new DiscordMessageBuilder()
                 .WithEmbed(new DiscordEmbedBuilder()
@@ -138,8 +138,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                     .WithImageUrl(won ? scored : blocked)
                     .WithColor(DiscordColor.White))
                 .WithContent(message));
-
-            Console.WriteLine("hi");
         }
     }
 }

@@ -1,14 +1,6 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs">
-    <Files>
-      <File FileName="KunalsDiscordBot/Core/Modules/PepperCommandModule.cs" Line="8" Column="66" />
-      <File FileName="KunalsDiscordBot/Core/Modules/PepperCommandModuleInfo.cs" />
-      <File FileName="KunalsDiscordBot/Services/Implementations/ModuleService.cs" />
-      <File FileName="KunalsDiscordBot/StartUp.cs" />
-      <File FileName="KunalsDiscordBot/Core/Configurations/Enums/ConfigurationValueSet.cs" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs" Line="133" Column="1" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
@@ -16,14 +8,10 @@
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
-                  <Node name="Configurations" expanded="True">
-                    <Node name="Enums" expanded="True" />
-                  </Node>
-                  <Node name="DiscordModels" expanded="True" />
-                  <Node name="Events" expanded="True" />
                   <Node name="Modules" expanded="True">
-                    <Node name="MusicCommands" expanded="True">
-                      <Node name="VCPlayer.cs" selected="True" />
+                    <Node name="GameCommands" expanded="True">
+                      <Node name="Games" expanded="True" selected="True" />
+                      <Node name="Players" expanded="True" />
                     </Node>
                   </Node>
                 </Node>

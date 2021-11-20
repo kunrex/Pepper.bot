@@ -858,17 +858,23 @@
         display: grid;
         grid-template-columns: 1fr 1fr 1fr;
         row-gap: 20px;
-        column-gap: 10px;
     }
 }
 
-@media screen and (max-width: 1000px) 
+@media screen and (max-width: 900px) 
 {
     .module__navbar--menu
     {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        row-gap: 20px;
+    }
+}
+
+@media screen and (max-width: 960px)
+{
+    .module__navbar--menu
+    {
+        column-gap: 30px;
     }
 }
 
