@@ -73,8 +73,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
         public UNOGame(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
-            Client = _client;
-
             Players = _players.Select(x => new UNOPlayer(x)).ToList();
             CurrentPlayer = Players[0];
 

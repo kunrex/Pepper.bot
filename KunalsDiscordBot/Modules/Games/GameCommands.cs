@@ -290,6 +290,39 @@ namespace KunalsDiscordBot.Modules.Games
                 await ctx.RespondAsync("You're already playing a match of penalty, finish that first");
         }
 
+        [Command("RockPaperScissors")]
+        [Aliases("rps")]
+        public async Task Rps(CommandContext ctx, DiscordMember other) => await gameService.StartGame<RockPaperScissors>(new List<DiscordMember>() { ctx.Member, other }, ctx.Client, ctx.Channel, ctx.Message.Id);
+
+        [Command("RockPaperScissors")]
+        public async Task RockPaperScissor(CommandContext ctx, RockPaperScissorsChoice choice)
+        {
+            var aiChoice = (RockPaperScissorsChoice)new Random().Next(0, 3);
+            var start = $"{ctx.Member.DisplayName} chose {choice}, AI chose {aiChoice}.";
+
+            if (aiChoice == choice)
+                await ctx.Channel.SendMessageAsync($"{start} Draw!");
+            else
+                switch (choice)
+                {
+                    case RockPaperScissorsChoice.Rock:
+                        if (aiChoice == RockPaperScissorsChoice.Paper)
+                            await ctx.RespondAsync($"{start} AI wins!");
+                        else
+                            await ctx.RespondAsync($"{start} {ctx.Member.DisplayName} wins!");
+                        break;
+                    case RockPaperScissorsChoice.Paper:
+                        await ctx.RespondAsync($"{start} {((int)choice > (int)aiChoice ? $"{ctx.Member.DisplayName}" : "AI")} wins");
+                        break;
+                    case RockPaperScissorsChoice.Scissors:
+                        if (aiChoice == RockPaperScissorsChoice.Paper)
+                            await ctx.RespondAsync($"{start} {ctx.Member.DisplayName} wins!");
+                        else
+                            await ctx.RespondAsync($"{start} AI wins!");
+                        break;
+                }
+        }
+
         [Command("Spectate")]
         [Description("Spectate an ongoing match")]
         public async Task Spectate(CommandContext ctx, DiscordUser user, [RemainingText]string game)

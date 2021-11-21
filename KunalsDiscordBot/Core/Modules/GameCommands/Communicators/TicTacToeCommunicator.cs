@@ -57,7 +57,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Communicators
                     index++;
                 }
 
-            builder.AddComponents(new DiscordButtonComponent(ButtonStyle.Danger, DiscordCommunicator.quitInputvalue, "Leave", disableAll));
+            builder.AddComponents(new DiscordButtonComponent(ButtonStyle.Danger, quitInputvalue, "Leave", disableAll));
 
             return await message.ModifyAsync(builder).ConfigureAwait(false);
         }

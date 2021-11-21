@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -519,36 +517,6 @@ namespace KunalsDiscordBot.Modules.Fun
             }
 
             await presence.BegineGhostPresence();
-        }
-
-        [Command("RockPaperScissor")]
-        [Aliases("rps")]
-        public async Task RockPaperScissor(CommandContext ctx, RockPaperScissors choice)
-        {
-            var aiChoice = (RockPaperScissors)new Random().Next(0, 3);
-            var start = $"{ctx.Member.DisplayName} chose {choice}, AI chose {aiChoice}.";
-
-            if (aiChoice == choice)
-                await ctx.Channel.SendMessageAsync($"{start} Draw!");
-            else
-                switch (choice)
-                {
-                    case RockPaperScissors.Rock:
-                        if(aiChoice == RockPaperScissors.Paper)
-                            await ctx.Channel.SendMessageAsync($"{start} AI wins!");
-                        else
-                            await ctx.Channel.SendMessageAsync($"{start} {ctx.Member.DisplayName} wins!");
-                        break;
-                    case RockPaperScissors.Paper:
-                        await ctx.Channel.SendMessageAsync($"{start} {((int)choice > (int)aiChoice ? $"{ctx.Member.DisplayName}" : "AI")} wins");
-                        break;
-                    case RockPaperScissors.Scissors:
-                        if (aiChoice == RockPaperScissors.Paper)
-                            await ctx.Channel.SendMessageAsync($"{start} {ctx.Member.DisplayName} wins!");
-                        else
-                            await ctx.Channel.SendMessageAsync($"{start} AI wins!");
-                        break;
-                }
         }
 
         [Command("Choose")]

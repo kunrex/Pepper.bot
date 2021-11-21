@@ -23,7 +23,7 @@ namespace KunalsDiscordBot.Services.Music
         {
             ModuleData = configurationManager.MusicConfig;
 
-            ModuleData.color = moduleService.ModuleInfo[ConfigValueSet.Music].Color;
+            ModuleData.Color = moduleService.ModuleInfo[ConfigValueSet.Music].Color;
         }
 
         public async Task<string> ClearQueue(ulong id)
@@ -148,16 +148,16 @@ namespace KunalsDiscordBot.Services.Music
         public async Task<DiscordEmbedBuilder> Play(ulong id, string member, ulong memberId, PlaylistTrack[] tracks)
         {
             var player = Players[id];
-            var subset = tracks.Take(ModuleData.maxQueueLength - player.Queue.Count).ToArray();
+            var subset = tracks.Take(ModuleData.MaxQueueLength - player.Queue.Count).ToArray();
 
             (bool completed, int index) = await player.QueuePlaylist(subset, member, memberId);
             if (!completed)
                 return new DiscordEmbedBuilder()
-                    .WithColor(ModuleData.color)
+                    .WithColor(ModuleData.Color)
                     .WithDescription($"Failed to queue full playlist, track search failed for track at index {index + 1}");
             else
                 return new DiscordEmbedBuilder()
-                    .WithColor(ModuleData.color)
+                    .WithColor(ModuleData.Color)
                     .WithDescription($"Queued playlist with {subset.Length} tracks");
         }
 

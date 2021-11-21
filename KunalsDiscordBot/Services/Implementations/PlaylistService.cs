@@ -43,6 +43,16 @@ namespace KunalsDiscordBot.Services.Music
             return await RemoveEntity(playlist);
         }
 
+        public async Task<bool> RenamePlaylist(ulong id, string name, string newName)
+        {
+            var playlist = await GetPlaylist(id, name);
+            if (playlist == null)
+                return false;
+
+            playlist.PlaylistName = newName;
+            return await UpdateEntity(playlist);
+        }
+
         public async Task<Playlist> GetPlaylist(ulong id, string name) => (await GetPlaylists(id)).FirstOrDefault(x => x.PlaylistName == name);
 
         public Task<IEnumerable<Playlist>> GetPlaylists(ulong id)

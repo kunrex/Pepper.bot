@@ -1,5 +1,6 @@
 ﻿{
-  "maxQueueLength": 30,
-  "inactivityLength": 2,
-  "queuePageLimit" : 7  
+  "MaxQueueLength": 30,
+  "InactivityLength": 2,
+  "QueuePageLimit": 7,
+  "MaxPlayistCount" :  3
 }

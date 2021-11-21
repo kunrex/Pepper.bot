@@ -73,7 +73,6 @@
     <Folder Include="Core\Configurations\Enums\" />
     <Folder Include="Core\Modules\CurrencyCommands\Shop\" />
     <Folder Include="Core\Modules\FunCommands\GhostPresence\" />
-    <Folder Include="Core\Modules\FunCommands\Enums\" />
     <Folder Include="Core\Modules\ImageCommands\Enums\" />
     <Folder Include="Modules\Help\" />
     <Folder Include="Core\Modules\CurrencyCommands\Models\" />
@@ -92,6 +91,7 @@
     <Folder Include="Modules\Chatting\" />
     <Folder Include="Core\Reddit\Exceptions\" />
     <Folder Include="Core\DiscordModels\" />
+    <Folder Include="Core\Modules\GameCommands\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -177,6 +177,7 @@
     <None Remove="Magick.NET-Q16-AnyCPU" />
     <None Remove="Core\DiscordModels\" />
     <None Remove="Bumpkit" />
+    <None Remove="Core\Modules\GameCommands\Enums\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

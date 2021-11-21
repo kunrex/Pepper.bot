@@ -5,10 +5,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 {
     public class MusicModuleData
     {
-        public int maxQueueLength { get; set; }
-        public int inactivityLength { get; set; }
-        public int queuePageLimit { get; set; }
+        public int MaxQueueLength { get; set; }
+        public int MaxPlayistCount { get; set; }
+        public int InactivityLength { get; set; }
+        public int QueuePageLimit { get; set; }
 
-        public DiscordColor color { get; set; }
+        public DiscordColor Color { get; set; }
     }
 }

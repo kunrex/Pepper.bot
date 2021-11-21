@@ -57,7 +57,7 @@ namespace KunalsDiscordBot.Modules.General
             {
                 var profile = await serverService.GetServerProfile(ctx.Guild.Id).ConfigureAwait(false);
 
-                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & DSharpPlus.Permissions.Administrator) != DSharpPlus.Permissions.Administrator)
+                if (profile.RestrictPermissionsToAdmin == 1 && (ctx.Member.PermissionsIn(ctx.Channel) & Permissions.Administrator) != Permissions.Administrator)
                 {
                     await ctx.RespondAsync(":x: You need to be an admin to run this command").ConfigureAwait(false);
                     throw new CustomCommandException();
@@ -154,7 +154,6 @@ namespace KunalsDiscordBot.Modules.General
         }.AddField("__General Info__", "** **")
             .AddField("Member Count", ctx.Guild.MemberCount.ToString(), true)
             .AddField("ID", ctx.Guild.Id.ToString(), true)
-            .AddField("Region", ctx.Guild.VoiceRegion.Name.ToString(), true)
             .AddField("Owner", ctx.Guild.Owner.Username.ToString(), true)
             .AddField("__Roles, Emojis and Channels__", "** **")
             .AddField("Emoji Count", ctx.Guild.Emojis.Count.ToString(), true)

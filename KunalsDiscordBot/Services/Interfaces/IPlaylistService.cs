@@ -10,6 +10,7 @@ namespace KunalsDiscordBot.Services.Music
     {
         public Task<bool> CreatePlaylist(ulong id, ulong authorId, string name, string[] tracks);
         public Task<bool> DeletePlaylist(ulong id, string name);
+        public Task<bool> RenamePlaylist(ulong id, string name, string newName);
 
         public Task<Playlist> GetPlaylist(ulong id, string name);
         public Task<IEnumerable<Playlist>> GetPlaylists(ulong id);

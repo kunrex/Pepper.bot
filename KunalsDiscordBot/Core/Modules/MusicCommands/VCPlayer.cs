@@ -63,6 +63,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             Connection.TrackException += OnTrackError;
             Connection.TrackStuck += OnTrackStuck;
             Connection.PlaybackStarted += OnSongStart;
+            Connection.DiscordWebSocketClosed += (s, e) =>
+            {
+                OnDisconnect.Invoke();
+                return Task.CompletedTask;
+            };
 
             BoundChannel = _boundChannel;
 
@@ -77,8 +82,6 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             isConnected = false;
 
             await Connection.DisconnectAsync();
-            OnDisconnect.Invoke();
-
             if (InactivityCancellationToken != null)
             {
                 if(!InactivityCancellationToken.IsCancellationRequested)
@@ -136,10 +139,10 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             var loadResult = await Node.Rest.GetTracksAsync(search);
 
             if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
-                return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}").WithColor(moduleData.color);
+                return new DiscordEmbedBuilder().WithDescription($"Track search failed for {search}").WithColor(moduleData.Color);
 
-            if (Queue.Count == moduleData.maxQueueLength)
-                return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.maxQueueLength}), remove tracks or wait to add more").WithColor(moduleData.color);
+            if (Queue.Count == moduleData.MaxQueueLength)
+                return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.MaxQueueLength}), remove tracks or wait to add more").WithColor(moduleData.Color);
 
             if (InactivityCancellationToken != null)//inactivity check was started
                 InactivityCancellationToken.Cancel();
@@ -157,7 +160,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             {
                 var track = loadResult.Tracks.First();
                 Queue.Enqueue(new QueueData { userName = member , id = id, track = track });
-                return new DiscordEmbedBuilder().WithDescription($"Queued [{track.Title}]({track.Uri}) at index `{Queue.Count}`").WithColor(moduleData.color);
+                return new DiscordEmbedBuilder().WithDescription($"Queued [{track.Title}]({track.Uri}) at index `{Queue.Count}`").WithColor(moduleData.Color);
             }
         }
 
@@ -226,7 +229,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             try
             {
-                await Task.Delay(TimeSpan.FromMinutes(moduleData.inactivityLength), InactivityCancellationToken.Token);
+                await Task.Delay(TimeSpan.FromMinutes(moduleData.InactivityLength), InactivityCancellationToken.Token);
             }
             catch
             { }
@@ -304,14 +307,14 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             int index = 0;
             var title = $"Queue For __{Connection.Channel.Guild.Name}__";
 
-            embeds.Add(new DiscordEmbedBuilder().WithTitle("Now Playing").WithColor(moduleData.color).WithDescription($"[{currentTrack.Title}]({currentTrack.Uri})"));
+            embeds.Add(new DiscordEmbedBuilder().WithTitle("Now Playing").WithColor(moduleData.Color).WithDescription($"[{currentTrack.Title}]({currentTrack.Uri})"));
             DiscordEmbedBuilder currentEmbed = null;
 
             foreach(var value in Queue)
             {
-                if (index % moduleData.queuePageLimit == 0)
+                if (index % moduleData.QueuePageLimit == 0)
                 {
-                    currentEmbed = new DiscordEmbedBuilder().WithTitle(title).WithColor(moduleData.color);
+                    currentEmbed = new DiscordEmbedBuilder().WithTitle(title).WithColor(moduleData.Color);
                     embeds.Add(currentEmbed);
                 }
 
@@ -319,7 +322,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             }
 
             if (embeds.Count == 1)
-                embeds.Add(new DiscordEmbedBuilder().WithTitle(title).WithColor(moduleData.color).WithDescription("Queue is empty"));
+                embeds.Add(new DiscordEmbedBuilder().WithTitle(title).WithColor(moduleData.Color).WithDescription("Queue is empty"));
 
             return Task.FromResult(embeds);
         }
@@ -347,7 +350,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
              .AddField("`Looping`", isLooping.ToString(), true)
              .AddField("`Queue Loop`", queueLoop.ToString(), true)
              .WithThumbnail(thumbnailURL, Height, Width)
-             .WithColor(moduleData.color);
+             .WithColor(moduleData.Color);
 
             return Task.FromResult(embed);
         }

@@ -1,6 +1,19 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/Music/MusicCommands.cs">
+    <Files>
+      <File FileName="KunalsDiscordBot/Services/Interfaces/IGameService.cs" Line="21" Column="71" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/GameService.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Games/GameCommands.cs" />
+      <File FileName="KunalsDiscordBot/Core/Modules/GameCommands/Games/RockPaperScissors.cs" />
+      <File FileName="KunalsDiscordBot/PepperBot.cs" />
+      <File FileName="KunalsDiscordBot/Core/Configurations/PepperConfigurationManager.cs" />
+      <File FileName="KunalsDiscordBot/Core/Modules/GameCommands/Enums/RockPaperScissors.cs" />
+      <File FileName="KunalsDiscordBot/Services/Interfaces/IPlaylistService.cs" />
+      <File FileName="KunalsDiscordBot/Services/Implementations/PlaylistService.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Music/MusicCommands.cs" Line="310" Column="96" />
+      <File FileName="KunalsDiscordBot/Core/Modules/MusicCommands/VCPlayer.cs" />
+    </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
@@ -8,17 +21,19 @@
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
+                  <Node name="Configurations" expanded="True" />
                   <Node name="Modules" expanded="True">
-                    <Node name="GameCommands" expanded="True">
-                      <Node name="Games" expanded="True" selected="True" />
-                      <Node name="Players" expanded="True" />
-                    </Node>
+                    <Node name="MusicCommands" expanded="True" />
                   </Node>
                 </Node>
                 <Node name="Modules" expanded="True">
                   <Node name="Chatting" expanded="True" />
+                  <Node name="Fun" expanded="True" />
+                  <Node name="Games" expanded="True" />
                   <Node name="General" expanded="True" />
-                  <Node name="Music" expanded="True" />
+                  <Node name="Music" expanded="True">
+                    <Node name="MusicCommands.cs" selected="True" />
+                  </Node>
                 </Node>
                 <Node name="Services" expanded="True">
                   <Node name="Implementations" expanded="True" />

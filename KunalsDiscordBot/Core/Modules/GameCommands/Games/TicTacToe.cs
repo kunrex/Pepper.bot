@@ -29,7 +29,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         public TicTacToe(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel) : base(_client, _players)
         {
             channel = _channel;
-            Client = _client;
 
             Players = _players.Select(x => new TicTacToePlayer(x)).ToList();
             CurrentPlayer = Players[0];

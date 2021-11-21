@@ -35,7 +35,6 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
         public BattleShip(DiscordClient _client, List<DiscordMember> _players) : base(_client, _players)
         {
             Players = _players.Select(x => new BattleShipPlayer(x)).ToList();
-            Client = _client;
 
             OnGameOver = new SimpleBotEvent();
             SetUp();

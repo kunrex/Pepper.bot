@@ -53,11 +53,12 @@ namespace KunalsDiscordBot.Modules.Music
         public async override Task BeforeExecutionAsync(CommandContext ctx)
         {
             var myInstance = PepperBotClientManager.GetShard(ctx.Client.ShardId);
+            var requireLavalink = ctx.Command.CustomAttributes.FirstOrDefault(x => x is NonLavalinkCommandAttribute) != null;
 
             var lava = ctx.Client.GetLavalink();
-            if (!myInstance.IsOnline || lava == null || !lava.ConnectedNodes.Any())
+            if ((!myInstance.IsOnline || lava == null || !lava.ConnectedNodes.Any()) && !requireLavalink)
             {
-                await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established");
+                await ctx.Channel.SendMessageAsync("The LavaLink connection has not been established, cannot play music without an established connection");
                 throw new CustomCommandException();
             }
 
@@ -290,10 +291,10 @@ namespace KunalsDiscordBot.Modules.Music
         public async Task Shuffle(CommandContext ctx) => await ctx.RespondAsync(await service.Shuffle(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("CreatePlaylist")]
-        [Description("Creates a new playlist"), DJCheck]
-        public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string links)
+        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand]
+        public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string tracks)
         {
-            if((await playlistService.GetPlaylists(ctx.Guild.Id)).Count() > 3)
+            if((await playlistService.GetPlaylists(ctx.Guild.Id)).Count() > service.ModuleData.MaxPlayistCount)
             {
                 await ctx.RespondAsync("This server already has 3 playlists");
                 return;
@@ -306,10 +307,10 @@ namespace KunalsDiscordBot.Modules.Music
                     ReplyId = ctx.Message.Id
                 }).ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
 
-            var split = links.Split(',').Select(x => x.Trim()).ToArray();
-            if(split.Length > service.ModuleData.maxQueueLength)
+            var split = tracks.Split(',').Select(x => x.Trim().ToLower()).Distinct().ToArray();
+            if (split.Length > service.ModuleData.MaxQueueLength)
             {
-                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.maxQueueLength}");
+                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.MaxQueueLength}");
                 return;
             }
             if(split.Length == 0)
@@ -327,7 +328,7 @@ namespace KunalsDiscordBot.Modules.Music
         }
 
         [Command("GetPlaylists")]
-        [Description("Gets all server playlist")]
+        [Description("Gets all server playlist"), NonLavalinkCommand]
         public async Task GetPlaylists(CommandContext ctx)
         {
             var playlists = await playlistService.GetPlaylists(ctx.Guild.Id);
@@ -357,7 +358,7 @@ namespace KunalsDiscordBot.Modules.Music
         }
 
         [Command("DeletePlaylist")]
-        [Description("Creates a new playlist"), DJCheck]
+        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand]
         public async Task DeletePlaylist(CommandContext ctx, [RemainingText] string name)
         {
             await playlistService.DeletePlaylist(ctx.Guild.Id, name);
@@ -369,8 +370,35 @@ namespace KunalsDiscordBot.Modules.Music
             });
         }
 
+        [Command("RenamePlaylist")]
+        [Description("Renames a playlist"), DJCheck, NonLavalinkCommand]
+        public async Task RenamePlaylist(CommandContext ctx, [RemainingText] string name)
+        {
+            var split = name.Split(',').Select(x => x.Trim()).ToArray();
+            if (split.Length != 2)
+            {
+                await ctx.RespondAsync("Split the playlist and the new name of the playlist with a `,`");
+                return;
+            }
+
+            var completed = await playlistService.RenamePlaylist(ctx.Guild.Id, split[0], split[1]);
+
+            if (completed)
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Playlist: `{split[0]}` renamed to `{split[1]}`"
+                });        
+            else
+                await ctx.RespondAsync(new DiscordEmbedBuilder
+                {
+                    Color = ModuleInfo.Color,
+                    Description = $"Playlist: `{split[0]}` doesn't exist"
+                });
+        }
+
         [Command("Playlist")]
-        [Description("Gets a playlist")]
+        [Description("Gets a playlist"), NonLavalinkCommand]
         public async Task Playlist(CommandContext ctx, [RemainingText] string name)
         {
             var tracks = await playlistService.GetTracks(ctx.Guild.Id, name);
@@ -379,7 +407,7 @@ namespace KunalsDiscordBot.Modules.Music
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Playlist: {name} doesn't exist"
+                    Description = $"Playlist: `{name}` doesn't exist"
                 });
 
                 return;
@@ -390,7 +418,7 @@ namespace KunalsDiscordBot.Modules.Music
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Playlist {name} has no tracks"
+                    Description = $"Playlist `{name}` has no tracks"
                 });
 
                 return;
@@ -410,49 +438,55 @@ namespace KunalsDiscordBot.Modules.Music
         }
 
         [Command("AddTrack")]
-        [Description("Adds a track to a playlist"), DJCheck]
-        public async Task AddTrack(CommandContext ctx, [RemainingText] string trackAndPlaylist)
+        [Description("Adds a track to a playlist"), DJCheck, NonLavalinkCommand]
+        public async Task AddTrack(CommandContext ctx, [RemainingText] string tracksAndPlaylist)
         {
-            var split = trackAndPlaylist.Split(',').Select(x => x.Trim()).ToArray();
-            if (split.Length != 2)
+            var split = tracksAndPlaylist.Split(',').Select(x => x.Trim().ToLower()).Distinct().ToArray();
+            if (split.Length < 2)
             {
-                await ctx.RespondAsync("Split the track and the name of the playlist you want to add the track to with a ','");
+                await ctx.RespondAsync("Split the tracks and the name of the playlist you want to add the tracks to with `,`'s");
                 return;
             }
 
-            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, split[1]);
+            var playListName = split[split.Length - 1];
+            var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, playListName);
 
             if (playlist == null)
             {
-                await ctx.RespondAsync($"Playlist `{split[1]}` does not exist");
+                await ctx.RespondAsync($"Playlist `{playListName}` does not exist");
                 return;
             }
 
-            var tracks = await playlistService.GetTracks(playlist);
-            if (tracks.Count() == service.ModuleData.maxQueueLength)
+            if ((await playlistService.GetTracks(playlist)).Count() == service.ModuleData.MaxQueueLength)
             {
-                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.maxQueueLength}");
+                await ctx.RespondAsync($"Playlist {playListName} has a max length of {service.ModuleData.MaxQueueLength}");
                 return;
             }
 
-            var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[0]);
+            var added = new List<string>();
+            for (int i = 0; i < split.Length - 1; i++)
+            {
+                var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[i]);
 
-            if (completed)
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                {
-                    Color = ModuleInfo.Color,
-                    Description = $"Track `{split[0]}` added to playlist: {split[1]}"
-                });
-            else
-                await ctx.RespondAsync(new DiscordEmbedBuilder
-                {
-                    Color = ModuleInfo.Color,
-                    Description = $"Track `{split[0]}` already exists in playlist: {split[1]}"
-                });
+                if (!completed)
+                    await ctx.RespondAsync(new DiscordEmbedBuilder
+                    {
+                        Color = ModuleInfo.Color,
+                        Description = $"Track `{split[i]}` already exists in playlist: `{playListName}`"
+                    });
+                else
+                    added.Add(split[i]);
+            }
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder
+            {
+                Color = ModuleInfo.Color,
+                Description = $"Tracks {string.Join(", ", added.Select(x => $"`{x}`"))} added to playlist: `{playListName}`"
+            });
         }
 
         [Command("RemoveTrack")]
-        [Description("Removes a track from a playlist"), DJCheck]
+        [Description("Removes a track from a playlist"), DJCheck, NonLavalinkCommand]
         public async Task RemoveTrack(CommandContext ctx, int index, [RemainingText] string playlistName)
         {
             var playlist = await playlistService.GetPlaylist(ctx.Guild.Id, playlistName);
@@ -469,13 +503,13 @@ namespace KunalsDiscordBot.Modules.Music
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Track `{index}` removed from playlist: {playlistName}"
+                    Description = $"Track `{index}` removed from playlist: `{playlistName}`"
                 });
             else
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Track `{index}` doesn't exist in playlist: {playlistName}"
+                    Description = $"Track `{index}` doesn't exist in playlist: `{playlistName}`"
                 });
         }
 
@@ -514,7 +548,7 @@ namespace KunalsDiscordBot.Modules.Music
                 await ctx.RespondAsync(new DiscordEmbedBuilder
                 {
                     Color = ModuleInfo.Color,
-                    Description = $"Playlist {playlistName} has no tracks"
+                    Description = $"Playlist `{playlistName}` has no tracks"
                 });
 
                 return;

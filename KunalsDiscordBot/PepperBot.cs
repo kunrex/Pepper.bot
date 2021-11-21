@@ -27,7 +27,7 @@ using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
-using KunalsDiscordBot.Core.Modules.FunCommands;
+using KunalsDiscordBot.Core.Modules.GameCommands;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 
@@ -128,7 +128,7 @@ namespace KunalsDiscordBot
             Commands.RegisterConverter(new BoolArgumentConverter());
             Commands.RegisterConverter(new TimeSpanArgumentConverter());
             Commands.RegisterConverter(new EnumArgumentConverter<RedditPostFilter>());
-            Commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissors>());
+            Commands.RegisterConverter(new EnumArgumentConverter<RockPaperScissorsChoice>());
             Commands.RegisterConverter(new EnumArgumentConverter<Colors>());
             Commands.RegisterConverter(new EnumArgumentConverter<Deforms>());
             Commands.RegisterConverter(new EnumArgumentConverter<ColorScales>());

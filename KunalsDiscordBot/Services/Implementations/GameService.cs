@@ -92,6 +92,18 @@ namespace KunalsDiscordBot.Services.Games
             }
         }
 
+        public Task<Game> StartGame<T>(List<DiscordMember> players, DiscordClient client, DiscordChannel channel, ulong messageId = 0) where T : Game
+        {
+            switch (typeof(T))
+            {
+                case var x when x == typeof(RockPaperScissors):
+                    var rockPaperScissors = new RockPaperScissors(client, players, channel, messageId);
+                    return Task.FromResult((Game)rockPaperScissors);
+                default:
+                    return Task.FromResult<Game>(null);
+            }
+        }
+
         public async Task<bool> AddSpectator<T>(ulong id, DiscordMember specator) where T : ISpectatorGame
         {
             switch (typeof(T))
