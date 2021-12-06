@@ -193,11 +193,20 @@ namespace KunalsDiscordBot.Modules.General
         public async Task Config(CommandContext ctx)
         {
             var embeds = (await configService.GetConfigPages(ctx.Guild.Id, ctx.Member.PermissionsIn(ctx.Channel)))
-                .Select(x => x.WithFooter("This message will remain active for 1 minute").WithAuthor($"{ctx.Member.DisplayName}.", null, ctx.Member.AvatarUrl).WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, 30, 30).WithColor(ModuleInfo.Color));
+                .Select(x => x.WithFooter("This message will remain active for 1 minute")
+                              .WithAuthor($"{ctx.Member.DisplayName}.", null, ctx.Member.AvatarUrl)
+                              .WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, 30, 30)
+                              .WithColor(ModuleInfo.Color));
 
             var pages = embeds.Select(x => new Page($"Configuration for `{ctx.Guild.Name}`", x)).ToList();
             await ctx.Channel.SendPaginatedMessageAsync(ctx.User, pages, default, PaginationBehaviour.WrapAround, ButtonPaginationBehavior.Disable, new CancellationTokenSource(TimeSpan.FromMinutes(1)).Token);
         }
+
+        [Command("Configuration")]
+        public async Task Config(CommandContext ctx, ConfigValueSet set) => await ctx.RespondAsync((await configService.GetConfigPage(ctx.Guild.Id, ctx.Member.PermissionsIn(ctx.Channel), set)).WithFooter("This message will remain active for 1 minute")
+                              .WithAuthor($"{ctx.Member.DisplayName}.", null, ctx.Member.AvatarUrl)
+                              .WithThumbnail(ctx.Client.CurrentUser.AvatarUrl, 30, 30)
+                              .WithColor(ModuleInfo.Color));
 
         [Command("EnumValues")]
         [Description("Displays different values for enum argument types used by Pepper")]

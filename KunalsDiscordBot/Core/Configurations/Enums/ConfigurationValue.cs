@@ -21,6 +21,7 @@ namespace KunalsDiscordBot.Core.Configurations.Enums
         AIChatEnabled,
         AIChatChannel,
         CustomCommandCount,
-        AllowActCommand
+        AllowActCommand,
+        PlaylistCount
     }
 }

@@ -8,7 +8,7 @@ namespace KunalsDiscordBot.Services.Music
 {
     public interface IPlaylistService
     {
-        public Task<bool> CreatePlaylist(ulong id, ulong authorId, string name, string[] tracks);
+        public Task<bool> CreatePlaylist(ulong id, ulong authorId, string name);
         public Task<bool> DeletePlaylist(ulong id, string name);
         public Task<bool> RenamePlaylist(ulong id, string name, string newName);
 

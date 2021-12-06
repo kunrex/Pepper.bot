@@ -28,6 +28,7 @@ using KunalsDiscordBot.Services.Moderation;
 using KunalsDiscordBot.Services.Configuration;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.GameCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands.Enums;
 using KunalsDiscordBot.Core.Attributes.ModerationCommands;
 
@@ -132,6 +133,7 @@ namespace KunalsDiscordBot
             Commands.RegisterConverter(new EnumArgumentConverter<Colors>());
             Commands.RegisterConverter(new EnumArgumentConverter<Deforms>());
             Commands.RegisterConverter(new EnumArgumentConverter<ColorScales>());
+            Commands.RegisterConverter(new EnumArgumentConverter<ConfigValueSet>());
         }
 
         public async Task ConnectAsync()

@@ -7,6 +7,7 @@ using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Core.ArgumentConverters;
 using KunalsDiscordBot.Core.Modules.FunCommands;
 using KunalsDiscordBot.Core.Modules.GameCommands;
+using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Modules.ImageCommands;
 using KunalsDiscordBot.Core.Modules.MusicCommands;
 using KunalsDiscordBot.Core.Modules.CurrencyCommands;
@@ -34,8 +35,9 @@ namespace KunalsDiscordBot.Core.Configurations
             typeof(Colors),
             typeof(Deforms),
             typeof(ColorScales),
+            typeof(ConfigValueSet),
             typeof(RedditPostFilter),
-            typeof(RockPaperScissorsChoice),
+            typeof(RockPaperScissorsChoice)
         };
 
         public static T FromJsonFile<T>(params string[] path)

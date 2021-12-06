@@ -18,16 +18,15 @@ namespace KunalsDiscordBot.Services.Music
             serverService = _serverService;
         }
 
-        public async Task<bool> CreatePlaylist(ulong id, ulong authorId, string name, string[] tracks)
+        public async Task<bool> CreatePlaylist(ulong id, ulong authorId, string name)
         {
             var musicData = await serverService.GetMusicData(id);
-            var casted = (long)authorId;
 
             var playlist = new Playlist
             {
-                AuthorId = casted,
+                AuthorId = (long)authorId,
                 PlaylistName = name,
-                Tracks = tracks.Select(x => new PlaylistTrack { AddedById = casted, URI = x}).ToList()
+                Tracks = new List<PlaylistTrack>()
             };
 
             musicData.Playlists.Add(playlist);

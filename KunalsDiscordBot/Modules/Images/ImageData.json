@@ -238,6 +238,50 @@
 
       "Font": "Arial",
       "FontStyle": 0
+    },
+    {
+      "FileName": "senate.gif",
+      "X": [ 93 ],
+      "Y": [ 220 ],
+      "Length": [ 495 ],
+      "Breadth": [ 50 ],
+      "Size": [ 30 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
+    },
+    {
+      "FileName": "handicapped.jpeg",
+      "X": [ 271 ],
+      "Y": [ 410 ],
+      "Length": [ 241 ],
+      "Breadth": [ 72 ],
+      "Size": [ 25 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
+    },
+    {
+      "FileName": "money.gif",
+      "X": [ 4 ],
+      "Y": [ 4 ],
+      "Length": [ 433 ],
+      "Breadth": [ 86 ],
+      "Size": [ 20 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
+    },
+    {
+      "FileName": "artofwar.png",
+      "X": [ 328 ],
+      "Y": [ 69 ],
+      "Length": [ 360 ],
+      "Breadth": [ 150 ],
+      "Size": [ 30 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     }
   ]
 }

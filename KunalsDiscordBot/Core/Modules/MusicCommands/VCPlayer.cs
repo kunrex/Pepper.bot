@@ -63,11 +63,7 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             Connection.TrackException += OnTrackError;
             Connection.TrackStuck += OnTrackStuck;
             Connection.PlaybackStarted += OnSongStart;
-            Connection.DiscordWebSocketClosed += (s, e) =>
-            {
-                OnDisconnect.Invoke();
-                return Task.CompletedTask;
-            };
+            Connection.DiscordWebSocketClosed += OnLavalinkClosed; 
 
             BoundChannel = _boundChannel;
 
@@ -81,7 +77,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
 
             isConnected = false;
 
+            OnDisconnect.Invoke();
             await Connection.DisconnectAsync();
+
             if (InactivityCancellationToken != null)
             {
                 if(!InactivityCancellationToken.IsCancellationRequested)
@@ -95,6 +93,14 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
         private Task OnSongFinish(LavalinkGuildConnection connect, TrackFinishEventArgs args)
         {
             Task.Run(async () => await PlayNext());
+
+            return Task.CompletedTask;
+        }
+
+        private Task OnLavalinkClosed(LavalinkGuildConnection connect, WebSocketCloseEventArgs args)
+        {
+            if (isConnected)
+                OnDisconnect.Invoke();
 
             return Task.CompletedTask;
         }
@@ -144,11 +150,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             if (Queue.Count == moduleData.MaxQueueLength)
                 return new DiscordEmbedBuilder().WithDescription($"Queue is at max length ({moduleData.MaxQueueLength}), remove tracks or wait to add more").WithColor(moduleData.Color);
 
-            if (InactivityCancellationToken != null)//inactivity check was started
-                InactivityCancellationToken.Cancel();
-
             if (currentTrack == null)
             {
+                if (InactivityCancellationToken != null)//inactivity check was started
+                    InactivityCancellationToken.Cancel();
+
                 currentTrack = loadResult.Tracks.First();
                 memberWhoRequested = member;
 
@@ -173,11 +179,11 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
                 if (loadResult == null || loadResult.LoadResultType == LavalinkLoadResultType.LoadFailed || loadResult.LoadResultType == LavalinkLoadResultType.NoMatches)
                     return (false, i);
 
-                if (InactivityCancellationToken != null)//inactivity check was started
-                    InactivityCancellationToken.Cancel();
-
                 if (currentTrack == null)
                 {
+                    if (InactivityCancellationToken != null)//inactivity check was started
+                        InactivityCancellationToken.Cancel();
+
                     currentTrack = loadResult.Tracks.First();
                     memberWhoRequested = member;
 
@@ -274,7 +280,9 @@ namespace KunalsDiscordBot.Core.Modules.MusicCommands
             await Connection.ResumeAsync();
 
             isPaused = false;
-            InactivityCancellationToken.Cancel();
+            if(InactivityCancellationToken != null)
+                InactivityCancellationToken.Cancel();
+
             return "Player Resumed";
         }
 

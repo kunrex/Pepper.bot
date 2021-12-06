@@ -61,6 +61,11 @@
         "ConfigData": 9,
         "FieldName": "DJ Role",
         "Description": "The role used for DJ Enforcement"
+      },
+      {
+        "ConfigData": 19,
+        "FieldName": "Playlist Count",
+        "Description": "The number of playlists in the server"
       }
     ],
 

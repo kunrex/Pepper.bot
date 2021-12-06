@@ -291,40 +291,25 @@ namespace KunalsDiscordBot.Modules.Music
         public async Task Shuffle(CommandContext ctx) => await ctx.RespondAsync(await service.Shuffle(ctx.Guild.Id)).ConfigureAwait(false);
 
         [Command("CreatePlaylist")]
-        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand]
-        public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string tracks)
+        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand, ConfigData(ConfigValue.PlaylistCount)]
+        public async Task CreatePlaylist(CommandContext ctx, [RemainingText] string name)
         {
-            if((await playlistService.GetPlaylists(ctx.Guild.Id)).Count() > service.ModuleData.MaxPlayistCount)
+            var playlists = (await playlistService.GetPlaylists(ctx.Guild.Id)).ToArray();
+            if (playlists.Length == service.ModuleData.MaxPlayistCount)
             {
                 await ctx.RespondAsync("This server already has 3 playlists");
                 return;
             }
 
-            var reply = await new MessageStep("What is the name of the playlist", string.Empty, 30)
-                .WithMesssageData(new MessageData
-                {
-                    Reply = true,
-                    ReplyId = ctx.Message.Id
-                }).ProcessStep(ctx.Channel, ctx.Member, ctx.Client, false);
-
-            var split = tracks.Split(',').Select(x => x.Trim().ToLower()).Distinct().ToArray();
-            if (split.Length > service.ModuleData.MaxQueueLength)
+            var casted = name.ToLower();
+            if(playlists.FirstOrDefault(x => x.PlaylistName.ToLower() == casted) != null)
             {
-                await ctx.RespondAsync($"A playlist can have a max length of {service.ModuleData.MaxQueueLength}");
-                return;
-            }
-            if(split.Length == 0)
-            {
-                await ctx.RespondAsync($"A playlist must have at least 1 track");
+                await ctx.RespondAsync($"This server already has playlist named {name}");
                 return;
             }
 
-            var completed = await playlistService.CreatePlaylist(ctx.Guild.Id, ctx.Member.Id, reply.Result, split);
-
-            if(completed)
-                await ctx.RespondAsync($"Playlist: `{reply.Result}` created!");
-            else
-                await ctx.RespondAsync($"Something went wrong while creating the playlist");
+            await playlistService.CreatePlaylist(ctx.Guild.Id, ctx.Member.Id, name);
+            await ctx.RespondAsync($"Playlist: `{name}` created!");
         }
 
         [Command("GetPlaylists")]
@@ -358,7 +343,7 @@ namespace KunalsDiscordBot.Modules.Music
         }
 
         [Command("DeletePlaylist")]
-        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand]
+        [Description("Creates a new playlist"), DJCheck, NonLavalinkCommand, ConfigData(ConfigValue.PlaylistCount)]
         public async Task DeletePlaylist(CommandContext ctx, [RemainingText] string name)
         {
             await playlistService.DeletePlaylist(ctx.Guild.Id, name);
@@ -457,7 +442,8 @@ namespace KunalsDiscordBot.Modules.Music
                 return;
             }
 
-            if ((await playlistService.GetTracks(playlist)).Count() == service.ModuleData.MaxQueueLength)
+            var tracks = (await playlistService.GetTracks(playlist)).ToArray();
+            if (tracks.Length == service.ModuleData.MaxQueueLength)
             {
                 await ctx.RespondAsync($"Playlist {playListName} has a max length of {service.ModuleData.MaxQueueLength}");
                 return;
@@ -466,6 +452,12 @@ namespace KunalsDiscordBot.Modules.Music
             var added = new List<string>();
             for (int i = 0; i < split.Length - 1; i++)
             {
+                if(tracks.Length + added.Count == service.ModuleData.MaxQueueLength)
+                {
+                    await ctx.RespondAsync($"Playlist {playListName} has a max length of {service.ModuleData.MaxQueueLength}");
+                    break;
+                }
+
                 var completed = await playlistService.AddTrack(playlist, ctx.Member.Id, split[i]);
 
                 if (!completed)

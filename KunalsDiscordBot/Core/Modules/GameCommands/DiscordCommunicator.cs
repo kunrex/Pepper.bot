@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;

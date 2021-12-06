@@ -8,6 +8,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.Interactivity.Extensions;
 
 using KunalsDiscordBot.Extensions;
+using KunalsDiscordBot.Services.Music;
 using KunalsDiscordBot.Services.Modules;
 using KunalsDiscordBot.Services.General;
 using KunalsDiscordBot.Core.Configurations;
@@ -24,7 +25,7 @@ namespace KunalsDiscordBot.Services.Configuration
         public readonly ServerConfigData configData;
         public readonly IModuleService moduleService;
 
-        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service, IModuleService _moduleService, IModerationService moderationService)
+        public ConfigurationService(PepperConfigurationManager configurationManager, IServerService service, IModuleService _moduleService, IModerationService moderationService, IPlaylistService playlistService)
         {
             serverService = service;
             configData = configurationManager.ServerConfigData;
@@ -50,7 +51,8 @@ namespace KunalsDiscordBot.Services.Configuration
                  { ConfigValue.AIChatEnabled, async(id) => (ulong)(await serverService.GetChatData(id)).Enabled == 1},
                  { ConfigValue.AIChatChannel, async(id) => (ulong)(await serverService.GetChatData(id)).AIChatChannelID},
                  { ConfigValue.CustomCommandCount, async(id) => (await moderationService.GetAllCustomCommands(id)).Count()},
-                 { ConfigValue.AllowActCommand, async(id) => (await serverService.GetFunData(id)).AllowActCommand == 1}
+                 { ConfigValue.AllowActCommand, async(id) => (await serverService.GetFunData(id)).AllowActCommand == 1},
+                 { ConfigValue.PlaylistCount, async(id) => (await playlistService.GetPlaylists(id)).Count()}
             };
         }
 
@@ -74,7 +76,8 @@ namespace KunalsDiscordBot.Services.Configuration
             { ConfigValue.AIChatEnabled,(s) => $"`{(bool)s}`"},
             { ConfigValue.AIChatChannel, (s) => $"{(((ulong)s) == 0 ? "`None`" : $"<#{(ulong)s}>")}"},
             { ConfigValue.CustomCommandCount, (s) => $"`{(int)s}`"},
-            { ConfigValue.AllowActCommand, (s) => $"`{(bool)s}`"}
+            { ConfigValue.AllowActCommand, (s) => $"`{(bool)s}`"},
+            { ConfigValue.PlaylistCount, (s) => $"{(((int)s) == 0 ? "`None`" : $"{(int)s}")}"}
         };
 
         public async Task<List<DiscordEmbedBuilder>> GetConfigPages(ulong guildId, Permissions perms)
@@ -82,26 +85,29 @@ namespace KunalsDiscordBot.Services.Configuration
             var valueSets = Enum.GetValues(typeof(ConfigValueSet));
             List<DiscordEmbedBuilder> embeds = new List<DiscordEmbedBuilder>();
 
-            foreach(var set in valueSets)
-            {
-                var casted = (ConfigValueSet)set;
-                var permissions = moduleService.ModuleInfo[casted].Permissions;
-                bool enabled = (perms & permissions) == permissions;
-
-                var embed = new DiscordEmbedBuilder().WithTitle($"__{(ConfigValueSet)set}__");
-
-                if((ConfigValueSet)set != ConfigValueSet.General)
-                    embed.AddField($"• Enabled:", $"`{enabled}`\nWether or not the module(s) is(are) enabled in this server"
-                        + $"{(enabled ? "" : $"\n**Enabling**: Give Pepper the {permissions.FormatePermissions()} permission(s)")}");
-
-                if(enabled && configData.ServerConfigValues.ContainsKey(casted))
-                    foreach (var value in configData.ServerConfigValues[casted])
-                        embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(await Functions[value.ConfigData].Invoke(guildId))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
-
-                embeds.Add(embed);
-            }
+            foreach (var set in valueSets)
+                embeds.Add(await GetConfigPage(guildId, perms, (ConfigValueSet)set));
 
             return embeds;
+        }
+
+        public async Task<DiscordEmbedBuilder> GetConfigPage(ulong guildId, Permissions perms, ConfigValueSet set)
+        {
+            var casted = set;
+            var permissions = moduleService.ModuleInfo[casted].Permissions;
+            bool enabled = (perms & permissions) == permissions;
+
+            var embed = new DiscordEmbedBuilder().WithTitle($"__{set}__");
+
+            if (set != ConfigValueSet.General)
+                embed.AddField($"• Enabled:", $"`{enabled}`\nWether or not the module(s) is(are) enabled in this server"
+                    + $"{(enabled ? "" : $"\n**Enabling**: Give Pepper the {permissions.FormatePermissions()} permission(s)")}");
+
+            if (enabled && configData.ServerConfigValues.ContainsKey(casted))
+                foreach (var value in configData.ServerConfigValues[casted])
+                    embed.AddField($"• {value.FieldName}", $"{StringConverions[value.ConfigData].Invoke(await Functions[value.ConfigData].Invoke(guildId))}\n{value.Description}\n**Edit Command(s)**: {value.EditCommand}");
+
+            return embed;
         }
 
         public Task GeneratePepperInfoMessage(PepperBot shard, DiscordChannel channel)

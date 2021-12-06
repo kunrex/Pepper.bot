@@ -118,6 +118,8 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                         await SendMessage($"{CurrentPlayer.member.Mention} Wins!").ConfigureAwait(false);
   
                         GameOver = true;
+                        printAtEnd = false;
+
                         continue;
                     }
 
@@ -126,9 +128,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                     if (draw)
                     {
                         await SendMessage($"The match between {Players[0].member.Username} and {Players[1].member.Username} ends in a draw", await GetBoard()).ConfigureAwait(false);
-                        printAtEnd = false;
 
                         GameOver = true;
+                        printAtEnd = false;
+
                         continue;
                     }
 
