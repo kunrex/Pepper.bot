@@ -115,7 +115,7 @@ Come back to the project on your system and find the folder called `KunalsDiscor
     "ActivityText": "whatever should show up in your bots activity",
     "ErrorLink": "Any image link, this image is used when an error occurs."
     "WriteCommands": false,
-    "WriteLocation": "The file location where you want to write all the commands to, in JSON format"
+    "WriteLocation": "The file location where you want to write all the commands to"
   },
 
   "LavalinkConfig": {
@@ -159,8 +159,8 @@ Come back to the project on your system and find the folder called `KunalsDiscor
     * 5 : Competing
 7. `ActivityText` : The text that appears as your bots activity
 8. `ErrorLink` : The image that appears in the footer when an error occurs
-9. `WriteCommands` : **Not related to the bot program** This value is for the website, it stores whether or not commands need to be written to a JSON file every time a program is run. This file is read to list all the commands on the website.
-10. `WriteLocation`:  **Not related to the bot program** This value is for the website, it stores the location of the file where all commands are written to, in JSON format. This file is read to list all the commands on the website.
+9. `WriteCommands` : _**Not related to the any code**_ This value is for the website, it stores whether or not commands need to be written to a JSON file every time the program is run. This file is read to list all the commands on the website.
+10. `WriteLocation`:  _**Not related to any code**_ This value is for the website, it stores the location of the file where all commands are written to. The commands are written in JSON format. This file is read to list all the commands on the website.
 
 **LavaLink Config**
 1. `Hostname`: The name of the host used to host lava link
