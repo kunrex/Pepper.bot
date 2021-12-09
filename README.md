@@ -115,7 +115,7 @@ Come back to the project on your system and find the folder called `KunalsDiscor
     "ActivityText": "whatever should show up in your bots activity",
     "ErrorLink": "Any image link, this image is used when an error occurs."
     "WriteCommands": false,
-    "WriteLocation": "The file location where you want to write all the commands is json format to"
+    "WriteLocation": "The file location where you want to write all the commands is JSON format"
   },
 
   "LavalinkConfig": {
