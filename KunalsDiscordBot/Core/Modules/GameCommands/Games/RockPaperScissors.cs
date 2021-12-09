@@ -22,15 +22,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             None
         }
 
-        private static readonly string[] Ids = { "player1", "player2" };
-
         private readonly ulong replyMessageId;
         private readonly DiscordChannel channel;
 
         private RPS[] Choices { get; set; }
         private DiscordMessage GameMessage { get; set; }
 
-        private readonly DiscordSelectComponentOption[] options;
+        private readonly DiscordButtonComponent[] options;
 
         public RockPaperScissors(DiscordClient _client, List<DiscordMember> _players, DiscordChannel _channel, ulong messageId) : base(_client, _players)
         {
@@ -40,13 +38,13 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
             Players = _players.Select(x => new RockPaperScissorsPlayer(x)).ToList();
             Choices = new [] { RPS.None, RPS.None };
 
-            options = new DiscordSelectComponentOption[]
+            options = new DiscordButtonComponent[]
             {
-                new DiscordSelectComponentOption("Rock", "0", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":rock:"))),
-                new DiscordSelectComponentOption("Paper", "1", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":roll_of_paper:"))),
-                new DiscordSelectComponentOption("Scissors", "2", null, false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":scissors:")))
+                new DiscordButtonComponent(ButtonStyle.Primary, "0", "Rock", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":rock:"))),
+                new DiscordButtonComponent(ButtonStyle.Primary, "1", "Paper", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":roll_of_paper:"))),
+                new DiscordButtonComponent(ButtonStyle.Primary, "2", "Scissors", false, new DiscordComponentEmoji(DiscordEmoji.FromName(Client, ":scissors:")))
             };
-
+                
             SetUp();
         }
 
@@ -57,9 +55,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 CurrentPlayer = Players[i];
 
                 await PrintBoard();
-                var input = await CurrentPlayer.Input(Ids[i], Client, GameMessage);
+                var input = await CurrentPlayer.Input(Client, GameMessage);
 
-                Choices[i] = input.WasCompleted ? RPS.None : (RPS)input.Ordinate.x;
+                if(input.WasCompleted)
+                    Choices[i] = (RPS)input.Ordinate.x;
             }
 
             string result = "Its a tie";
@@ -110,11 +109,10 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 {
                     Title = $"{Players[0].member.DisplayName} vs {Players[1].member.DisplayName}",
                     Color = DiscordColor.Blurple
-                }.AddField($"{Players[0].member.DisplayName}'s choice", "Chosen", true)
+                }.AddField($"{Players[0].member.DisplayName}'s choice", Choices[0] == RPS.None ? "*Choosing...*" : "Chosen", true)
                  .AddField("** **", "** **", true)
-                 .AddField($"{Players[1].member.DisplayName}'s choice", Choices[1] == RPS.None ? "*Choosing...*" : "Chosen", true))
-                .AddComponents(new DiscordSelectComponent(Ids[0], $"{Players[0].member.DisplayName}'s choice", options, CurrentPlayer != Players[0]))
-                .AddComponents(new DiscordSelectComponent(Ids[1], $"{Players[1].member.DisplayName}'s choice", options, CurrentPlayer != Players[1])));
+                 .AddField($"{Players[1].member.DisplayName}'s choice", "*Choosing...*", true))
+                .AddComponents(options));
         }
 
         protected async override void SetUp()
@@ -123,11 +121,9 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
                 .WithEmbed(new DiscordEmbedBuilder
                 {
                     Title = $"{Players[0].member.DisplayName} vs {Players[1].member.DisplayName}",
-                    Color = DiscordColor.Blurple
-                }.AddField($"{Players[0].member.DisplayName}'s choice", "*Choosing...*", true)
-                 .AddField("** **", "** **", true)
-                 .AddField($"{Players[1].member.DisplayName}'s choice", "*Choosing...*", true))
-                .WithReply(replyMessageId).SendAsync(channel);
+                    Color = DiscordColor.Blurple,
+                    Description = "Starting..."
+                }).WithReply(replyMessageId).SendAsync(channel);
 
             await Task.WhenAll(Players.Select(x => Task.Run(() => x.Ready(channel))));         
             PlayGame();

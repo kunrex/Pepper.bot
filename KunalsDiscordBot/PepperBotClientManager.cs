@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
+using KunalsDiscordBot.Extensions;
 using KunalsDiscordBot.Core.Configurations;
 
 namespace KunalsDiscordBot
@@ -29,6 +30,9 @@ namespace KunalsDiscordBot
             {
                 foreach (var shard in shards)
                     await shard.Value.ConnectAsync();
+
+                if (botConfiguration.BotConfig.DiscordConfig.WriteCommands)
+                    shards[0].Commands.WriteAllCommands(botConfiguration.BotConfig.DiscordConfig.WriteLocation);
             });
         }
     }

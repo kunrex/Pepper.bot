@@ -23,16 +23,12 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands.Players
             return Task.FromResult(true);
         }
 
-        public async Task<InputResult> Input(string id, DiscordClient client, DiscordMessage message)
+        public async Task<InputResult> Input(DiscordClient client, DiscordMessage message)
         {
             var result = await communicator.Input(client.GetInteractivity(), message, member, new InputData
             {
                 Span = TimeSpan.FromSeconds(10),
-                InputType = InputType.Dropdown,
-                ExtraInputValues = new Dictionary<string, (string, string)>()
-                {
-                    { "id", (id, string.Empty) }
-                }
+                InputType = InputType.Button
             });
 
             if (result == DiscordCommunicator.afkInputvalue)

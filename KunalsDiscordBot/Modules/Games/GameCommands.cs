@@ -291,8 +291,22 @@ namespace KunalsDiscordBot.Modules.Games
         }
 
         [Command("RockPaperScissors")]
-        [Aliases("rps")]
-        public async Task Rps(CommandContext ctx, DiscordMember other) => await gameService.StartGame<RockPaperScissors>(new List<DiscordMember>() { ctx.Member, other }, ctx.Client, ctx.Channel, ctx.Message.Id);
+        [Aliases("rps"), Description("Its just rock papers scisoors")]
+        public async Task Rps(CommandContext ctx, DiscordMember other)
+        {
+            if (ctx.User.Equals(other))
+            {
+                await ctx.Channel.SendMessageAsync("You can't play against yourself genius").ConfigureAwait(false);
+                return;
+            }
+            else if (other.IsBot)
+            {
+                await ctx.Channel.SendMessageAsync("You can't play against a bot dum dum").ConfigureAwait(false);
+                return;
+            }
+
+            await gameService.StartGame<RockPaperScissors>(new List<DiscordMember>() { ctx.Member, other }, ctx.Client, ctx.Channel, ctx.Message.Id);
+        }
 
         [Command("RockPaperScissors")]
         public async Task RockPaperScissor(CommandContext ctx, RockPaperScissorsChoice choice)

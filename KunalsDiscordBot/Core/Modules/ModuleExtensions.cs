@@ -1,5 +1,7 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Collections.Generic;
 
 using DSharpPlus.Entities;
@@ -62,6 +64,30 @@ namespace KunalsDiscordBot.Extensions
                 return group.Children.Select(x => x.GetSubCommandsCount()).Sum();
 
             return 1;
+        }
+
+        public static void WriteAllCommands(this CommandsNextExtension commandsNext, string path)
+        {
+            Dictionary<string, List<CommandModuleData>> data = new Dictionary<string, List<CommandModuleData>>();
+            
+            foreach (var module in commandsNext.FilteredRegisteredCommands().Where(x => x is CommandGroup).ToArray())
+            {
+                var commands = new List<CommandModuleData>();
+                var group = (CommandGroup)module;
+
+                foreach (var command in group.Children)
+                    commands.Add(new CommandModuleData { name = command.Name, description = command.Description });
+
+                data.Add(group.Name, commands);
+            }
+
+            File.WriteAllText(path, JsonSerializer.Serialize(data));
+        }
+
+        private struct CommandModuleData
+        {
+            public string name { get; set; }
+            public string description { get; set; }
         }
     }
 }

@@ -15,5 +15,8 @@ namespace KunalsDiscordBot.Core.Configurations
         public string ActivityText { get; set; }
 
         public string ErrorLink { get; set; }
+
+        public bool WriteCommands { get; set; }
+        public string WriteLocation { get; set; }
     }
 }

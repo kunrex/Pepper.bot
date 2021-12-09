@@ -1393,7 +1393,7 @@ namespace KunalsDiscordBot.Modules.Images
 
         [Command("Money")]
         [WithFile("money.gif")]
-        [Description("**I am the Senate**")]
+        [Description("fast money go brrr")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Money(CommandContext ctx, [RemainingText] string sentence)
         {
@@ -1422,7 +1422,7 @@ namespace KunalsDiscordBot.Modules.Images
 
         [Command("ArtOfWar")]
         [WithFile("artofwar.png")]
-        [Description("Wise men leave wise quotes")]
+        [Description("wise men leave wise quotes")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task ArtOfWar(CommandContext ctx, [RemainingText] string sentence)
         {
