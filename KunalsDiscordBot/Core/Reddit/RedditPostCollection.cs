@@ -17,7 +17,7 @@ namespace KunalsDiscordBot.Core.Reddit
         public string SubRedditName { get; private set; }
         private List<Post> Posts { get; set; } = new List<Post>();
 
-        public int count
+        public int Count
         {
             get => Posts == null ? 0 : Posts.Count;
         }

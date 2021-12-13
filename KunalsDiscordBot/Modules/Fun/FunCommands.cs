@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ using KunalsDiscordBot.Core.DialogueHandlers.Steps;
 using KunalsDiscordBot.Core.Attributes.FunCommands;
 using KunalsDiscordBot.Core.Configurations.Attributes;
 using KunalsDiscordBot.Core.DialogueHandlers.Steps.Basics;
+using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser;
 
 namespace KunalsDiscordBot.Modules.Fun
 {
@@ -553,6 +555,19 @@ namespace KunalsDiscordBot.Modules.Fun
             }
 
             await ctx.Channel.SendMessageAsync(message);
+        }
+
+        [Command("Embedify")]
+        public async Task Embedify(CommandContext ctx, [RemainingText] string message)
+        {
+            if(!new Regex("(```[a-z]*\n[\\s\\S]*?\n```)").IsMatch(message))
+            {
+                await ctx.RespondAsync("Use a codeblock to enter the html text");
+                return;
+            }
+
+            var index = message.IndexOf(Environment.NewLine);
+            await ctx.RespondAsync(await new EmbedGenerator(message.Substring(index, message.Length - index - 3)).Convert());
         }
     }
 }

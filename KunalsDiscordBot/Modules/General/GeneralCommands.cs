@@ -137,7 +137,7 @@ namespace KunalsDiscordBot.Modules.General
             if (member.IsBot)
                 embed.AddField("Is Bot:", "`true`");
 
-            string roles = string.Concat(member.Roles.Select(x => $"<@&{x.Id}>\n"));
+            string roles = string.Join(", ", member.Roles.Select(x => $"<@&{x.Id}>"));
             embed.AddField("Roles: ", roles == string.Empty ? "None" : roles);
 
             await ctx.RespondAsync(embed: embed);

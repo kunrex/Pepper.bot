@@ -24,6 +24,7 @@ namespace KunalsDiscordBot.Core.Reddit
         private RedditPostCollection Memes { get; set; } 
         private RedditPostCollection Aww { get; set; }
         private RedditPostCollection Showerthoughts { get; set; }
+        private RedditPostCollection YoMama { get; set; }
 
         public RedditApp(PepperConfigurationManager configManager)
         {
@@ -48,6 +49,7 @@ namespace KunalsDiscordBot.Core.Reddit
 
             filter.ImagesOnly = false;
             Showerthoughts = await new RedditPostCollection("Showerthoughts").Collect(Client, filter);
+            YoMama = await new RedditPostCollection("YoMamaJokes").Collect(Client, filter);
 
             Online = true;
             Console.WriteLine("Reddit app online");
@@ -74,7 +76,8 @@ namespace KunalsDiscordBot.Core.Reddit
         }
 
         public Post GetMeme(bool allowNSFW) => Memes.GetRandomPost(allowNSFW);
-        public Post GetAww() => Aww[new Random().Next(0, Aww.count)];
-        public Post GetShowerthought() => Showerthoughts[new Random().Next(0, Showerthoughts.count)];
+        public Post GetAww() => Aww[new Random().Next(0, Aww.Count)];
+        public Post GetShowerthought() => Showerthoughts[new Random().Next(0, Showerthoughts.Count)];
+        public Post GetYoMama() => YoMama[new Random().Next(0, YoMama.Count)];
     }
 }

@@ -92,6 +92,9 @@
     <Folder Include="Core\Reddit\Exceptions\" />
     <Folder Include="Core\DiscordModels\" />
     <Folder Include="Core\Modules\GameCommands\Enums\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordFields\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -178,6 +181,9 @@
     <None Remove="Core\DiscordModels\" />
     <None Remove="Bumpkit" />
     <None Remove="Core\Modules\GameCommands\Enums\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\Fields\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">
