@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordFields
+namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.CommonComponents
 {
     public class Value : EmbedComponent
     {

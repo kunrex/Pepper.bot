@@ -114,7 +114,6 @@ namespace KunalsDiscordBot
                 StringPrefixes = Configuration.DiscordConfig.Prefixes,
                 EnableDms = Configuration.DiscordConfig.Dms,
 
-                EnableMentionPrefix = true,
                 CaseSensitive = false,
                 Services = _services,
                 DmHelp = false,
@@ -304,6 +303,8 @@ namespace KunalsDiscordBot
             {
                 var serverService = (IServerService)Services.GetService(typeof(IServerService));
                 await serverService.RemoveServerProfile(e.Guild.Id);
+
+                Console.WriteLine(await serverService.GetMusicData(e.Guild.Id) == null);
             });
 
             return Task.CompletedTask;
@@ -313,6 +314,9 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
+                if (s.CurrentUser.Id == e.Member.Id)
+                    return;
+
                 var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)
@@ -341,6 +345,9 @@ namespace KunalsDiscordBot
         {
             _ = Task.Run(async () =>
             {
+                if (s.CurrentUser.Id == e.Member.Id)
+                    return;
+
                 var profile = await ((IServerService)Services.GetService(typeof(IServerService))).GetServerProfile(e.Guild.Id);
 
                 if (profile.LogNewMembers == 0)

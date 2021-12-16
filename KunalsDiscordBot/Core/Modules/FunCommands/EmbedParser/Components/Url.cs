@@ -1,18 +1,21 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
 
-namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordFields
+using DSharpPlus.Entities;
+
+namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components
 {
-    public class Name : EmbedComponent
+    public class Url : EmbedComponent
     {
-        public override bool Outer => false;
-        public override string Id { get => "name"; }
+        public override bool Outer => true;
+        public override string Id { get => "url"; }
         protected override Regex Regex { get; set; }
 
         public string Value { get; private set; }
 
-        public Name()
+        public Url()
         {
             Regex = new Regex("(.*)");
         }
@@ -25,5 +28,7 @@ namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.Disco
             Value = input;
             return true;
         }
+
+        public override DiscordEmbedBuilder Modify(DiscordEmbedBuilder builder) => builder.WithUrl(Value);
     }
 }

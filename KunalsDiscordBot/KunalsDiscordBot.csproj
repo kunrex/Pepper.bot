@@ -95,6 +95,10 @@
     <Folder Include="Core\Modules\FunCommands\EmbedParser\" />
     <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\" />
     <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordFields\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordAuthors\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\CommonComponents\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordFooters\" />
+    <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordThumbnails\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -184,6 +188,10 @@
     <None Remove="Core\Modules\FunCommands\EmbedParser\" />
     <None Remove="Core\Modules\FunCommands\EmbedParser\Components\" />
     <None Remove="Core\Modules\FunCommands\EmbedParser\Components\Fields\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\DiscordAuthors\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\CommonComponents\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\DiscordFooters\" />
+    <None Remove="Core\Modules\FunCommands\EmbedParser\Components\DiscordThumbnails\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

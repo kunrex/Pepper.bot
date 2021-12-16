@@ -6,6 +6,10 @@ using DSharpPlus.Entities;
 
 using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components;
 using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordFields;
+using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordAuthors;
+using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordFooters;
+using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.CommonComponents;
+using KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.DiscordThumbnails;
 
 namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser
 {
@@ -101,6 +105,66 @@ namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser
                                     break;
                                 case "inline":
                                     current = new Inline();
+                                    break;
+                                case "url":
+                                    if (components.Find(x => x.Id == currentId) != null)
+                                    {
+                                        //error
+                                        break;
+                                    }
+
+                                    current = new Url();
+                                    break;
+                                case "imageurl":
+                                    if (components.Find(x => x.Id == currentId) != null)
+                                    {
+                                        //error
+                                        break;
+                                    }
+
+                                    current = new ImageUrl();
+                                    break;
+                                case "author":
+                                    if (components.Find(x => x.Id == currentId) != null)
+                                    {
+                                        //error
+                                        break;
+                                    }
+
+                                    current = new Author();
+                                    break;
+                                case "authoricon":
+                                    current = new AuthorIcon();
+                                    break;
+                                case "authorurl":
+                                    current = new AuthorUrl();
+                                    break;
+                                case "footericon":
+                                    current = new FooterIcon();
+                                    break;
+                                case "footer":
+                                    if (components.Find(x => x.Id == currentId) != null)
+                                    {
+                                        //error
+                                        break;
+                                    }
+
+                                    current = new Footer();
+                                    break;
+                                case "thumbnail":
+                                    if (components.Find(x => x.Id == currentId) != null)
+                                    {
+                                        //error
+                                        break;
+                                    }
+
+                                    current = new Thumbnail();
+                                    break;
+                                case "dimensions":
+                                    current = new Dimensions();
+                                    break;
+                                case "thumbnailicon":
+                                    current = new ThumbnailIcon();
                                     break;
                             }
 

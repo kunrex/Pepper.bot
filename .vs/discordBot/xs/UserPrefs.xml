@@ -1,21 +1,27 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Inline.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/EmbedGenerator.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Title.cs" Line="28" Column="27" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/EmbedGenerator.cs" Line="94" Column="48" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/EmbedComponent.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" Line="321" Column="26" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Description.cs" Line="29" Column="25" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Title.cs" Line="19" Column="10" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/EmbedGenerator.cs" Line="118" Column="49" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/EmbedComponent.cs" Line="1" Column="1" />
+      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Description.cs" />
       <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Color.cs" />
       <File FileName="KunalsDiscordBot/Core/DecorAttribute.cs" />
-      <File FileName="KunalsDiscordBot/Core/Reddit/RedditApp.cs" />
-      <File FileName="KunalsDiscordBot/Core/Reddit/RedditPostCollection.cs" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Fields.cs" Line="45" Column="45" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Field.cs" Line="30" Column="33" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Name.cs" Line="25" Column="27" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Value.cs" Line="8" Column="6" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Inline.cs" Line="13" Column="32" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Url.cs" Line="24" Column="10" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/Author.cs" Line="40" Column="25" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Fields.cs" Line="38" Column="1" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Name.cs" Line="20" Column="59" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordAuthors/AuthorUrl.cs" Line="7" Column="2" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordAuthors/AuthorIcon.cs" Line="7" Column="2" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFields/Field.cs" Line="40" Column="10" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFooters/Footer.cs" Line="61" Column="1" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/CommonComponents/Value.cs" Line="18" Column="10" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordFooters/FooterUrl.cs" Line="18" Column="92" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordThumbnails/Thumbnail.cs" Line="13" Column="58" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordThumbnails/ThumbnailIcon.cs" Line="11" Column="58" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/EmbedParser/Components/DiscordThumbnails/Dimensions.cs" Line="10" Column="49" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -28,10 +34,13 @@
                     <Node name="FunCommands" expanded="True">
                       <Node name="EmbedParser" expanded="True">
                         <Node name="Components" expanded="True">
-                          <Node name="DiscordFields" expanded="True">
-                            <Node name="Inline.cs" selected="True" />
-                          </Node>
+                          <Node name="CommonComponents" expanded="True" />
+                          <Node name="DiscordAuthors" expanded="True" />
+                          <Node name="DiscordFields" expanded="True" />
+                          <Node name="DiscordFooters" expanded="True" />
+                          <Node name="DiscordThumbnails" expanded="True" />
                         </Node>
+                        <Node name="EmbedGenerator.cs" selected="True" />
                       </Node>
                     </Node>
                   </Node>
@@ -39,6 +48,10 @@
                 </Node>
                 <Node name="Modules" expanded="True">
                   <Node name="Fun" expanded="True" />
+                </Node>
+                <Node name="Services" expanded="True">
+                  <Node name="Implementations" expanded="True" />
+                  <Node name="Interfaces" expanded="True" />
                 </Node>
               </Node>
             </Node>

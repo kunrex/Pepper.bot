@@ -36,8 +36,8 @@ namespace KunalsDiscordBot.Services.General
                 ModerationData = new ModerationData { Id = cached },
                 FunData = new FunData { Id = cached },
                 MusicData = new MusicData { Id = cached },
-                GameData = new GameData { Id = cached },
-                ChatData = new AIChatData {  Id = cached },
+                GameData = new GameData { Id = cached},
+                ChatData = new AIChatData {  Id = cached }
             };
 
             await AddEntity(serverProfile);

@@ -25,18 +25,14 @@ namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.Disco
             if (!await base.MatchAndExtract())
                 return false;
 
-            Console.WriteLine(input);
             var components = await new EmbedGenerator().ParseComponents(input);
             AllFields = new List<Field>();
 
-            Console.WriteLine(input);
             foreach (var field in components)
                 if (!(field is Field casted))
                     return false;
                 else
                     AllFields.Add(casted);
-
-            Console.WriteLine(AllFields.Count);
             return true;
         }
 
@@ -46,7 +42,7 @@ namespace KunalsDiscordBot.Core.Modules.FunCommands.EmbedParser.Components.Disco
                 return builder;
 
             foreach (var value in AllFields)
-                builder.AddField(value.Name.Value, value.Value.StringValue, value.Inline.Value);
+                value.Modify(builder);
 
             return builder;
         }

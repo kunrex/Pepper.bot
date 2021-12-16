@@ -33,7 +33,7 @@ namespace KunalsDiscordBot
                 options.UseSqlite("Data Source=Data.db", x => x.MigrationsAssembly("DiscordBotDataBase.Dal.Migrations"));
 
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            });
+            }, ServiceLifetime.Transient);
 
             var configManager = new PepperConfigurationManager();
 
