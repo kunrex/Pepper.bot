@@ -1449,5 +1449,59 @@ namespace KunalsDiscordBot.Modules.Images
                         .SendAsync(ctx.Channel);
             }
         }
+
+        [Command("Delete")]
+        [WithFile("delete.jpg")]
+        [Description("delete the trash")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Delete(CommandContext ctx, DiscordMember other)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((other.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(editData.Length[0], editData.Breadth[0]);
+                    await graphicalImage.DrawImage(list[0], editData.X[0], editData.Y[0], new RectangleF(0, 0, editData.Length[0], editData.Breadth[0]), GraphicsUnit.Pixel);
+
+                    using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                        await new DiscordMessageBuilder()
+                            .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                            .WithReply(ctx.Message.Id)
+                            .SendAsync(ctx.Channel);
+                }
+            }
+        }
+
+        [Command("Something")]
+        [WithFile("something.jpg")]
+        [Description("delete the trash")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Something(CommandContext ctx, DiscordMember other)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                using (var list = service.DownLoadImages(new TupleBag<string, int>((other.AvatarUrl, 1))))
+                {
+                    await list[0].Resize(editData.Length[0], editData.Breadth[0]);
+                    await graphicalImage.DrawImage(list[0], editData.X[0], editData.Y[0], new RectangleF(0, 0, editData.Length[0], editData.Breadth[0]), GraphicsUnit.Pixel);
+
+                    using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                        await new DiscordMessageBuilder()
+                            .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                            .WithReply(ctx.Message.Id)
+                            .SendAsync(ctx.Channel);
+                }
+            }
+        }
     }
 }

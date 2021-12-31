@@ -282,6 +282,26 @@
 
       "Font": "Arial",
       "FontStyle": 0
+    },
+    {
+      "FileName": "delete.jpg",
+      "X": [ 119 ],
+      "Y": [ 134 ],
+      "Length": [ 197 ],
+      "Breadth": [ 197 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
+    },
+    {
+      "FileName": "something.jpg",
+      "X": [ 115 ],
+      "Y": [ 207 ],
+      "Length": [ 186 ],
+      "Breadth": [ 186 ],
+
+      "Font": "Arial",
+      "FontStyle": 0
     }
   ]
 }

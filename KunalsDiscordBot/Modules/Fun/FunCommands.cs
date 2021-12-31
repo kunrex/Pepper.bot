@@ -1,6 +1,7 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -10,6 +11,7 @@ using DSharpPlus.Entities;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 
+using KunalsDiscordBot.Core;
 using KunalsDiscordBot.Core.Reddit;
 using KunalsDiscordBot.Services.Fun;
 using KunalsDiscordBot.Core.Modules;
@@ -558,16 +560,44 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("Embedify")]
-        public async Task Embedify(CommandContext ctx, [RemainingText] string message)
+        [Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User)]
+        [Description("Turn html source into a discord embed!")]
+        public async Task Embedify(CommandContext ctx, [RemainingText] string htmlSource)
         {
-            if(!new Regex("(```[a-z]*\n[\\s\\S]*?\n```)").IsMatch(message))
+            if(!new Regex("(```[a-z]*\n[\\s\\S]*?\n```)").IsMatch(htmlSource))
             {
                 await ctx.RespondAsync("Use a codeblock to enter the html text");
                 return;
             }
 
-            var index = message.IndexOf(Environment.NewLine);
-            await ctx.RespondAsync(await new EmbedGenerator(message.Substring(index, message.Length - index - 3)).Convert());
+            var index = htmlSource.IndexOf(Environment.NewLine);
+            await ctx.RespondAsync(await new EmbedGenerator(htmlSource.Substring(index, htmlSource.Length - index - 4)).Convert());
+        }
+
+        [Command("StoryScript")]
+        [Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User), Aliases("ss")]
+        [Description("A language written in python by GameCreator #8053. Github: https://github.com/StoryScriptorg/StoryScript")]
+        public async Task StoryScript(CommandContext ctx, [RemainingText] string code)
+        {
+            if (!new Regex("(```[a-z]*\n[\\s\\S]*?\n```)").IsMatch(code))
+            {
+                await ctx.RespondAsync("Use a codeblock to enter the source code text");
+                return;
+            }
+
+            var index = code.IndexOf(Environment.NewLine);
+            var data = new Dictionary<string, string>
+            {
+                {"code", code.Substring(index, code.Length - index - 4)}
+            };
+
+            var result = await new HttpClient().PostAsync("https://onlinestoryscript.linesofcodes.repl.co/api/run",new FormUrlEncodedContent(data));
+            var storyScriptResult = JsonSerializer.Deserialize<StoryScriptResult>(await result.Content.ReadAsStringAsync());
+
+            await ctx.RespondAsync(new DiscordEmbedBuilder()
+                .WithTitle("Story Script")
+                .WithDescription($"Source:\n```py\n{code}\n```\n\nResult (Success: {storyScriptResult.success}):\n```py\n{storyScriptResult.result}\n```")
+                .WithColor(ModuleInfo.Color));
         }
     }
 }
