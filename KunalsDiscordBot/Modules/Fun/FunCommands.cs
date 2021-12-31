@@ -575,7 +575,7 @@ namespace KunalsDiscordBot.Modules.Fun
         }
 
         [Command("StoryScript")]
-        [Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User), Aliases("ss")]
+        [Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User), Aliases("sts")]
         [Description("A language written in python by GameCreator #8053. Github: https://github.com/StoryScriptorg/StoryScript")]
         public async Task StoryScript(CommandContext ctx, [RemainingText] string code)
         {
@@ -595,8 +595,9 @@ namespace KunalsDiscordBot.Modules.Fun
             var storyScriptResult = JsonSerializer.Deserialize<StoryScriptResult>(await result.Content.ReadAsStringAsync());
 
             await ctx.RespondAsync(new DiscordEmbedBuilder()
-                .WithTitle("Story Script")
-                .WithDescription($"Source:\n```py\n{code}\n```\n\nResult (Success: {storyScriptResult.success}):\n```py\n{storyScriptResult.result}\n```")
+                .WithTitle($"Program Output (Success: **{storyScriptResult.success}**)")
+                .WithDescription($"```py\n{storyScriptResult.result}\n```")
+                .WithFooter($"Requested by {ctx.Member.DisplayName} at {DateTime.Now}", ctx.Member.AvatarUrl) 
                 .WithColor(ModuleInfo.Color));
         }
     }

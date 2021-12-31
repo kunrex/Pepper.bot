@@ -2,8 +2,8 @@
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/Fun/FunCommands.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" Line="591" Column="73" />
-      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/StoryScriptResult.cs" Line="11" Column="1" />
+      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" Line="577" Column="33" />
+      <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/StoryScriptResult.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
