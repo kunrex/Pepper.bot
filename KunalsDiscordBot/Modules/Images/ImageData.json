@@ -288,17 +288,22 @@
       "X": [ 119 ],
       "Y": [ 134 ],
       "Length": [ 197 ],
-      "Breadth": [ 197 ],
-
-      "Font": "Arial",
-      "FontStyle": 0
+      "Breadth": [ 197 ]
     },
     {
       "FileName": "something.jpg",
       "X": [ 115 ],
       "Y": [ 207 ],
       "Length": [ 186 ],
-      "Breadth": [ 186 ],
+      "Breadth": [ 186 ]
+    },
+    {
+      "FileName": "garbage.gif",
+      "X": [ 41 ],
+      "Y": [ 171 ],
+      "Length": [ 365 ],
+      "Breadth": [ 33 ],
+      "Size": [ 12 ],
 
       "Font": "Arial",
       "FontStyle": 0

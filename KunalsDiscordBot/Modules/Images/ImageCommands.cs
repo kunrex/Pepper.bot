@@ -1503,5 +1503,29 @@ namespace KunalsDiscordBot.Modules.Images
                 }
             }
         }
+
+        [Command("Garbage")]
+        [WithFile("garbage.gif")]
+        [Description("Your entire life is garbage")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Garbage(CommandContext ctx, DiscordMember other)
+        {
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageCollection(filePath))
+            {
+                service.GetFontAndBrush(editData.Font, editData.Size[0], Color.White, editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                await graphicalImage.DrawString($"Thank you {other.DisplayName}, your entire life is garbage.", editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
+
+                using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
+            }
+        }
     }
 }

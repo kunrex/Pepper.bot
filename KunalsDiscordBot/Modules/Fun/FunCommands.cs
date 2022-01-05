@@ -576,7 +576,7 @@ namespace KunalsDiscordBot.Modules.Fun
 
         [Command("StoryScript")]
         [Cooldown(1, (int)TimeSpanEnum.Minute * 2, CooldownBucketType.User), Aliases("sts")]
-        [Description("A language written in python by GameCreator #8053. Github: https://github.com/StoryScriptorg/StoryScript")]
+        [Description("A language written in python by GameCreator#8053. Github: https://github.com/StoryScriptorg/StoryScript")]
         public async Task StoryScript(CommandContext ctx, [RemainingText] string code)
         {
             if (!new Regex("(```[a-z]*\n[\\s\\S]*?\n```)").IsMatch(code))
@@ -593,6 +593,8 @@ namespace KunalsDiscordBot.Modules.Fun
 
             var result = await new HttpClient().PostAsync("https://onlinestoryscript.linesofcodes.repl.co/api/run",new FormUrlEncodedContent(data));
             var storyScriptResult = JsonSerializer.Deserialize<StoryScriptResult>(await result.Content.ReadAsStringAsync());
+
+            storyScriptResult.result = storyScriptResult.result.Length > 100 ? string.Concat(storyScriptResult.result.Take(100)) : storyScriptResult.result;
 
             await ctx.RespondAsync(new DiscordEmbedBuilder()
                 .WithTitle($"Program Output (Success: **{storyScriptResult.success}**)")

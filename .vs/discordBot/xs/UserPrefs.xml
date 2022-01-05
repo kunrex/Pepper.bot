@@ -1,27 +1,29 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Modules/Fun/FunCommands.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Config.json">
     <Files>
-      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" Line="577" Column="33" />
+      <File FileName="KunalsDiscordBot/Modules/Fun/FunCommands.cs" Line="607" Column="1" />
       <File FileName="KunalsDiscordBot/Core/Modules/FunCommands/StoryScriptResult.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Images/ImageData.json" Line="290" Column="25" />
+      <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
+      <File FileName="KunalsDiscordBot/Core/Configurations/PepperConfigurationManager.cs" />
+      <File FileName="KunalsDiscordBot/Config.json" Line="2" Column="16" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="discordBot" expanded="True">
+          <Node name="discordBot" expanded="True" selected="True">
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
-                  <Node name="Help" expanded="True" />
+                  <Node name="Configurations" expanded="True" />
                   <Node name="Modules" expanded="True">
                     <Node name="FunCommands" expanded="True" />
                   </Node>
                 </Node>
                 <Node name="Modules" expanded="True">
-                  <Node name="Fun" expanded="True">
-                    <Node name="FunCommands.cs" selected="True" />
-                  </Node>
-                  <Node name="Help" expanded="True" />
+                  <Node name="Fun" expanded="True" />
+                  <Node name="Images" expanded="True" />
                 </Node>
               </Node>
             </Node>
