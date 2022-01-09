@@ -53,7 +53,7 @@ Does not have seperate prefix', Im not planning on adding it anytime soon either
 * <a href="https://denzven.pythonanywhere.com/" target="blank">Denzven Graphing API</a>
 * <a href ="https://cloud.google.com/dialogflow/docs" target="blank">Dialogflow</a>
 * <a href ="https://github.com/dlemstra/Magick.NET" target="blank">Magick.NET</a>
-* <a href ="https://github.com/StoryScriptorg/StoryScript" target="blank">Story Script</a>
+* <a href ="https://github.com/StoryScriptorg/StoryScript" target="blank">StoryScript</a>
 
 (I honestly don't know what goes here so I just put everything)
 
