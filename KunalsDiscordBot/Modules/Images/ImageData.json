@@ -307,6 +307,18 @@
 
       "Font": "Arial",
       "FontStyle": 0
+    },
+    {
+      "FileName": "draw25.png",
+      "X": [ 148, 455 ],
+      "Y": [ 139, 161 ],
+      "Length": [ 123, 146 ],
+      "Breadth": [ 78, 22 ],
+      "Size": [ 16, 16 ],
+
+      "Font": "Arial",
+      "FontStyle": 0,
+      "Colors": [ "Black", "White" ]
     }
   ]
 }

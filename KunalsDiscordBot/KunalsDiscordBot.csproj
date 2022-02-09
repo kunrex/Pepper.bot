@@ -99,6 +99,7 @@
     <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\CommonComponents\" />
     <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordFooters\" />
     <Folder Include="Core\Modules\FunCommands\EmbedParser\Components\DiscordThumbnails\" />
+    <Folder Include="Core\Modules\MathCommands\Calculator\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Modules\Fun\FunData.json" />
@@ -192,6 +193,7 @@
     <None Remove="Core\Modules\FunCommands\EmbedParser\Components\CommonComponents\" />
     <None Remove="Core\Modules\FunCommands\EmbedParser\Components\DiscordFooters\" />
     <None Remove="Core\Modules\FunCommands\EmbedParser\Components\DiscordThumbnails\" />
+    <None Remove="Core\Modules\MathCommands\Calculator\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DiscordBotDataBase.Dal\DiscordBotDataBase.Dal.csproj">

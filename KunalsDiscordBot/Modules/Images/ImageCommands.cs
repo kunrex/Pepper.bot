@@ -1479,7 +1479,7 @@ namespace KunalsDiscordBot.Modules.Images
 
         [Command("Something")]
         [WithFile("something.jpg")]
-        [Description("delete the trash")]
+        [Description("Do something goddamit")]
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Something(CommandContext ctx, DiscordMember other)
         {
@@ -1521,6 +1521,41 @@ namespace KunalsDiscordBot.Modules.Images
                 await graphicalImage.DrawString($"Thank you {other.DisplayName}, your entire life is garbage.", editData.X[0], editData.Y[0], editData.Length[0], editData.Breadth[0], drawFont, drawBrush);
 
                 using (var ms = await graphicalImage.ToMemoryStream(5, false))
+                    await new DiscordMessageBuilder()
+                        .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
+                        .WithReply(ctx.Message.Id)
+                        .SendAsync(ctx.Channel);
+            }
+        }
+
+        [Command("Draw25")]
+        [WithFile("draw25.png")]
+        [Description("No I'd really draw 25")]
+        [Cooldown(1, 10, CooldownBucketType.User)]
+        public async Task Something(CommandContext ctx, DiscordMember member, [RemainingText] string sentence)
+        {
+            if (string.IsNullOrEmpty(sentence))
+            {
+                await ctx.RespondAsync("At least give me a valid sentence");
+                return;
+            }
+
+            string[] sentences = new string[] { sentence, member.DisplayName };
+
+            string fileName = service.GetFileByCommand(ctx.Command);
+            string filePath = Path.Combine("Modules", "Images", "Images", fileName);
+
+            EditData editData = service.GetEditData(fileName);
+
+            using (var graphicalImage = new ImageGraphic(filePath))
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    service.GetFontAndBrush(editData.Font, editData.Size[i], Color.FromName(editData.Colors[i]), editData.FontStyle, out Font drawFont, out SolidBrush drawBrush);
+                    await graphicalImage.DrawString(sentences[i], editData.X[i], editData.Y[i], editData.Length[i], editData.Breadth[i], drawFont, drawBrush);
+                }
+
+                using (var ms = await graphicalImage.ToMemoryStream())
                     await new DiscordMessageBuilder()
                         .WithFiles(new Dictionary<string, Stream>() { { fileName, ms } })
                         .WithReply(ctx.Message.Id)

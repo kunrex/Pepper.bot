@@ -16,6 +16,7 @@ using KunalsDiscordBot.Core.Configurations;
 using KunalsDiscordBot.Core.Modules.MathCommands;
 using KunalsDiscordBot.Core.Configurations.Enums;
 using KunalsDiscordBot.Core.Configurations.Attributes;
+using KunalsDiscordBot.Core.Modules.MathCommands.Calculator;
 
 namespace KunalsDiscordBot.Modules.Math
 {
@@ -117,6 +118,14 @@ namespace KunalsDiscordBot.Modules.Math
                 embed.Description += $"• `{val.Key}`: {val.Value}\n";
 
             await ctx.Channel.SendMessageAsync(embed).ConfigureAwait(false);
+        }
+
+        [Command("Calculator")]
+        public Task Calculator(CommandContext ctx)
+        {
+            new Calculator(ctx.Message.Id, ctx.Channel, ctx.Client, ctx.Member, ModuleInfo.Color);
+
+            return Task.CompletedTask;
         }
 
         [Command("add")]

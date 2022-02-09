@@ -276,7 +276,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Evaluation
                 return b;
             else if (a == LinearEquationLexer.Zero)
                 return LinearEquationLexer.Zero;
-            else if (b == LinearEquationLexer.Zero)
+            else if (b.value == LinearEquationLexer.Zero.value)
                 throw new EvaluationException("Division by 0 detected");
 
             if (!a.HasSubTokens && !b.HasSubTokens)
