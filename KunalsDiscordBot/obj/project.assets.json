@@ -11,7 +11,7 @@
           "lib/netstandard2.0/ConcurrentCollections.dll": {}
         }
       },
-      "DSharpPlus/4.1.0": {
+      "DSharpPlus/4.2.0": {
         "type": "package",
         "dependencies": {
           "Emzi0767.Common": "2.6.2",
@@ -21,7 +21,8 @@
           "System.Net.Http": "4.3.4",
           "System.Net.WebSockets": "4.3.0",
           "System.Net.WebSockets.Client": "4.3.2",
-          "System.Runtime.InteropServices.RuntimeInformation": "4.3.0"
+          "System.Runtime.InteropServices.RuntimeInformation": "4.3.0",
+          "System.Threading.Channels": "5.0.0"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.dll": {}
@@ -30,10 +31,10 @@
           "lib/netstandard2.0/DSharpPlus.dll": {}
         }
       },
-      "DSharpPlus.CommandsNext/4.1.0": {
+      "DSharpPlus.CommandsNext/4.2.0": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.1.0",
+          "DSharpPlus": "4.2.0",
           "Microsoft.Extensions.DependencyInjection": "5.0.1"
         },
         "compile": {
@@ -43,11 +44,11 @@
           "lib/netstandard2.0/DSharpPlus.CommandsNext.dll": {}
         }
       },
-      "DSharpPlus.Interactivity/4.1.0": {
+      "DSharpPlus.Interactivity/4.2.0": {
         "type": "package",
         "dependencies": {
           "ConcurrentHashSet": "1.1.0",
-          "DSharpPlus": "4.1.0"
+          "DSharpPlus": "4.2.0"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
@@ -56,10 +57,10 @@
           "lib/netstandard2.0/DSharpPlus.Interactivity.dll": {}
         }
       },
-      "DSharpPlus.Lavalink/4.1.0": {
+      "DSharpPlus.Lavalink/4.2.0": {
         "type": "package",
         "dependencies": {
-          "DSharpPlus": "4.1.0"
+          "DSharpPlus": "4.2.0"
         },
         "compile": {
           "lib/netstandard2.0/DSharpPlus.Lavalink.dll": {}
@@ -1220,24 +1221,6 @@
           }
         }
       },
-      "Microsoft.Win32.SystemEvents/5.0.0": {
-        "type": "package",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "5.0.0"
-        },
-        "compile": {
-          "ref/netstandard2.0/_._": {}
-        },
-        "runtime": {
-          "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll": {}
-        },
-        "runtimeTargets": {
-          "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
-        }
-      },
       "Newtonsoft.Json/13.0.1": {
         "type": "package",
         "compile": {
@@ -1247,7 +1230,7 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
         }
       },
-      "Reddit/1.5.0": {
+      "Reddit/1.5.2": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.5.0",
@@ -1828,26 +1811,16 @@
           "ref/netstandard1.5/_._": {}
         }
       },
-      "System.Drawing.Common/5.0.2": {
+      "System.Drawing.Common/7.0.0": {
         "type": "package",
-        "dependencies": {
-          "Microsoft.Win32.SystemEvents": "5.0.0"
-        },
         "compile": {
-          "ref/netcoreapp3.0/System.Drawing.Common.dll": {}
+          "lib/netstandard2.0/System.Drawing.Common.dll": {}
         },
         "runtime": {
-          "lib/netcoreapp3.0/System.Drawing.Common.dll": {}
+          "lib/netstandard2.0/System.Drawing.Common.dll": {}
         },
-        "runtimeTargets": {
-          "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll": {
-            "assetType": "runtime",
-            "rid": "unix"
-          },
-          "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll": {
-            "assetType": "runtime",
-            "rid": "win"
-          }
+        "build": {
+          "buildTransitive/netcoreapp2.0/System.Drawing.Common.targets": {}
         }
       },
       "System.Globalization/4.3.0": {
@@ -2929,6 +2902,15 @@
           "lib/netstandard1.3/System.Threading.dll": {}
         }
       },
+      "System.Threading.Channels/5.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/netcoreapp3.0/System.Threading.Channels.dll": {}
+        },
+        "runtime": {
+          "lib/netcoreapp3.0/System.Threading.Channels.dll": {}
+        }
+      },
       "System.Threading.Tasks/4.3.0": {
         "type": "package",
         "dependencies": {
@@ -3151,56 +3133,56 @@
         "lib/netstandard2.0/ConcurrentCollections.xml"
       ]
     },
-    "DSharpPlus/4.1.0": {
-      "sha512": "s1QTvwMvbTTmIviOaVOyFRH2NAwW9IXMnCzevLrEFV6XFJ3ZnYrF2B03K6iA2U9uChUTZVOSNkhRNcPqqZHzCA==",
+    "DSharpPlus/4.2.0": {
+      "sha512": "sdQQS6ud6UAA7qUXOi5pyt1NMkBuAJ8SdssNJykE+sUXpDfD23Ja1AgUo+QktkTv1/jvQfcyET7HqgpBFdmjmw==",
       "type": "package",
-      "path": "dsharpplus/4.1.0",
+      "path": "dsharpplus/4.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "dsharpplus.4.1.0.nupkg.sha512",
+        "dsharpplus.4.2.0.nupkg.sha512",
         "dsharpplus.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.dll",
         "lib/netstandard2.0/DSharpPlus.xml"
       ]
     },
-    "DSharpPlus.CommandsNext/4.1.0": {
-      "sha512": "4rxtz2pWEsJpPBjtnWEB6q5TmFlKLc7w934CQHS26Ylj85/9k+aYLW7e61TEcsd/+zLjUs7BF82YvlhGKImrZQ==",
+    "DSharpPlus.CommandsNext/4.2.0": {
+      "sha512": "Pxo/RLazTHnWQAx22WLvm6VHy2vpH9gnMUJ+zzvqMmX2ZtEraxF72yRKFmE6liYhZ7Fd/Zab/p52W2/L+UXVjA==",
       "type": "package",
-      "path": "dsharpplus.commandsnext/4.1.0",
+      "path": "dsharpplus.commandsnext/4.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "dsharpplus.commandsnext.4.1.0.nupkg.sha512",
+        "dsharpplus.commandsnext.4.2.0.nupkg.sha512",
         "dsharpplus.commandsnext.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.dll",
         "lib/netstandard2.0/DSharpPlus.CommandsNext.xml"
       ]
     },
-    "DSharpPlus.Interactivity/4.1.0": {
-      "sha512": "FTQXMqGoWvGMox+UyybL0Jc/P12xTCIUfMRF0n3974Sa5QiwrqhDdP02lHmUS7k7dQF+vMY/YLjLyYdPB7hpFw==",
+    "DSharpPlus.Interactivity/4.2.0": {
+      "sha512": "ZCYFmLT+LNwZygNXX4C1RQI3cSs2zTLaIoam8cAp8TIdani5xVxMF0CTOtUNxXy/pjRyYcfjnY/USWN9kz2cqg==",
       "type": "package",
-      "path": "dsharpplus.interactivity/4.1.0",
+      "path": "dsharpplus.interactivity/4.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "dsharpplus.interactivity.4.1.0.nupkg.sha512",
+        "dsharpplus.interactivity.4.2.0.nupkg.sha512",
         "dsharpplus.interactivity.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.Interactivity.dll",
         "lib/netstandard2.0/DSharpPlus.Interactivity.xml"
       ]
     },
-    "DSharpPlus.Lavalink/4.1.0": {
-      "sha512": "xD53+Y5+Vmy66pttVWD9N7M3io9xo2rwHYvDL2EfOk0u1GAab3nNPB8ALAD4VWcJevSoSWoOBG4rZSfqutCUvg==",
+    "DSharpPlus.Lavalink/4.2.0": {
+      "sha512": "DJKCSWjMw3ulOOQuIt5T3aFVlCLY20H6QxUQz8Q5nMUf2p01A9PnsuvTn1bJGdxq92OVaVaExeWNhDPyvo9g7g==",
       "type": "package",
-      "path": "dsharpplus.lavalink/4.1.0",
+      "path": "dsharpplus.lavalink/4.2.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
-        "dsharpplus.lavalink.4.1.0.nupkg.sha512",
+        "dsharpplus.lavalink.4.2.0.nupkg.sha512",
         "dsharpplus.lavalink.nuspec",
         "dsharpplus.png",
         "lib/netstandard2.0/DSharpPlus.Lavalink.dll",
@@ -4859,34 +4841,6 @@
         "version.txt"
       ]
     },
-    "Microsoft.Win32.SystemEvents/5.0.0": {
-      "sha512": "Bh6blKG8VAKvXiLe2L+sEsn62nc1Ij34MrNxepD2OCrS5cpCwQa9MeLyhVQPQ/R4Wlzwuy6wMK8hLb11QPDRsQ==",
-      "type": "package",
-      "path": "microsoft.win32.systemevents/5.0.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/Microsoft.Win32.SystemEvents.dll",
-        "lib/net461/Microsoft.Win32.SystemEvents.xml",
-        "lib/netstandard2.0/Microsoft.Win32.SystemEvents.dll",
-        "lib/netstandard2.0/Microsoft.Win32.SystemEvents.xml",
-        "microsoft.win32.systemevents.5.0.0.nupkg.sha512",
-        "microsoft.win32.systemevents.nuspec",
-        "ref/net461/Microsoft.Win32.SystemEvents.dll",
-        "ref/net461/Microsoft.Win32.SystemEvents.xml",
-        "ref/netstandard2.0/Microsoft.Win32.SystemEvents.dll",
-        "ref/netstandard2.0/Microsoft.Win32.SystemEvents.xml",
-        "runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.dll",
-        "runtimes/win/lib/netcoreapp2.0/Microsoft.Win32.SystemEvents.xml",
-        "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.dll",
-        "runtimes/win/lib/netcoreapp3.0/Microsoft.Win32.SystemEvents.xml",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
     "Newtonsoft.Json/13.0.1": {
       "sha512": "ppPFpBcvxdsfUonNcvITKqLl3bqxWbDCZIzDWHzjpdAHRFfZe0Dw9HmA0+za13IdyrgJwpkDTDA9fHaxOrt20A==",
       "type": "package",
@@ -4914,16 +4868,16 @@
         "packageIcon.png"
       ]
     },
-    "Reddit/1.5.0": {
-      "sha512": "/Z5vx6As9AIuiorpPsF7TXdnofoiTlNeDNdUCZAVTpyW6o1ff/4l5PhyOMw397CmkF+jg6ixlGvw8ZYZ2b7C3w==",
+    "Reddit/1.5.2": {
+      "sha512": "a8fLFxuSBG/NANlcdj6tmeAS1gnZNV+0HesL3bEvnVBimiE7+MQGi9AMcIq8AFAGY2Kv21p369NZgadD2HEMKA==",
       "type": "package",
-      "path": "reddit/1.5.0",
+      "path": "reddit/1.5.2",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "lib/netstandard2.0/Reddit.NET.dll",
         "lib/netstandard2.0/Reddit.NET.xml",
-        "reddit.1.5.0.nupkg.sha512",
+        "reddit.1.5.2.nupkg.sha512",
         "reddit.nuspec"
       ]
     },
@@ -6066,46 +6020,41 @@
         "system.diagnostics.tracing.nuspec"
       ]
     },
-    "System.Drawing.Common/5.0.2": {
-      "sha512": "rvr/M1WPf24ljpvvrVd74+NdjRUJu1bBkspkZcnzSZnmAUQWSvanlQ0k/hVHk+cHufZbZfu7vOh/vYc0q5Uu/A==",
+    "System.Drawing.Common/7.0.0": {
+      "sha512": "KIX+oBU38pxkKPxvLcLfIkOV5Ien8ReN78wro7OF5/erwcmortzeFx+iBswlh2Vz6gVne0khocQudGwaO1Ey6A==",
       "type": "package",
-      "path": "system.drawing.common/5.0.2",
+      "path": "system.drawing.common/7.0.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "Icon.png",
         "LICENSE.TXT",
         "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/System.Drawing.Common.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net6.0/_._",
+        "buildTransitive/netcoreapp2.0/System.Drawing.Common.targets",
         "lib/MonoAndroid10/_._",
         "lib/MonoTouch10/_._",
-        "lib/net461/System.Drawing.Common.dll",
-        "lib/netcoreapp3.0/System.Drawing.Common.dll",
-        "lib/netcoreapp3.0/System.Drawing.Common.xml",
+        "lib/net462/System.Drawing.Common.dll",
+        "lib/net462/System.Drawing.Common.xml",
+        "lib/net6.0/System.Drawing.Common.dll",
+        "lib/net6.0/System.Drawing.Common.xml",
+        "lib/net7.0/System.Drawing.Common.dll",
+        "lib/net7.0/System.Drawing.Common.xml",
         "lib/netstandard2.0/System.Drawing.Common.dll",
+        "lib/netstandard2.0/System.Drawing.Common.xml",
         "lib/xamarinios10/_._",
         "lib/xamarinmac20/_._",
         "lib/xamarintvos10/_._",
         "lib/xamarinwatchos10/_._",
-        "ref/MonoAndroid10/_._",
-        "ref/MonoTouch10/_._",
-        "ref/net461/System.Drawing.Common.dll",
-        "ref/netcoreapp3.0/System.Drawing.Common.dll",
-        "ref/netcoreapp3.0/System.Drawing.Common.xml",
-        "ref/netstandard2.0/System.Drawing.Common.dll",
-        "ref/xamarinios10/_._",
-        "ref/xamarinmac20/_._",
-        "ref/xamarintvos10/_._",
-        "ref/xamarinwatchos10/_._",
-        "runtimes/unix/lib/netcoreapp2.0/System.Drawing.Common.dll",
-        "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.dll",
-        "runtimes/unix/lib/netcoreapp3.0/System.Drawing.Common.xml",
-        "runtimes/win/lib/netcoreapp2.0/System.Drawing.Common.dll",
-        "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.dll",
-        "runtimes/win/lib/netcoreapp3.0/System.Drawing.Common.xml",
-        "system.drawing.common.5.0.2.nupkg.sha512",
+        "runtimes/win/lib/net6.0/System.Drawing.Common.dll",
+        "runtimes/win/lib/net6.0/System.Drawing.Common.xml",
+        "runtimes/win/lib/net7.0/System.Drawing.Common.dll",
+        "runtimes/win/lib/net7.0/System.Drawing.Common.xml",
+        "system.drawing.common.7.0.0.nupkg.sha512",
         "system.drawing.common.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
+        "useSharedDesignerContext.txt"
       ]
     },
     "System.Globalization/4.3.0": {
@@ -8960,6 +8909,32 @@
         "system.threading.nuspec"
       ]
     },
+    "System.Threading.Channels/5.0.0": {
+      "sha512": "RLBIxntLaG9pRmmuVDwY1kc8Bvp/FQzSxPU+19VekkScKkWtVP9r8bLhm28ama3usc816UBrmkg3vv3jUea/hw==",
+      "type": "package",
+      "path": "system.threading.channels/5.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "lib/net461/System.Threading.Channels.dll",
+        "lib/net461/System.Threading.Channels.xml",
+        "lib/netcoreapp3.0/System.Threading.Channels.dll",
+        "lib/netcoreapp3.0/System.Threading.Channels.xml",
+        "lib/netstandard1.3/System.Threading.Channels.dll",
+        "lib/netstandard1.3/System.Threading.Channels.xml",
+        "lib/netstandard2.0/System.Threading.Channels.dll",
+        "lib/netstandard2.0/System.Threading.Channels.xml",
+        "lib/netstandard2.1/System.Threading.Channels.dll",
+        "lib/netstandard2.1/System.Threading.Channels.xml",
+        "system.threading.channels.5.0.0.nupkg.sha512",
+        "system.threading.channels.nuspec",
+        "useSharedDesignerContext.txt",
+        "version.txt"
+      ]
+    },
     "System.Threading.Tasks/4.3.0": {
       "sha512": "LbSxKEdOUhVe8BezB/9uOGGppt+nZf6e1VFyw6v3DN6lqitm0OSn2uXMOdtP0M3W4iMcqcivm2J6UgqiwwnXiA==",
       "type": "package",
@@ -9470,10 +9445,10 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "DSharpPlus >= 4.1.0",
-      "DSharpPlus.CommandsNext >= 4.1.0",
-      "DSharpPlus.Interactivity >= 4.1.0",
-      "DSharpPlus.Lavalink >= 4.1.0",
+      "DSharpPlus >= 4.2.0",
+      "DSharpPlus.CommandsNext >= 4.2.0",
+      "DSharpPlus.Interactivity >= 4.2.0",
+      "DSharpPlus.Lavalink >= 4.2.0",
       "DiscordBotDataBase.Dal >= 1.0.0",
       "DiscordBotDataBase.Dal.Migrations >= 1.0.0",
       "Google.Cloud.Dialogflow.V2 >= 3.5.0",
@@ -9489,8 +9464,8 @@
       "Microsoft.Extensions.Hosting >= 5.0.0",
       "Microsoft.Extensions.Logging >= 5.0.0",
       "Newtonsoft.Json >= 13.0.1",
-      "Reddit >= 1.5.0",
-      "System.Drawing.Common >= 5.0.2",
+      "Reddit >= 1.5.2",
+      "System.Drawing.Common >= 7.0.0",
       "runtime.osx.10.10-x64.CoreCompat.System.Drawing >= 5.8.64"
     ]
   },
@@ -9545,19 +9520,19 @@
         "dependencies": {
           "DSharpPlus": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0, )"
           },
           "DSharpPlus.CommandsNext": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0, )"
           },
           "DSharpPlus.Interactivity": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0, )"
           },
           "DSharpPlus.Lavalink": {
             "target": "Package",
-            "version": "[4.1.0, )"
+            "version": "[4.2.0, )"
           },
           "Google.Cloud.Dialogflow.V2": {
             "target": "Package",
@@ -9615,11 +9590,11 @@
           },
           "Reddit": {
             "target": "Package",
-            "version": "[1.5.0, )"
+            "version": "[1.5.2, )"
           },
           "System.Drawing.Common": {
             "target": "Package",
-            "version": "[5.0.2, )"
+            "version": "[7.0.0, )"
           },
           "runtime.osx.10.10-x64.CoreCompat.System.Drawing": {
             "target": "Package",

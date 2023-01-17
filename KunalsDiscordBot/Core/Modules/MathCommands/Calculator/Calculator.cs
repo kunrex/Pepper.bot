@@ -21,7 +21,7 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Calculator
 
         private bool isStopped = false;
 
-        private const string stop = "stop", pi = "pi";
+        private const string stop = "stop", pi = "pi", clear = "clear";
 
         private const string squared = "squared", toThePower = "power";
         private const string squareRoot = "squareRoot", root = "root";
@@ -46,8 +46,8 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Calculator
                     new DiscordButtonComponent(ButtonStyle.Primary, sin, sin),
                     new DiscordButtonComponent(ButtonStyle.Primary, cos, cos),
                     new DiscordButtonComponent(ButtonStyle.Primary, tan, tan),
-                    new DiscordButtonComponent(ButtonStyle.Danger, stop, "Exit"),
-                    new DiscordButtonComponent(ButtonStyle.Success, "=", "=")
+                    new DiscordButtonComponent(ButtonStyle.Success, "=", "="),
+                    new DiscordButtonComponent(ButtonStyle.Danger, stop, "Exit")
                 )
                 .AddRow(
                     new DiscordButtonComponent(ButtonStyle.Primary, squared, "x²"),
@@ -130,6 +130,10 @@ namespace KunalsDiscordBot.Core.Modules.MathCommands.Calculator
                     case stop:
                         await Stop("Calculator Interaction Ended");
                         return;
+
+                    case clear:
+                        currentStatement = "0";
+                        break;
 
                     case sin:
                     case cos:

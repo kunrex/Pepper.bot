@@ -1,14 +1,10 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Core/Modules/MathCommands/Calculator/Calculator.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Program.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/Calculator/Calculator.cs" Line="74" Column="52" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/Evaluator.cs" Line="13" Column="65" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/Calculator/Page.cs" />
-      <File FileName="KunalsDiscordBot/Modules/Math/MathCommands.cs" Line="124" Column="51" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/Evaluation/LinearEquationLexer.cs" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/LinearEquationSolver.cs" Line="50" Column="45" />
-      <File FileName="KunalsDiscordBot/Core/Modules/MathCommands/Evaluation/Token.cs" Line="154" Column="29" />
+      <File FileName="KunalsDiscordBot/Program.cs" Line="6" Column="32" />
+      <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
+      <File FileName="KunalsDiscordBot/Modules/Help/HelpCommands.cs" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
@@ -17,18 +13,12 @@
             <Node name="DiscordBot.Bot" expanded="True">
               <Node name="KunalsDiscordBot" expanded="True">
                 <Node name="Core" expanded="True">
-                  <Node name="Modules" expanded="True">
-                    <Node name="MathCommands" expanded="True">
-                      <Node name="Calculator" expanded="True">
-                        <Node name="Calculator.cs" selected="True" />
-                      </Node>
-                      <Node name="Evaluation" expanded="True" />
-                    </Node>
-                  </Node>
+                  <Node name="Chatting" expanded="True" />
+                  <Node name="Configurations" expanded="True" />
+                  <Node name="Modules" expanded="True" />
+                  <Node name="Reddit" expanded="True" />
                 </Node>
-                <Node name="Modules" expanded="True">
-                  <Node name="Math" expanded="True" />
-                </Node>
+                <Node name="Program.cs" selected="True" />
               </Node>
             </Node>
           </Node>

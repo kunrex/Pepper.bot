@@ -187,19 +187,19 @@
           "dependencies": {
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0, )"
             },
             "DSharpPlus.Lavalink": {
               "target": "Package",
-              "version": "[4.1.0, )"
+              "version": "[4.2.0, )"
             },
             "Google.Cloud.Dialogflow.V2": {
               "target": "Package",
@@ -257,11 +257,11 @@
             },
             "Reddit": {
               "target": "Package",
-              "version": "[1.5.0, )"
+              "version": "[1.5.2, )"
             },
             "System.Drawing.Common": {
               "target": "Package",
-              "version": "[5.0.2, )"
+              "version": "[7.0.0, )"
             },
             "runtime.osx.10.10-x64.CoreCompat.System.Drawing": {
               "target": "Package",

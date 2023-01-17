@@ -2,12 +2,16 @@
   <MonoDevelop.Ide.ItemProperties.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workbench ActiveDocument="PepperBot.cs">
     <Files>
-      <File FileName="PepperBot.cs" Line="9" Column="27" />
+      <File FileName="PepperBot.cs" Line="8" Column="22" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="KunalsDiscordBot" expanded="True" />
+          <Node name="KunalsDiscordBot" expanded="True">
+            <Node name="KunalsDiscordBot" expanded="True">
+              <Node name="PepperBot.cs" selected="True" />
+            </Node>
+          </Node>
         </State>
       </Pad>
     </Pads>
