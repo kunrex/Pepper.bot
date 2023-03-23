@@ -355,3 +355,6 @@ KunalsDiscordBot/Config.json
 KunalsDiscordBot/Data.db
 KunalsDiscordBot/Core/Chatting/ApiConfig.json
 KunalsDiscordBot/Modules/Music/logs/*
+
+#System Files
+.DS_Store
