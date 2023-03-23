@@ -1053,7 +1053,7 @@ namespace KunalsDiscordBot.Modules.Images
         [Cooldown(1, 10, CooldownBucketType.User)]
         public async Task Gifify(CommandContext ctx, params DiscordMember[] members)
         {
-            if(members.Length > 5)
+            if (members.Length > 5)
             {
                 await ctx.RespondAsync("Keep the maximum to 5 members");
                 return;

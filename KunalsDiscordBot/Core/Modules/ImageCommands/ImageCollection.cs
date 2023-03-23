@@ -87,7 +87,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
         protected override void Dispose(bool disposing)
         {
-            if(disposing)
+            if (disposing)
             {
                 if (Images != null)
                 {
@@ -211,7 +211,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 collection[0].AnimationDelay = 100;
                 collection[0].AnimationIterations = 0;
 
-                for(int i = 1; i < Images.Count;i++)
+                for (int i = 1; i < Images.Count; i++)
                 {
                     collection.Add((MagickImage)Images[i]);
                     collection[i].AnimationDelay = 100;
@@ -234,7 +234,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
         {
             using (var collection = new MagickImageCollection())
             {
-                if(clearTransperency)
+                if (clearTransperency)
                     await ClearTransperency();
 
                 collection.Add((MagickImage)Images[0]);

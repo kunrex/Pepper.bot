@@ -79,8 +79,8 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
 
                     graphics.FillPath(brush, path);
                     using (var pen = new Pen(outlineColor, 3))
-                        graphics.DrawPath(pen, path);            
-                }               
+                        graphics.DrawPath(pen, path);
+                }
             }
 
             return Task.CompletedTask;
@@ -102,7 +102,7 @@ namespace KunalsDiscordBot.Core.Modules.ImageCommands
                 }
             }
 
-            return Task.CompletedTask; 
+            return Task.CompletedTask;
         }
 
         public Task DrawImageRotated(ImageGraphic other, int angle, int x, int y, RectangleF rect, GraphicsUnit unit)

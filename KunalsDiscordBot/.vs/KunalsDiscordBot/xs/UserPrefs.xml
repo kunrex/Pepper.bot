@@ -1,15 +1,36 @@
 ﻿<Properties StartupConfiguration="{AFBC18C2-5B51-49F8-B3E4-E0790082EF83}|discordBot">
   <MonoDevelop.Ide.ItemProperties.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="PepperBot.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Core/Modules/ImageCommands/ImageGraphic.cs">
     <Files>
-      <File FileName="PepperBot.cs" Line="8" Column="22" />
+      <File FileName="PepperBot.cs" Line="11" Column="28" />
+      <File FileName="Core/Modules/ImageCommands/ImageGraphic.cs" Line="148" Column="39" />
+      <File FileName="Core/Modules/ImageCommands/ImageCollection.cs" Line="45" Column="10" />
+      <File FileName="Modules/Images/ImageCommands.cs" Line="205" Column="18" />
+      <File FileName="Services/Interfaces/IImageService.cs" Line="9" Column="2" />
+      <File FileName="Services/Implementations/ImageService.cs" Line="31" Column="60" />
+      <File FileName="Core/Modules/ImageCommands/IImage.cs" Line="24" Column="45" />
+      <File FileName="Core/Modules/ImageCommands/Enums/Colors.cs" Line="20" Column="2" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="KunalsDiscordBot" expanded="True">
             <Node name="KunalsDiscordBot" expanded="True">
-              <Node name="PepperBot.cs" selected="True" />
+              <Node name="Core" expanded="True">
+                <Node name="Modules" expanded="True">
+                  <Node name="ImageCommands" expanded="True">
+                    <Node name="Enums" expanded="True" />
+                    <Node name="ImageGraphic.cs" selected="True" />
+                  </Node>
+                </Node>
+              </Node>
+              <Node name="Modules" expanded="True">
+                <Node name="Images" expanded="True" />
+              </Node>
+              <Node name="Services" expanded="True">
+                <Node name="Implementations" expanded="True" />
+                <Node name="Interfaces" expanded="True" />
+              </Node>
             </Node>
           </Node>
         </State>

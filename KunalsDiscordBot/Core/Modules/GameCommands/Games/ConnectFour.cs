@@ -115,7 +115,7 @@ namespace KunalsDiscordBot.Core.Modules.GameCommands
 
                     if (GameOver)
                     {
-                        await SendMessage($"{CurrentPlayer.member.Mention} Wins!").ConfigureAwait(false);
+                        await SendMessage($"{CurrentPlayer.member.Mention} Wins!", await GetBoard()).ConfigureAwait(false);
   
                         GameOver = true;
                         printAtEnd = false;

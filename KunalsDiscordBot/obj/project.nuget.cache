@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "7PnEB0K94GZs05Bt6fQSq64wcsDCXbUhX7qli9bz51wXSSAA7EEa0/mWDX5w5+m+7rf8G+QpmhT2ABghmWzbCw==",
+  "dgSpecHash": "YaDsczFD7rmWVHJifOok+GWVdixSRXB0AQh94k4VUXDjc3qaDwTzmubH093iKt3Y6GGqE8DQyU52TfFcQPoP1w==",
   "success": true,
   "projectFilePath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/KunalsDiscordBot/KunalsDiscordBot.csproj",
   "expectedPackageFiles": [
@@ -101,7 +101,7 @@
     "/Users/kunalkashyap/.nuget/packages/runtime.native.system.security.cryptography.openssl/4.3.2/runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/runtime.opensuse.13.2-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.opensuse.13.2-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/runtime.opensuse.42.1-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.opensuse.42.1-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/runtime.osx.10.10-x64.corecompat.system.drawing/5.8.64/runtime.osx.10.10-x64.corecompat.system.drawing.5.8.64.nupkg.sha512",
+    "/Users/kunalkashyap/.nuget/packages/runtime.osx.10.10-x64.corecompat.system.drawing/6.0.5.128/runtime.osx.10.10-x64.corecompat.system.drawing.6.0.5.128.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/runtime.osx.10.10-x64.runtime.native.system.security.cryptography.apple/4.3.0/runtime.osx.10.10-x64.runtime.native.system.security.cryptography.apple.4.3.0.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/runtime.osx.10.10-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.osx.10.10-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/runtime.rhel.7-x64.runtime.native.system.security.cryptography.openssl/4.3.2/runtime.rhel.7-x64.runtime.native.system.security.cryptography.openssl.4.3.2.nupkg.sha512",
