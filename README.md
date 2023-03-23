@@ -216,7 +216,7 @@ You can look into the <a href="https://docs.microsoft.com/en-us/ef/core/get-star
 
 ## Plans for the future
 
-I'm not quite done with the bot. I can add more games, images and modules. After all this is just to learn.
+This project was a lot of fun, it was great to learn but I have moved on to other projects as is the natural state of things. Regardless it provides my (as in the me writing this page) idea of what a discord bot should like.
 
 For More info you can contact me on Discord
 
