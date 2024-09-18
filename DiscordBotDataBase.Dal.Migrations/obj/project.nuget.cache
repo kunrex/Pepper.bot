@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "gcQR4BD/kMnNf2m8slwVdRiW/Ms9H8r07AnjOrB4GGOFsv2o6afcZ+9RE8aoMCr2kusMUonBvJsysaHLtBA+Dg==",
+  "dgSpecHash": "neYn7Rg/0GMNI/zVgGfZNNYgovwbGgPuZIJN2mWT5NIYt+dBaqT0UK4fY4xFyAVeNvt+MveFgw9I02eRwT/1WQ==",
   "success": true,
-  "projectFilePath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
+  "projectFilePath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
   "expectedPackageFiles": [
     "/Users/kunalkashyap/.nuget/packages/microsoft.entityframeworkcore/5.0.7/microsoft.entityframeworkcore.5.0.7.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/microsoft.entityframeworkcore.abstractions/5.0.7/microsoft.entityframeworkcore.abstractions.5.0.7.nupkg.sha512",

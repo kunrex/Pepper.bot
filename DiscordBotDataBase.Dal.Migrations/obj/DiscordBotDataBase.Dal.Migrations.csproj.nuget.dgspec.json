@@ -1,37 +1,33 @@
 {
   "format": 1,
   "restore": {
-    "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj": {}
+    "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj": {}
   },
   "projects": {
-    "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj": {
+    "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
+        "projectUniqueName": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
         "projectName": "DiscordBotDataBase.Dal.Migrations",
-        "projectPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
+        "projectPath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/DiscordBotDataBase.Dal.Migrations.csproj",
         "packagesPath": "/Users/kunalkashyap/.nuget/packages/",
-        "outputPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/",
+        "outputPath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal.Migrations/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder",
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "/Users/kunalkashyap/.config/NuGet/NuGet.Config"
+          "/Users/kunalkashyap/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "netcoreapp3.1"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netcoreapp3.1": {
-            "targetAlias": "netcoreapp3.1",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {
-              "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj": {
-                "projectPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj"
+              "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj": {
+                "projectPath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj"
               }
             }
           }
@@ -43,15 +39,16 @@
         }
       },
       "frameworks": {
-        "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "imports": [
             "net461",
             "net462",
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -60,35 +57,31 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.203/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj": {
+    "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
+        "projectUniqueName": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
         "projectName": "DiscordBotDataBase.Dal",
-        "projectPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
+        "projectPath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
         "packagesPath": "/Users/kunalkashyap/.nuget/packages/",
-        "outputPath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/",
+        "outputPath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder",
-          "/usr/local/share/dotnet/sdk/NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "/Users/kunalkashyap/.config/NuGet/NuGet.Config"
+          "/Users/kunalkashyap/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "netstandard2.1"
+          "net8.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "netstandard2.1": {
-            "targetAlias": "netstandard2.1",
+          "net8.0": {
+            "targetAlias": "net8.0",
             "projectReferences": {}
           }
         },
@@ -99,8 +92,8 @@
         }
       },
       "frameworks": {
-        "netstandard2.1": {
-          "targetAlias": "netstandard2.1",
+        "net8.0": {
+          "targetAlias": "net8.0",
           "dependencies": {
             "Microsoft.EntityFrameworkCore": {
               "target": "Package",
@@ -127,16 +120,17 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
           "frameworkReferences": {
-            "NETStandard.Library": {
+            "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/5.0.203/RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

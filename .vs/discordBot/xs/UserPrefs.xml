@@ -1,8 +1,14 @@
 ﻿<Properties StartupConfiguration="{3E42D7E7-6051-42C1-AFAE-C53A01C9B7C4}|discordBot">
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
   <MonoDevelop.Ide.ItemProperties.DiscordBot.Bot.KunalsDiscordBot PreferredExecutionTarget="/Applications/Google Chrome.app" />
   <MonoDevelop.Ide.Workbench ActiveDocument="KunalsDiscordBot/Program.cs">
     <Files>
-      <File FileName="KunalsDiscordBot/Program.cs" Line="6" Column="32" />
+      <File FileName="KunalsDiscordBot/Program.cs" Line="13" Column="47" />
       <File FileName="KunalsDiscordBot/Modules/Images/ImageCommands.cs" />
       <File FileName="KunalsDiscordBot/Modules/Help/HelpCommands.cs" />
     </Files>
@@ -26,10 +32,4 @@
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
-  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
-  </MonoDevelop.Ide.DebuggingService.Breakpoints>
-  <MultiItemStartupConfigurations />
 </Properties>

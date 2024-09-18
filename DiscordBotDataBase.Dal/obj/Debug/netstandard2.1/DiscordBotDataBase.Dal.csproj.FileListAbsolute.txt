@@ -6,4 +6,6 @@
 /Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.csproj.CoreCompileInputs.cache
 /Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.dll
 /Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.pdb
-/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.csprojAssemblyReference.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.csproj.AssemblyReference.cache
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.GeneratedMSBuildEditorConfig.editorconfig
+/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/obj/Debug/netstandard2.1/DiscordBotDataBase.Dal.sourcelink.json

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kGuynSmSZAG7cKGs95cqsOOaTpu3CAjmhGt162gPDqsoDvmownarthzSiaLxRpLTUrTRxjYw+0InMQQPksLKcQ==",
+  "dgSpecHash": "rAAwYdzGVO3k40YKh9HM93aCqRo+qfbeIQ2gSTJCOwtN/ruTf5VnLpBRinsXcZC3I1Is2q2bPEUodOTyZtzUBg==",
   "success": true,
-  "projectFilePath": "/Users/kunalkashyap/Projects/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
+  "projectFilePath": "/Users/kunalkashyap/Projects/C#/discordBot/Pepper.bot/DiscordBotDataBase.Dal/DiscordBotDataBase.Dal.csproj",
   "expectedPackageFiles": [
     "/Users/kunalkashyap/.nuget/packages/humanizer.core/2.8.26/humanizer.core.2.8.26.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/microsoft.csharp/4.7.0/microsoft.csharp.4.7.0.nupkg.sha512",
@@ -20,13 +20,9 @@
     "/Users/kunalkashyap/.nuget/packages/microsoft.extensions.logging.abstractions/5.0.0/microsoft.extensions.logging.abstractions.5.0.0.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/microsoft.extensions.options/5.0.0/microsoft.extensions.options.5.0.0.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/microsoft.extensions.primitives/5.0.0/microsoft.extensions.primitives.5.0.0.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/system.buffers/4.5.1/system.buffers.4.5.1.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/system.collections.immutable/5.0.0/system.collections.immutable.5.0.0.nupkg.sha512",
     "/Users/kunalkashyap/.nuget/packages/system.componentmodel.annotations/5.0.0/system.componentmodel.annotations.5.0.0.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/system.diagnostics.diagnosticsource/5.0.1/system.diagnostics.diagnosticsource.5.0.1.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/system.numerics.vectors/4.4.0/system.numerics.vectors.4.4.0.nupkg.sha512",
-    "/Users/kunalkashyap/.nuget/packages/system.runtime.compilerservices.unsafe/5.0.0/system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+    "/Users/kunalkashyap/.nuget/packages/system.diagnostics.diagnosticsource/5.0.1/system.diagnostics.diagnosticsource.5.0.1.nupkg.sha512"
   ],
   "logs": []
 }

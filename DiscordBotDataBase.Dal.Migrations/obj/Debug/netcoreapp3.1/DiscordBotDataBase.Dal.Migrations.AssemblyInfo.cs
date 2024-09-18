@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("DiscordBotDataBase.Dal.Migrations")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5a9bd7632f79d5fe05d90967ba49c1bd23f5bc24")]
 [assembly: System.Reflection.AssemblyProductAttribute("DiscordBotDataBase.Dal.Migrations")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DiscordBotDataBase.Dal.Migrations")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
